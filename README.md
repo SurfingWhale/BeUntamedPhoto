@@ -56,7 +56,12 @@ psql "$POSTGRES_URL_NON_POOLING" -f supabase/schema.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/storage.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/seed.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/rls-albums.sql
+psql "$POSTGRES_URL_NON_POOLING" -f supabase/fix-role-escalation.sql
 ```
+
+`fix-role-escalation.sql` is not optional. Without it `authenticated` holds
+UPDATE on every column of `profiles`, and any signed-in visitor can PATCH their
+own row to `role = 'owner'`.
 
 `seed.sql` also installs the first-account-is-owner rule and three starter
 galleries — rename or delete them from `/darkroom`.
