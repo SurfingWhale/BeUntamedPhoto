@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { leaveNote, removeNote, type NoteState } from "@/app/notes/actions";
@@ -47,16 +47,19 @@ export function NotesPanel({
   viewer: Viewer;
 }) {
   const pathname = usePathname();
-  const [state, action] = useActionState(leaveNote, IDLE);
   const [count, setCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state.status === "ok") {
+  // Clear the field from inside the action rather than an effect, so the reset
+  // happens once per send instead of on every render that carries an "ok".
+  const [state, action] = useActionState(async (prev: NoteState, formData: FormData) => {
+    const next = await leaveNote(prev, formData);
+    if (next.status === "ok") {
       formRef.current?.reset();
       setCount(0);
     }
-  }, [state]);
+    return next;
+  }, IDLE);
 
   const over = count > MAX;
 
