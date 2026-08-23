@@ -3,6 +3,12 @@
 Photographic portfolio for Muhammad Fauzy. Next.js 16 (App Router, Turbopack) +
 Supabase (auth, Postgres, Storage), deployed on Vercel.
 
+Live: <https://beuntamed-photo.vercel.app>
+
+Vercel project: `untamed98xs-projects/beuntamed-photo` — it owns the Supabase
+Marketplace resource, so its environment variables are managed by that
+integration. Deploy from this project, not a fresh import.
+
 ## What's here
 
 | Route | What it is |
