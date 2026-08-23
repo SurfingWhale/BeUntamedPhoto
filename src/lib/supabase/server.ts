@@ -2,7 +2,6 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 /** Request-scoped Supabase client. Reads the session from cookies. */
 export async function createClient() {
@@ -27,14 +26,5 @@ export async function createClient() {
         },
       },
     },
-  );
-}
-
-/** Service-role client. Server-only; never import from a client component. */
-export function createAdminClient() {
-  return createSupabaseClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } },
   );
 }

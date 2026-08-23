@@ -63,8 +63,10 @@ Pulled from Vercel by the Supabase Marketplace integration:
 vercel env pull
 ```
 
-Needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_URL_NON_POOLING`.
+The running app needs only `NEXT_PUBLIC_SUPABASE_URL` and
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` — every write goes through RLS as the signed-in
+user, so no service-role key is deployed. `POSTGRES_URL_NON_POOLING` is used
+locally to apply the SQL files above.
 
 ## Design system
 
