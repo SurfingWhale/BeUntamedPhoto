@@ -35,6 +35,10 @@
   --space-4xl: 9rem;
   --page-gutter: clamp(1.125rem, 4.5vw, 4.5rem);
   --measure: 62ch;
+  /* Content shell. Photographs run full-bleed past it; everything else is
+   * held to this width so wide screens read as a page, not a left margin. */
+  --shell: 82rem;
+  --shell-narrow: 46rem;
 
   /* ---- colour · Atelier light ------------------------------------ */
   --color-paper:    oklch(99.5% 0.0015 80);

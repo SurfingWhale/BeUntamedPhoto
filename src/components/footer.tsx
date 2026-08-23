@@ -6,39 +6,48 @@ import { elsewhere, site } from "@/lib/site";
 export function Footer() {
   return (
     <footer className="foot">
-      <p className="foot__close">
-        Thanks for looking. Come back when the light changes.
-        <br />
-        <span className="foot__sign">— {site.owner}</span>
-      </p>
+      <div className="foot__inner">
+        <p className="foot__close">
+          Thanks for looking. Come back when the light changes.
+          <br />
+          <span className="foot__sign">— {site.owner}</span>
+        </p>
 
-      <p className="foot__ps">
-        P.S. — the guestbook is open, and I read every note. Say hello at{" "}
-        <a className="link" href={`mailto:${site.email}`}>
-          {site.email}
-        </a>
-        .
-      </p>
+        <p className="foot__ps">
+          P.S. — the guestbook is open, and I read every note. Say hello at{" "}
+          <a className="link" href={`mailto:${site.email}`}>
+            {site.email}
+          </a>
+          .
+        </p>
 
-      <div className="foot__row">
-        <span>© {new Date().getUTCFullYear()} {site.name}</span>
-        {elsewhere.map((place) => (
+        <div className="foot__row">
+          <span>
+            © {new Date().getUTCFullYear()} {site.name}
+          </span>
+          {elsewhere.map((place) => (
+            <a
+              key={place.href}
+              className="foot__link"
+              href={place.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {place.name}
+            </a>
+          ))}
           <a
-            key={place.href}
             className="foot__link"
-            href={place.href}
+            href={site.github}
             target="_blank"
             rel="noreferrer"
           >
-            {place.name}
+            GitHub
           </a>
-        ))}
-        <a className="foot__link" href={site.github} target="_blank" rel="noreferrer">
-          GitHub
-        </a>
-        <Link className="foot__link" href="/notes">
-          Guestbook
-        </Link>
+          <Link className="foot__link" href="/notes">
+            Guestbook
+          </Link>
+        </div>
       </div>
     </footer>
   );

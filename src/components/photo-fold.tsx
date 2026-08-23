@@ -22,7 +22,7 @@ export function PhotoFold({
   const has = Boolean(photo?.url);
 
   return (
-    <section className={`fold-photo fold-photo--${size}`}>
+    <section className={`fold-photo fold-photo--${size}${has ? "" : " fold-photo--empty"}`}>
       {has ? (
         // Storage URLs are signed / remote — a plain <img> keeps them unproxied.
         // eslint-disable-next-line @next/next/no-img-element

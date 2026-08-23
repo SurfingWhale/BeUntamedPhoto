@@ -40,14 +40,20 @@ export default async function HomePage() {
           </p>
           <p className="fold-text__body">
             This is the archive. Sport lives at{" "}
-            <a className="link" href={elsewhere[0].href} target="_blank" rel="noreferrer">
-              UNTMD Sports
-            </a>
-            , food at{" "}
-            <a className="link" href={elsewhere[1].href} target="_blank" rel="noreferrer">
-              VisuFavor
-            </a>
-            , and everything unsorted stays here.
+            <span className="u-nowrap">
+              <a className="link" href={elsewhere[0].href} target="_blank" rel="noreferrer">
+                UNTMD Sports
+              </a>
+              ,
+            </span>{" "}
+            food at{" "}
+            <span className="u-nowrap">
+              <a className="link" href={elsewhere[1].href} target="_blank" rel="noreferrer">
+                VisuFavor
+              </a>
+              ,
+            </span>{" "}
+            and everything unsorted stays here.
           </p>
         </div>
         <p>
