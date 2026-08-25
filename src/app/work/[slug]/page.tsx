@@ -6,7 +6,7 @@ import { NotesPanel } from "@/components/notes-panel";
 import { Pager } from "@/components/pager";
 import { Plate } from "@/components/plate";
 import { Watermark } from "@/components/watermark";
-import { clampPage, getAlbum, getPhotoPage, PER_PAGE } from "@/lib/gallery";
+import { clampPage, getAlbum, getBlocks, getPhotoPage, PER_PAGE } from "@/lib/gallery";
 import type { Paged, PhotoWithUrl } from "@/lib/gallery";
 import { getNotes } from "@/lib/notes";
 import { getViewer } from "@/lib/auth";
@@ -45,9 +45,10 @@ export default async function AlbumPage({ params, searchParams }: Params) {
   const locked = album.visibility === "members" && !viewer;
   const page = clampPage(query.page);
 
-  const [plates, notes] = await Promise.all([
+  const [plates, notes, blocks] = await Promise.all([
     locked ? Promise.resolve(EMPTY_PAGE) : getPhotoPage(album.id, page),
     getNotes(album.id),
+    locked ? Promise.resolve([]) : getBlocks(album.id),
   ]);
 
   const photos = plates.items;
@@ -70,6 +71,22 @@ export default async function AlbumPage({ params, searchParams }: Params) {
           </Link>
         </p>
       </section>
+
+      {/* The composed words open the gallery — on the first page only, so the
+          story is told once rather than repeated above every batch of plates. */}
+      {!locked && page === 1 && blocks.length > 0 && (
+        <section className="bands-read">
+          {blocks.map((block) =>
+            block.kind === "rule" ? (
+              <hr className="bands-read__rule" key={block.id} />
+            ) : (
+              <p className="bands-read__text" key={block.id}>
+                {block.body}
+              </p>
+            ),
+          )}
+        </section>
+      )}
 
       {locked ? (
         <section className="fold-text fold-text--tight">

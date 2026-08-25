@@ -9,7 +9,7 @@ Supabase (auth, Postgres, Storage), deployed on Vercel.
 | --- | --- |
 | `/` | Home — full-bleed photo folds with narrow text bands between them |
 | `/work` | Gallery index. Held-back galleries are listed but locked |
-| `/work/[slug]` | One gallery: plates + a notes thread, 24 to a page |
+| `/work/[slug]` | One gallery: composed words, plates 24 to a page, a notes thread |
 | `/about` | Who and how |
 | `/elsewhere` | UNTMD Sports · VisuFavor · Surfing Whale |
 | `/notes` | Global guestbook |
@@ -61,11 +61,30 @@ psql "$POSTGRES_URL_NON_POOLING" -f supabase/storage.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/seed.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/rls-albums.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/many-photos.sql
+psql "$POSTGRES_URL_NON_POOLING" -f supabase/blocks.sql
 ```
 
 `many-photos.sql` adds the thumbnail column, the paging indexes, and the
 `album_covers` view. It is safe to re-run, and existing installs need it —
 without it the app queries a view that isn't there.
+
+`blocks.sql` adds the composition layer — see below.
+
+## Composed galleries
+
+A gallery can carry prose. `blocks` holds an ordered list of bands per album,
+edited from the Words panel in `/darkroom/[slug]`:
+
+- **text** — a paragraph, held to a reading measure on the public page.
+- **rule** — a hairline. Silence, deliberately placed.
+
+Bands render above the plates, and only on page one, so the story is told
+once rather than repeated over every batch of 24. Reads follow the album's
+visibility: a held-back gallery's words are held back with its plates.
+
+An album with no bands renders exactly as it did before, so this is additive
+rather than a migration. Blocks that hold photographs — full-bleed plates,
+pairs — are the next phase and are not built yet.
 
 `seed.sql` also installs the first-account-is-owner rule and three starter
 galleries — rename or delete them from `/darkroom`.

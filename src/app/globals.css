@@ -669,6 +669,68 @@ img { display: block; max-width: 100%; }
 .page__pad { padding-inline: var(--page-gutter); }
 .page__pad-b { padding-bottom: var(--space-3xl); }
 
+/* ------------------------------------------------- composed word bands */
+/* Public side: prose that opens a gallery, held to a reading measure rather
+   than the full shell — these are sentences, not plates. */
+.bands-read {
+  max-width: calc(var(--shell) + var(--page-gutter) * 2);
+  margin-inline: auto;
+  width: 100%;
+  padding: 0 var(--page-gutter) var(--space-2xl);
+  display: grid;
+  gap: var(--space-md);
+}
+.bands-read__text {
+  max-width: var(--measure);
+  font-size: var(--text-md);
+  line-height: 1.62;
+  text-wrap: pretty;
+  color: var(--color-ink-2);
+}
+.bands-read__rule {
+  border: 0;
+  border-top: var(--rule-hair) solid var(--color-rule);
+  width: min(12rem, 40%);
+  margin: var(--space-md) 0;
+}
+
+/* Darkroom side: one editable card per band. */
+.bands { display: grid; gap: var(--space-lg); margin-bottom: var(--space-xl); }
+.band {
+  display: grid;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule-2);
+}
+.band__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-md);
+}
+.band__kind {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.band__acts { display: flex; flex-wrap: wrap; gap: var(--space-md); }
+.band__acts form { display: contents; }
+/* A break has nothing to edit — show the hairline it will actually render. */
+.band__break {
+  border-top: var(--rule-hair) solid var(--color-rule);
+  width: min(12rem, 40%);
+  margin: var(--space-xs) 0 var(--space-sm);
+}
+
+@media (min-width: 64rem) {
+  /* Prose wants width, so the composer takes the whole row under the two
+     narrower panels rather than being squeezed into a column. */
+  .dark-grid > .panel:nth-child(3) { grid-column: 1 / -1; }
+}
+
 /* ------------------------------------------------------------- pager */
 .pager {
   display: flex;

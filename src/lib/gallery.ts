@@ -4,6 +4,17 @@ import { createClient } from "@/lib/supabase/server";
 
 export type Bucket = "gallery" | "gallery-private";
 
+export type BlockKind = "text" | "rule";
+
+/** A composed band inside a gallery — prose, or deliberate silence. */
+export type Block = {
+  id: string;
+  album_id: string;
+  kind: BlockKind;
+  body: string | null;
+  position: number;
+};
+
 export type Album = {
   id: string;
   slug: string;
@@ -189,6 +200,22 @@ export async function getCovers(
 
   const withUrl = await withUrls((data ?? []) as Cover[]);
   return new Map(withUrl.map((c) => [c.album_id, c]));
+}
+
+/**
+ * The composed bands for a gallery. Small and bounded by design — this is
+ * prose, not plates — so it is fetched whole rather than paged.
+ */
+export async function getBlocks(albumId: string): Promise<Block[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("blocks")
+    .select("*")
+    .eq("album_id", albumId)
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: true })
+    .limit(100);
+  return (data ?? []) as Block[];
 }
 
 /** Photos across every album the viewer may see — the home-page folds. */

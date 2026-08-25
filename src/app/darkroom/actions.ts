@@ -382,3 +382,165 @@ export async function setCover(
   revalidatePath("/work");
   return { status: "ok", message: "Cover set." };
 }
+
+/* ------------------------------------------------------------- blocks */
+
+const MAX_BODY = 1200;
+
+/** Revalidate every surface a gallery's prose appears on. */
+function touchAlbum(slug: string) {
+  revalidatePath(`/darkroom/${slug}`);
+  revalidatePath(`/work/${slug}`);
+}
+
+export async function addBlock(
+  _prev: DarkroomState,
+  formData: FormData,
+): Promise<DarkroomState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { status: "error", message: "Owner access only." };
+  }
+
+  const albumId = String(formData.get("albumId") ?? "");
+  const slug = String(formData.get("slug") ?? "");
+  const kind = String(formData.get("kind") ?? "text");
+  const body = String(formData.get("body") ?? "").trim();
+
+  if (kind !== "text" && kind !== "rule") {
+    return { status: "error", message: "Unknown block kind." };
+  }
+  if (kind === "text" && body.length === 0) {
+    return { status: "error", message: "Write something first — an empty band renders as nothing." };
+  }
+  if (body.length > MAX_BODY) {
+    return {
+      status: "error",
+      message: `That's ${body.length} characters. The limit is ${MAX_BODY} — split it into two bands.`,
+    };
+  }
+
+  const supabase = await createClient();
+
+  // Append: read the album's own highest position rather than counting rows,
+  // which would collide after a delete.
+  const { data: last } = await supabase
+    .from("blocks")
+    .select("position")
+    .eq("album_id", albumId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { error } = await supabase.from("blocks").insert({
+    album_id: albumId,
+    kind,
+    body: kind === "text" ? body : null,
+    position: (last?.position ?? -1) + 1,
+  });
+
+  if (error) return { status: "error", message: error.message };
+
+  touchAlbum(slug);
+  return { status: "ok", message: kind === "text" ? "Band added." : "Break added." };
+}
+
+export async function updateBlock(
+  _prev: DarkroomState,
+  formData: FormData,
+): Promise<DarkroomState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { status: "error", message: "Owner access only." };
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const slug = String(formData.get("slug") ?? "");
+  const body = String(formData.get("body") ?? "").trim();
+
+  if (body.length === 0) {
+    return { status: "error", message: "Write something, or remove the band." };
+  }
+  if (body.length > MAX_BODY) {
+    return { status: "error", message: `That's ${body.length} characters. The limit is ${MAX_BODY}.` };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("blocks").update({ body }).eq("id", id);
+  if (error) return { status: "error", message: error.message };
+
+  touchAlbum(slug);
+  return { status: "ok", message: "Band saved." };
+}
+
+export async function deleteBlock(
+  _prev: DarkroomState,
+  formData: FormData,
+): Promise<DarkroomState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { status: "error", message: "Owner access only." };
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const slug = String(formData.get("slug") ?? "");
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("blocks").delete().eq("id", id);
+  if (error) return { status: "error", message: error.message };
+
+  touchAlbum(slug);
+  return { status: "ok", message: "Band removed." };
+}
+
+/**
+ * Reorder by swapping positions with the neighbour. Two updates rather than a
+ * renumber of the whole album, so a long composition stays cheap to shuffle.
+ */
+export async function moveBlock(
+  _prev: DarkroomState,
+  formData: FormData,
+): Promise<DarkroomState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { status: "error", message: "Owner access only." };
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const slug = String(formData.get("slug") ?? "");
+  const albumId = String(formData.get("albumId") ?? "");
+  const up = String(formData.get("dir") ?? "up") === "up";
+
+  const supabase = await createClient();
+  const { data: self } = await supabase
+    .from("blocks")
+    .select("id, position")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!self) return { status: "error", message: "That band is gone." };
+
+  const { data: neighbour } = await supabase
+    .from("blocks")
+    .select("id, position")
+    .eq("album_id", albumId)
+    [up ? "lt" : "gt"]("position", self.position)
+    .order("position", { ascending: !up })
+    .limit(1)
+    .maybeSingle();
+
+  if (!neighbour) return { status: "ok", message: "Already at the end." };
+
+  const a = await supabase.from("blocks").update({ position: neighbour.position }).eq("id", self.id);
+  const b = await supabase.from("blocks").update({ position: self.position }).eq("id", neighbour.id);
+  if (a.error || b.error) {
+    return { status: "error", message: (a.error ?? b.error)!.message };
+  }
+
+  touchAlbum(slug);
+  return { status: "ok", message: "Moved." };
+}

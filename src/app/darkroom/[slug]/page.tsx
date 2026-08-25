@@ -3,9 +3,16 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 import { AlbumAdmin } from "@/components/album-admin";
+import { BlockComposer } from "@/components/block-composer";
 import { Pager } from "@/components/pager";
 import { Uploader } from "@/components/uploader";
-import { clampPage, getAlbum, getMaxPosition, getPhotoPage } from "@/lib/gallery";
+import {
+  clampPage,
+  getAlbum,
+  getBlocks,
+  getMaxPosition,
+  getPhotoPage,
+} from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
 import { plate } from "@/lib/format";
 
@@ -30,9 +37,10 @@ export default async function DarkroomAlbumPage({ params, searchParams }: Params
   const page = clampPage(query.page);
   // The next position comes from the album's own maximum, not from whatever
   // happens to be on this page — otherwise page two would restart at zero.
-  const [plates, maxPosition] = await Promise.all([
+  const [plates, maxPosition, blocks] = await Promise.all([
     getPhotoPage(album.id, page),
     getMaxPosition(album.id),
+    getBlocks(album.id),
   ]);
 
   const bucket = album.visibility === "members" ? "gallery-private" : "gallery";
@@ -86,6 +94,15 @@ export default async function DarkroomAlbumPage({ params, searchParams }: Params
           <p className="field__help">
             Next plate number: {plate(nextPosition)}
           </p>
+        </section>
+
+        <section className="panel">
+          <h3 className="panel__title">Words</h3>
+          <p className="field__help">
+            Prose that runs above the plates on the public page. Held-back
+            galleries keep their words held back too.
+          </p>
+          <BlockComposer albumId={album.id} slug={album.slug} blocks={blocks} />
         </section>
       </div>
     </div>
