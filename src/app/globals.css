@@ -561,7 +561,9 @@ img { display: block; max-width: 100%; }
 .elsewhere__row:last-child { border-bottom: var(--rule-hair) solid var(--color-rule); }
 @media (min-width: 48rem) {
   .elsewhere__row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+    /* Subject first: a visitor knows they want sport before they know the
+       site is called UNTMD Sports. */
+    grid-template-columns: 8rem minmax(0, 1fr) minmax(0, 1.5fr) auto;
     align-items: baseline;
     gap: var(--space-lg);
   }
@@ -569,6 +571,13 @@ img { display: block; max-width: 100%; }
 @media (hover: hover) and (pointer: fine) {
   .elsewhere__row:hover { background: var(--color-paper-2); }
   .elsewhere__row:hover .elsewhere__name { color: var(--color-accent); }
+}
+.elsewhere__looking {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
 }
 .elsewhere__name {
   font-family: var(--font-display);

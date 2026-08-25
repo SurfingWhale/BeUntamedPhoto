@@ -11,7 +11,7 @@ Supabase (auth, Postgres, Storage), deployed on Vercel.
 | `/work` | Gallery index. Held-back galleries are listed but locked |
 | `/work/[slug]` | One gallery: composed words, plates 24 to a page, a notes thread |
 | `/about` | Who and how |
-| `/elsewhere` | UNTMD Sports · VisuFavor · Surfing Whale |
+| `/elsewhere` | Where to look — sport, food, and the unsorted middle |
 | `/notes` | Global guestbook |
 | `/enter` | Sign in · sign up · magic link · password reset |
 | `/account` | Display name, password, sign out |

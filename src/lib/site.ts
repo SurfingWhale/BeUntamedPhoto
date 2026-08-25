@@ -18,23 +18,37 @@ export const nav = [
   { href: "/notes", label: "Guestbook" },
 ] as const;
 
-export const elsewhere = [
+/**
+ * Where to send someone by what they came looking for. The subject leads —
+ * a visitor knows they want sport long before they know a site is called
+ * UNTMD Sports.
+ */
+export const directory = [
   {
+    looking: "Sport",
     name: "UNTMD Sports",
-    href: "https://untmd-sports.vercel.app/",
     what: "Court-side and field work — motion, sweat, the half-second before the point ends.",
+    href: "https://untmd-sports.vercel.app/",
     go: "untmd-sports.vercel.app",
+    external: true,
   },
   {
+    looking: "Food",
     name: "VisuFavor",
+    what: "Plated and photographed. Steam, char, the texture close enough to touch.",
     href: "https://visufavor.vercel.app/",
-    what: "Food, plated and photographed. Steam, char, the texture close enough to touch.",
     go: "visufavor.vercel.app",
+    external: true,
   },
   {
-    name: "Surfing Whale",
-    href: "https://surfing-whale.vercel.app/",
-    what: "The other half of the practice — data analysis, ledgers, and the patterns underneath.",
-    go: "surfing-whale.vercel.app",
+    looking: "Everything else",
+    name: "This archive",
+    what: "Frames that belong to neither pile — kept in order, left unsorted.",
+    href: "/work",
+    go: "open the galleries",
+    external: false,
   },
 ] as const;
+
+/** The external destinations only, for the footer link row. */
+export const elsewhere = directory.filter((d) => d.external);

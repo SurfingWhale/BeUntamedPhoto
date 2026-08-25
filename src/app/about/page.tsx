@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 
 import { PhotoFold } from "@/components/photo-fold";
 import { getFeatured } from "@/lib/gallery";
-import { elsewhere, site } from "@/lib/site";
+import { directory, site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About",
-  description: `${site.owner} — data analyst by trade, photographer by habit.`,
+  description: `${site.owner} — photographer. Sport, food, and the frames in between.`,
 };
 
 export default async function AboutPage() {
@@ -24,17 +24,15 @@ export default async function AboutPage() {
         </h2>
         <div>
           <p className="fold-text__body">
-            Two disciplines, one habit. By trade I&rsquo;m a data analyst with an
-            accounting background — ledgers, forecasts, and the long argument
-            about what a number actually means. With a camera it&rsquo;s the same
-            work at a different shutter speed: wait for the thing to reveal its
-            shape, then take the frame.
+            I photograph two things properly and everything else by accident.
+            Sport — the half-second before the point ends, the body already
+            committed. And food — plated, steaming, close enough that you can
+            read the texture. Whatever fits neither stays here, unfiled.
           </p>
           <p className="fold-text__body">
-            Most of what I shoot falls into two piles. Sport — the half-second
-            before the point ends, the body already committed. And food —
-            plated, steaming, photographed close enough that you can read the
-            texture. Everything that fits neither stays here, unfiled.
+            Most of it is waiting. Hold still, let the thing forget you are
+            there, take the frame when it stops pretending. That is the whole
+            method, and it does not get easier.
           </p>
           <p className="fold-text__body">
             I don&rsquo;t retouch much. If the light was wrong, the frame was
@@ -49,21 +47,24 @@ export default async function AboutPage() {
         <div className="head">
           <h2 className="head__title">Where the rest of it lives</h2>
           <p className="head__sub">
-            Each site holds one part of the practice.
+            Sport and food each have their own ground.
           </p>
         </div>
         <div className="elsewhere">
-          {elsewhere.map((place) => (
+          {directory.map((place) => (
             <a
               key={place.href}
               className="elsewhere__row"
               href={place.href}
-              target="_blank"
-              rel="noreferrer"
+              target={place.external ? "_blank" : undefined}
+              rel={place.external ? "noreferrer" : undefined}
             >
+              <span className="elsewhere__looking">{place.looking}</span>
               <span className="elsewhere__name">{place.name}</span>
               <span className="elsewhere__what">{place.what}</span>
-              <span className="elsewhere__go">{place.go} ↗</span>
+              <span className="elsewhere__go">
+                {place.go} {place.external ? "↗" : "→"}
+              </span>
             </a>
           ))}
         </div>
