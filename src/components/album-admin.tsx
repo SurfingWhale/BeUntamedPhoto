@@ -40,9 +40,12 @@ function Result({ state }: { state: DarkroomState }) {
 export function AlbumAdmin({
   album,
   photos,
+  offset = 0,
 }: {
   album: Album;
   photos: PhotoWithUrl[];
+  /** Plates already listed on earlier pages, so numbering stays absolute. */
+  offset?: number;
 }) {
   const [visState, visAction] = useActionState(updateAlbum, IDLE);
   const [delState, delAction] = useActionState(deleteAlbum, IDLE);
@@ -68,8 +71,9 @@ export function AlbumAdmin({
             <option value="members">Signed-in visitors only</option>
           </select>
           <p className="field__help">
-            Changing this does not move files already uploaded — new plates go to
-            the matching bucket.
+            Saving moves the stored files into the matching bucket, so a gallery
+            held back later stops serving its plates on public URLs. Long
+            galleries move in batches — save again if it says more remain.
           </p>
         </div>
         <div>
@@ -86,15 +90,23 @@ export function AlbumAdmin({
         ) : (
           photos.map((photo, i) => (
             <div className="plates__row" key={photo.id}>
-              {photo.url ? (
+              {photo.thumbUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="plates__thumb" src={photo.url} alt="" loading="lazy" />
+                <img
+                  className="plates__thumb"
+                  src={photo.thumbUrl}
+                  alt=""
+                  width={72}
+                  height={72}
+                  loading="lazy"
+                  decoding="async"
+                />
               ) : (
                 <div className="plates__thumb" aria-hidden="true" />
               )}
               <div className="plates__meta">
                 <p className="note__body" style={{ fontSize: "var(--text-base)" }}>
-                  Plate {plate(i)}
+                  Plate {plate(offset + i)}
                   {photo.caption ? ` · ${photo.caption}` : ""}
                   {photo.is_cover ? " · cover" : ""}
                 </p>

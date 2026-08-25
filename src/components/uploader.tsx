@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
-import { recordPhoto } from "@/app/darkroom/actions";
+import { recordPhotos, type PhotoInput } from "@/app/darkroom/actions";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
@@ -17,27 +17,19 @@ type Status =
   | { kind: "idle" }
   | { kind: "working"; done: number; total: number }
   | { kind: "error"; message: string }
-  | { kind: "ok"; message: string };
+  | { kind: "ok"; message: string; failures: string[] };
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const MAX_BYTES = 25 * 1024 * 1024;
 
-/** Reads intrinsic dimensions so the page can reserve space and avoid CLS. */
-function measure(file: File): Promise<{ width: number | null; height: number | null }> {
-  return new Promise((resolve) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: null, height: null });
-    };
-    img.src = url;
-  });
-}
+/** Matches recordPhotos' own cap, so the batch never bounces off the server. */
+const MAX_FILES = 200;
+
+/** Parallel uploads. Enough to saturate a connection, few enough to be fair. */
+const LANES = 4;
+
+/** Longest edge of the stored thumbnail, in pixels. */
+const THUMB_EDGE = 640;
 
 function safeName(name: string) {
   const ext = name.includes(".") ? name.slice(name.lastIndexOf(".")).toLowerCase() : ".jpg";
@@ -50,6 +42,73 @@ function safeName(name: string) {
   return `${stem}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}${ext}`;
 }
 
+type Decoded = {
+  width: number | null;
+  height: number | null;
+  thumb: Blob | null;
+};
+
+/**
+ * Decodes the file once to get both its intrinsic size — the page reserves
+ * space with it, so nothing jumps as plates load — and a downscaled WebP.
+ * The thumbnail is what index grids and the darkroom list actually request;
+ * without it a gallery of 200 asks the browser for 200 full-size originals.
+ */
+async function decode(file: File): Promise<Decoded> {
+  const bitmap = await createImageBitmap(file).catch(() => null);
+  if (!bitmap) return { width: null, height: null, thumb: null };
+
+  const { width, height } = bitmap;
+  const scale = Math.min(1, THUMB_EDGE / Math.max(width, height));
+  const w = Math.max(1, Math.round(width * scale));
+  const h = Math.max(1, Math.round(height * scale));
+
+  let thumb: Blob | null = null;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      thumb = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/webp", 0.82),
+      );
+    }
+  } catch {
+    thumb = null; // A thumbnail is an optimisation; the plate still uploads.
+  }
+
+  bitmap.close();
+  return { width, height, thumb };
+}
+
+/** Runs `job` over the list, `lanes` at a time, preserving result order. */
+async function pooled<T, R>(
+  items: T[],
+  lanes: number,
+  job: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const out = new Array<R>(items.length);
+  let cursor = 0;
+
+  await Promise.all(
+    Array.from({ length: Math.min(lanes, items.length) }, async () => {
+      for (;;) {
+        const i = cursor++;
+        if (i >= items.length) return;
+        out[i] = await job(items[i], i);
+      }
+    }),
+  );
+
+  return out;
+}
+
+type Outcome =
+  | { ok: true; photo: PhotoInput }
+  | { ok: false; name: string; message: string };
+
 export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -57,12 +116,18 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
+    const data = new FormData(event.currentTarget);
     const files = data.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
 
     if (files.length === 0) {
       setStatus({ kind: "error", message: "Pick at least one image." });
+      return;
+    }
+    if (files.length > MAX_FILES) {
+      setStatus({
+        kind: "error",
+        message: `That's ${files.length} files. Upload at most ${MAX_FILES} at a time.`,
+      });
       return;
     }
 
@@ -82,47 +147,87 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
     const takenOn = String(data.get("taken_on") ?? "").trim() || null;
 
     const supabase = createClient();
+    let done = 0;
     setStatus({ kind: "working", done: 0, total: files.length });
 
-    for (const [i, file] of files.entries()) {
+    const results = await pooled<File, Outcome>(files, LANES, async (file, i) => {
+      const finish = <T extends Outcome>(outcome: T) => {
+        done += 1;
+        setStatus({ kind: "working", done, total: files.length });
+        return outcome;
+      };
+
       const path = `${slug}/${safeName(file.name)}`;
       const { error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(path, file, { cacheControl: "31536000", contentType: file.type });
 
       if (uploadError) {
-        setStatus({ kind: "error", message: `${file.name} — ${uploadError.message}` });
-        return;
+        return finish({ ok: false, name: file.name, message: uploadError.message });
       }
 
-      const { width, height } = await measure(file);
-      const result = await recordPhoto({
-        albumId,
-        slug,
-        bucket,
-        path,
-        caption: files.length === 1 ? caption : caption,
-        place,
-        takenOn,
-        width,
-        height,
-        position: startPosition + i,
+      const { width, height, thumb } = await decode(file);
+
+      let thumbPath: string | null = null;
+      if (thumb) {
+        const candidate = `${slug}/thumb-${safeName(`${file.name}.webp`)}`;
+        const { error: thumbError } = await supabase.storage
+          .from(bucket)
+          .upload(candidate, thumb, {
+            cacheControl: "31536000",
+            contentType: "image/webp",
+          });
+        // A missing thumbnail is survivable — withUrls falls back to the plate.
+        if (!thumbError) thumbPath = candidate;
+      }
+
+      return finish({
+        ok: true,
+        photo: {
+          bucket,
+          path,
+          thumbPath,
+          caption,
+          place,
+          takenOn,
+          width,
+          height,
+          position: startPosition + i,
+        },
       });
+    });
 
-      if (result.status === "error") {
-        await supabase.storage.from(bucket).remove([path]);
-        setStatus({ kind: "error", message: result.message });
-        return;
-      }
+    const uploaded = results.filter((r): r is Extract<Outcome, { ok: true }> => r.ok);
+    const failures = results
+      .filter((r): r is Extract<Outcome, { ok: false }> => !r.ok)
+      .map((r) => `${r.name} — ${r.message}`);
 
-      setStatus({ kind: "working", done: i + 1, total: files.length });
+    if (uploaded.length === 0) {
+      setStatus({
+        kind: "error",
+        message: failures[0] ?? "Nothing uploaded.",
+      });
+      return;
+    }
+
+    const recorded = await recordPhotos({
+      albumId,
+      slug,
+      photos: uploaded.map((r) => r.photo),
+    });
+
+    if (recorded.status === "error") {
+      // Nothing was filed, so take the orphaned files back out of Storage.
+      const orphans = uploaded.flatMap((r) =>
+        r.photo.thumbPath ? [r.photo.path, r.photo.thumbPath] : [r.photo.path],
+      );
+      await supabase.storage.from(bucket).remove(orphans);
+      setStatus({ kind: "error", message: recorded.message });
+      return;
     }
 
     formRef.current?.reset();
-    setStatus({
-      kind: "ok",
-      message: `${files.length} ${files.length === 1 ? "plate" : "plates"} added.`,
-    });
+    setStatus({ kind: "ok", message: recorded.message, failures });
     router.refresh();
   }
 
@@ -142,11 +247,12 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
           accept={ALLOWED.join(",")}
           multiple
           required
+          disabled={working}
           aria-describedby="files-help"
         />
         <p className="field__help" id="files-help">
-          JPEG, PNG, WebP or AVIF · up to 25 MB each · uploaded to{" "}
-          {bucket === "gallery" ? "the open bucket" : "the private bucket"}.
+          JPEG, PNG, WebP or AVIF · up to 25 MB each · {MAX_FILES} at a time ·
+          uploaded to {bucket === "gallery" ? "the open bucket" : "the private bucket"}.
         </p>
       </div>
 
@@ -159,6 +265,7 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
           id="caption"
           name="caption"
           placeholder="scored before the proof"
+          disabled={working}
           aria-describedby="caption-help"
         />
         <p className="field__help" id="caption-help">
@@ -171,14 +278,26 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
           <label className="field__label" htmlFor="photo-place">
             Place
           </label>
-          <input className="field__input" id="photo-place" name="place" placeholder="Bintaro" />
+          <input
+            className="field__input"
+            id="photo-place"
+            name="place"
+            placeholder="Bintaro"
+            disabled={working}
+          />
           <p className="field__help" />
         </div>
         <div className="field">
           <label className="field__label" htmlFor="taken_on">
             Taken on
           </label>
-          <input className="field__input" id="taken_on" name="taken_on" type="date" />
+          <input
+            className="field__input"
+            id="taken_on"
+            name="taken_on"
+            type="date"
+            disabled={working}
+          />
           <p className="field__help" />
         </div>
       </div>
@@ -200,9 +319,16 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
         </p>
       )}
       {status.kind === "ok" && (
-        <p className="form-note" role="status">
-          {status.message}
-        </p>
+        <>
+          <p className="form-note" role="status">
+            {status.message}
+          </p>
+          {status.failures.length > 0 && (
+            <p className="form-note" data-tone="error" role="alert">
+              {status.failures.length} skipped: {status.failures.join(" · ")}
+            </p>
+          )}
+        </>
       )}
     </form>
   );

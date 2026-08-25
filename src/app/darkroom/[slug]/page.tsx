@@ -3,29 +3,40 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 import { AlbumAdmin } from "@/components/album-admin";
+import { Pager } from "@/components/pager";
 import { Uploader } from "@/components/uploader";
-import { getAlbum, getPhotos } from "@/lib/gallery";
+import { clampPage, getAlbum, getMaxPosition, getPhotoPage } from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
 import { plate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-type Params = { params: Promise<{ slug: string }> };
+type Params = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
+};
 
 export const metadata: Metadata = { title: "Darkroom", robots: { index: false } };
 
-export default async function DarkroomAlbumPage({ params }: Params) {
+export default async function DarkroomAlbumPage({ params, searchParams }: Params) {
   const viewer = await getViewer();
   if (!viewer) redirect("/enter?next=%2Fdarkroom");
   if (!viewer.isOwner) redirect("/work");
 
-  const { slug } = await params;
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
   const album = await getAlbum(slug);
   if (!album) notFound();
 
-  const photos = await getPhotos(album.id);
+  const page = clampPage(query.page);
+  // The next position comes from the album's own maximum, not from whatever
+  // happens to be on this page — otherwise page two would restart at zero.
+  const [plates, maxPosition] = await Promise.all([
+    getPhotoPage(album.id, page),
+    getMaxPosition(album.id),
+  ]);
+
   const bucket = album.visibility === "members" ? "gallery-private" : "gallery";
-  const nextPosition = photos.reduce((max, p) => Math.max(max, p.position), -1) + 1;
+  const nextPosition = maxPosition + 1;
 
   return (
     <div className="page">
@@ -35,7 +46,7 @@ export default async function DarkroomAlbumPage({ params }: Params) {
         </p>
         <h2 className="page__title">{album.title}</h2>
         <p className="fold-text__body">
-          {photos.length} {photos.length === 1 ? "plate" : "plates"} ·{" "}
+          {plates.total} {plates.total === 1 ? "plate" : "plates"} ·{" "}
           <Link className="link" href={`/work/${album.slug}`}>
             View the public page →
           </Link>
@@ -50,7 +61,18 @@ export default async function DarkroomAlbumPage({ params }: Params) {
       <div className="dark-grid">
         <section className="panel">
           <h3 className="panel__title">Plates</h3>
-          <AlbumAdmin album={album} photos={photos} />
+          <AlbumAdmin
+            album={album}
+            photos={plates.items}
+            offset={(plates.page - 1) * plates.perPage}
+          />
+          <Pager
+            base={`/darkroom/${album.slug}`}
+            page={plates.page}
+            pages={plates.pages}
+            total={plates.total}
+            perPage={plates.perPage}
+          />
         </section>
 
         <section className="panel">

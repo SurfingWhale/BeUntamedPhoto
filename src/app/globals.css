@@ -654,6 +654,26 @@ img { display: block; max-width: 100%; }
 .page__pad { padding-inline: var(--page-gutter); }
 .page__pad-b { padding-bottom: var(--space-3xl); }
 
+/* ------------------------------------------------------------- pager */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md) var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+.pager__count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.pager__links { display: flex; gap: var(--space-lg); }
+.pager__off { color: var(--color-rule-2); font-size: inherit; cursor: default; }
+
 /* ----------------------------------------------------------- reveal */
 .reveal {
   opacity: 0;

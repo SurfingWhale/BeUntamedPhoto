@@ -3,35 +3,55 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { NotesPanel } from "@/components/notes-panel";
+import { Pager } from "@/components/pager";
 import { Plate } from "@/components/plate";
-import { getAlbum, getPhotos } from "@/lib/gallery";
+import { clampPage, getAlbum, getPhotoPage, PER_PAGE } from "@/lib/gallery";
+import type { Paged, PhotoWithUrl } from "@/lib/gallery";
 import { getNotes } from "@/lib/notes";
 import { getViewer } from "@/lib/auth";
 import { formatDate, plate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-type Params = { params: Promise<{ slug: string }> };
+type Params = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
+};
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: Pick<Params, "params">): Promise<Metadata> {
   const { slug } = await params;
   const album = await getAlbum(slug);
   if (!album) return { title: "Not found" };
   return { title: album.title, description: album.subtitle ?? undefined };
 }
 
-export default async function AlbumPage({ params }: Params) {
-  const { slug } = await params;
+const EMPTY_PAGE: Paged<PhotoWithUrl> = {
+  items: [],
+  total: 0,
+  page: 1,
+  pages: 1,
+  perPage: PER_PAGE,
+};
+
+export default async function AlbumPage({ params, searchParams }: Params) {
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
   const album = await getAlbum(slug);
   if (!album) notFound();
 
   const viewer = await getViewer();
   const locked = album.visibility === "members" && !viewer;
+  const page = clampPage(query.page);
 
-  const [photos, notes] = await Promise.all([
-    locked ? Promise.resolve([]) : getPhotos(album.id),
+  const [plates, notes] = await Promise.all([
+    locked ? Promise.resolve(EMPTY_PAGE) : getPhotoPage(album.id, page),
     getNotes(album.id),
   ]);
+
+  const photos = plates.items;
+  // Plate numbers count from the start of the album, not the start of the page.
+  const offset = (plates.page - 1) * plates.perPage;
 
   return (
     <div className="page">
@@ -72,39 +92,54 @@ export default async function AlbumPage({ params }: Params) {
         </section>
       ) : (
         <div className="strip">
-          {photos.map((photo, i) => (
-            <figure className="strip__item" key={photo.id}>
-              <div className="strip__frame">
-                {photo.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photo.url}
-                    alt={photo.caption ?? `${album.title} — plate ${plate(i)}`}
-                    width={photo.width ?? undefined}
-                    height={photo.height ?? undefined}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    fetchPriority={i === 0 ? "high" : "auto"}
-                    decoding="async"
-                  />
-                ) : (
-                  <div style={{ aspectRatio: "3 / 2" }}>
-                    <Plate no={plate(i)} label="file missing" />
-                  </div>
-                )}
-              </div>
-              <figcaption className="strip__cap">
-                <span>
-                  Plate {plate(i)}
-                  {photo.caption ? ` · ${photo.caption}` : ""}
-                </span>
-                <span>
-                  {[photo.place, formatDate(photo.taken_on)]
-                    .filter(Boolean)
-                    .join(" · ") || "unfiled"}
-                </span>
-              </figcaption>
-            </figure>
-          ))}
+          {photos.map((photo, i) => {
+            const no = plate(offset + i);
+            return (
+              <figure className="strip__item" key={photo.id}>
+                <div className="strip__frame">
+                  {photo.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={photo.url}
+                      alt={photo.caption ?? `${album.title} — plate ${no}`}
+                      width={photo.width ?? undefined}
+                      height={photo.height ?? undefined}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      fetchPriority={i === 0 ? "high" : "auto"}
+                      decoding="async"
+                    />
+                  ) : (
+                    <div style={{ aspectRatio: "3 / 2" }}>
+                      <Plate no={no} label="file missing" />
+                    </div>
+                  )}
+                </div>
+                <figcaption className="strip__cap">
+                  <span>
+                    Plate {no}
+                    {photo.caption ? ` · ${photo.caption}` : ""}
+                  </span>
+                  <span>
+                    {[photo.place, formatDate(photo.taken_on)]
+                      .filter(Boolean)
+                      .join(" · ") || "unfiled"}
+                  </span>
+                </figcaption>
+              </figure>
+            );
+          })}
+        </div>
+      )}
+
+      {!locked && plates.total > 0 && (
+        <div className="page__pad page__pad-b">
+          <Pager
+            base={`/work/${album.slug}`}
+            page={plates.page}
+            pages={plates.pages}
+            total={plates.total}
+            perPage={plates.perPage}
+          />
         </div>
       )}
 

@@ -9,7 +9,7 @@ Supabase (auth, Postgres, Storage), deployed on Vercel.
 | --- | --- |
 | `/` | Home — full-bleed photo folds with narrow text bands between them |
 | `/work` | Gallery index. Held-back galleries are listed but locked |
-| `/work/[slug]` | One gallery: plates + a notes thread |
+| `/work/[slug]` | One gallery: plates + a notes thread, 24 to a page |
 | `/about` | Who and how |
 | `/elsewhere` | UNTMD Sports · VisuFavor · Surfing Whale |
 | `/notes` | Global guestbook |
@@ -38,8 +38,18 @@ Two buckets, both created by `supabase/storage.sql`:
 - `gallery-private` — private. Holds plates for `visibility = 'members'` albums;
   served through one-hour signed URLs minted per request.
 
-Uploads go browser → Storage directly (RLS enforces owner-only), then a server
-action records the row. That sidesteps the Server Action body-size limit.
+Uploads go browser → Storage directly (RLS enforces owner-only), four at a
+time, then one server action records the whole batch. That sidesteps the
+Server Action body-size limit and keeps a 100-plate upload to a single insert.
+
+Each plate is stored twice: the original, and a ≤640px WebP thumbnail the
+browser renders down at upload time. Index grids and the darkroom list request
+the thumbnail — without it a gallery of 200 asks for 200 full-size originals.
+Plates uploaded before this fall back to the original, so nothing breaks.
+
+Changing an album's visibility **moves its files** into the matching bucket, in
+batches of 60 per save. Before this, holding a gallery back left its plates in
+the public bucket on unsigned URLs that never expire.
 
 ## Database
 
@@ -50,7 +60,12 @@ psql "$POSTGRES_URL_NON_POOLING" -f supabase/schema.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/storage.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/seed.sql
 psql "$POSTGRES_URL_NON_POOLING" -f supabase/rls-albums.sql
+psql "$POSTGRES_URL_NON_POOLING" -f supabase/many-photos.sql
 ```
+
+`many-photos.sql` adds the thumbnail column, the paging indexes, and the
+`album_covers` view. It is safe to re-run, and existing installs need it —
+without it the app queries a view that isn't there.
 
 `seed.sql` also installs the first-account-is-owner rule and three starter
 galleries — rename or delete them from `/darkroom`.

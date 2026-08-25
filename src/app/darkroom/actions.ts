@@ -4,8 +4,19 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/auth";
+import type { Bucket } from "@/lib/gallery";
 
 export type DarkroomState = { status: "idle" | "error" | "ok"; message: string };
+
+/** Files relocated per save when an album's visibility changes. */
+const MOVE_BATCH = 60;
+
+/** Rows accepted in one recordPhotos call. */
+const MAX_BATCH = 200;
+
+function bucketFor(visibility: string): Bucket {
+  return visibility === "members" ? "gallery-private" : "gallery";
+}
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -100,15 +111,79 @@ export async function updateAlbum(
 
   if (error) return { status: "error", message: error.message };
 
+  // Flipping the flag alone used to leave existing plates in the bucket they
+  // were uploaded to. A gallery held back after the fact kept serving its
+  // photographs from the public bucket, on unsigned URLs that never expire —
+  // so "held back" was true of the page and false of the files. Move them.
+  const target = bucketFor(visibility);
+  const { data: strays } = await supabase
+    .from("photos")
+    .select("id, bucket, path, thumb_path")
+    .eq("album_id", id)
+    .neq("bucket", target)
+    .limit(MOVE_BATCH + 1);
+
+  const queue = strays ?? [];
+  const more = queue.length > MOVE_BATCH;
+  let moved = 0;
+  let stuck = "";
+
+  for (const photo of queue.slice(0, MOVE_BATCH)) {
+    const from = photo.bucket as Bucket;
+    const paths = [photo.path, photo.thumb_path].filter(
+      (path): path is string => typeof path === "string" && path.length > 0,
+    );
+
+    let ok = true;
+    for (const path of paths) {
+      const { error: moveError } = await supabase.storage
+        .from(from)
+        .move(path, path, { destinationBucket: target });
+      // Already at the destination from a half-finished earlier run.
+      if (moveError && !/exists/i.test(moveError.message)) {
+        ok = false;
+        stuck ||= moveError.message;
+        break;
+      }
+    }
+
+    // The row follows the file, never the other way round: a row pointing at
+    // a bucket the file is not in renders a dead image.
+    if (ok) {
+      const { error: rowError } = await supabase
+        .from("photos")
+        .update({ bucket: target })
+        .eq("id", photo.id);
+      if (!rowError) moved += 1;
+    }
+  }
+
   revalidatePath("/darkroom");
   revalidatePath(`/darkroom/${slug}`);
+  revalidatePath(`/work/${slug}`);
   revalidatePath("/work");
+  revalidatePath("/");
+
+  const gate =
+    visibility === "members"
+      ? "Held back — signed-in visitors only."
+      : "Open to everyone.";
+
+  if (stuck) {
+    return {
+      status: "error",
+      message: `${gate} ${moved} file${moved === 1 ? "" : "s"} moved, then: ${stuck}`,
+    };
+  }
+  if (more) {
+    return {
+      status: "ok",
+      message: `${gate} Moved ${moved} plates — more remain, save again to continue.`,
+    };
+  }
   return {
     status: "ok",
-    message:
-      visibility === "members"
-        ? "Held back — signed-in visitors only."
-        : "Open to everyone.",
+    message: moved > 0 ? `${gate} ${moved} plate${moved === 1 ? "" : "s"} moved.` : gate,
   };
 }
 
@@ -135,15 +210,27 @@ export async function deleteAlbum(
 
   const supabase = await createClient();
 
-  // Clear the stored files before the rows that point at them.
-  const { data: photos } = await supabase
-    .from("photos")
-    .select("bucket, path")
-    .eq("album_id", id);
+  // Clear the stored files before the rows that point at them. Paged, because
+  // a single select caps out and would leave the tail of a long album as
+  // orphaned files nothing references any more.
+  const PAGE = 500;
+  for (let from = 0; ; from += PAGE) {
+    const { data: batch } = await supabase
+      .from("photos")
+      .select("bucket, path, thumb_path")
+      .eq("album_id", id)
+      .range(from, from + PAGE - 1);
 
-  for (const bucket of ["gallery", "gallery-private"] as const) {
-    const paths = (photos ?? []).filter((p) => p.bucket === bucket).map((p) => p.path);
-    if (paths.length > 0) await supabase.storage.from(bucket).remove(paths);
+    if (!batch || batch.length === 0) break;
+
+    for (const bucket of ["gallery", "gallery-private"] as const) {
+      const paths = batch
+        .filter((p) => p.bucket === bucket)
+        .flatMap((p) => (p.thumb_path ? [p.path, p.thumb_path] : [p.path]));
+      if (paths.length > 0) await supabase.storage.from(bucket).remove(paths);
+    }
+
+    if (batch.length < PAGE) break;
   }
 
   const { error } = await supabase.from("albums").delete().eq("id", id);
@@ -154,18 +241,27 @@ export async function deleteAlbum(
   return { status: "ok", message: "Gallery removed." };
 }
 
-/** Called after the browser has uploaded the file straight to Storage. */
-export async function recordPhoto(input: {
-  albumId: string;
-  slug: string;
-  bucket: "gallery" | "gallery-private";
+export type PhotoInput = {
+  bucket: Bucket;
   path: string;
+  thumbPath: string | null;
   caption: string | null;
   place: string | null;
   takenOn: string | null;
   width: number | null;
   height: number | null;
   position: number;
+};
+
+/**
+ * Called once after the browser has uploaded a whole batch straight to
+ * Storage. One insert and one revalidation pass for the batch — recording
+ * plate by plate meant a 100-photo upload fired 400 path revalidations.
+ */
+export async function recordPhotos(input: {
+  albumId: string;
+  slug: string;
+  photos: PhotoInput[];
 }): Promise<DarkroomState> {
   try {
     await requireOwner();
@@ -173,26 +269,58 @@ export async function recordPhoto(input: {
     return { status: "error", message: "Owner access only." };
   }
 
+  const { albumId, slug, photos } = input;
+
+  if (!Array.isArray(photos) || photos.length === 0) {
+    return { status: "error", message: "Nothing to record." };
+  }
+  if (photos.length > MAX_BATCH) {
+    return {
+      status: "error",
+      message: `That's ${photos.length} plates in one go. Upload at most ${MAX_BATCH} at a time.`,
+    };
+  }
+
+  // The browser chose these paths, so check them rather than trust them: a
+  // row may only ever point inside its own album's folder.
+  const prefix = `${slug}/`;
+  for (const photo of photos) {
+    if (photo.bucket !== "gallery" && photo.bucket !== "gallery-private") {
+      return { status: "error", message: "Unknown bucket." };
+    }
+    for (const path of [photo.path, photo.thumbPath]) {
+      if (path !== null && !path.startsWith(prefix)) {
+        return { status: "error", message: "A file path escaped this gallery." };
+      }
+    }
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.from("photos").insert({
-    album_id: input.albumId,
-    bucket: input.bucket,
-    path: input.path,
-    caption: input.caption,
-    place: input.place,
-    taken_on: input.takenOn,
-    width: input.width,
-    height: input.height,
-    position: input.position,
-  });
+  const { error } = await supabase.from("photos").insert(
+    photos.map((photo) => ({
+      album_id: albumId,
+      bucket: photo.bucket,
+      path: photo.path,
+      thumb_path: photo.thumbPath,
+      caption: photo.caption,
+      place: photo.place,
+      taken_on: photo.takenOn,
+      width: photo.width,
+      height: photo.height,
+      position: photo.position,
+    })),
+  );
 
   if (error) return { status: "error", message: error.message };
 
-  revalidatePath(`/darkroom/${input.slug}`);
-  revalidatePath(`/work/${input.slug}`);
+  revalidatePath(`/darkroom/${slug}`);
+  revalidatePath(`/work/${slug}`);
   revalidatePath("/work");
   revalidatePath("/");
-  return { status: "ok", message: "Plate added." };
+  return {
+    status: "ok",
+    message: `${photos.length} plate${photos.length === 1 ? "" : "s"} filed.`,
+  };
 }
 
 export async function deletePhoto(
@@ -211,12 +339,13 @@ export async function deletePhoto(
   const supabase = await createClient();
   const { data: photo } = await supabase
     .from("photos")
-    .select("bucket, path")
+    .select("bucket, path, thumb_path")
     .eq("id", id)
     .maybeSingle();
 
   if (photo) {
-    await supabase.storage.from(photo.bucket).remove([photo.path]);
+    const paths = photo.thumb_path ? [photo.path, photo.thumb_path] : [photo.path];
+    await supabase.storage.from(photo.bucket).remove(paths);
   }
 
   const { error } = await supabase.from("photos").delete().eq("id", id);

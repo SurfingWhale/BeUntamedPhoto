@@ -55,10 +55,10 @@ export default async function WorkPage() {
                 style={{ "--i": i } as React.CSSProperties}
               >
                 <Link className="album__media" href={`/work/${album.slug}`}>
-                  {cover?.url ? (
+                  {cover?.thumbUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={cover.url}
+                      src={cover.thumbUrl}
                       alt={cover.caption ?? album.title}
                       loading={i < 2 ? "eager" : "lazy"}
                       fetchPriority={i === 0 ? "high" : "auto"}

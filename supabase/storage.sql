@@ -2,6 +2,16 @@
 -- `gallery-private` is private and only reachable through signed URLs we mint
 -- server-side for authenticated visitors.
 
+-- The buckets themselves. Without these the policies below apply to nothing
+-- and every upload fails with "Bucket not found".
+insert into storage.buckets (id, name, public)
+values ('gallery', 'gallery', true)
+on conflict (id) do update set public = true;
+
+insert into storage.buckets (id, name, public)
+values ('gallery-private', 'gallery-private', false)
+on conflict (id) do update set public = false;
+
 drop policy if exists gallery_owner_write   on storage.objects;
 drop policy if exists gallery_owner_update  on storage.objects;
 drop policy if exists gallery_owner_delete  on storage.objects;
