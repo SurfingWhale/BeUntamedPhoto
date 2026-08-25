@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <title>UNTAMED — the apex, compact</title>
+  <!-- Small-size cut: no axis rule (it turns to grey mush below ~24px) and a
+       full descent, so both legs survive and it can't read as a tick. -->
+  <path d="M12 82C30 80 38 74 50 16L74 62" stroke="currentColor" stroke-width="9"
+        stroke-linejoin="miter" stroke-miterlimit="8"/>
+</svg>

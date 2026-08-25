@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <title>UNTAMED — the apex</title>
+  <!-- The run-up curves, peaks, and drops. The rule underneath is an axis:
+       without it the silhouette reads as a tick rather than a plot. -->
+  <path d="M16 72C33 70 44 57 55 13L69 40" stroke="currentColor" stroke-width="9"
+        stroke-linejoin="miter" stroke-miterlimit="8"/>
+  <path d="M10 88h80" stroke="currentColor" stroke-width="6"/>
+</svg>

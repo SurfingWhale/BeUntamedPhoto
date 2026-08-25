@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <title>UNTAMED — registration</title>
+  <g stroke="currentColor" stroke-width="8" stroke-linecap="butt" stroke-linejoin="miter">
+    <path d="M12 34V12h22"/>
+    <path d="M66 12h22v22"/>
+    <path d="M88 66v22H66"/>
+    <path d="M34 88H12V66"/>
+  </g>
+</svg>
