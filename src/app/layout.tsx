@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { Fraunces, IBM_Plex_Sans, JetBrains_Mono, Krona_One } from "next/font/google";
 
 import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
@@ -19,6 +19,15 @@ const plex = IBM_Plex_Sans({
   weight: ["300", "400", "500"],
   display: "swap",
   variable: "--font-plex",
+});
+
+/* The wordmark only. Krona One ships a single weight and no italic, so it
+ * never carries running text — Fraunces still does the editorial work. */
+const krona = Krona_One({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  variable: "--font-krona",
 });
 
 const jetbrains = JetBrains_Mono({
@@ -56,7 +65,9 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
-      <body className={`${fraunces.variable} ${plex.variable} ${jetbrains.variable}`}>
+      <body
+        className={`${fraunces.variable} ${plex.variable} ${jetbrains.variable} ${krona.variable}`}
+      >
         <a className="u-skip" href="#main">
           Skip to content
         </a>

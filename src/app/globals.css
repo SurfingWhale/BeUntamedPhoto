@@ -101,19 +101,20 @@ img { display: block; max-width: 100%; }
   margin-bottom: var(--space-xs);
 }
 .mast__name {
-  font-family: var(--font-display);
-  font-size: clamp(2.125rem, 8vw, 4rem);
-  font-weight: 300;
-  font-variation-settings: "SOFT" 0, "WONK" 1, "opsz" 144;
-  letter-spacing: 0.06em;
-  line-height: 0.94;
+  font-family: var(--font-wordmark);
+  /* Krona One is a wide face, so it runs smaller and tighter than the serif it
+   * replaced — at the old size the wordmark overflowed a phone. */
+  font-size: clamp(1.375rem, 6.2vw, 3.125rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1;
   text-transform: uppercase;
   display: inline-block;
 }
+/* This family has no italic, so leaving <em> to the browser would synthesise
+ * an oblique. The accent is carried by colour alone. */
 .mast__name em {
-  font-style: italic;
-  font-variation-settings: "SOFT" 40, "WONK" 1, "opsz" 144;
-  letter-spacing: 0.01em;
+  font-style: normal;
   color: var(--color-accent);
 }
 .mast__nav { margin-top: var(--space-md); }
