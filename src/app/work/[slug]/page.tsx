@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { NotesPanel } from "@/components/notes-panel";
 import { Pager } from "@/components/pager";
 import { Plate } from "@/components/plate";
+import { Watermark } from "@/components/watermark";
 import { clampPage, getAlbum, getPhotoPage, PER_PAGE } from "@/lib/gallery";
 import type { Paged, PhotoWithUrl } from "@/lib/gallery";
 import { getNotes } from "@/lib/notes";
@@ -113,6 +114,7 @@ export default async function AlbumPage({ params, searchParams }: Params) {
                       <Plate no={no} label="file missing" />
                     </div>
                   )}
+                  {photo.url && <Watermark />}
                 </div>
                 <figcaption className="strip__cap">
                   <span>

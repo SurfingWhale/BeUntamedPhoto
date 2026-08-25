@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>UNTAMED</title>
+  <style>
+    .m { stroke: #110f0d; }
+    @media (prefers-color-scheme: dark) { .m { stroke: #f6f5f3; } }
+  </style>
+  <g class="m" fill="none" stroke-width="10" stroke-linejoin="miter">
+    <path d="M12 36V12h24"/>
+    <path d="M64 12h24v24"/>
+    <path d="M88 64v24H64"/>
+    <path d="M36 88H12V64"/>
+  </g>
+</svg>
