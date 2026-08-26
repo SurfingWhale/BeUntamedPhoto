@@ -333,8 +333,61 @@ img { display: block; max-width: 100%; }
   margin-block: 0;
   background: var(--color-paper-2);
 }
+.fold-photo--hero  { height: min(92dvh, 52rem); }
 .fold-photo--tall  { height: min(84dvh, 46rem); }
 .fold-photo--band  { height: min(62dvh, 34rem); }
+
+/* Anything laid over a frame gets a solid ground. The photograph underneath
+ * is unknown, so a text shadow is a guess and a filled block is not. */
+.fold-photo__over {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-block: var(--space-lg) var(--space-3xl);
+  pointer-events: none;
+}
+.fold-photo__over-row {
+  width: 100%;
+  max-width: calc(var(--shell) + var(--page-gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  display: flex;
+}
+.fold-photo__tag {
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+}
+.fold-photo__statement {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 800;
+  font-stretch: 92%;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  max-width: 18ch;
+  /* box-decoration-break keeps the block behind every line, not just the first. */
+  background: var(--color-ink);
+  color: var(--color-paper);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.08em 0.22em;
+  margin: 0;
+  display: inline;
+}
+.fold-photo__statement em {
+  font-family: var(--font-aside);
+  font-style: italic;
+  color: var(--color-accent-2);
+}
 /* An empty slot is a note that a frame is coming, not a full-screen grey
  * slab — so it takes far less of the page than a photograph would. */
 .fold-photo--empty.fold-photo--tall { height: min(52dvh, 24rem); }
@@ -502,6 +555,7 @@ img { display: block; max-width: 100%; }
 }
 .album__media {
   display: block;
+  position: relative;
   aspect-ratio: 4 / 3;
   background: var(--color-paper-2);
   overflow: hidden;
@@ -523,6 +577,29 @@ img { display: block; max-width: 100%; }
   margin-top: var(--space-sm);
   padding-top: var(--space-xs);
 }
+/* Year and lock ride the frame, the way the reference marks its cards. */
+.album__badges {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  pointer-events: none;
+}
+.album__badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 0.25rem 0.5rem;
+}
+.album__badge--held { background: var(--color-accent); color: #fff; }
+
 .album__title { font-family: var(--font-display); font-size: var(--text-md); font-weight: 600; letter-spacing: -0.02em; }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .album__sub { font-size: var(--text-sm); color: var(--color-muted); }

@@ -67,19 +67,23 @@ export default async function WorkPage() {
                   ) : (
                     <Plate no={plate(i)} label="no cover yet" />
                   )}
+                  <span className="album__badges">
+                    <span className="album__badge">{album.year ?? "—"}</span>
+                    {album.visibility === "members" && (
+                      <span className="album__badge album__badge--held">
+                        ◆ held back
+                      </span>
+                    )}
+                  </span>
                 </Link>
                 <div className="album__meta">
                   <h3 className="album__title">
                     <Link href={`/work/${album.slug}`}>{album.title}</Link>
                   </h3>
-                  <span className="album__year u-tabular">{album.year ?? "—"}</span>
                 </div>
                 <p className="album__sub">
                   {album.subtitle ?? album.place ?? "unfiled"}
                 </p>
-                {album.visibility === "members" && (
-                  <span className="lock">◆ signed-in only</span>
-                )}
               </article>
             );
           })}

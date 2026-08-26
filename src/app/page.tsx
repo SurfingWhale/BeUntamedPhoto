@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { PhotoFold } from "@/components/photo-fold";
 import { getFeatured } from "@/lib/gallery";
-import { directory } from "@/lib/site";
+import { directory, site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -22,15 +22,15 @@ export default async function HomePage() {
       <PhotoFold
         photo={featured[0]}
         index={0}
-        size="tall"
+        size="hero"
         priority
         fallbackLabel={FALLBACK_LABELS[0]}
-      />
+        eyebrow={site.mastLine}
+      >
+        I photograph the <em>half-second</em> before a thing is over.
+      </PhotoFold>
 
       <section className="fold-text fold-text--tight reveal" style={{ "--i": 0 } as React.CSSProperties}>
-        <p className="fold-text__lede">
-          I photograph the <em>half-second</em> before a thing is over.
-        </p>
         <div>
           <p className="fold-text__body">
             Most of the work is waiting. For the light to commit, for a body to
