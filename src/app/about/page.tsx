@@ -77,12 +77,15 @@ export default async function AboutPage() {
           <h2 className="head__title">Get in touch</h2>
           <p className="head__sub">
             Open for commissions, collaboration, or a conversation about light.
+            The guestbook reaches me — sign in and leave a line.
           </p>
         </div>
         <div className="foot__row" style={{ paddingBottom: "var(--space-xl)" }}>
-          <a className="foot__link" href={`mailto:${site.email}`}>
-            {site.email}
-          </a>
+          {site.email && (
+            <a className="foot__link" href={`mailto:${site.email}`}>
+              {site.email}
+            </a>
+          )}
           <Link className="foot__link" href="/notes">
             Guestbook
           </Link>

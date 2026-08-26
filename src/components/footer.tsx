@@ -14,11 +14,25 @@ export function Footer() {
         </p>
 
         <p className="foot__ps">
-          P.S. — the guestbook is open, and I read every note. Say hello at{" "}
-          <a className="link" href={`mailto:${site.email}`}>
-            {site.email}
-          </a>
-          .
+          P.S. — the guestbook is open, and I read every note.
+          {site.email ? (
+            <>
+              {" "}
+              Say hello at{" "}
+              <a className="link" href={`mailto:${site.email}`}>
+                {site.email}
+              </a>
+              .
+            </>
+          ) : (
+            <>
+              {" "}
+              <Link className="link" href="/notes">
+                Leave one
+              </Link>
+              .
+            </>
+          )}
         </p>
 
         <div className="foot__row">

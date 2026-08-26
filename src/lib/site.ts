@@ -11,11 +11,12 @@ export const site = {
    */
   byline: "UNTAMED",
   /**
-   * The only contact route on the site. This address is the other strong
-   * identifier — swap it for one that exists solely for the archive and
-   * nothing else here needs to change.
+   * A public address for the archive, or null for none. It was a personal
+   * account carrying a real name, which is not the creative side, so it is
+   * off. Set an address that belongs to the archive alone and the contact
+   * lines come back on their own — nothing else needs changing.
    */
-  email: "fauzymuhamad43@gmail.com",
+  email: null as string | null,
   mastLine: "Visual archive · frames, not feeds",
 };
 
