@@ -54,6 +54,9 @@ export function Footer() {
             Guestbook
           </Link>
         </div>
+        <p className="foot__mark" aria-hidden="true">
+          {site.name}
+        </p>
       </div>
     </footer>
   );

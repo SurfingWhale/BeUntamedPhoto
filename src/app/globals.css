@@ -52,6 +52,14 @@ img { display: block; max-width: 100%; }
   color: var(--color-muted);
   font-weight: 400;
 }
+/* An eyebrow that is a block, not a whisper. */
+.u-mono--block {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.25rem 0.55rem;
+  letter-spacing: 0.14em;
+}
 .u-muted { color: var(--color-muted); }
 .u-ink2  { color: var(--color-ink-2); }
 .u-tabular { font-variant-numeric: tabular-nums; }
@@ -147,9 +155,8 @@ img { display: block; max-width: 100%; }
 }
 .mast__rule {
   border: 0;
-  border-top: var(--rule-hair) solid var(--color-rule-2);
-  border-bottom: var(--rule-hair) solid var(--color-rule);
-  height: 4px;
+  background: var(--color-ink);
+  height: var(--rule-heavy);
   margin: var(--space-lg) auto 0;
   max-width: calc(var(--shell) + var(--page-gutter) * 2);
 }
@@ -173,7 +180,7 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: var(--rule-hair) solid var(--color-rule-2);
+  border: var(--rule-heavy) solid var(--color-ink);
   color: var(--color-ink-2);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -221,7 +228,7 @@ img { display: block; max-width: 100%; }
   padding-inline: var(--space-lg);
   background: var(--color-ink);
   color: var(--color-paper);
-  border: var(--rule-hair) solid var(--color-ink);
+  border: var(--rule-heavy) solid var(--color-ink);
   outline: 2px solid transparent;
   outline-offset: 2px;
   font-family: var(--font-body);
@@ -235,9 +242,14 @@ img { display: block; max-width: 100%; }
               transform var(--dur-micro) var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
-  .btn:hover { background: var(--color-accent); border-color: var(--color-accent); }
+  .btn:hover {
+    background: var(--color-accent);
+    border-color: var(--color-ink);
+    box-shadow: var(--shadow-hard);
+    transform: translate(-2px, -2px);
+  }
 }
-.btn:active { transform: translateY(1px); }
+.btn:active { transform: translate(0, 0); box-shadow: none; }
 .btn[disabled], .btn[aria-disabled="true"] {
   opacity: 0.5;
   cursor: not-allowed;
@@ -276,7 +288,7 @@ img { display: block; max-width: 100%; }
   padding: var(--space-sm) var(--space-md);
   background: var(--color-paper);
   color: var(--color-ink);
-  border: 1px solid var(--color-rule-2);
+  border: var(--rule-heavy) solid var(--color-ink);
   outline: 2px solid transparent;
   outline-offset: 1px;
   font-family: var(--font-body);
@@ -493,6 +505,7 @@ img { display: block; max-width: 100%; }
   aspect-ratio: 4 / 3;
   background: var(--color-paper-2);
   overflow: hidden;
+  border: var(--rule-heavy) solid var(--color-ink);
 }
 .album:nth-child(3n+2) .album__media { aspect-ratio: 3 / 4; }
 .album__media img {
@@ -508,8 +521,7 @@ img { display: block; max-width: 100%; }
   justify-content: space-between;
   gap: var(--space-md);
   margin-top: var(--space-sm);
-  padding-top: var(--space-sm);
-  border-top: var(--rule-hair) solid var(--color-rule-2);
+  padding-top: var(--space-xs);
 }
 .album__title { font-family: var(--font-display); font-size: var(--text-md); font-weight: 600; letter-spacing: -0.02em; }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
@@ -529,7 +541,11 @@ img { display: block; max-width: 100%; }
 /* --------------------------------------------------------- photo strip */
 .strip { display: grid; gap: var(--space-2xl); padding-bottom: var(--space-3xl); }
 .strip__item { display: grid; gap: var(--space-sm); }
-.strip__frame { background: var(--color-paper-2); position: relative; }
+.strip__frame {
+  background: var(--color-paper-2);
+  position: relative;
+  border: var(--rule-heavy) solid var(--color-ink);
+}
 .strip__frame img { width: 100%; height: auto; }
 
 /* Plate watermark — light enough to ignore, present enough to claim the frame. */
@@ -634,8 +650,21 @@ img { display: block; max-width: 100%; }
 }
 
 /* --------------------------------------------------------- Ft6 footer */
+/* Sized so seven wide characters fit the shell at every width — the earlier
+ * clamp overflowed and the overflow rule then clipped it to a single letter. */
+.foot__mark {
+  font-family: var(--font-wordmark);
+  font-size: clamp(2.25rem, 10.5vw, 8.5rem);
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  margin-top: var(--space-2xl);
+  user-select: none;
+}
 .foot {
-  border-top: var(--rule-hair) solid var(--color-rule);
+  border-top: var(--rule-heavy) solid var(--color-ink);
   padding: var(--space-2xl) var(--page-gutter) var(--space-xl);
 }
 .foot__inner { display: grid; gap: var(--space-lg); }
@@ -648,6 +677,8 @@ img { display: block; max-width: 100%; }
   .foot__close { grid-column: 1 / span 6; }
   .foot__ps    { grid-column: 8 / -1; }
   .foot__row   { grid-column: 1 / -1; margin-top: var(--space-lg); }
+  /* Without a span this landed in one 60px column and clipped to a letter. */
+  .foot__mark  { grid-column: 1 / -1; }
 }
 .foot__close {
   font-family: var(--font-aside);
@@ -680,18 +711,15 @@ img { display: block; max-width: 100%; }
 }
 .page__title em { font-family: var(--font-aside); font-style: italic; font-variation-settings: "SOFT" 40, "WONK" 1; color: var(--color-accent); }
 .page__intro { position: relative; }
-.page__intro::before,
 .page__intro::after {
   content: "";
   position: absolute;
-  inset-inline: 0;
-  height: 0;
-  border-top: 1px dashed var(--color-accent);
-  opacity: 0.4;
+  inset-inline: var(--page-gutter);
+  inset-block-end: 0;
+  height: var(--rule-heavy);
+  background: var(--color-ink);
   pointer-events: none;
 }
-.page__intro::before { inset-block-start: calc(var(--space-3xl) - 0.5rem); }
-.page__intro::after  { inset-block-end: calc(var(--space-xl) - 0.25rem); }
 
 .page__pad { padding-inline: var(--page-gutter); }
 .page__pad-b { padding-bottom: var(--space-3xl); }

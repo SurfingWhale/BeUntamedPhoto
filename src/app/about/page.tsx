@@ -18,7 +18,9 @@ export default async function AboutPage() {
   return (
     <div className="page">
       <section className="fold-text fold-text--tight">
-        <p className="u-mono">About</p>
+        <p>
+          <span className="u-mono u-mono--block">About</span>
+        </p>
         <h2 className="page__title">
           {site.byline}, <em>working</em>.
         </h2>
