@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description:
-    "Photographs, galleries and creative work by Muhammad Fauzy. Sport, food, and the frames in between.",
+    "Photographs and galleries — sport, food, and the frames in between.",
 };
 
 export const viewport: Viewport = {

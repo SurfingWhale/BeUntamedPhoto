@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About",
-  description: `${site.owner} — photographer. Sport, food, and the frames in between.`,
+  description: `${site.byline} — photographer. Sport, food, and the frames in between.`,
 };
 
 export default async function AboutPage() {
@@ -20,7 +20,7 @@ export default async function AboutPage() {
       <section className="fold-text fold-text--tight">
         <p className="u-mono">About</p>
         <h2 className="page__title">
-          {site.owner}, <em>working</em>.
+          {site.byline}, <em>working</em>.
         </h2>
         <div>
           <p className="fold-text__body">
@@ -82,9 +82,6 @@ export default async function AboutPage() {
         <div className="foot__row" style={{ paddingBottom: "var(--space-xl)" }}>
           <a className="foot__link" href={`mailto:${site.email}`}>
             {site.email}
-          </a>
-          <a className="foot__link" href={site.github} target="_blank" rel="noreferrer">
-            GitHub ↗
           </a>
           <Link className="foot__link" href="/notes">
             Guestbook

@@ -1,6 +1,6 @@
 # UNTAMED — visual archive
 
-Photographic portfolio for Muhammad Fauzy. Next.js 16 (App Router, Turbopack) +
+Photographic portfolio. Next.js 16 (App Router, Turbopack) +
 Supabase (auth, Postgres, Storage), deployed on Vercel.
 
 ## What's here

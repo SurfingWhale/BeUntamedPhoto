@@ -10,7 +10,7 @@ export function Footer() {
         <p className="foot__close">
           Thanks for looking. Come back when the light changes.
           <br />
-          <span className="foot__sign">— {site.owner}</span>
+          <span className="foot__sign">— {site.name}</span>
         </p>
 
         <p className="foot__ps">
@@ -36,14 +36,6 @@ export function Footer() {
               {place.name}
             </a>
           ))}
-          <a
-            className="foot__link"
-            href={site.github}
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
           <Link className="foot__link" href="/notes">
             Guestbook
           </Link>

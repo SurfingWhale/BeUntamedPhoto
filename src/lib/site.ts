@@ -3,10 +3,19 @@
 export const site = {
   name: "UNTAMED",
   wordmark: ["UNTAM", "E", "D"] as const,
-  tagline: "A visual archive by Muhammad Fauzy.",
-  owner: "Muhammad Fauzy",
+  tagline: "A visual archive.",
+  /**
+   * The public byline — every page that signs off reads from here. It is the
+   * brand rather than a legal name on purpose: a name is the strongest thing
+   * tying this work to whoever made it. Change this one line to undo that.
+   */
+  byline: "UNTAMED",
+  /**
+   * The only contact route on the site. This address is the other strong
+   * identifier — swap it for one that exists solely for the archive and
+   * nothing else here needs to change.
+   */
   email: "fauzymuhamad43@gmail.com",
-  github: "https://github.com/Untamed98x",
   mastLine: "Visual archive · frames, not feeds",
 };
 
