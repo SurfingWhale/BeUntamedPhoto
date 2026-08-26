@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, IBM_Plex_Sans, JetBrains_Mono, Krona_One } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Fraunces,
+  IBM_Plex_Sans,
+  JetBrains_Mono,
+  Krona_One,
+} from "next/font/google";
 
 import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
@@ -12,6 +18,15 @@ const fraunces = Fraunces({
   display: "swap",
   axes: ["SOFT", "WONK", "opsz"],
   variable: "--font-fraunces",
+});
+
+/* Headings. Variable on weight and width; no italic axis exists, which is
+ * why Fraunces stays loaded for the slanted asides. */
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  axes: ["opsz", "wdth"],
+  display: "swap",
+  variable: "--font-bricolage",
 });
 
 const plex = IBM_Plex_Sans({
@@ -50,6 +65,11 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Paints the browser and status bar the same ground as the page.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ece7dd" },
+    { media: "(prefers-color-scheme: dark)", color: "#090706" },
+  ],
 };
 
 /* Set the theme before first paint so the page never flashes the wrong ground. */
@@ -66,7 +86,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
       <body
-        className={`${fraunces.variable} ${plex.variable} ${jetbrains.variable} ${krona.variable}`}
+        className={`${fraunces.variable} ${plex.variable} ${jetbrains.variable} ${krona.variable} ${bricolage.variable}`}
       >
         <a className="u-skip" href="#main">
           Skip to content

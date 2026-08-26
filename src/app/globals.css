@@ -24,9 +24,10 @@ body {
 
 h1, h2, h3 {
   font-family: var(--font-display);
-  font-weight: 300;
-  letter-spacing: -0.022em;
-  line-height: 1.08;
+  font-weight: 700;
+  font-stretch: 92%;
+  letter-spacing: -0.028em;
+  line-height: 1.02;
   text-wrap: balance;
   overflow-wrap: anywhere;
   min-width: 0;
@@ -385,7 +386,7 @@ img { display: block; max-width: 100%; }
   pointer-events: none;
 }
 .plate__no {
-  font-family: var(--font-display);
+  font-family: var(--font-aside);
   font-size: var(--text-xl);
   font-style: italic;
   font-weight: 300;
@@ -424,7 +425,8 @@ img { display: block; max-width: 100%; }
 .fold-text__lede {
   font-family: var(--font-display);
   font-size: var(--text-display-s);
-  font-weight: 300;
+  font-weight: 700;
+  font-stretch: 92%;
   line-height: 1.14;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -433,6 +435,7 @@ img { display: block; max-width: 100%; }
 /* Keep a hyphenated accent whole — "half-second" reads badly split in two. */
 .fold-text__lede em { white-space: nowrap; }
 .fold-text__lede em {
+  font-family: var(--font-aside);
   font-style: italic;
   font-variation-settings: "SOFT" 40, "WONK" 1;
   color: var(--color-accent);
@@ -450,7 +453,7 @@ img { display: block; max-width: 100%; }
 .head { display: grid; gap: var(--space-sm); max-width: 34ch; }
 .head__title {
   font-size: var(--text-2xl);
-  font-weight: 300;
+  font-weight: 700;
 }
 .head__sub { color: var(--color-muted); font-size: var(--text-base); }
 
@@ -508,7 +511,7 @@ img { display: block; max-width: 100%; }
   padding-top: var(--space-sm);
   border-top: var(--rule-hair) solid var(--color-rule-2);
 }
-.album__title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 300; }
+.album__title { font-family: var(--font-display); font-size: var(--text-md); font-weight: 600; letter-spacing: -0.02em; }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .album__sub { font-size: var(--text-sm); color: var(--color-muted); }
 
@@ -582,7 +585,8 @@ img { display: block; max-width: 100%; }
 .elsewhere__name {
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  font-weight: 300;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   transition: color var(--dur-micro) var(--ease-out);
 }
 .elsewhere__what { color: var(--color-ink-2); font-size: var(--text-sm); }
@@ -610,7 +614,7 @@ img { display: block; max-width: 100%; }
   text-transform: none; letter-spacing: 0;
 }
 @media (hover: hover) and (pointer: fine) { .note__del:hover { color: var(--color-error); } }
-.notes__empty { color: var(--color-muted); font-size: var(--text-md); font-style: italic; font-family: var(--font-display); }
+.notes__empty { color: var(--color-muted); font-size: var(--text-md); font-style: italic; font-family: var(--font-aside); }
 
 /* --------------------------------------------------------- auth panel */
 .auth {
@@ -646,7 +650,7 @@ img { display: block; max-width: 100%; }
   .foot__row   { grid-column: 1 / -1; margin-top: var(--space-lg); }
 }
 .foot__close {
-  font-family: var(--font-display);
+  font-family: var(--font-aside);
   font-style: italic;
   font-size: var(--text-lg);
   font-weight: 300;
@@ -671,10 +675,24 @@ img { display: block; max-width: 100%; }
 .page__intro { padding: var(--space-3xl) var(--page-gutter) var(--space-xl); display: grid; gap: var(--space-md); }
 .page__title {
   font-size: var(--text-display-s);
-  font-weight: 300;
+  font-weight: 800;
   max-width: 20ch;
 }
-.page__title em { font-style: italic; font-variation-settings: "SOFT" 40, "WONK" 1; color: var(--color-accent); }
+.page__title em { font-family: var(--font-aside); font-style: italic; font-variation-settings: "SOFT" 40, "WONK" 1; color: var(--color-accent); }
+.page__intro { position: relative; }
+.page__intro::before,
+.page__intro::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 0;
+  border-top: 1px dashed var(--color-accent);
+  opacity: 0.4;
+  pointer-events: none;
+}
+.page__intro::before { inset-block-start: calc(var(--space-3xl) - 0.5rem); }
+.page__intro::after  { inset-block-end: calc(var(--space-xl) - 0.25rem); }
+
 .page__pad { padding-inline: var(--page-gutter); }
 .page__pad-b { padding-bottom: var(--space-3xl); }
 
@@ -788,7 +806,7 @@ img { display: block; max-width: 100%; }
 .panel__title {
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  font-weight: 300;
+  font-weight: 600;
 }
 .row2 { display: grid; gap: var(--space-md); }
 @media (min-width: 34rem) { .row2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

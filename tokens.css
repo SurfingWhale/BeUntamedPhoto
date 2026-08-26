@@ -7,8 +7,12 @@
 
 :root {
   /* ---- type ------------------------------------------------------ */
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-wordmark: var(--font-krona), ui-sans-serif, system-ui, sans-serif;
+  /* Bricolage has no italic. Fraunces stays for the slanted asides — the
+   * letter close, plate numbers, empty states, and the accent words — so
+   * nothing on the page is ever a synthesised oblique. */
+  --font-aside: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-body:    var(--font-plex), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-jetbrains), ui-monospace, monospace;
 
@@ -42,14 +46,16 @@
   --shell-narrow: 46rem;
 
   /* ---- colour · Atelier light ------------------------------------ */
-  --color-paper:    oklch(99.5% 0.0015 80);
-  --color-paper-2:  oklch(97.2% 0.003  80);
-  --color-paper-3:  oklch(94.5% 0.004  78);
-  --color-rule:     oklch(89%   0.004  78);
-  --color-rule-2:   oklch(80%   0.005  76);
-  --color-muted:    oklch(56%   0.006  68);
-  --color-ink-2:    oklch(36%   0.007  64);
-  --color-ink:      oklch(17%   0.006  62);
+  /* A bone ground, not white. The whole palette carries the warmth the
+   * reference world does; only lightness and chroma move from the old set. */
+  --color-paper:    oklch(92.9% 0.0144 85);
+  --color-paper-2:  oklch(90.2% 0.0174 85);
+  --color-paper-3:  oklch(87.2% 0.0205 85);
+  --color-rule:     oklch(84.7% 0.0206 85);
+  --color-rule-2:   oklch(74.1% 0.0260 83);
+  --color-muted:    oklch(56.9% 0.0186 79);
+  --color-ink-2:    oklch(39.3% 0.0134 76);
+  --color-ink:      oklch(21.9% 0.0065 78);
   --color-accent:   oklch(54%   0.175  40);
   --color-accent-2: oklch(46%   0.155  38);
   --color-focus:    oklch(50%   0.185  42);
