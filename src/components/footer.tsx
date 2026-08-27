@@ -54,6 +54,28 @@ export function Footer() {
             Guestbook
           </Link>
         </div>
+        <div className="foot__cols">
+          <div className="foot__col">
+            <h3>Archive</h3>
+            <Link href="/work">Galleries</Link>
+            <Link href="/notes">Guestbook</Link>
+            <Link href="/about">About</Link>
+          </div>
+          <div className="foot__col">
+            <h3>Elsewhere</h3>
+            {elsewhere.map((place) => (
+              <a key={place.href} href={place.href} target="_blank" rel="noreferrer">
+                {place.name} ↗
+              </a>
+            ))}
+          </div>
+          <div className="foot__col">
+            <h3>Get in</h3>
+            <Link href="/enter">Sign in</Link>
+            <Link href="/notes">Leave a note</Link>
+          </div>
+        </div>
+
         <p className="foot__mark" aria-hidden="true">
           {site.name}
         </p>

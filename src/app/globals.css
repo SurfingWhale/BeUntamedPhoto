@@ -863,6 +863,164 @@ img { display: block; max-width: 100%; }
   .dark-grid > .panel:nth-child(3) { grid-column: 1 / -1; }
 }
 
+/* A plain row for previews. The scatter above needs six cards to read as
+   deliberate; with three it just looks broken. */
+.albums--row { padding-bottom: var(--space-3xl); }
+@media (min-width: 60rem) {
+  .albums--row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xl); align-items: start; }
+  .albums--row .album { grid-column: auto !important; margin-top: 0 !important; }
+  .albums--row .album:nth-child(3n+2) .album__media { aspect-ratio: 4 / 3; }
+}
+
+/* ----------------------------------------------------------- marquee */
+.marquee {
+  background: var(--color-accent);
+  color: #fff;
+  border-block: var(--rule-heavy) solid var(--color-ink);
+  overflow: hidden;
+  padding-block: var(--space-xs);
+}
+.marquee__track {
+  display: flex;
+  width: max-content;
+  /* The track holds the list twice, so travelling exactly half its width
+     lands on an identical frame and the loop has no seam. */
+  animation: marquee 38s linear infinite;
+}
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding-inline-end: var(--space-lg);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.marquee__sep { opacity: 0.55; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track { animation: none; }
+}
+
+/* ----------------------------------------------------- section header */
+.sec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md) var(--space-xl);
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-xl);
+  border-bottom: var(--rule-heavy) solid var(--color-ink);
+}
+.sec-head__left { display: grid; gap: var(--space-sm); justify-items: start; }
+.sec-head__title {
+  font-family: var(--font-display);
+  font-size: var(--text-display-s);
+  font-weight: 800;
+  font-stretch: 92%;
+  line-height: 0.98;
+  letter-spacing: -0.032em;
+  margin: 0;
+  max-width: 16ch;
+}
+.sec-head__right { display: flex; align-items: center; gap: var(--space-md); }
+.sec-head__count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------ statement band */
+.statement {
+  max-width: calc(var(--shell) + var(--page-gutter) * 2);
+  margin-inline: auto;
+  padding: var(--space-4xl) var(--page-gutter) var(--space-3xl);
+  display: grid;
+  gap: var(--space-lg);
+  justify-items: start;
+}
+.statement__body {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw + 0.5rem, 2.75rem);
+  font-weight: 500;
+  font-stretch: 96%;
+  line-height: 1.14;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+  max-width: 30ch;
+  margin: 0;
+}
+.statement__note {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  max-width: var(--measure);
+  margin: 0;
+}
+
+/* --------------------------------------------------------- chip row */
+/* Category chips laid over a full-bleed frame, as the reference does. */
+.chips {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.chips__inner {
+  width: 100%;
+  max-width: calc(var(--shell) + var(--page-gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  display: grid;
+  gap: var(--space-md);
+  justify-items: start;
+}
+.chips__row { display: flex; flex-wrap: wrap; gap: var(--space-xs); pointer-events: auto; }
+.chip {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: var(--rule-heavy) solid var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.7rem;
+  white-space: nowrap;
+  transition: background-color var(--dur-micro) var(--ease-out),
+              color var(--dur-micro) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover { background: var(--color-accent); color: #fff; }
+}
+
+/* ------------------------------------------------------ footer columns */
+@media (min-width: 48rem) {
+  .foot__cols { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xl); }
+}
+.foot__cols { display: grid; gap: var(--space-lg); margin-top: var(--space-lg); }
+.foot__col { display: grid; gap: var(--space-xs); align-content: start; }
+.foot__col h3 {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-2xs);
+}
+.foot__col a { font-size: var(--text-sm); color: var(--color-ink-2); }
+@media (hover: hover) and (pointer: fine) {
+  .foot__col a:hover { color: var(--color-accent); }
+}
+
 /* ------------------------------------------------------------- pager */
 .pager {
   display: flex;

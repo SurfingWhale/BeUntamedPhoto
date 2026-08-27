@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Plate } from "@/components/plate";
 import { plate } from "@/lib/format";
 import type { PhotoWithUrl } from "@/lib/gallery";
@@ -12,6 +14,8 @@ type Props = {
   eyebrow?: string;
   /** The opening statement, set over the frame. Hero only. */
   children?: React.ReactNode;
+  /** Chips laid over the frame. Each one goes somewhere real. */
+  chips?: { label: string; href: string }[];
 };
 
 /* Macrostructure 08 — the photograph is the fold; the caption annotates it.
@@ -25,6 +29,7 @@ export function PhotoFold({
   fallbackLabel,
   eyebrow,
   children,
+  chips,
 }: Props) {
   const no = plate(index);
   const has = Boolean(photo?.url);
@@ -58,6 +63,21 @@ export function PhotoFold({
           </div>
           <div className="fold-photo__over-row">
             {children && <h2 className="fold-photo__statement">{children}</h2>}
+          </div>
+        </div>
+      )}
+
+      {chips && chips.length > 0 && (
+        <div className="chips">
+          <div className="chips__inner">
+            <span className="fold-photo__tag">Browse by gallery</span>
+            <div className="chips__row">
+              {chips.map((c) => (
+                <Link className="chip" key={c.href} href={c.href}>
+                  {c.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}
