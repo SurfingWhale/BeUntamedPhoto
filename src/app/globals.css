@@ -1096,11 +1096,15 @@ img { display: block; max-width: 100%; }
 .album { display: grid; gap: var(--space-sm); min-width: 0; }
 .album__media {
   display: block;
-  /* Portrait by default, because the covers are: measured at 0.56, a 4/3 tile
-   * threw away 58% of one on a phone, where the tile is full width and the
-   * crop is most visible. The landscape tile and the alternating rhythm come
-   * back at 40rem, where two tiles sit side by side and are half the size. */
-  aspect-ratio: 3 / 4;
+  /* One column on a phone means no neighbour to line up with, so the tile can
+   * simply be the shape of its cover — --tile-ratio carries the row's own
+   * width/height and object-fit has nothing to trim. A 4/3 tile was throwing
+   * away 58% of a 0.56 cover, and a fixed 3/4 still lost 25%.
+   *
+   * From 40rem the tiles sit two and three across, where a ragged row of
+   * arbitrary heights costs more than a considered crop, so the alternating
+   * landscape rhythm comes back. */
+  aspect-ratio: var(--tile-ratio, 3 / 4);
   background: var(--color-paper-2);
   overflow: hidden;
 }

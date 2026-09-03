@@ -150,7 +150,15 @@ export default async function HomePage() {
               const cover = covers.get(album.id);
               return (
                 <Reveal as="article" className="album" key={album.id} index={i}>
-                  <Link className="album__media" href={`/work/${album.slug}`}>
+                  <Link
+                    className="album__media"
+                    href={`/work/${album.slug}`}
+                    style={
+                      cover?.width && cover?.height
+                        ? ({ "--tile-ratio": `${cover.width} / ${cover.height}` } as React.CSSProperties)
+                        : undefined
+                    }
+                  >
                     {cover?.url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
