@@ -49,13 +49,15 @@
   --color-paper:        #FBFBF9;  /* surface — canvas, never pure white glare */
   --color-paper-2:      #F4F4F2;  /* canvas-alt */
   --color-paper-3:      #F0EDEC;  /* surface-container */
-  --color-paper-white:  #FFFFFF;  /* surface-container-lowest */
+  --color-paper-white:  #FDFDFB;  /* lowest surface — tinted off pure white */
   --color-paper-dark:   #051C14;  /* forest-deep — the slab environment */
   --color-paper-dark-2: #0B2D20;  /* primary-container */
 
-  --color-ink:          #0D0D0D;  /* pure ink black — headlines, structure */
+  /* Neutrals carry a trace of the 155° anchor rather than sitting at zero
+   * chroma — dead greys read flat next to the photography (gate 24). */
+  --color-ink:          #0D0F0E;  /* ink black, faint green cast */
   --color-ink-2:        #414844;  /* on-surface-variant */
-  --color-muted:        #737373;  /* technical gray — metadata */
+  --color-muted:        #6E7472;  /* technical gray, tinted + darkened for AA */
   --color-ink-on-dark:  #FFFFFF;
   --color-ink-on-dark-2:#ABCFBB;  /* primary-fixed-dim — muted on slab */
 

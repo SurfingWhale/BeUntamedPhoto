@@ -2,10 +2,13 @@
  * Specimen (content) · typography-only (app) · design-system: design.md ·
  * designed-as-app
  * enrichment: none — negative space + photography is the enrichment
- * nav: N6 (retyped) · footer: Ft5 statement
+ * nav: two-tier technical rail (wordmark bar + numbered index rail, not N1/N6)
+ * footer: Ft5 statement, canvas ground
  * anchor hue: 155 neutral-green / 120 lime · accent: chartreuse, token-only
  * axes: paper=near-white · display=grotesque · accent=chromatic-lime
- * pre-emit critique: P5 H4 E4 S5 R5 V4
+ * marks: ←/↗/⌐/∟ are author-directed ornament (gate 55 knowingly overridden)
+ * contrast: pass (46–50) · mobile: pass (36, 59, 61–68)
+ * pre-emit critique: P4 H4 E4 S4 R4 V4
  */
 @import "tailwindcss";
 @import "../../tokens.css";
@@ -283,6 +286,10 @@ img { display: block; max-width: 100%; }
   backdrop-filter: blur(8px);
   border-bottom: var(--rule-hair) solid var(--color-rule);
 }
+/* Two tiers, not one. Tier 1 is identity + account; tier 2 is a numbered
+ * index rail matching the section rails in the page body. This is
+ * deliberately not N1 (wordmark-left + links-right + button-right on one
+ * row), which is the most-recognised AI nav shape. */
 .mast__bar {
   max-width: var(--page-max);
   margin-inline: auto;
@@ -292,6 +299,14 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm) var(--space-lg);
+}
+.mast__rail {
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+.mast__rail-inner {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--space-2xs) var(--page-gutter);
 }
 .mast__id { display: flex; align-items: center; gap: var(--space-sm); }
 .mast__glyph {
@@ -464,11 +479,18 @@ img { display: block; max-width: 100%; }
 @media (hover: hover) and (pointer: fine) {
   .chip:hover { border-color: var(--color-ink); color: var(--color-ink); }
 }
+.chip:active { transform: translateY(1px); }
 .chip[aria-current="true"],
 .chip[data-active="true"] {
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: var(--color-accent-ink);
+}
+.chip[disabled],
+.chip[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 @media (pointer: coarse) { .chip { min-height: 44px; } }
 .btn:active { transform: translateY(1px); }
@@ -641,6 +663,7 @@ img { display: block; max-width: 100%; }
   font-weight: 500;
   animation: ticker 38s linear infinite;
 }
+.ticker__item { display: flex; align-items: center; gap: var(--space-sm); }
 .ticker__dot { width: 0.375rem; height: 0.375rem; background: var(--color-ink); flex: none; }
 @keyframes ticker { to { transform: translateX(-100%); } }
 @media (prefers-reduced-motion: reduce) {
@@ -649,12 +672,13 @@ img { display: block; max-width: 100%; }
 }
 
 /* ------------------------------------------------- project index · Nomvnt */
+/* Single column, always. A label sitting beside a heading on the same row is
+ * the templated-editorial tell (slop-test gate 66) — the count stacks under
+ * the heading instead. */
 .index-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-md) var(--space-lg);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2xs);
 }
 .index-count {
   font-family: var(--font-mono);
@@ -680,9 +704,10 @@ img { display: block; max-width: 100%; }
   gap: var(--space-sm) var(--space-md);
   padding-block: var(--space-md);
   border-bottom: var(--rule-hair) solid var(--color-rule);
+  /* transform, not padding — animating padding lays out on every frame. */
   transition: background-color var(--dur-short) var(--ease-out),
               color var(--dur-short) var(--ease-out),
-              padding-inline var(--dur-short) var(--ease-out);
+              transform var(--dur-short) var(--ease-out);
 }
 .index__no {
   font-family: var(--font-mono);
@@ -709,7 +734,7 @@ img { display: block; max-width: 100%; }
   .index__row:hover {
     background: var(--color-accent);
     color: var(--color-accent-ink);
-    padding-inline: var(--space-md);
+    transform: translateX(var(--space-xs));
   }
   .index__row:hover .index__no,
   .index__row:hover .index__meta { color: var(--color-accent-ink); }
@@ -718,10 +743,12 @@ img { display: block; max-width: 100%; }
 /* ------------------------------------------- opening zone · empty cells */
 /* Two module-rows of deliberate blank above the label cluster. The marks sit
  * in the emptiness; that emptiness is the composition. */
+/* Bottom padding outweighs top so the opening sits INTO the page rather than
+ * floating off it (slop-test gate 54). */
 .open {
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: calc(var(--module) * 1.5) var(--page-gutter) var(--module);
+  padding: var(--module) var(--page-gutter) calc(var(--module) * 1.5);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-xl);
@@ -730,7 +757,7 @@ img { display: block; max-width: 100%; }
   .open {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: start;
-    padding-top: calc(var(--module) * 2);
+    padding-block: var(--module) calc(var(--module) * 2);
   }
   .open__label    { grid-column: 2 / span 3; }
   .open__arrow    { grid-column: 6; justify-self: center; align-self: center; }
@@ -1110,7 +1137,8 @@ img { display: block; max-width: 100%; }
   letter-spacing: var(--tracking-hero);
   text-transform: uppercase;
   font-size: clamp(3.5rem, 15vw, 13rem);
-  line-height: 0.82;
+  /* 1.0 floor for all-caps display — cap-tops collide below it (gate 67). */
+  line-height: 1;
   color: var(--color-ink);
   opacity: 0.06;
   margin-block: var(--space-lg) 0;

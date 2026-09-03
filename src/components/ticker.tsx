@@ -11,7 +11,7 @@ export function Ticker({ items }: { items: string[] }) {
   const track = (dup: boolean) => (
     <div className="ticker__track" aria-hidden={dup || undefined}>
       {items.map((item, i) => (
-        <span key={`${item}-${i}`} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <span className="ticker__item" key={`${item}-${i}`}>
           <span className="ticker__dot" aria-hidden="true" />
           <span>{item}</span>
         </span>

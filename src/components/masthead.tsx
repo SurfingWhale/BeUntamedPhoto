@@ -30,7 +30,23 @@ export function Masthead({ viewer }: Props) {
           </span>
         </Link>
 
-        <nav className="mast__nav" aria-label="Primary">
+        <div className="mast__aside">
+          {viewer ? (
+            <Link className="tog" href="/account">
+              {viewer.displayName}
+            </Link>
+          ) : (
+            <Link className="tog" href="/enter">
+              [Sign in]
+            </Link>
+          )}
+          <ThemeToggle />
+        </div>
+      </div>
+
+      {/* Tier two — the numbered index rail. */}
+      <div className="mast__rail">
+        <nav className="mast__rail-inner mast__nav" aria-label="Primary">
           <ul>
             {nav.map((item, i) => {
               const current =
@@ -62,19 +78,6 @@ export function Masthead({ viewer }: Props) {
             )}
           </ul>
         </nav>
-
-        <div className="mast__aside">
-          {viewer ? (
-            <Link className="tog" href="/account">
-              {viewer.displayName}
-            </Link>
-          ) : (
-            <Link className="tog" href="/enter">
-              [Sign in]
-            </Link>
-          )}
-          <ThemeToggle />
-        </div>
       </div>
     </header>
   );
