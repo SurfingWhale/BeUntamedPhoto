@@ -1,7 +1,7 @@
 import Link from "next/link";
 
+import { Frame } from "@/components/frame";
 import { Marquee } from "@/components/marquee";
-import { PhotoFold } from "@/components/photo-fold";
 import { Plate } from "@/components/plate";
 import { SectionHead } from "@/components/section-head";
 import { getAlbums, getCovers, getFeatured } from "@/lib/gallery";
@@ -33,35 +33,48 @@ export default async function HomePage() {
 
   return (
     <div className="page">
-      {/* The photograph speaks before the page does. */}
-      <PhotoFold
-        photo={featured[0]}
-        index={0}
-        size="hero"
-        priority
-        fallbackLabel={FALLBACK_LABELS[0]}
-        eyebrow={site.mastLine}
-      >
-        I photograph the <em>half-second</em> before a thing is over.
-      </PhotoFold>
+      {/* The frame takes seven columns and the words five, side by side, so
+          the opening line never has to be stamped over a photograph. */}
+      <section className="ed ed--grid ed--hero">
+        <Frame
+          photo={featured[0]}
+          index={0}
+          shape="wide"
+          priority
+          fallbackLabel={FALLBACK_LABELS[0]}
+        />
+        <div className="ed__words">
+          <span className="ed__kicker">{site.mastLine}</span>
+          <h2 className="ed__say">
+            I photograph the <em>half-second</em> before a thing is over.
+          </h2>
+          <p className="ed__note">
+            Most of the work is waiting. The frame is the easy part.
+          </p>
+        </div>
+      </section>
 
       <Marquee items={ticker} />
 
-      <section className="statement reveal" style={{ "--i": 0 } as React.CSSProperties}>
-        <span className="u-mono u-mono--block">The habit</span>
-        <p className="statement__body">
-          Most of the work is waiting. For the light to commit, for a body to
-          stop pretending it isn&rsquo;t tired, for the moment a thing gives
-          itself away.
-        </p>
-        <p className="statement__note">
-          The frame is the easy part. Two piles, mostly — sport and food — and
-          each has its own ground to stand on. Whatever belongs to neither
-          stays here, in order and unsorted.
-        </p>
+      {/* A vertical frame against text that starts lower down the column. */}
+      <section
+        className="ed ed--grid ed--offset reveal"
+        style={{ "--i": 0 } as React.CSSProperties}
+      >
+        <Frame photo={featured[1]} index={1} fallbackLabel={FALLBACK_LABELS[1]} />
+        <div className="ed__words">
+          <span className="ed__kicker">The habit</span>
+          <h2 className="ed__say ed__say--sm">
+            Waiting for the moment a thing <em>gives itself away</em>.
+          </h2>
+          <p className="ed__note">
+            For the light to commit, for a body to stop pretending it
+            isn&rsquo;t tired. Two piles, mostly — sport and food — and each
+            has its own ground to stand on. Whatever belongs to neither stays
+            here, in order and unsorted.
+          </p>
+        </div>
       </section>
-
-      <PhotoFold photo={featured[1]} index={1} fallbackLabel={FALLBACK_LABELS[1]} />
 
       {/* Recent galleries, then the index for the rest. */}
       <section className="page__pad reveal" style={{ "--i": 1 } as React.CSSProperties}>
@@ -114,20 +127,27 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* Chips laid over a frame — every one goes to a real gallery. */}
-      <PhotoFold
-        photo={featured[2]}
-        index={2}
-        fallbackLabel={FALLBACK_LABELS[2]}
-        chips={albums.slice(0, 8).map((a) => ({
-          label: a.title,
-          href: `/work/${a.slug}`,
-        }))}
-      />
+      {/* Two frames at different depths — the eye steps rather than scans. */}
+      <section
+        className="ed ed--grid ed--pair reveal"
+        style={{ "--i": 2 } as React.CSSProperties}
+      >
+        <div className="ed__col">
+          <Frame photo={featured[2]} index={2} fallbackLabel={FALLBACK_LABELS[2]} />
+        </div>
+        <div className="ed__col">
+          <Frame photo={featured[3]} index={3} fallbackLabel={FALLBACK_LABELS[3]} />
+          <p className="ed__aside">
+            {albums.length} {albums.length === 1 ? "gallery" : "galleries"} in
+            the archive · plates numbered as they were filed, not as they were
+            taken
+          </p>
+        </div>
+      </section>
 
       {/* The signpost. Someone arriving should know within one screen where
           their thing lives, so the subject leads and the site name follows. */}
-      <section className="page__pad reveal" style={{ "--i": 2 } as React.CSSProperties}>
+      <section className="page__pad reveal" style={{ "--i": 3 } as React.CSSProperties}>
         <SectionHead
           eyebrow="Elsewhere"
           title="Looking for something in particular?"
@@ -160,7 +180,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="fold-text reveal" style={{ "--i": 3 } as React.CSSProperties}>
+      <section className="fold-text reveal" style={{ "--i": 4 } as React.CSSProperties}>
         <h2 className="head__title">How the archive is kept</h2>
         <div>
           <p className="fold-text__body">
@@ -179,8 +199,6 @@ export default async function HomePage() {
           </Link>
         </p>
       </section>
-
-      <PhotoFold photo={featured[3]} index={3} fallbackLabel={FALLBACK_LABELS[3]} />
     </div>
   );
 }
