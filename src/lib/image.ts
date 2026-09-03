@@ -16,6 +16,12 @@
 const MAX_EDGE = 2400;
 const QUALITY = 0.82;
 
+/* A canvas that failed to draw still encodes — as a few hundred bytes of flat
+ * colour. iOS Safari does exactly this when an image exceeds its canvas memory
+ * budget, and it does it silently, so the only signal is the size. Anything
+ * this small from a real photograph is a blank, not a compression win. */
+const BLANK_BYTES = 4096;
+
 export type Encoded = {
   blob: Blob;
   /** Dimensions of `blob`, whichever branch produced it. */
@@ -59,6 +65,19 @@ function draw(
 }
 
 export async function encodeToWebp(file: File): Promise<Encoded> {
+  /* An already-small WebP is left alone. Re-encoding one is lossy a second
+   * time, and the size check below cannot catch that — a degraded file is
+   * usually smaller, so it would look like a win. */
+  if (file.type === "image/webp" && file.size <= 600 * 1024) {
+    const probe = await createImageBitmap(file).catch(() => null);
+    const fits = probe ? Math.max(probe.width, probe.height) <= MAX_EDGE : false;
+    const size = probe ? { w: probe.width, h: probe.height } : { w: 0, h: 0 };
+    probe?.close();
+    if (fits) {
+      return { blob: file, width: size.w, height: size.h, ext: ".webp", passthrough: true };
+    }
+  }
+
   // imageOrientation: a phone photo carries its rotation in EXIF, and the
   // canvas would otherwise bake in the unrotated pixels.
   let bitmap: ImageBitmap;
@@ -81,7 +100,8 @@ export async function encodeToWebp(file: File): Promise<Encoded> {
   // A browser without WebP encoding hands back a PNG, usually larger than the
   // JPEG that went in. Keep the original — and report *its* dimensions, since
   // the recorded width/height must describe the bytes actually stored.
-  if (!blob || blob.type !== "image/webp" || blob.size >= file.size) {
+  const blank = Boolean(blob) && blob!.size < BLANK_BYTES && file.size > 64 * 1024;
+  if (!blob || blank || blob.type !== "image/webp" || blob.size >= file.size) {
     return {
       blob: file,
       width: sourceWidth,
