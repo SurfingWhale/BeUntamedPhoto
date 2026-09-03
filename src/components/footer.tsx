@@ -2,18 +2,18 @@ import Link from "next/link";
 
 import { elsewhere, site } from "@/lib/site";
 
-/* Ft6 · Letter close — the page closes like a letter, not a sitemap. */
+/* Ft5 · Statement — one closing line dominates; wordmark sits beneath it. */
 export function Footer() {
   return (
     <footer className="foot">
-      <p className="foot__close">
-        Thanks for looking. Come back when the light changes.
-        <br />
-        <span className="foot__sign">— {site.owner}</span>
+      <p className="foot__statement">
+        Shot on purpose, not on <em>schedule</em>.
       </p>
 
+      <p className="foot__wordmark">{site.name}</p>
+
       <p className="foot__ps">
-        P.S. — the guestbook is open, and I read every note. Say hello at{" "}
+        The guestbook is open, and I read every note. Say hello at{" "}
         <a className="link" href={`mailto:${site.email}`}>
           {site.email}
         </a>

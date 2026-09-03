@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-09-03",
+    "scope": "app",
+    "genre": "editorial",
+    "macrostructure": "Portfolio Grid (hub) / Specimen (content) / typography-only (app)",
+    "theme": "custom",
+    "theme_axes": "light-and-dark-green bands / geometric-grotesque / chromatic-lime",
+    "nav": "N6 Newspaper masthead (retyped)",
+    "footer": "Ft5 Statement",
+    "enrichment": "none — negative space + photography is the enrichment",
+    "studied": true,
+    "dna_sources": ["image: Le Corbusier grid study (structure + type)", "image: Nomvnt (colour + paper-band/footer motifs)"],
+    "brief": "UNTAMED rebrand — Swiss grid + grotesque type, Nomvnt-anchored colour system, low-density negative-space discipline. Shared chrome (tokens, fonts, masthead, footer) applied site-wide; home page (/) is the first fully-tuned page. Full system recorded in design.md."
+  },
+  {
     "date": "2026-08-23",
     "genre": "editorial",
     "macrostructure": "Photographic",

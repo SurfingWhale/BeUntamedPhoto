@@ -1,15 +1,21 @@
-/* Hallmark · genre: editorial · macrostructure: Photographic · theme: Atelier
- * enrichment: none (photography is the enrichment) · nav: N6 · footer: Ft6
- * anchor hue: 62–80 (near-neutral) · accent: terracotta oklch(54% 0.175 40)
- * axes: paper=white · display=roman-serif(variable) · accent=warm
- * pre-emit critique: P5 H5 E5 S4 R5 V5
+/* Hallmark · genre: editorial · macrostructure family: Portfolio Grid (hub) ·
+ * Specimen (content) · typography-only (app) · design-system: design.md ·
+ * designed-as-app
+ * nav: N6 masthead (retyped) · footer: Ft5 statement
+ * theme: studied-DNA (backbone: image "Le Corbusier grid study" · colour:
+ * image "Nomvnt") · paper oklch(98.5% 0.001 90) · accent oklch(88% 0.23 120)
+ * display: Archivo (grotesque) · body: IBM Plex Sans · label/numeral: JetBrains Mono
+ * axes: paper=near-white · display=geometric-grotesque · accent=chromatic-lime
+ * pre-emit critique: P5 H4 E4 S5 R5 V4
  */
-
 :root {
   /* ---- type ------------------------------------------------------ */
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-body:    var(--font-plex), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-jetbrains), ui-monospace, monospace;
+
+  --tracking-display: -0.02em;
+  --tracking-wordmark: 0.02em;
 
   --text-xs:      0.6875rem;
   --text-sm:      0.8125rem;
@@ -36,21 +42,26 @@
   --page-gutter: clamp(1.125rem, 4.5vw, 4.5rem);
   --measure: 62ch;
 
-  /* ---- colour · Atelier light ------------------------------------ */
-  --color-paper:    oklch(99.5% 0.0015 80);
-  --color-paper-2:  oklch(97.2% 0.003  80);
-  --color-paper-3:  oklch(94.5% 0.004  78);
-  --color-rule:     oklch(89%   0.004  78);
-  --color-rule-2:   oklch(80%   0.005  76);
-  --color-muted:    oklch(56%   0.006  68);
-  --color-ink-2:    oklch(36%   0.007  64);
-  --color-ink:      oklch(17%   0.006  62);
-  --color-accent:   oklch(54%   0.175  40);
-  --color-accent-2: oklch(46%   0.155  38);
-  --color-focus:    oklch(50%   0.185  42);
-  --color-error:    oklch(52%   0.190 27);
-  --color-ok:       oklch(48%   0.100 150);
-  --color-scrim:    oklch(17%   0.006 62 / 0.55);
+  /* ---- colour · custom, anchored on Nomvnt ------------------------ */
+  --color-paper:        oklch(98.5% 0.001 90);   /* near-white, not ivory */
+  --color-paper-2:      oklch(96%   0.002 90);
+  --color-paper-3:      oklch(93%   0.003 90);
+  --color-paper-dark:   oklch(24%   0.045 155);  /* deep forest green — section band */
+  --color-paper-dark-2: oklch(29%   0.045 155);
+  --color-rule:         oklch(88%   0.005 155);
+  --color-rule-2:       oklch(78%   0.008 155);
+  --color-rule-on-dark: oklch(40%   0.050 155);
+  --color-muted:        oklch(58%   0.010 155);
+  --color-ink-2:        oklch(38%   0.010 155);
+  --color-ink:          oklch(15%   0.010 155);
+  --color-ink-on-dark:  oklch(96%   0.010 90);   /* near-white, on green bands */
+  --color-accent:       oklch(88%   0.230 120);  /* lime / chartreuse */
+  --color-accent-2:     oklch(78%   0.220 120);
+  --color-accent-ink:   oklch(20%   0.050 120);  /* text on lime fills */
+  --color-focus:        oklch(70%   0.190 120);
+  --color-error:        oklch(52%   0.190 27);
+  --color-ok:           oklch(48%   0.100 150);
+  --color-scrim:        oklch(17%   0.006 155 / 0.55);
 
   /* ---- rules, radii, motion -------------------------------------- */
   --rule-hair: 1px;
@@ -74,40 +85,50 @@
   --z-tooltip: 600;
 }
 
-/* ---- colour · Atelier dark ---------------------------------------- */
-/* Same anchor hue. Only lightness and chroma move. */
+/* ---- colour · dark theme ------------------------------------------ */
+/* Same anchor hues (155 neutral-green, 120 lime). Only lightness moves. */
 :root[data-theme="dark"] {
-  --color-paper:    oklch(13%   0.005 62);
-  --color-paper-2:  oklch(17%   0.006 62);
-  --color-paper-3:  oklch(21%   0.006 62);
-  --color-rule:     oklch(29%   0.006 64);
-  --color-rule-2:   oklch(38%   0.007 66);
-  --color-muted:    oklch(66%   0.007 70);
-  --color-ink-2:    oklch(81%   0.005 74);
-  --color-ink:      oklch(97%   0.003 78);
-  --color-accent:   oklch(68%   0.150 42);
-  --color-accent-2: oklch(76%   0.130 44);
-  --color-focus:    oklch(72%   0.160 44);
-  --color-error:    oklch(66%   0.160 27);
-  --color-ok:       oklch(70%   0.090 150);
-  --color-scrim:    oklch(9%    0.004 60 / 0.66);
+  --color-paper:        oklch(14%   0.006 155);
+  --color-paper-2:      oklch(18%   0.008 155);
+  --color-paper-3:      oklch(22%   0.010 155);
+  --color-paper-dark:   oklch(10%   0.030 155);
+  --color-paper-dark-2: oklch(13%   0.030 155);
+  --color-rule:         oklch(28%   0.010 155);
+  --color-rule-2:       oklch(40%   0.015 155);
+  --color-rule-on-dark: oklch(35%   0.050 155);
+  --color-muted:        oklch(64%   0.015 155);
+  --color-ink-2:        oklch(78%   0.008 90);
+  --color-ink:          oklch(96%   0.005 90);
+  --color-ink-on-dark:  oklch(96%   0.010 90);
+  --color-accent:       oklch(80%   0.220 120);
+  --color-accent-2:     oklch(72%   0.210 120);
+  --color-accent-ink:   oklch(14%   0.030 120);
+  --color-focus:        oklch(75%   0.190 120);
+  --color-error:        oklch(66%   0.160 27);
+  --color-ok:           oklch(70%   0.090 150);
+  --color-scrim:        oklch(9%    0.006 155 / 0.66);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-paper:    oklch(13%   0.005 62);
-    --color-paper-2:  oklch(17%   0.006 62);
-    --color-paper-3:  oklch(21%   0.006 62);
-    --color-rule:     oklch(29%   0.006 64);
-    --color-rule-2:   oklch(38%   0.007 66);
-    --color-muted:    oklch(66%   0.007 70);
-    --color-ink-2:    oklch(81%   0.005 74);
-    --color-ink:      oklch(97%   0.003 78);
-    --color-accent:   oklch(68%   0.150 42);
-    --color-accent-2: oklch(76%   0.130 44);
-    --color-focus:    oklch(72%   0.160 44);
-    --color-error:    oklch(66%   0.160 27);
-    --color-ok:       oklch(70%   0.090 150);
-    --color-scrim:    oklch(9%    0.004 60 / 0.66);
+    --color-paper:        oklch(14%   0.006 155);
+    --color-paper-2:      oklch(18%   0.008 155);
+    --color-paper-3:      oklch(22%   0.010 155);
+    --color-paper-dark:   oklch(10%   0.030 155);
+    --color-paper-dark-2: oklch(13%   0.030 155);
+    --color-rule:         oklch(28%   0.010 155);
+    --color-rule-2:       oklch(40%   0.015 155);
+    --color-rule-on-dark: oklch(35%   0.050 155);
+    --color-muted:        oklch(64%   0.015 155);
+    --color-ink-2:        oklch(78%   0.008 90);
+    --color-ink:          oklch(96%   0.005 90);
+    --color-ink-on-dark:  oklch(96%   0.010 90);
+    --color-accent:       oklch(80%   0.220 120);
+    --color-accent-2:     oklch(72%   0.210 120);
+    --color-accent-ink:   oklch(14%   0.030 120);
+    --color-focus:        oklch(75%   0.190 120);
+    --color-error:        oklch(66%   0.160 27);
+    --color-ok:           oklch(70%   0.090 150);
+    --color-scrim:        oklch(9%    0.006 155 / 0.66);
   }
 }

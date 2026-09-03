@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { Archivo, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 
 import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
@@ -7,11 +7,11 @@ import { getViewer } from "@/lib/auth";
 import { site } from "@/lib/site";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const archivo = Archivo({
   subsets: ["latin"],
   display: "swap",
-  axes: ["SOFT", "WONK", "opsz"],
-  variable: "--font-fraunces",
+  weight: ["500", "700", "900"],
+  variable: "--font-archivo",
 });
 
 const plex = IBM_Plex_Sans({
@@ -56,7 +56,7 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
-      <body className={`${fraunces.variable} ${plex.variable} ${jetbrains.variable}`}>
+      <body className={`${archivo.variable} ${plex.variable} ${jetbrains.variable}`}>
         <a className="u-skip" href="#main">
           Skip to content
         </a>
