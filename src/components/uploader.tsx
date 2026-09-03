@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { recordPhoto } from "@/app/darkroom/actions";
+import { encodeToWebp, formatBytes } from "@/lib/image";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
@@ -15,34 +16,19 @@ type Props = {
 
 type Status =
   | { kind: "idle" }
-  | { kind: "working"; done: number; total: number }
+  | { kind: "working"; stage: "encoding" | "uploading"; done: number; total: number }
   | { kind: "error"; message: string }
   | { kind: "ok"; message: string };
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-const MAX_BYTES = 25 * 1024 * 1024;
+/* The cap is on what the browser reads, not on what reaches the bucket: every
+ * file is re-encoded to WebP before it is uploaded. */
+const MAX_BYTES = 60 * 1024 * 1024;
 
-/** Reads intrinsic dimensions so the page can reserve space and avoid CLS. */
-function measure(file: File): Promise<{ width: number | null; height: number | null }> {
-  return new Promise((resolve) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: null, height: null });
-    };
-    img.src = url;
-  });
-}
-
-function safeName(name: string) {
-  const ext = name.includes(".") ? name.slice(name.lastIndexOf(".")).toLowerCase() : ".jpg";
+function safeName(name: string, ext: string) {
+  const dot = name.includes(".") ? name.lastIndexOf(".") : name.length;
   const stem = name
-    .slice(0, name.length - ext.length)
+    .slice(0, dot)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
@@ -72,7 +58,7 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
         kind: "error",
         message: !ALLOWED.includes(bad.type)
           ? `${bad.name} is a ${bad.type || "unknown"} — use JPEG, PNG, WebP or AVIF.`
-          : `${bad.name} is over the 25 MB limit.`,
+          : `${bad.name} is over the 60 MB limit.`,
       });
       return;
     }
@@ -82,30 +68,42 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
     const takenOn = String(data.get("taken_on") ?? "").trim() || null;
 
     const supabase = createClient();
-    setStatus({ kind: "working", done: 0, total: files.length });
+    setStatus({ kind: "working", stage: "encoding", done: 0, total: files.length });
+
+    let rawBytes = 0;
+    let storedBytes = 0;
 
     for (const [i, file] of files.entries()) {
-      const path = `${slug}/${safeName(file.name)}`;
+      setStatus({ kind: "working", stage: "encoding", done: i, total: files.length });
+
+      // Re-encode first: the bucket only ever sees the WebP, and the encoder
+      // hands back the output dimensions, so nothing decodes the image twice.
+      const { blob, width, height, ext } = await encodeToWebp(file);
+      rawBytes += file.size;
+      storedBytes += blob.size;
+
+      const path = `${slug}/${safeName(file.name, ext)}`;
+
+      setStatus({ kind: "working", stage: "uploading", done: i, total: files.length });
       const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(path, file, { cacheControl: "31536000", contentType: file.type });
+        .upload(path, blob, { cacheControl: "31536000", contentType: blob.type });
 
       if (uploadError) {
         setStatus({ kind: "error", message: `${file.name} — ${uploadError.message}` });
         return;
       }
 
-      const { width, height } = await measure(file);
       const result = await recordPhoto({
         albumId,
         slug,
         bucket,
         path,
-        caption: files.length === 1 ? caption : caption,
+        caption,
         place,
         takenOn,
-        width,
-        height,
+        width: width || null,
+        height: height || null,
         position: startPosition + i,
       });
 
@@ -115,13 +113,17 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
         return;
       }
 
-      setStatus({ kind: "working", done: i + 1, total: files.length });
+      setStatus({ kind: "working", stage: "uploading", done: i + 1, total: files.length });
     }
 
+    const saved = rawBytes - storedBytes;
     formRef.current?.reset();
     setStatus({
       kind: "ok",
-      message: `${files.length} ${files.length === 1 ? "plate" : "plates"} added.`,
+      message:
+        `${files.length} ${files.length === 1 ? "plate" : "plates"} added — ` +
+        `${formatBytes(rawBytes)} of originals stored as ${formatBytes(storedBytes)} ` +
+        `(${Math.round((saved / Math.max(rawBytes, 1)) * 100)}% smaller).`,
     });
     router.refresh();
   }
@@ -145,8 +147,10 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
           aria-describedby="files-help"
         />
         <p className="field__help" id="files-help">
-          JPEG, PNG, WebP or AVIF · up to 25 MB each · uploaded to{" "}
-          {bucket === "gallery" ? "the open bucket" : "the private bucket"}.
+          JPEG, PNG, WebP or AVIF · up to 60 MB each. Re-encoded to WebP at
+          2400px and stripped of EXIF before upload, so{" "}
+          {bucket === "gallery" ? "the open bucket" : "the private bucket"} never
+          holds the original.
         </p>
       </div>
 
@@ -186,12 +190,17 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
       <div>
         <button className="btn" type="submit" disabled={working} aria-disabled={working}>
           {working && <span className="btn__spin" aria-hidden="true" />}
-          {working ? `Uploading ${status.done}/${status.total}` : "Upload"}
+          {working
+            ? `${status.stage === "encoding" ? "Compressing" : "Uploading"} ${status.done + 1}/${status.total}`
+            : "Upload"}
         </button>
       </div>
 
       <p className="prog" aria-live="polite">
-        {status.kind === "working" && `${status.done} of ${status.total} filed…`}
+        {status.kind === "working" &&
+          (status.stage === "encoding"
+            ? `Re-encoding ${status.done + 1} of ${status.total} to WebP…`
+            : `${status.done} of ${status.total} filed…`)}
       </p>
 
       {status.kind === "error" && (

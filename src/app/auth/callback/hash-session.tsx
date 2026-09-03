@@ -49,9 +49,9 @@ export function HashSession({ next }: { next: string }) {
   return (
     <div className="auth">
       <div className="head">
-        <h2 className="page__title">
+        <h1 className="page__title">
           {failed ? "That link didn’t work" : "Signing you in…"}
-        </h2>
+        </h1>
         <p className="head__sub" role="status" aria-live="polite">
           {failed ?? "One moment — finishing the handshake."}
         </p>

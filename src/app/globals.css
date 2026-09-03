@@ -22,6 +22,10 @@ body {
       18 18,
     auto;
 }
+/* The drafting cursor is for the page. In a field you need the I-beam that
+ * tells you where the caret will land. */
+input, textarea, .field__input, .field__area { cursor: text; }
+select, .field__select { cursor: pointer; }
 a, button, summary, [role="button"], .chip, .album__media, .elsewhere__row {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44'><circle cx='22' cy='22' r='9' fill='%23c4f23e'/><path d='M22 2v40M2 22h40' stroke='%230d0d0d' stroke-width='1' opacity='0.85'/></svg>")
       22 22,
@@ -38,6 +42,7 @@ body {
   font-weight: 400;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   padding-inline: max(0px, env(safe-area-inset-left));
 }
 ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
@@ -298,7 +303,10 @@ img { display: block; max-width: 100%; }
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-sm) var(--space-lg);
+  /* 12px, not 28px: the wordmark plus the account/theme pair measures ~340px
+   * against ~335px of phone content width, and the wider gap was the whole
+   * difference between one row and two. */
+  gap: var(--space-sm);
 }
 .mast__rail {
   border-top: var(--rule-hair) solid var(--color-rule);
@@ -334,7 +342,9 @@ img { display: block; max-width: 100%; }
 }
 .mast__name em { font-style: normal; color: var(--color-accent-deep); }
 .mast__sub {
-  display: block;
+  /* Hidden on a phone: at ~270px wide it pushed .mast__aside onto a second
+   * row, which is half of why the sticky header cost 195px there. */
+  display: none;
   margin-top: 0.25rem;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -342,14 +352,37 @@ img { display: block; max-width: 100%; }
   text-transform: uppercase;
   color: var(--color-muted);
 }
+/* Tier two is one line that scrolls, not a block that wraps. Five items need
+ * ~520px and a phone has ~335px, so wrapping cost two more rows of sticky
+ * chrome. The rail bleeds into the gutter so the last item scrolls clear. */
 .mast__nav ul {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: var(--space-xs) var(--space-lg);
+  gap: var(--space-md);
   list-style: none;
   padding: 0;
   margin: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  margin-inline: calc(var(--page-gutter) * -1);
+  /* Block padding is not decoration: overflow clips descendants to the padding
+   * box, and a focus ring is outline 2px at offset 2px. Without these 4px the
+   * new scroll container would shear the keyboard focus ring off every link. */
+  padding: var(--space-2xs) var(--page-gutter);
+}
+.mast__nav ul::-webkit-scrollbar { display: none; }
+@media (min-width: 48rem) {
+  .mast__sub { display: block; }
+  .mast__bar { gap: var(--space-sm) var(--space-lg); }
+  .mast__nav ul {
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-lg);
+    overflow-x: visible;
+    margin-inline: 0;
+    padding: 0;
+  }
 }
 .mast__link {
   display: inline-flex;
@@ -362,11 +395,13 @@ img { display: block; max-width: 100%; }
   white-space: nowrap;
   color: var(--color-ink-2);
   padding-block: var(--space-2xs);
+  min-height: 24px;
   border-bottom: var(--rule-hair) solid transparent;
   transition: color var(--dur-micro) var(--ease-out),
               border-color var(--dur-micro) var(--ease-out);
 }
 .mast__no { color: var(--color-muted); }
+@media (pointer: coarse) { .mast__link { min-height: 44px; } }
 @media (hover: hover) and (pointer: fine) {
   .mast__link:hover { color: var(--color-ink); border-bottom-color: var(--color-rule-2); }
   .mast__link:hover .mast__no { color: var(--color-accent-deep); }
@@ -376,7 +411,18 @@ img { display: block; max-width: 100%; }
   font-weight: 700;
   border-bottom-color: var(--color-accent);
 }
-.mast__aside { display: flex; align-items: center; gap: var(--space-xs); }
+.mast__aside { display: flex; align-items: center; gap: var(--space-sm); }
+/* Scroll depth as a register line. Sits on the masthead's own bottom rule and
+ * is scaled from 0 → 1 by Motion, so it never lays out during scroll. */
+.mast__progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(var(--rule-hair) * -1);
+  height: 2px;
+  background: var(--color-accent);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
 
 /* ------------------------------------------------------------ controls */
 .tog {
@@ -395,7 +441,10 @@ img { display: block; max-width: 100%; }
   transition: background-color var(--dur-micro) var(--ease-out),
               color var(--dur-micro) var(--ease-out);
 }
-.tog::before { content: ""; position: absolute; inset: -8px; }
+/* -4px, not -8px: .mast__aside sits these 12px apart, and an 8px expansion on
+ * each made the two hit areas overlap — a tap on the account chip's trailing
+ * edge flipped the theme instead. 4px + 4px < 12px clears it. */
+.tog::before { content: ""; position: absolute; inset: -4px; }
 .tog { position: relative; }
 @media (hover: hover) and (pointer: fine) {
   .tog:hover { background: var(--color-paper-2); color: var(--color-ink); }
@@ -580,11 +629,15 @@ img { display: block; max-width: 100%; }
 }
 /* Fold heights are whole modules, so a photograph's top and bottom edges land
  * on lattice rows the way the reference does. */
-.fold-photo--tall  { height: calc(var(--module) * 5); }
-.fold-photo--band  { height: calc(var(--module) * 4); }
+/* Whole grid rows, but never taller than a sane frame: the fold is full-bleed,
+ * so on a 375px phone a flat 600px height cropped a landscape shot to a 0.62
+ * sliver. The min() caps the tall fold at 4:5 and the band at 3:2, which binds
+ * only on phones — from 480px up these are the same heights as before. */
+.fold-photo--tall  { height: min(125vw, calc(var(--row) * 5)); }
+.fold-photo--band  { height: min(66.6vw, calc(var(--row) * 4)); }
 @media (min-width: 60rem) {
-  .fold-photo--tall { height: calc(var(--module) * 6); }
-  .fold-photo--band { height: calc(var(--module) * 4); }
+  .fold-photo--tall { height: calc(var(--row) * 6); }
+  .fold-photo--band { height: calc(var(--row) * 4); }
 }
 .fold-photo__img {
   width: 100%;
@@ -642,7 +695,9 @@ img { display: block; max-width: 100%; }
   font-size: var(--text-lg);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--color-rule-2);
+  /* --color-muted, not --color-rule-2: the hairline token measured 1.55:1
+   * here, which is not a colour, it is an absence. */
+  color: var(--color-muted);
 }
 
 /* ------------------------------------------------------ ticker · movement */
@@ -734,11 +789,14 @@ img { display: block; max-width: 100%; }
 
 /* Index rows — a numbered table of the archive, hover flips the row. */
 .index { display: grid; }
+/* Two columns on a phone, three once there is room: at 375px the nowrap meta
+ * took ~145px and the number ~30px, squeezing an 18px uppercase title into
+ * ~130px. The meta drops under the title instead. */
 .index__row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  gap: var(--space-sm) var(--space-md);
+  gap: var(--space-2xs) var(--space-md);
   padding-block: var(--space-md);
   border-bottom: var(--rule-hair) solid var(--color-rule);
   /* transform, not padding — animating padding lays out on every frame. */
@@ -766,6 +824,14 @@ img { display: block; max-width: 100%; }
   text-transform: uppercase;
   color: var(--color-muted);
   white-space: nowrap;
+  grid-column: 2;
+}
+@media (min-width: 48rem) {
+  .index__row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-sm) var(--space-md);
+  }
+  .index__meta { grid-column: auto; }
 }
 @media (hover: hover) and (pointer: fine) {
   .index__row:hover {
@@ -785,7 +851,7 @@ img { display: block; max-width: 100%; }
 .open {
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--module) var(--page-gutter) calc(var(--module) * 1.5);
+  padding: calc(var(--row) * 0.75) var(--page-gutter) var(--row);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-xl);
@@ -794,7 +860,7 @@ img { display: block; max-width: 100%; }
   .open {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: start;
-    padding-block: var(--module) calc(var(--module) * 2);
+    padding-block: var(--row) calc(var(--row) * 2);
   }
   .open__label    { grid-column: 2 / span 3; }
   .open__arrow    { grid-column: 6; justify-self: center; align-self: center; }
@@ -815,7 +881,7 @@ img { display: block; max-width: 100%; }
   position: relative;
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--module) var(--page-gutter);
+  padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xl);
@@ -823,7 +889,7 @@ img { display: block; max-width: 100%; }
 @media (min-width: 60rem) {
   .story {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    padding-block: calc(var(--module) * 1.5);
+    padding-block: calc(var(--row) * 1.5);
     gap: var(--space-xl);
   }
   .story__head  { grid-column: 2 / span 4; }
@@ -861,7 +927,9 @@ img { display: block; max-width: 100%; }
 /* Narrow justified measure — the block reads as a grid cell. */
 .story__body {
   max-width: 34ch;
-  font-size: var(--text-sm);
+  /* --text-base, not --text-sm: this is the site's bio, and 12px is the label
+   * size. Long-form copy starts near the browser default, not at the floor. */
+  font-size: var(--text-base);
   line-height: 1.6;
   /* Ragged right, not justified — a 34ch measure is too narrow for
    * justification to settle without opening rivers. */
@@ -912,12 +980,12 @@ img { display: block; max-width: 100%; }
 .band {
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--module) var(--page-gutter);
+  padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
 }
 @media (min-width: 60rem) {
-  .band { padding-block: calc(var(--module) * 1.5); }
+  .band { padding-block: calc(var(--row) * 1.5); }
 }
 /* Slab environment — the one place a section paints over the grid, and it
  * brings its own lime register marks with it. */
@@ -949,12 +1017,12 @@ img { display: block; max-width: 100%; }
 .grid-band {
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--module) var(--page-gutter);
+  padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
 }
 @media (min-width: 60rem) {
-  .grid-band { padding-block: calc(var(--module) * 1.5); }
+  .grid-band { padding-block: calc(var(--row) * 1.5); }
 }
 
 /* A section divider rail — index number, title, right-hand metadata. */
@@ -978,7 +1046,9 @@ img { display: block; max-width: 100%; }
 /* section heads — stacked single column, never tag-left/head-right */
 .head { display: grid; gap: var(--space-sm); max-width: 34ch; }
 .head__title {
-  font-size: var(--text-2xl);
+  /* Clamped, because .page__title is clamped too: a flat 2.5rem here rendered
+   * the h2 larger than the h1 on every viewport under 800px. */
+  font-size: clamp(1.75rem, 4.2vw, var(--text-2xl));
   font-weight: 700;
   letter-spacing: var(--tracking-display);
   text-transform: uppercase;
@@ -1041,7 +1111,7 @@ img { display: block; max-width: 100%; }
   text-transform: uppercase;
 }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
-.album__sub { font-size: var(--text-sm); color: var(--color-muted); }
+.album__sub { font-size: var(--text-base); color: var(--color-muted); }
 
 .lock {
   display: inline-flex;
@@ -1056,16 +1126,60 @@ img { display: block; max-width: 100%; }
   padding: 0.15em 0.4em;
 }
 
-/* --------------------------------------------------------- photo strip */
-.strip { display: grid; gap: var(--space-2xl); padding-bottom: var(--space-3xl); }
-.strip__item { display: grid; gap: var(--space-sm); }
-.strip__frame { background: var(--color-paper-2); }
+/* ------------------------------------------- photo strip · Specimen plates */
+/* The gallery is the system's most literal transfer from the Corbusier
+ * reference: numbered plates hung in the margin, images cascading on
+ * irregular spans, one or two per fold. Never a uniform stack. */
+.strip {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: 0 var(--page-gutter) calc(var(--row) * 1.5);
+  display: grid;
+  gap: var(--space-3xl);
+}
+.strip__item { display: grid; gap: var(--space-sm); min-width: 0; }
+.strip__no {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  line-height: 1;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.strip__frame { background: var(--color-paper-2); min-width: 0; }
 .strip__frame img { width: 100%; height: auto; }
 .strip__cap {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-xs);
-  padding-inline: var(--page-gutter);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  padding-top: var(--space-xs);
   font-family: var(--font-mono); font-size: var(--text-xs);
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
+}
+/* The meta half stays on the right edge of the frame even when the caption
+ * half is absent, so the plate ledger reads down one column. */
+.strip__cap > span:last-child { margin-inline-start: auto; }
+
+@media (min-width: 60rem) {
+  .strip {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-xl);
+    row-gap: calc(var(--row) * 1.5);
+  }
+  /* A four-step cascade: no two consecutive plates share a width or an edge,
+   * and the row never closes — there is always empty field beside a plate. */
+  .strip__item:nth-child(4n + 1) { grid-column: 2 / span 7; }
+  .strip__item:nth-child(4n + 2) { grid-column: 7 / span 5; }
+  .strip__item:nth-child(4n + 3) { grid-column: 1 / span 6; }
+  .strip__item:nth-child(4n + 4) { grid-column: 5 / span 8; }
+
+  /* The number hangs in the margin beside the frame, not above it. */
+  .strip__item {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--space-lg);
+  }
+  .strip__no    { grid-column: 1; grid-row: 1; text-align: right; }
+  .strip__frame { grid-column: 2; grid-row: 1; }
+  .strip__cap   { grid-column: 2; grid-row: 2; }
 }
 
 /* --------------------------------------------------------- elsewhere */
@@ -1097,7 +1211,7 @@ img { display: block; max-width: 100%; }
   font-weight: 700;
   transition: color var(--dur-micro) var(--ease-out);
 }
-.elsewhere__what { color: var(--color-ink-2); font-size: var(--text-sm); }
+.elsewhere__what { color: var(--color-ink-2); font-size: var(--text-base); }
 .elsewhere__go { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); white-space: nowrap; }
 
 /* --------------------------------------------------------- guestbook */
@@ -1118,6 +1232,14 @@ img { display: block; max-width: 100%; }
   appearance: none; background: none; border: 0; cursor: pointer;
   font: inherit; color: var(--color-muted); text-decoration: underline;
   text-transform: none; letter-spacing: 0;
+  position: relative;
+}
+/* ~17px of text is not a touch target. The pseudo-element takes it to 41px
+ * without growing the meta row; .plates__acts widens its gap to match so the
+ * two expanded areas there never meet. */
+@media (pointer: coarse) {
+  .note__del::before { content: ""; position: absolute; inset: -12px; }
+  .plates__acts { gap: var(--space-lg); }
 }
 @media (hover: hover) and (pointer: fine) { .note__del:hover { color: var(--color-error); } }
 .notes__empty { color: var(--color-muted); font-size: var(--text-md); font-family: var(--font-display); font-weight: 500; }
@@ -1132,9 +1254,17 @@ img { display: block; max-width: 100%; }
 .auth__form { display: grid; gap: var(--space-md); }
 .auth__alt {
   display: flex; flex-wrap: wrap; gap: var(--space-md);
+  align-items: center;
   border-top: var(--rule-hair) solid var(--color-rule);
   padding-top: var(--space-md);
-  font-size: var(--text-sm); color: var(--color-muted);
+  font-size: var(--text-base); color: var(--color-muted);
+}
+/* The four mode switchers are 20px of text. Expanded to 44px, with the gaps
+ * opened past twice the expansion so no two of them overlap. */
+@media (pointer: coarse) {
+  .auth__alt { gap: var(--space-lg) var(--space-xl); }
+  .auth__alt .link { position: relative; }
+  .auth__alt .link::before { content: ""; position: absolute; inset: -12px; }
 }
 
 /* --------------------------------------------------------- Ft5 footer */
@@ -1144,7 +1274,7 @@ img { display: block; max-width: 100%; }
   background: transparent;
   color: var(--color-ink);
   border-top: var(--rule-hair) solid var(--color-rule);
-  padding: calc(var(--module) * 1.5) var(--page-gutter) var(--space-xl);
+  padding: calc(var(--row) * 1.5) var(--page-gutter) var(--space-xl);
   display: grid;
   gap: var(--space-xl);
   overflow: clip;
@@ -1182,7 +1312,7 @@ img { display: block; max-width: 100%; }
   margin-block: var(--space-lg) 0;
   user-select: none;
 }
-.foot__ps { font-size: var(--text-sm); color: var(--color-ink-2); max-width: 52ch; }
+.foot__ps { font-size: var(--text-base); color: var(--color-ink-2); max-width: 52ch; }
 .foot__row {
   display: flex; flex-wrap: wrap; gap: var(--space-md) var(--space-lg);
   align-items: baseline;
@@ -1217,22 +1347,12 @@ img { display: block; max-width: 100%; }
 .page__pad { padding-inline: var(--page-gutter); }
 .page__pad-b { padding-bottom: var(--space-3xl); }
 
-/* ----------------------------------------------------------- reveal */
-.reveal {
-  opacity: 0;
-  transform: translateY(8px);
-  animation: reveal var(--dur-long) var(--ease-out) forwards;
-  animation-delay: calc(var(--i, 0) * 60ms);
-}
-@keyframes reveal { to { opacity: 1; transform: none; } }
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 150ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 150ms !important;
   }
-  .reveal { transform: none; }
   .album__media img { transition: none; }
 }
 

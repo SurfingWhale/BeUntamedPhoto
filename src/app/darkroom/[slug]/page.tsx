@@ -33,7 +33,7 @@ export default async function DarkroomAlbumPage({ params }: Params) {
         <p className="u-mono">
           Darkroom · {album.visibility === "members" ? "signed-in only" : "open"}
         </p>
-        <h2 className="page__title">{album.title}</h2>
+        <h1 className="page__title">{album.title}</h1>
         <p className="fold-text__body">
           {photos.length} {photos.length === 1 ? "plate" : "plates"} ·{" "}
           <Link className="link" href={`/work/${album.slug}`}>
@@ -49,12 +49,12 @@ export default async function DarkroomAlbumPage({ params }: Params) {
 
       <div className="dark-grid">
         <section className="panel">
-          <h3 className="panel__title">Plates</h3>
+          <h2 className="panel__title">Plates</h2>
           <AlbumAdmin album={album} photos={photos} />
         </section>
 
         <section className="panel">
-          <h3 className="panel__title">Add plates</h3>
+          <h2 className="panel__title">Add plates</h2>
           <Uploader
             albumId={album.id}
             slug={album.slug}

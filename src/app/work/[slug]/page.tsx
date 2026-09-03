@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import { Reveal } from "@/components/motion";
 import { NotesPanel } from "@/components/notes-panel";
 import { Plate } from "@/components/plate";
 import { getAlbum, getPhotos } from "@/lib/gallery";
@@ -41,7 +42,7 @@ export default async function AlbumPage({ params }: Params) {
           {album.place ? ` · ${album.place}` : ""}
           {album.visibility === "members" ? " · signed-in only" : ""}
         </p>
-        <h2 className="page__title">{album.title}</h2>
+        <h1 className="page__title">{album.title}</h1>
         {album.subtitle && <p className="fold-text__body">{album.subtitle}</p>}
         <p>
           <Link className="link" href="/work">
@@ -73,7 +74,8 @@ export default async function AlbumPage({ params }: Params) {
       ) : (
         <div className="strip">
           {photos.map((photo, i) => (
-            <figure className="strip__item" key={photo.id}>
+            <Reveal as="figure" className="strip__item" key={photo.id} index={i % 2}>
+              <p className="strip__no">{plate(i)}</p>
               <div className="strip__frame">
                 {photo.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -93,17 +95,16 @@ export default async function AlbumPage({ params }: Params) {
                 )}
               </div>
               <figcaption className="strip__cap">
-                <span>
-                  Plate {plate(i)}
-                  {photo.caption ? ` · ${photo.caption}` : ""}
-                </span>
+                {/* The number is already hung in the margin — the caption
+                    carries only what the number cannot say. */}
+                {photo.caption && <span>{photo.caption}</span>}
                 <span>
                   {[photo.place, formatDate(photo.taken_on)]
                     .filter(Boolean)
                     .join(" · ") || "unfiled"}
                 </span>
               </figcaption>
-            </figure>
+            </Reveal>
           ))}
         </div>
       )}

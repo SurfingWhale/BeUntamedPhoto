@@ -25,10 +25,6 @@ export default async function EnterPage({
 
   return (
     <div className="page">
-      <div className="page__intro">
-        <p className="u-mono">Access</p>
-        <h1 className="page__title">Sign in</h1>
-      </div>
       {error && (
         <div className="page__intro">
           <p className="form-note" data-tone="error" role="alert">

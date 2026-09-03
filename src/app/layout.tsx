@@ -4,6 +4,7 @@ import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
 import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
 import { GridLines } from "@/components/grid-lines";
+import { MotionRoot } from "@/components/motion";
 import { getViewer } from "@/lib/auth";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -56,15 +57,27 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        {/* Motion server-renders its initial state as an inline opacity:0, so
+            without JS the scroll reveals never fire and that content would
+            stay invisible. This puts it back. */}
+        <noscript>
+          <style>{`[style*="opacity:0"]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
       </head>
       <body className={`${syne.variable} ${hanken.variable} ${jetbrains.variable}`}>
         <a className="u-skip" href="#main">
           Skip to content
         </a>
-        <GridLines />
-        <Masthead viewer={viewer} />
-        <main id="main">{children}</main>
-        <Footer />
+        <MotionRoot>
+          <GridLines />
+          <Masthead viewer={viewer} />
+          {/* tabindex -1 so "Skip to content" actually moves focus here;
+              without it Safari scrolls but leaves focus back in the nav. */}
+          <main id="main" tabIndex={-1}>
+            {children}
+          </main>
+          <Footer />
+        </MotionRoot>
       </body>
     </html>
   );

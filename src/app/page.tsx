@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { IndexFilter } from "@/components/index-filter";
+import { Reveal } from "@/components/motion";
 import { PhotoFold } from "@/components/photo-fold";
 import { Plate } from "@/components/plate";
 import { Ticker } from "@/components/ticker";
@@ -148,11 +149,7 @@ export default async function HomePage() {
             {shown.map((album, i) => {
               const cover = covers.get(album.id);
               return (
-                <article
-                  className="album reveal"
-                  key={album.id}
-                  style={{ "--i": i } as React.CSSProperties}
-                >
+                <Reveal as="article" className="album" key={album.id} index={i}>
                   <Link className="album__media" href={`/work/${album.slug}`}>
                     {cover?.url ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -176,7 +173,7 @@ export default async function HomePage() {
                   {album.visibility === "members" && (
                     <span className="lock">◆ signed-in only</span>
                   )}
-                </article>
+                </Reveal>
               );
             })}
           </div>
@@ -218,9 +215,11 @@ export default async function HomePage() {
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
       <section className="band plot">
         <div className="elsewhere">
-          {elsewhere.map((place) => (
-            <a
+          {elsewhere.map((place, i) => (
+            <Reveal
+              as="a"
               key={place.href}
+              index={i}
               className="elsewhere__row"
               href={place.href}
               target="_blank"
@@ -229,7 +228,7 @@ export default async function HomePage() {
               <span className="elsewhere__name">{place.name}</span>
               <span className="elsewhere__what">{place.what}</span>
               <span className="elsewhere__go">{place.go} ↗</span>
-            </a>
+            </Reveal>
           ))}
           <Link className="elsewhere__row" href="/work">
             <span className="elsewhere__name">UNTAMED</span>

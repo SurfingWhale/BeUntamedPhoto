@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { Reveal } from "@/components/motion";
 import { plate } from "@/lib/format";
 import type { Album } from "@/lib/gallery";
 
@@ -63,14 +64,16 @@ export function IndexFilter({ albums }: { albums: Album[] }) {
       ) : (
         <div className="index">
           {shown.slice(0, 6).map((album, i) => (
-            <Link className="index__row" key={album.id} href={`/work/${album.slug}`}>
-              <span className="index__no">[{plate(i)}]</span>
-              <span className="index__name">{album.title}</span>
-              <span className="index__meta">
-                {album.place ?? "unfiled"} · {album.year ?? "—"}
-                {album.visibility === "members" ? " · held" : ""} ↗
-              </span>
-            </Link>
+            <Reveal as="div" key={album.id} index={i}>
+              <Link className="index__row" href={`/work/${album.slug}`}>
+                <span className="index__no">[{plate(i)}]</span>
+                <span className="index__name">{album.title}</span>
+                <span className="index__meta">
+                  {album.place ?? "unfiled"} · {album.year ?? "—"}
+                  {album.visibility === "members" ? " · held" : ""} ↗
+                </span>
+              </Link>
+            </Reveal>
           ))}
         </div>
       )}

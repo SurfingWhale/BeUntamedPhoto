@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { Reveal } from "@/components/motion";
 import { Plate } from "@/components/plate";
 import { getAlbums, getCovers } from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
@@ -49,11 +50,7 @@ export default async function WorkPage() {
           {albums.map((album, i) => {
             const cover = covers.get(album.id);
             return (
-              <article
-                className="album reveal"
-                key={album.id}
-                style={{ "--i": i } as React.CSSProperties}
-              >
+              <Reveal as="article" className="album" key={album.id} index={i}>
                 <Link className="album__media" href={`/work/${album.slug}`}>
                   {cover?.url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -69,9 +66,9 @@ export default async function WorkPage() {
                   )}
                 </Link>
                 <div className="album__meta">
-                  <h3 className="album__title">
+                  <h2 className="album__title">
                     <Link href={`/work/${album.slug}`}>{album.title}</Link>
-                  </h3>
+                  </h2>
                   <span className="album__year u-tabular">{album.year ?? "—"}</span>
                 </div>
                 <p className="album__sub">
@@ -80,7 +77,7 @@ export default async function WorkPage() {
                 {album.visibility === "members" && (
                   <span className="lock">◆ signed-in only</span>
                 )}
-              </article>
+              </Reveal>
             );
           })}
         </div>

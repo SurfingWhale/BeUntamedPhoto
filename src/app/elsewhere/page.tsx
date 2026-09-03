@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { Reveal } from "@/components/motion";
 import { elsewhere } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -23,10 +24,11 @@ export default function ElsewherePage() {
       <section className="fold-text fold-text--tight">
         <div className="elsewhere">
           {elsewhere.map((place, i) => (
-            <a
+            <Reveal
+              as="a"
               key={place.href}
-              className="elsewhere__row reveal"
-              style={{ "--i": i } as React.CSSProperties}
+              index={i}
+              className="elsewhere__row"
               href={place.href}
               target="_blank"
               rel="noreferrer"
@@ -34,7 +36,7 @@ export default function ElsewherePage() {
               <span className="elsewhere__name">{place.name}</span>
               <span className="elsewhere__what">{place.what}</span>
               <span className="elsewhere__go">{place.go} ↗</span>
-            </a>
+            </Reveal>
           ))}
         </div>
       </section>

@@ -33,13 +33,16 @@ export function Ticker({ items }: { items: string[] }) {
         {track(false)}
         {track(true)}
       </div>
+      {/* The label alone carries the state. Pairing a swapping label with
+          aria-pressed made screen readers announce "Pause, not pressed" and
+          then "Play, pressed" — the name and the state disagreeing. */}
       <button
         type="button"
         className="ticker__toggle"
         onClick={() => setPaused((p) => !p)}
-        aria-pressed={paused}
       >
         {paused ? "Play" : "Pause"}
+        <span className="u-sr"> the archive strip</span>
       </button>
     </div>
   );

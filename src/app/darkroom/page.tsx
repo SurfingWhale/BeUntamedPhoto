@@ -31,7 +31,7 @@ export default async function DarkroomPage() {
 
       <div className="dark-grid">
         <section className="panel">
-          <h3 className="panel__title">Galleries</h3>
+          <h2 className="panel__title">Galleries</h2>
           {albums.length === 0 ? (
             <p className="notes__empty">Nothing filed yet.</p>
           ) : (
@@ -57,7 +57,7 @@ export default async function DarkroomPage() {
         </section>
 
         <section className="panel">
-          <h3 className="panel__title">File a new gallery</h3>
+          <h2 className="panel__title">File a new gallery</h2>
           <AlbumForm />
         </section>
       </div>

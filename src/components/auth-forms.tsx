@@ -112,8 +112,13 @@ export function AuthForms({ next }: { next: string }) {
 
   return (
     <div className="auth">
+      {/* This is the page's h1. The page used to render its own "Sign in"
+          heading above it, so /enter opened with the same word twice at hero
+          size — and the mode switcher's title no longer read as the state it
+          controls. */}
       <div className="head">
-        <h2 className="page__title">{copy.title}</h2>
+        <p className="u-mono">Access</p>
+        <h1 className="page__title">{copy.title}</h1>
         <p className="head__sub">{copy.blurb}</p>
       </div>
 

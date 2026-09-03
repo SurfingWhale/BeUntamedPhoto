@@ -37,9 +37,12 @@
   --space-md:  1rem;
   --space-lg:  1.75rem;
   --space-xl:  3rem;
-  --space-2xl: 5rem;
-  --space-3xl: 7.5rem;
-  --space-4xl: 11rem;
+  /* The three big steps are fluid: they hold their desktop values at the
+   * 1440px measure and shrink on a phone, where a raw 7.5rem of block padding
+   * spends a third of the viewport on nothing. */
+  --space-2xl: clamp(2.5rem, 8vw, 5rem);
+  --space-3xl: clamp(3.25rem, 12vw, 7.5rem);
+  --space-4xl: clamp(4rem, 16vw, 11rem);
   --subgrid-gap: 2rem;
   --page-gutter: clamp(1.25rem, 4vw, 2.5rem);
   --page-max: 1440px;
@@ -57,7 +60,10 @@
    * chroma — dead greys read flat next to the photography (gate 24). */
   --color-ink:          #0D0F0E;  /* ink black, faint green cast */
   --color-ink-2:        #414844;  /* on-surface-variant */
-  --color-muted:        #6E7472;  /* technical gray, tinted + darkened for AA */
+  /* Darkened again: #6E7472 passed on --color-paper (4.60) but failed on the
+   * two alt grounds it also sits on — 4.33 on paper-2, 4.09 on paper-3. This
+   * clears 4.5 on all three (5.58 / 5.25 / 4.96) and reaches APCA Lc 76. */
+  --color-muted:        #616764;  /* technical gray, tinted + darkened for AA */
   --color-ink-on-dark:  #FFFFFF;
   --color-ink-on-dark-2:#ABCFBB;  /* primary-fixed-dim — muted on slab */
 
@@ -72,6 +78,10 @@
   --color-grid:         rgba(13, 13, 13, 0.07);
   --color-grid-laser:   rgba(107, 150, 0, 0.34);
   --module:             120px;   /* 1440 / 12 — one square cell */
+  /* The row height the lattice actually paints — see .gridlines__cols, which
+   * uses this same min() at these same breakpoints. Block padding measured in
+   * --row lands on a real grid row at 375px, not only at 1440px. */
+  --row: min(calc(100vw / 4), var(--module));
 
   --color-accent:       #C4F23E;  /* acid lime — the signal layer */
   --color-accent-2:     #D4F843;
@@ -110,6 +120,13 @@
   --z-tooltip: 600;
 }
 
+@media (min-width: 48rem) {
+  :root { --row: min(calc(100vw / 8), var(--module)); }
+}
+@media (min-width: 75rem) {
+  :root { --row: min(calc(100vw / 12), var(--module)); }
+}
+
 /* ---- colour · dark theme ------------------------------------------ */
 /* The slab environment becomes the ground; lime stays the signal. */
 :root[data-theme="dark"] {
@@ -122,7 +139,7 @@
 
   --color-ink:          #FFFFFF;
   --color-ink-2:        #C6EBD7;
-  --color-muted:        #879274;
+  --color-muted:        #B3C0A0;  /* |Lc| 61–65 on every dark ground; #879274 was 40 */
   --color-ink-on-dark:  #FFFFFF;
   --color-ink-on-dark-2:#ABCFBB;
 
@@ -155,7 +172,7 @@
 
     --color-ink:          #FFFFFF;
     --color-ink-2:        #C6EBD7;
-    --color-muted:        #879274;
+    --color-muted:        #B3C0A0;  /* |Lc| 61–65 on every dark ground; #879274 was 40 */
     --color-ink-on-dark:  #FFFFFF;
     --color-ink-on-dark-2:#ABCFBB;
 

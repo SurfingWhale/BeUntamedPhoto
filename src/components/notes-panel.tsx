@@ -85,7 +85,9 @@ export function NotesPanel({
               className="field__help u-tabular"
               id="note-help"
               data-tone={over || state.status === "error" ? "error" : undefined}
-              aria-live="polite"
+              /* Live only once there is something worth interrupting for — a
+                 running count announced on every keystroke is noise. */
+              aria-live={over || state.status === "error" ? "polite" : "off"}
             >
               {state.status === "error"
                 ? state.message
@@ -122,13 +124,16 @@ export function NotesPanel({
           {initialNotes.map((note) => (
             <li className="note" key={note.id}>
               <p className="note__body">{note.body}</p>
-              <p className="note__meta">
+              {/* A div, not a p: DeleteNote renders a <form>, and a <form>
+                  start tag closes an open <p> during parsing — which threw the
+                  button out of this flex row and broke hydration. */}
+              <div className="note__meta">
                 <span>{note.display_name}</span>
                 <span>{formatDate(note.created_at)}</span>
                 {viewer && (viewer.id === note.user_id || viewer.isOwner) && (
                   <DeleteNote id={note.id} path={pathname} />
                 )}
-              </p>
+              </div>
             </li>
           ))}
         </ul>
