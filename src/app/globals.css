@@ -93,6 +93,86 @@ h1, h2, h3 {
  * hairlines read through them; only slab sections deliberately occlude. */
 .mast, main, .foot { position: relative; z-index: var(--z-base); }
 
+/* ------------------------------------------------- the mark vocabulary */
+/* Marks live in margins and empty cells. They mark positions on the lattice;
+ * they never decorate content. See design.md § 3.6. */
+.mark {
+  display: inline-block;
+  line-height: 1;
+  color: var(--color-ink);
+  user-select: none;
+}
+.mark--thin  { font-weight: 300; font-size: var(--text-2xl); }
+.mark--bold  { font-weight: 700; font-size: var(--text-xl); }
+.mark--quiet { color: var(--color-muted); }
+
+/* Corner brackets — ⌐ pins a block's top-right, ∟ its bottom-left. */
+.bracket {
+  position: absolute;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: var(--text-xl);
+  line-height: 1;
+  color: var(--color-ink);
+  user-select: none;
+  pointer-events: none;
+}
+.bracket--tr { top: calc(var(--space-md) * -1); right: calc(var(--space-md) * -1); }
+.bracket--bl { bottom: calc(var(--space-md) * -1); left: calc(var(--space-md) * -1); }
+
+/* Swatch row — stepped diagonal, never a neat block. Colours are sampled
+ * from the adjacent photograph and passed in as custom properties. */
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(3, 0.75rem);
+  gap: 2px;
+  align-items: start;
+}
+.swatch { width: 0.75rem; height: 0.75rem; }
+.swatch:nth-child(1) { grid-column: 3; }
+.swatch:nth-child(2) { grid-column: 1; }
+.swatch:nth-child(3) { grid-column: 2; }
+.swatch:nth-child(4) { grid-column: 1; }
+
+/* The one solid fill allowed per screen. */
+.tag {
+  display: inline-block;
+  background: var(--color-paper-dark);
+  color: var(--color-accent);
+  padding: 0.2em 0.55em;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-code);
+  font-weight: 500;
+}
+
+/* Ghost numerals — giant, barely there, cropped by the edge. */
+.ghost {
+  position: absolute;
+  right: calc(var(--space-xl) * -1);
+  bottom: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(8rem, 22vw, 18rem);
+  line-height: 0.78;
+  letter-spacing: var(--tracking-hero);
+  color: var(--color-ink);
+  opacity: 0.04;
+  user-select: none;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Label voice — exaggerated word gaps, words landing on separate columns. */
+.label-wide {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+  word-spacing: 1.5em;
+}
+
 /* `+` register marks on a container's own corners */
 .plot { position: relative; }
 .plot::before,
@@ -504,6 +584,97 @@ img { display: block; max-width: 100%; }
   color: var(--color-rule-2);
 }
 
+/* ------------------------------------------- opening zone · empty cells */
+/* Two module-rows of deliberate blank above the label cluster. The marks sit
+ * in the emptiness; that emptiness is the composition. */
+.open {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: calc(var(--module) * 1.5) var(--page-gutter) var(--module);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xl);
+}
+@media (min-width: 60rem) {
+  .open {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
+    padding-top: calc(var(--module) * 2);
+  }
+  .open__label    { grid-column: 2 / span 3; }
+  .open__arrow    { grid-column: 6; justify-self: center; align-self: center; }
+  .open__swatches { grid-column: 9 / span 3; }
+}
+.open__label { display: grid; gap: var(--space-sm); }
+.open__no {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  line-height: 1;
+}
+.open__swatches { display: grid; gap: var(--space-xs); justify-items: start; }
+
+/* ------------------------------------------------------- story zone */
+.story {
+  position: relative;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--module) var(--page-gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2xl);
+}
+@media (min-width: 60rem) {
+  .story {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    padding-block: calc(var(--module) * 1.5);
+    gap: var(--space-xl);
+  }
+  .story__head  { grid-column: 2 / span 4; }
+  .story__arrow { grid-column: 6; align-self: start; justify-self: center; margin-top: var(--module); }
+  .story__foot  { grid-column: 6; justify-self: center; align-self: end; }
+  .story__col   { grid-column: 8 / span 4; }
+}
+.story__head { display: grid; gap: var(--space-lg); justify-items: start; align-content: start; }
+/* Light lowercase display, tight leading — the reference's headline voice,
+ * not the uppercase brand voice used for section heads. */
+.story__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  text-transform: none;
+}
+.story__col { position: relative; display: grid; gap: var(--space-md); }
+.story__pair {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2xs) var(--space-sm);
+  align-items: baseline;
+  margin-bottom: var(--space-sm);
+}
+.story__no {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.story__gloss { font-size: var(--text-sm); color: var(--color-ink-2); }
+/* Narrow justified measure — the block reads as a grid cell. */
+.story__body {
+  max-width: 34ch;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  text-align: justify;
+  text-wrap: pretty;
+  hyphens: auto;
+  color: var(--color-ink-2);
+}
+.story__by { margin-top: var(--space-md); }
+
 /* text folds — narrow bands between the photographs */
 .fold-text {
   padding: var(--space-3xl) var(--page-gutter);
@@ -771,11 +942,13 @@ img { display: block; max-width: 100%; }
 }
 
 /* --------------------------------------------------------- Ft5 footer */
+/* Canvas, not slab. The wordmark carries the weight as a ghost, the way the
+ * reference layers giant numerals — no full-bleed colour field. */
 .foot {
-  background: var(--color-paper-dark);
-  color: var(--color-ink-on-dark);
-  border-top: var(--rule-hair) solid var(--color-rule-on-dark);
-  padding: var(--space-3xl) var(--page-gutter) var(--space-xl);
+  background: transparent;
+  color: var(--color-ink);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  padding: calc(var(--module) * 1.5) var(--page-gutter) var(--space-xl);
   display: grid;
   gap: var(--space-xl);
   overflow: clip;
@@ -807,26 +980,23 @@ img { display: block; max-width: 100%; }
   text-transform: uppercase;
   font-size: clamp(3.5rem, 15vw, 13rem);
   line-height: 0.82;
-  color: var(--color-accent);
+  color: var(--color-ink);
+  opacity: 0.06;
   margin-block: var(--space-lg) 0;
   user-select: none;
 }
-.foot__ps { font-size: var(--text-sm); opacity: 0.65; max-width: 52ch; }
+.foot__ps { font-size: var(--text-sm); color: var(--color-ink-2); max-width: 52ch; }
 .foot__row {
   display: flex; flex-wrap: wrap; gap: var(--space-md) var(--space-lg);
   align-items: baseline;
-  border-top: var(--rule-hair) solid var(--color-rule-on-dark);
+  border-top: var(--rule-hair) solid var(--color-rule);
   padding-top: var(--space-md);
   font-family: var(--font-mono); font-size: var(--text-xs);
-  letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
 }
 .foot__link { white-space: nowrap; border-bottom: var(--rule-hair) solid transparent; }
 @media (hover: hover) and (pointer: fine) {
-  .foot__link:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); opacity: 1; }
-}
-.foot .link { color: var(--color-ink-on-dark); border-bottom-color: var(--color-rule-on-dark); }
-@media (hover: hover) and (pointer: fine) {
-  .foot .link:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+  .foot__link:hover { color: var(--color-ink); border-bottom-color: var(--color-accent); }
 }
 
 /* --------------------------------------------------------- page shell */

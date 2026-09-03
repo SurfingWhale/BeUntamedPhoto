@@ -188,6 +188,48 @@ photographs. Putting any of it on a live portfolio would be publishing false
 claims about a real practice. The system travels; the fiction does not. Real
 copy and real galleries come from Supabase as before.
 
+## 3.6 · The symbol system (studied from the reference layout)
+
+The reference is not "a layout with some icons on it" — the marks *are* the
+design. Catalogued so they can be reused rather than sprinkled.
+
+### Colour balance — the rule that governs everything
+
+**~85% white. Green is never a section.** In the reference, green appears in
+exactly three places: the photograph itself, four small swatch squares, and
+one small filled `14.8` tag. Nothing else. Full-bleed green slabs read as
+heavy and cheap against this — they were removed on 2026-09-03 for that
+reason. The forest tone survives only as: photographic content, a small
+filled tag, and hairlines.
+
+### The marks
+
+| Mark | Placement rule | Weight |
+| --- | --- | --- |
+| `←` | alone in an empty region, baseline-aligned to a nearby numeral | thin, large |
+| `↗` | centre column, level with the headline's second line | bold |
+| `⌐` | top-right corner of a text block, outside its measure | thin |
+| `∟` | bottom-left corner of a block, marking its foot | thin |
+| swatch row | stepped diagonal, never a neat 2×2; colours sampled from the adjacent photograph | — |
+| filled tag | one per screen maximum; the only solid colour fill | small |
+| ghost numerals | giant, ~2% contrast, behind a text column, cropped by the page edge | 800 weight |
+
+Marks sit **in margins and empty cells**, never inside a text block. They
+mark positions on the lattice; they do not decorate content.
+
+### Character-level conventions
+
+These are not typos — they are the reference's voice:
+
+- `heals .` — a space before terminal punctuation in display type
+- `camera : Samsung A10s` — spaces around a metadata colon
+- `.COLOR PICTURE` — a leading period on a label
+- `NATURE'S    ATMOSPHERE` — exaggerated word gaps, words landing on separate
+  grid columns rather than sharing a normal space
+- `archive by dila` — letter-spaced lowercase for attribution
+- Numerals (`2K25`, `14`, `08`, `14.8`) are used as **graphic objects**, set
+  large and bare, not as data inside sentences
+
 ## 4 · Theme — superseded, kept for provenance
 
 Paper alternates light and dark-green, per the Nomvnt rhythm. Accent is the

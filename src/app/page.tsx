@@ -10,17 +10,47 @@ export const dynamic = "force-dynamic";
 
 const FALLBACK_LABELS = ["the opening frame", "between assignments"];
 
-/* Portfolio Grid · low density — hero fold, three asymmetric tiles, one
- * forest-green band carrying the lane index, one closing fold. Five blocks,
- * not seven; the negative space is the design (design.md § 11). */
+/* Composition studied from the reference layout (design.md § 3.6):
+ * an opening zone that is mostly empty, a full-bleed photograph whose edges
+ * land on lattice rows, then a lower zone of huge light display type against
+ * a narrow justified column, with the marks placed in the margins.
+ * White carries ~85% of the page; green is the photograph and one tag. */
 export default async function HomePage() {
   const [featured, albums] = await Promise.all([getFeatured(2), getAlbums()]);
   const shown = albums.slice(0, 3);
   const covers = await getCovers(shown.map((a) => a.id));
+  const year = new Date().getUTCFullYear();
 
   return (
     <div className="page">
-      {/* H6 · photographic fold — the photograph speaks before the page does. */}
+      {/* ---- opening zone · mostly empty, marks placed in the blank cells --- */}
+      <section className="open">
+        <div className="open__label">
+          <p className="u-mono">
+            visual
+            <br />
+            archive
+          </p>
+          <p className="open__no">{`2K${String(year).slice(2)}`}</p>
+          <p className="label-wide">frames not feeds</p>
+        </div>
+
+        <span className="mark mark--thin open__arrow" aria-hidden="true">
+          ←
+        </span>
+
+        <div className="open__swatches">
+          <div className="swatches" aria-hidden="true">
+            <span className="swatch" style={{ background: "var(--color-ink)" }} />
+            <span className="swatch" style={{ background: "var(--color-accent-deep)" }} />
+            <span className="swatch" style={{ background: "var(--color-paper-dark)" }} />
+            <span className="swatch" style={{ background: "var(--color-accent)" }} />
+          </div>
+          <p className="u-mono">.colour picture</p>
+        </div>
+      </section>
+
+      {/* ---- the photograph · full bleed, edges on lattice rows ------------ */}
       <PhotoFold
         photo={featured[0]}
         index={0}
@@ -29,33 +59,66 @@ export default async function HomePage() {
         fallbackLabel={FALLBACK_LABELS[0]}
       />
 
-      <section className="fold-text fold-text--tight reveal" style={{ "--i": 0 } as React.CSSProperties}>
-        <p className="fold-text__lede">
-          I photograph the <em>half-second</em> before a thing is over.
-        </p>
-        <p className="fold-text__body">
-          I&rsquo;m {site.owner} — a data analyst by trade, which is a longer way of
-          saying I spend my days looking for the moment a pattern gives itself
-          away. A camera turned out to be the same habit pointed at the world:
-          hold still, wait, take the frame when it stops pretending.
-        </p>
+      {/* ---- lower zone · display type against a narrow justified column --- */}
+      <section className="story">
+        <div className="story__head">
+          <h1 className="story__title">
+            the half-second
+            <br />
+            before it is
+            <br />
+            over .
+          </h1>
+          <p className="tag">14.8</p>
+          <p className="label-wide">camera : whatever is in reach</p>
+        </div>
+
+        <span className="mark mark--bold story__arrow" aria-hidden="true">
+          ↗
+        </span>
+        <span className="mark mark--thin story__foot" aria-hidden="true">
+          ∟
+        </span>
+
+        <div className="story__col">
+          <span className="bracket bracket--tr" aria-hidden="true">
+            ⌐
+          </span>
+          <span className="ghost" aria-hidden="true">
+            {String(year).slice(2)}
+          </span>
+
+          <div className="story__pair">
+            <p className="story__no">14</p>
+            <p className="story__gloss">Where my feet stand,</p>
+            <p className="story__no">08</p>
+            <p className="story__gloss">there i take a photo.</p>
+          </div>
+
+          <p className="story__body">
+            I&rsquo;m {site.owner} — a data analyst by trade, which is a longer way
+            of saying I spend my days looking for the moment a pattern gives
+            itself away. A camera turned out to be the same habit pointed at the
+            world: hold still, wait, take the frame when it stops pretending.
+          </p>
+          <p className="story__body">
+            This is the archive. Sport lives at UNTMD Sports, food at VisuFavor,
+            and everything unsorted stays here.
+          </p>
+          <p className="label-wide story__by">archive by {site.owner.split(" ")[0]}</p>
+        </div>
       </section>
 
       <div className="rail">
         <span>
           <span className="rail__no">01 →</span> Selected galleries
         </span>
-        <span>[Index · {albums.length} filed]</span>
+        <span>[{albums.length} filed]</span>
       </div>
 
-      {/* Portfolio Grid — three tiles, irregular spans, deliberate gaps. */}
+      {/* ---- Portfolio Grid · three tiles, irregular spans ------------------ */}
       {shown.length > 0 && (
         <section className="grid-band plot">
-          <div className="head">
-            <p className="u-mono">Discipline 01 // The archive</p>
-            <h2 className="head__title">Recent galleries</h2>
-          </div>
-
           <div className="albums albums--few">
             {shown.map((album, i) => {
               const cover = covers.get(album.id);
@@ -103,18 +166,13 @@ export default async function HomePage() {
 
       <div className="rail">
         <span>
-          <span className="rail__no">02 →</span> Lanes &amp; sister sites
+          <span className="rail__no">02 →</span> Lanes
         </span>
-        <span>[Food · Sport · Everything else]</span>
+        <span>[food · sport · everything else]</span>
       </div>
 
-      {/* Slab environment — the page flips to forest green for the lane index. */}
-      <section className="band band--dark plot">
-        <div className="head">
-          <p className="u-mono">Discipline 02 // Where the work lives</p>
-          <h2 className="head__title">Three lanes, one practice</h2>
-        </div>
-
+      {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
+      <section className="band plot">
         <div className="elsewhere">
           {elsewhere.map((place) => (
             <a
