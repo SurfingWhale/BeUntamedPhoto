@@ -6,11 +6,11 @@ import { elsewhere, site } from "@/lib/site";
 export function Footer() {
   return (
     <footer className="foot">
+      <p className="u-mono">[{site.name} · visual archive]</p>
+
       <p className="foot__statement">
         Shot on purpose, not on <em>schedule</em>.
       </p>
-
-      <p className="foot__wordmark">{site.name}</p>
 
       <p className="foot__ps">
         The guestbook is open, and I read every note. Say hello at{" "}
@@ -18,6 +18,10 @@ export function Footer() {
           {site.email}
         </a>
         .
+      </p>
+
+      <p className="foot__wordmark" aria-hidden="true">
+        {site.name}
       </p>
 
       <div className="foot__row">

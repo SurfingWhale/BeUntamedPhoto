@@ -41,11 +41,18 @@ export default async function HomePage() {
         </p>
       </section>
 
+      <div className="rail">
+        <span>
+          <span className="rail__no">01 →</span> Selected galleries
+        </span>
+        <span>[Index · {albums.length} filed]</span>
+      </div>
+
       {/* Portfolio Grid — three tiles, irregular spans, deliberate gaps. */}
       {shown.length > 0 && (
-        <section className="grid-band">
+        <section className="grid-band plot">
           <div className="head">
-            <p className="u-mono">01 — Selected</p>
+            <p className="u-mono">Discipline 01 // The archive</p>
             <h2 className="head__title">Recent galleries</h2>
           </div>
 
@@ -94,10 +101,17 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Nomvnt band motif — the page flips to forest green for the lane index. */}
-      <section className="band band--dark">
+      <div className="rail">
+        <span>
+          <span className="rail__no">02 →</span> Lanes &amp; sister sites
+        </span>
+        <span>[Food · Sport · Everything else]</span>
+      </div>
+
+      {/* Slab environment — the page flips to forest green for the lane index. */}
+      <section className="band band--dark plot">
         <div className="head">
-          <p className="u-mono">02 — Lanes</p>
+          <p className="u-mono">Discipline 02 // Where the work lives</p>
           <h2 className="head__title">Three lanes, one practice</h2>
         </div>
 

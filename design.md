@@ -151,7 +151,44 @@ Density stays constant across all three families though: **few elements per
 fold, generous gaps between them.** That's the one rule this whole system
 must not compromise on — see § 11.
 
-## 4 · Theme — custom, anchored on Nomvnt
+## 3.5 · Superseded by the Stitch system (2026-09-03)
+
+The palette and type in § 4–5 below were my reconstruction from the reference
+images. They are **superseded** by the author's actual Stitch export
+("Swiss Neo-Grotesque Studio"), which is now what `tokens.css` implements:
+
+| Axis | Now in force |
+| --- | --- |
+| Display | **Syne** 600/700/800, tracking −0.03 to −0.05em, uppercase |
+| Body | **Hanken Grotesk** 300–700 |
+| Metadata | **JetBrains Mono** — all indices, coordinates, camera logs, wrapped in `[brackets]` |
+| Canvas | `#FBFBF9` surface · `#F4F4F2` alt · `#FFFFFF` lowest |
+| Slab | `#051C14` forest-deep · `#0B2D20` container |
+| Signal | `#C4F23E` acid lime (`#D4F843` alt), `#4F6600` where lime needs contrast on white |
+| Structure | `#E5E5E0` hairline · `rgba(13,13,13,0.25)` crosshair |
+| Shape | `0px` everywhere. Pills **only** for filter chips |
+| Elevation | No shadows. Depth = chromatic inversion + hairlines + typographic overlap |
+
+**Two corrections the author asked for on top of the Stitch export:**
+
+1. **More negative space.** Space scale opened one step (`--space-3xl` 7.5rem,
+   new `--space-4xl` 11rem); sections use `4xl` block padding.
+2. **The grid is drawn.** Stitch only marked four `+` glyphs at the viewport
+   edges. The real thing — what every reference image shows — is a fixed
+   hairline column lattice inside the 1440px measure with `+` register marks.
+   Implemented as `<GridLines />` in the root layout plus a `.plot` utility
+   that puts `+` marks on any container's corners. Canvas sections stay
+   transparent so the lattice reads through them; only slab sections occlude
+   it, and they carry lime crosshairs instead.
+
+**Not carried over from the Stitch HTML:** all of its content. That export
+invents Michelin campaigns, Hasselblad/Sony gear logs, Adidas commissions,
+Tokyo/Paris/Jakarta representation desks, "128 plates", and AI-generated
+photographs. Putting any of it on a live portfolio would be publishing false
+claims about a real practice. The system travels; the fiction does not. Real
+copy and real galleries come from Supabase as before.
+
+## 4 · Theme — superseded, kept for provenance
 
 Paper alternates light and dark-green, per the Nomvnt rhythm. Accent is the
 lime. Ink stays near-black/near-white — **not cream** (near-white paper and

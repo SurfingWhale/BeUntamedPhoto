@@ -18,22 +18,89 @@ body {
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: var(--text-base);
-  font-weight: 350;
-  line-height: 1.6;
+  font-weight: 400;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   padding-inline: max(0px, env(safe-area-inset-left));
 }
-::selection { background: var(--color-accent); color: var(--color-paper); }
+::selection { background: var(--color-accent); color: var(--color-accent-ink); }
 
 h1, h2, h3 {
   font-family: var(--font-display);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: var(--tracking-display);
-  line-height: 1.02;
+  line-height: 1.0;
   overflow-wrap: anywhere;
   min-width: 0;
   margin: 0;
 }
+
+/* --------------------------------------------- the exposed Swiss grid */
+/* Hairline columns inside the 1440px measure, fixed behind everything, with
+ * `+` register marks. This is the brand's thesis: the blueprint stays visible. */
+.gridlines {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grid);
+  pointer-events: none;
+  user-select: none;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  border-inline: var(--rule-hair) solid var(--color-rule);
+}
+.gridlines__cols {
+  position: absolute;
+  inset: 0;
+  /* one hairline every 1/4 of the measure on small screens */
+  background-image: linear-gradient(
+    to right,
+    var(--color-rule) var(--rule-hair),
+    transparent var(--rule-hair)
+  );
+  background-size: calc(100% / 4) 100%;
+}
+@media (min-width: 48rem) {
+  .gridlines__cols { background-size: calc(100% / 8) 100%; }
+}
+@media (min-width: 75rem) {
+  /* the full 12-column architectural grid */
+  .gridlines__cols { background-size: calc(100% / 12) 100%; }
+}
+.gridlines__plus {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1;
+  color: var(--color-crosshair);
+  transform: translate(-50%, -50%);
+}
+.gridlines__plus--tl { top: 6rem;  left: 0; }
+.gridlines__plus--tr { top: 6rem;  left: 100%; }
+.gridlines__plus--ml { top: 50%;   left: 0; }
+.gridlines__plus--mr { top: 50%;   left: 100%; }
+.gridlines__plus--bl { top: calc(100% - 4rem); left: 0; }
+.gridlines__plus--br { top: calc(100% - 4rem); left: 100%; }
+
+/* Content paints above the grid. Canvas sections stay transparent so the
+ * hairlines read through them; only slab sections deliberately occlude. */
+.mast, main, .foot { position: relative; z-index: var(--z-base); }
+
+/* `+` register marks on a container's own corners */
+.plot { position: relative; }
+.plot::before,
+.plot::after {
+  content: "+";
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1;
+  color: var(--color-crosshair);
+  pointer-events: none;
+}
+.plot::before { top: var(--space-xs); left: var(--space-xs); }
+.plot::after  { bottom: var(--space-xs); right: var(--space-xs); }
+.band--dark .plot::before,
+.band--dark .plot::after { color: var(--color-crosshair-on-dark); }
 p { margin: 0; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
@@ -45,13 +112,33 @@ img { display: block; max-width: 100%; }
 }
 
 .u-measure { max-width: var(--measure); }
+/* The clinical instrument layer — every index, coordinate and camera log. */
 .u-mono {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-muted);
   font-weight: 400;
+}
+.u-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-code);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+/* A lime signal tag — the accent's main job. Used sparingly. */
+.u-tag {
+  display: inline-block;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding: 0.15em 0.5em;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-code);
+  text-transform: uppercase;
+  font-weight: 700;
 }
 .u-muted { color: var(--color-muted); }
 .u-ink2  { color: var(--color-ink-2); }
@@ -69,46 +156,76 @@ img { display: block; max-width: 100%; }
 }
 .u-skip:focus-visible { transform: translateY(0); }
 
-/* ------------------------------------------------------- N6 · masthead */
+/* ----------------------------------- masthead · technical header rail */
 .mast {
-  padding: var(--space-lg) var(--page-gutter) 0;
-  text-align: center;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: color-mix(in srgb, var(--color-paper) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
 }
-.mast__line {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  margin-bottom: var(--space-xs);
+.mast__bar {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--space-sm) var(--page-gutter);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-lg);
+}
+.mast__id { display: flex; align-items: center; gap: var(--space-sm); }
+.mast__glyph {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  display: grid;
+  place-content: center;
+  background: var(--color-paper-dark);
+  border: var(--rule-hair) solid var(--color-accent);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9375rem;
+  line-height: 1;
 }
 .mast__name {
   font-family: var(--font-display);
-  font-size: clamp(2.125rem, 8vw, 4rem);
-  font-weight: 900;
-  letter-spacing: var(--tracking-wordmark);
-  line-height: 0.94;
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: var(--tracking-heading);
+  line-height: 1;
   text-transform: uppercase;
-  display: inline-block;
+  display: block;
 }
-.mast__name em {
-  font-style: normal;
-  color: var(--color-accent);
+.mast__name em { font-style: normal; color: var(--color-accent-deep); }
+.mast__sub {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
 }
-.mast__nav { margin-top: var(--space-sm); }
 .mast__nav ul {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
   gap: var(--space-xs) var(--space-lg);
   list-style: none;
   padding: 0;
   margin: 0;
 }
 .mast__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  font-family: var(--font-mono);
   font-size: var(--text-sm);
-  letter-spacing: 0.02em;
+  letter-spacing: var(--tracking-code);
+  text-transform: uppercase;
   white-space: nowrap;
   color: var(--color-ink-2);
   padding-block: var(--space-2xs);
@@ -116,31 +233,17 @@ img { display: block; max-width: 100%; }
   transition: color var(--dur-micro) var(--ease-out),
               border-color var(--dur-micro) var(--ease-out);
 }
+.mast__no { color: var(--color-muted); }
 @media (hover: hover) and (pointer: fine) {
   .mast__link:hover { color: var(--color-ink); border-bottom-color: var(--color-rule-2); }
+  .mast__link:hover .mast__no { color: var(--color-accent-deep); }
 }
 .mast__link[aria-current="page"] {
   color: var(--color-ink);
+  font-weight: 700;
   border-bottom-color: var(--color-accent);
 }
-.mast__rule {
-  border: 0;
-  border-top: var(--rule-hair) solid var(--color-rule);
-  border-bottom: var(--rule-hair) solid var(--color-rule);
-  height: 3px;
-  margin: var(--space-md) 0 0;
-}
-.mast__aside {
-  position: absolute;
-  inset-block-start: var(--space-lg);
-  inset-inline-end: var(--page-gutter);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-@media (max-width: 40rem) {
-  .mast__aside { position: static; justify-content: center; margin-top: var(--space-sm); }
-}
+.mast__aside { display: flex; align-items: center; gap: var(--space-xs); }
 
 /* ------------------------------------------------------------ controls */
 .tog {
@@ -180,10 +283,13 @@ img { display: block; max-width: 100%; }
               color var(--dur-micro) var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
-  .link:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+  /* accent-deep, not raw lime — #C4F23E as text on canvas fails contrast.
+   * The rule underneath carries the full-strength lime instead. */
+  .link:hover { color: var(--color-accent-deep); border-bottom-color: var(--color-accent); }
 }
 .link:active { transform: translateY(1px); }
 
+/* Primary action — forest slab, lime monospace label. Hover inverts entirely. */
 .btn {
   appearance: none;
   display: inline-flex;
@@ -192,16 +298,17 @@ img { display: block; max-width: 100%; }
   gap: var(--space-xs);
   min-height: 44px;
   padding-inline: var(--space-lg);
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  border: var(--rule-hair) solid var(--color-accent);
+  background: var(--color-paper-dark);
+  color: var(--color-accent);
+  border: var(--rule-hair) solid var(--color-paper-dark);
   border-radius: var(--radius-none);
   outline: 2px solid transparent;
   outline-offset: 2px;
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: 500;
-  letter-spacing: 0.03em;
+  letter-spacing: var(--tracking-code);
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color var(--dur-micro) var(--ease-out),
@@ -209,8 +316,43 @@ img { display: block; max-width: 100%; }
               transform var(--dur-micro) var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
-  .btn:hover { background: var(--color-accent-2); border-color: var(--color-accent-2); }
+  .btn:hover { background: var(--color-accent); color: var(--color-accent-ink); border-color: var(--color-accent); }
 }
+
+/* Filter chips — the one place the system allows a capsule, as a sticker
+ * pinned to the rigid grid (design.md § Shapes). */
+.chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  min-height: 34px;
+  padding-inline: var(--space-md);
+  border-radius: var(--radius-pill);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  background: transparent;
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--dur-micro) var(--ease-out),
+              color var(--dur-micro) var(--ease-out),
+              border-color var(--dur-micro) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover { border-color: var(--color-ink); color: var(--color-ink); }
+}
+.chip[aria-current="true"],
+.chip[data-active="true"] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+@media (pointer: coarse) { .chip { min-height: 44px; } }
 .btn:active { transform: translateY(1px); }
 .btn[disabled], .btn[aria-disabled="true"] {
   opacity: 0.5;
@@ -359,14 +501,20 @@ img { display: block; max-width: 100%; }
 .fold-text__lede {
   font-family: var(--font-display);
   font-size: var(--text-display-s);
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: var(--tracking-display);
-  max-width: 22ch;
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+  max-width: 18ch;
 }
+/* Emphasis is a lime marker stripe, not a colour change — the signal layer. */
 .fold-text__lede em {
   font-style: normal;
-  color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding-inline: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 .fold-text__body {
   max-width: var(--measure);
@@ -380,14 +528,27 @@ img { display: block; max-width: 100%; }
 /* Sections alternate near-white and forest green down the page. The band is
  * the only "decoration" the system allows — it's structural colour, not texture. */
 .band {
+  max-width: var(--page-max);
+  margin-inline: auto;
   padding: var(--space-4xl) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
 }
+/* Slab environment — the one place a section paints over the grid, and it
+ * brings its own lime register marks with it. */
 .band--dark {
+  max-width: none;
   background: var(--color-paper-dark);
   color: var(--color-ink-on-dark);
+  border-block: var(--rule-hair) solid var(--color-rule-on-dark);
 }
+.band--dark > * {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.band--dark .head__title { color: var(--color-ink-on-dark); }
+.band--dark .u-mono { color: var(--color-ink-on-dark-2); }
 .band--dark .head__sub,
 .band--dark .u-mono,
 .band--dark .elsewhere__what,
@@ -401,16 +562,38 @@ img { display: block; max-width: 100%; }
 
 /* the selected-work grid band — light ground, generous block padding */
 .grid-band {
+  max-width: var(--page-max);
+  margin-inline: auto;
   padding: var(--space-4xl) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
 }
 
+/* A section divider rail — index number, title, right-hand metadata. */
+.rail {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--space-sm) var(--page-gutter);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-lg);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-code);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.rail__no { color: var(--color-ink); font-weight: 700; }
+
 /* section heads — stacked single column, never tag-left/head-right */
 .head { display: grid; gap: var(--space-sm); max-width: 34ch; }
 .head__title {
   font-size: var(--text-2xl);
-  font-weight: 300;
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
 }
 .head__sub { color: var(--color-muted); font-size: var(--text-base); }
 
@@ -452,15 +635,23 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
 }
 .album:nth-child(3n+2) .album__media { aspect-ratio: 3 / 4; }
-.album__media img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform var(--dur-long) var(--ease-out);
+.album__media {
+  outline: var(--rule-hair) solid transparent;
+  outline-offset: 0;
+  transition: outline-color var(--dur-short) var(--ease-out);
 }
+.album__media img { width: 100%; height: 100%; object-fit: cover; }
 @media (hover: hover) and (pointer: fine) {
-  .album__media:hover img { transform: scale(1.02); }
+  /* Sharp, zero-shadow hover: a lime hairline, not a zoom. */
+  .album__media:hover { outline-color: var(--color-accent); }
 }
 .album__meta { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md); }
-.album__title { font-size: var(--text-md); font-weight: 300; }
+.album__title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  text-transform: uppercase;
+}
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 .album__sub { font-size: var(--text-sm); color: var(--color-muted); }
 
@@ -472,7 +663,9 @@ img { display: block; max-width: 100%; }
   font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-ink);
+  background: var(--color-accent);
+  padding: 0.15em 0.4em;
 }
 
 /* --------------------------------------------------------- photo strip */
@@ -506,12 +699,14 @@ img { display: block; max-width: 100%; }
 }
 @media (hover: hover) and (pointer: fine) {
   .elsewhere__row:hover { background: var(--color-paper-2); }
-  .elsewhere__row:hover .elsewhere__name { color: var(--color-accent); }
+  .elsewhere__row:hover .elsewhere__name { color: var(--color-accent-deep); }
 }
 .elsewhere__name {
   font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-heading);
   font-size: var(--text-lg);
-  font-weight: 300;
+  font-weight: 700;
   transition: color var(--dur-micro) var(--ease-out);
 }
 .elsewhere__what { color: var(--color-ink-2); font-size: var(--text-sm); }
@@ -558,26 +753,42 @@ img { display: block; max-width: 100%; }
 .foot {
   background: var(--color-paper-dark);
   color: var(--color-ink-on-dark);
+  border-top: var(--rule-hair) solid var(--color-rule-on-dark);
   padding: var(--space-3xl) var(--page-gutter) var(--space-xl);
   display: grid;
   gap: var(--space-xl);
+  overflow: clip;
 }
+.foot > * { max-width: var(--page-max); margin-inline: auto; width: 100%; }
 .foot__statement {
   font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(1.75rem, 5vw, 3.25rem);
-  line-height: 1.05;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  line-height: 1.04;
   letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
   max-width: 22ch;
 }
-.foot__statement em { font-style: normal; color: var(--color-accent); }
+.foot__statement em {
+  font-style: normal;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding-inline: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* The monumental closing wordmark — it runs to the measure and is allowed to
+ * clip at the edge, the way the reference poster clips its headline. */
 .foot__wordmark {
   font-family: var(--font-display);
-  font-weight: 900;
-  letter-spacing: var(--tracking-wordmark);
+  font-weight: 800;
+  letter-spacing: var(--tracking-hero);
   text-transform: uppercase;
-  font-size: var(--text-lg);
-  opacity: 0.6;
+  font-size: clamp(3.5rem, 15vw, 13rem);
+  line-height: 0.82;
+  color: var(--color-accent);
+  margin-block: var(--space-lg) 0;
+  user-select: none;
 }
 .foot__ps { font-size: var(--text-sm); opacity: 0.65; max-width: 52ch; }
 .foot__row {
@@ -602,10 +813,19 @@ img { display: block; max-width: 100%; }
 .page__intro { padding: var(--space-3xl) var(--page-gutter) var(--space-xl); display: grid; gap: var(--space-md); }
 .page__title {
   font-size: var(--text-display-s);
-  font-weight: 900;
-  max-width: 20ch;
+  font-weight: 800;
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+  max-width: 18ch;
 }
-.page__title em { font-style: normal; color: var(--color-accent); }
+.page__title em {
+  font-style: normal;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding-inline: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
 .page__pad { padding-inline: var(--page-gutter); }
 .page__pad-b { padding-bottom: var(--space-3xl); }
 
@@ -637,7 +857,9 @@ img { display: block; max-width: 100%; }
 .panel__title {
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  font-weight: 300;
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  text-transform: uppercase;
 }
 .row2 { display: grid; gap: var(--space-md); }
 @media (min-width: 34rem) { .row2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

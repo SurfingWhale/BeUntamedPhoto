@@ -1,29 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
 
 import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
+import { GridLines } from "@/components/grid-lines";
 import { getViewer } from "@/lib/auth";
 import { site } from "@/lib/site";
 import "./globals.css";
 
-const archivo = Archivo({
+const syne = Syne({
   subsets: ["latin"],
   display: "swap",
-  weight: ["500", "700", "900"],
-  variable: "--font-archivo",
+  weight: ["600", "700", "800"],
+  variable: "--font-syne",
 });
 
-const plex = IBM_Plex_Sans({
+const hanken = Hanken_Grotesk({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-plex",
+  variable: "--font-hanken",
 });
 
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "700"],
   display: "swap",
   variable: "--font-jetbrains",
 });
@@ -56,10 +57,11 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
-      <body className={`${archivo.variable} ${plex.variable} ${jetbrains.variable}`}>
+      <body className={`${syne.variable} ${hanken.variable} ${jetbrains.variable}`}>
         <a className="u-skip" href="#main">
           Skip to content
         </a>
+        <GridLines />
         <Masthead viewer={viewer} />
         <main id="main">{children}</main>
         <Footer />

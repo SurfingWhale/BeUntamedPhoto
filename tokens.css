@@ -1,73 +1,85 @@
-/* Hallmark · genre: editorial · macrostructure family: Portfolio Grid (hub) ·
- * Specimen (content) · typography-only (app) · design-system: design.md ·
- * designed-as-app
- * nav: N6 masthead (retyped) · footer: Ft5 statement
- * theme: studied-DNA (backbone: image "Le Corbusier grid study" · colour:
- * image "Nomvnt") · paper oklch(98.5% 0.001 90) · accent oklch(88% 0.23 120)
- * display: Archivo (grotesque) · body: IBM Plex Sans · label/numeral: JetBrains Mono
- * axes: paper=near-white · display=geometric-grotesque · accent=chromatic-lime
- * pre-emit critique: P5 H4 E4 S5 R5 V4
+/* Hallmark · genre: editorial · design-system: design.md · designed-as-app
+ * theme: Swiss Neo-Grotesque Studio — ported from the Stitch export's
+ * DESIGN.md, with two corrections the author asked for: more negative space,
+ * and the grid drawn visibly (hairline columns + `+` crosshairs).
+ * display: Syne · body: Hanken Grotesk · label/metadata: JetBrains Mono
+ * paper #FBFBF9 · slab #051C14 · signal #C4F23E · hairline #E5E5E0
+ * shapes: 0px everywhere; pills only for filter chips
  */
 :root {
   /* ---- type ------------------------------------------------------ */
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-body:    var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-jetbrains), ui-monospace, monospace;
 
-  --tracking-display: -0.02em;
-  --tracking-wordmark: 0.02em;
+  --tracking-hero:     -0.05em;
+  --tracking-display:  -0.04em;
+  --tracking-heading:  -0.03em;
+  --tracking-label:     0.08em;
+  --tracking-code:      0.04em;
 
-  --text-xs:      0.6875rem;
-  --text-sm:      0.8125rem;
-  --text-base:    1rem;
-  --text-md:      1.1875rem;
-  --text-lg:      1.5rem;
-  --text-xl:      1.9375rem;
-  --text-2xl:     2.4375rem;
-  --text-3xl:     3.0625rem;
-  --text-display-s: clamp(2rem, 3.2vw + 1rem, 3.25rem);
-  --text-display:   clamp(2.5rem, 4.4vw + 1rem, 5rem);
+  --text-xs:      0.6875rem;  /* 11px · label-index */
+  --text-sm:      0.75rem;    /* 12px · label-code  */
+  --text-base:    0.9375rem;  /* 15px · body-md     */
+  --text-md:      1.125rem;   /* 18px · body-lg     */
+  --text-lg:      1.5rem;     /* 24px · headline-sm */
+  --text-xl:      1.75rem;
+  --text-2xl:     2.5rem;     /* 40px · headline-md */
+  --text-3xl:     4rem;       /* 64px · headline-lg */
+  --text-display-s: clamp(2.25rem, 5vw, 4rem);
+  --text-display:   clamp(3rem, 8.5vw, 7rem);   /* 112px · headline-hero */
 
-  /* ---- space (4pt) ----------------------------------------------- */
+  /* ---- space — Stitch's rhythm, opened up one step for air -------- */
   --space-3xs: 0.125rem;
   --space-2xs: 0.25rem;
   --space-xs:  0.5rem;
   --space-sm:  0.75rem;
   --space-md:  1rem;
-  --space-lg:  1.5rem;
-  --space-xl:  2.5rem;
-  --space-2xl: 4rem;
-  --space-3xl: 6rem;
-  --space-4xl: 9rem;
-  --page-gutter: clamp(1.125rem, 4.5vw, 4.5rem);
+  --space-lg:  1.75rem;
+  --space-xl:  3rem;
+  --space-2xl: 5rem;
+  --space-3xl: 7.5rem;
+  --space-4xl: 11rem;
+  --subgrid-gap: 2rem;
+  --page-gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --page-max: 1440px;
   --measure: 62ch;
 
-  /* ---- colour · custom, anchored on Nomvnt ------------------------ */
-  --color-paper:        oklch(98.5% 0.001 90);   /* near-white, not ivory */
-  --color-paper-2:      oklch(96%   0.002 90);
-  --color-paper-3:      oklch(93%   0.003 90);
-  --color-paper-dark:   oklch(24%   0.045 155);  /* deep forest green — section band */
-  --color-paper-dark-2: oklch(29%   0.045 155);
-  --color-rule:         oklch(88%   0.005 155);
-  --color-rule-2:       oklch(78%   0.008 155);
-  --color-rule-on-dark: oklch(40%   0.050 155);
-  --color-muted:        oklch(58%   0.010 155);
-  --color-ink-2:        oklch(38%   0.010 155);
-  --color-ink:          oklch(15%   0.010 155);
-  --color-ink-on-dark:  oklch(96%   0.010 90);   /* near-white, on green bands */
-  --color-accent:       oklch(88%   0.230 120);  /* lime / chartreuse */
-  --color-accent-2:     oklch(78%   0.220 120);
-  --color-accent-ink:   oklch(20%   0.050 120);  /* text on lime fills */
-  --color-focus:        oklch(70%   0.190 120);
-  --color-error:        oklch(52%   0.190 27);
-  --color-ok:           oklch(48%   0.100 150);
-  --color-scrim:        oklch(17%   0.006 155 / 0.55);
+  /* ---- colour · Swiss Neo-Grotesque Studio ----------------------- */
+  --color-paper:        #FBFBF9;  /* surface — canvas, never pure white glare */
+  --color-paper-2:      #F4F4F2;  /* canvas-alt */
+  --color-paper-3:      #F0EDEC;  /* surface-container */
+  --color-paper-white:  #FFFFFF;  /* surface-container-lowest */
+  --color-paper-dark:   #051C14;  /* forest-deep — the slab environment */
+  --color-paper-dark-2: #0B2D20;  /* primary-container */
+
+  --color-ink:          #0D0D0D;  /* pure ink black — headlines, structure */
+  --color-ink-2:        #414844;  /* on-surface-variant */
+  --color-muted:        #737373;  /* technical gray — metadata */
+  --color-ink-on-dark:  #FFFFFF;
+  --color-ink-on-dark-2:#ABCFBB;  /* primary-fixed-dim — muted on slab */
+
+  --color-rule:         #E5E5E0;  /* hairline */
+  --color-rule-2:       #C1C8C2;  /* outline-variant */
+  --color-rule-on-dark: rgba(196, 242, 62, 0.2);
+  --color-crosshair:    rgba(13, 13, 13, 0.25);
+  --color-crosshair-on-dark: rgba(196, 242, 62, 0.3);
+
+  --color-accent:       #C4F23E;  /* acid lime — the signal layer */
+  --color-accent-2:     #D4F843;
+  --color-accent-ink:   #0D0D0D;  /* text on lime */
+  --color-accent-deep:  #4F6600;  /* secondary — lime that survives on white */
+  --color-focus:        #4F6600;
+  --color-error:        #BA1A1A;
+  --color-ok:           #4F6600;
+  --color-scrim:        rgba(5, 28, 20, 0.62);
 
   /* ---- rules, radii, motion -------------------------------------- */
   --rule-hair: 1px;
   --radius-none: 0;
-  --radius-sm:   2px;
-  --shadow-cap:  0 1px 12px oklch(10% 0.004 60 / 0.7);
+  --radius-sm:   0;      /* the system is rectilinear — no soft corners */
+  --radius-pill: 9999px; /* the single exception: filter chips */
+  --shadow-cap:  0 1px 12px rgba(5, 28, 20, 0.7);
 
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
@@ -76,6 +88,7 @@
   --dur-short: 220ms;
   --dur-long:  420ms;
 
+  --z-grid: 0;
   --z-base: 1;
   --z-raised: 10;
   --z-dropdown: 100;
@@ -86,49 +99,63 @@
 }
 
 /* ---- colour · dark theme ------------------------------------------ */
-/* Same anchor hues (155 neutral-green, 120 lime). Only lightness moves. */
+/* The slab environment becomes the ground; lime stays the signal. */
 :root[data-theme="dark"] {
-  --color-paper:        oklch(14%   0.006 155);
-  --color-paper-2:      oklch(18%   0.008 155);
-  --color-paper-3:      oklch(22%   0.010 155);
-  --color-paper-dark:   oklch(10%   0.030 155);
-  --color-paper-dark-2: oklch(13%   0.030 155);
-  --color-rule:         oklch(28%   0.010 155);
-  --color-rule-2:       oklch(40%   0.015 155);
-  --color-rule-on-dark: oklch(35%   0.050 155);
-  --color-muted:        oklch(64%   0.015 155);
-  --color-ink-2:        oklch(78%   0.008 90);
-  --color-ink:          oklch(96%   0.005 90);
-  --color-ink-on-dark:  oklch(96%   0.010 90);
-  --color-accent:       oklch(80%   0.220 120);
-  --color-accent-2:     oklch(72%   0.210 120);
-  --color-accent-ink:   oklch(14%   0.030 120);
-  --color-focus:        oklch(75%   0.190 120);
-  --color-error:        oklch(66%   0.160 27);
-  --color-ok:           oklch(70%   0.090 150);
-  --color-scrim:        oklch(9%    0.006 155 / 0.66);
+  --color-paper:        #051C14;
+  --color-paper-2:      #0B2D20;
+  --color-paper-3:      #10362a;
+  --color-paper-white:  #0B2D20;
+  --color-paper-dark:   #021009;
+  --color-paper-dark-2: #0B2D20;
+
+  --color-ink:          #FFFFFF;
+  --color-ink-2:        #C6EBD7;
+  --color-muted:        #879274;
+  --color-ink-on-dark:  #FFFFFF;
+  --color-ink-on-dark-2:#ABCFBB;
+
+  --color-rule:         rgba(196, 242, 62, 0.18);
+  --color-rule-2:       rgba(196, 242, 62, 0.32);
+  --color-rule-on-dark: rgba(196, 242, 62, 0.2);
+  --color-crosshair:    rgba(196, 242, 62, 0.3);
+
+  --color-accent:       #C4F23E;
+  --color-accent-2:     #D4F843;
+  --color-accent-ink:   #051C14;
+  --color-accent-deep:  #C4F23E;
+  --color-focus:        #C4F23E;
+  --color-error:        #FFB4AB;
+  --color-ok:           #AAD61E;
+  --color-scrim:        rgba(2, 16, 9, 0.72);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-paper:        oklch(14%   0.006 155);
-    --color-paper-2:      oklch(18%   0.008 155);
-    --color-paper-3:      oklch(22%   0.010 155);
-    --color-paper-dark:   oklch(10%   0.030 155);
-    --color-paper-dark-2: oklch(13%   0.030 155);
-    --color-rule:         oklch(28%   0.010 155);
-    --color-rule-2:       oklch(40%   0.015 155);
-    --color-rule-on-dark: oklch(35%   0.050 155);
-    --color-muted:        oklch(64%   0.015 155);
-    --color-ink-2:        oklch(78%   0.008 90);
-    --color-ink:          oklch(96%   0.005 90);
-    --color-ink-on-dark:  oklch(96%   0.010 90);
-    --color-accent:       oklch(80%   0.220 120);
-    --color-accent-2:     oklch(72%   0.210 120);
-    --color-accent-ink:   oklch(14%   0.030 120);
-    --color-focus:        oklch(75%   0.190 120);
-    --color-error:        oklch(66%   0.160 27);
-    --color-ok:           oklch(70%   0.090 150);
-    --color-scrim:        oklch(9%    0.006 155 / 0.66);
+    --color-paper:        #051C14;
+    --color-paper-2:      #0B2D20;
+    --color-paper-3:      #10362a;
+    --color-paper-white:  #0B2D20;
+    --color-paper-dark:   #021009;
+    --color-paper-dark-2: #0B2D20;
+
+    --color-ink:          #FFFFFF;
+    --color-ink-2:        #C6EBD7;
+    --color-muted:        #879274;
+    --color-ink-on-dark:  #FFFFFF;
+    --color-ink-on-dark-2:#ABCFBB;
+
+    --color-rule:         rgba(196, 242, 62, 0.18);
+    --color-rule-2:       rgba(196, 242, 62, 0.32);
+    --color-rule-on-dark: rgba(196, 242, 62, 0.2);
+    --color-crosshair:    rgba(196, 242, 62, 0.3);
+
+    --color-accent:       #C4F23E;
+    --color-accent-2:     #D4F843;
+    --color-accent-ink:   #051C14;
+    --color-accent-deep:  #C4F23E;
+    --color-focus:        #C4F23E;
+    --color-error:        #FFB4AB;
+    --color-ok:           #AAD61E;
+    --color-scrim:        rgba(2, 16, 9, 0.72);
   }
 }
