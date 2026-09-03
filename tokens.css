@@ -64,6 +64,10 @@
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
   --color-crosshair:    rgba(13, 13, 13, 0.25);
   --color-crosshair-on-dark: rgba(196, 242, 62, 0.3);
+  /* The lattice itself sits lighter than a hairline rule — it is a field to
+   * place things on, not a border. */
+  --color-grid:         rgba(13, 13, 13, 0.07);
+  --module:             120px;   /* 1440 / 12 — one square cell */
 
   --color-accent:       #C4F23E;  /* acid lime — the signal layer */
   --color-accent-2:     #D4F843;
@@ -118,6 +122,7 @@
   --color-rule-2:       rgba(196, 242, 62, 0.32);
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
   --color-crosshair:    rgba(196, 242, 62, 0.3);
+  --color-grid:         rgba(196, 242, 62, 0.09);
 
   --color-accent:       #C4F23E;
   --color-accent-2:     #D4F843;
@@ -148,6 +153,7 @@
     --color-rule-2:       rgba(196, 242, 62, 0.32);
     --color-rule-on-dark: rgba(196, 242, 62, 0.2);
     --color-crosshair:    rgba(196, 242, 62, 0.3);
+    --color-grid:         rgba(196, 242, 62, 0.09);
 
     --color-accent:       #C4F23E;
     --color-accent-2:     #D4F843;

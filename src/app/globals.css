@@ -13,6 +13,7 @@
 /* ------------------------------------------------------------------ base */
 html { overflow-x: clip; }
 body {
+  position: relative;   /* containing block for the scrolling grid lattice */
   overflow-x: clip;
   background: var(--color-paper);
   color: var(--color-ink);
@@ -38,33 +39,40 @@ h1, h2, h3 {
 /* --------------------------------------------- the exposed Swiss grid */
 /* Hairline columns inside the 1440px measure, fixed behind everything, with
  * `+` register marks. This is the brand's thesis: the blueprint stays visible. */
+/* Absolute, not fixed: the lattice scrolls with the document, which is the
+ * only way content can actually sit ON it. A fixed lattice slides under
+ * scrolling content and can never align — that was the earlier mistake. */
 .gridlines {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
   z-index: var(--z-grid);
   pointer-events: none;
   user-select: none;
   max-width: var(--page-max);
   margin-inline: auto;
-  border-inline: var(--rule-hair) solid var(--color-rule);
+  border-inline: var(--rule-hair) solid var(--color-grid);
 }
+/* A modular field, not stripes: columns AND rows, so the cells read square.
+ * Row height tracks the computed column width — `100vw / n`, capped at the
+ * module size the 1440px measure yields (1440 / 12 = 120px) — so a cell stays
+ * square at every width instead of only at the max measure. */
 .gridlines__cols {
   position: absolute;
   inset: 0;
-  /* one hairline every 1/4 of the measure on small screens */
-  background-image: linear-gradient(
-    to right,
-    var(--color-rule) var(--rule-hair),
-    transparent var(--rule-hair)
-  );
-  background-size: calc(100% / 4) 100%;
+  background-image:
+    linear-gradient(to right, var(--color-grid) var(--rule-hair), transparent var(--rule-hair)),
+    linear-gradient(to bottom, var(--color-grid) var(--rule-hair), transparent var(--rule-hair));
+  background-size: calc(100% / 4) min(calc(100vw / 4), var(--module));
 }
 @media (min-width: 48rem) {
-  .gridlines__cols { background-size: calc(100% / 8) 100%; }
+  .gridlines__cols { background-size: calc(100% / 8) min(calc(100vw / 8), var(--module)); }
 }
 @media (min-width: 75rem) {
-  /* the full 12-column architectural grid */
-  .gridlines__cols { background-size: calc(100% / 12) 100%; }
+  /* the full 12-column architectural field */
+  .gridlines__cols { background-size: calc(100% / 12) min(calc(100vw / 12), var(--module)); }
 }
 .gridlines__plus {
   position: absolute;
@@ -437,8 +445,14 @@ img { display: block; max-width: 100%; }
   margin-block: 0;
   background: var(--color-paper-2);
 }
-.fold-photo--tall  { height: min(84dvh, 46rem); }
-.fold-photo--band  { height: min(62dvh, 34rem); }
+/* Fold heights are whole modules, so a photograph's top and bottom edges land
+ * on lattice rows the way the reference does. */
+.fold-photo--tall  { height: calc(var(--module) * 5); }
+.fold-photo--band  { height: calc(var(--module) * 4); }
+@media (min-width: 60rem) {
+  .fold-photo--tall { height: calc(var(--module) * 6); }
+  .fold-photo--band { height: calc(var(--module) * 4); }
+}
 .fold-photo__img {
   width: 100%;
   height: 100%;
@@ -527,12 +541,16 @@ img { display: block; max-width: 100%; }
 /* ------------------------------------------- bands · the Nomvnt rhythm */
 /* Sections alternate near-white and forest green down the page. The band is
  * the only "decoration" the system allows — it's structural colour, not texture. */
+/* Block padding in whole modules — sections begin and end on lattice rows. */
 .band {
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--space-4xl) var(--page-gutter);
+  padding: var(--module) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
+}
+@media (min-width: 60rem) {
+  .band { padding-block: calc(var(--module) * 1.5); }
 }
 /* Slab environment — the one place a section paints over the grid, and it
  * brings its own lime register marks with it. */
@@ -564,9 +582,12 @@ img { display: block; max-width: 100%; }
 .grid-band {
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--space-4xl) var(--page-gutter);
+  padding: var(--module) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
+}
+@media (min-width: 60rem) {
+  .grid-band { padding-block: calc(var(--module) * 1.5); }
 }
 
 /* A section divider rail — index number, title, right-hand metadata. */
