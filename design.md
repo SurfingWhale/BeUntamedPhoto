@@ -394,32 +394,48 @@ motion flourish the system allows itself.
 
 ### tokens.css (proposed — not yet applied to the live file)
 
+**These values mirror the live `tokens.css`.** If they ever disagree,
+`tokens.css` is the truth and this block is stale — regenerate it.
+
 ```css
 :root {
-  --color-paper:         oklch(98.5% 0.001 90);
-  --color-paper-2:       oklch(96%   0.002 90);
-  --color-paper-dark:    oklch(24%   0.045 155);
-  --color-paper-dark-2:  oklch(29%   0.045 155);
-  --color-ink:           oklch(15%   0.010 155);
-  --color-ink-2:         oklch(38%   0.010 155);
-  --color-ink-on-dark:   oklch(96%   0.010 90);
-  --color-rule:          oklch(88%   0.005 155);
-  --color-rule-on-dark:  oklch(40%   0.050 155);
-  --color-accent:        oklch(88%   0.230 120);
-  --color-accent-ink:    oklch(20%   0.050 120);
-  --color-focus:         oklch(70%   0.190 120);
-  --color-error:         oklch(52%   0.190 27);
-  --color-ok:            oklch(48%   0.100 150);
+  --color-paper:        #FBFBF9;  /* canvas — never pure-white glare */
+  --color-paper-2:      #F4F4F2;
+  --color-paper-3:      #F0EDEC;
+  --color-paper-white:  #FDFDFB;
+  --color-paper-dark:   #051C14;  /* forest slab */
+  --color-paper-dark-2: #0B2D20;
 
-  --font-display:  var(--font-archivo), "Archivo", ui-sans-serif, sans-serif;
-  --font-body:     var(--font-plex), ui-sans-serif, system-ui, sans-serif;
-  --font-mono:     var(--font-jetbrains), ui-monospace, monospace;
+  --color-ink:          #0D0F0E;
+  --color-ink-2:        #414844;
+  --color-muted:        #6E7472;
+  --color-ink-on-dark:  #FFFFFF;
 
-  --tracking-display: -0.02em;
-  --tracking-wordmark: 0.02em;
+  --color-rule:         #E5E5E0;
+  --color-rule-2:       #C1C8C2;
+  --color-grid:         rgba(13, 13, 13, 0.07);
+  --color-grid-laser:   rgba(107, 150, 0, 0.34);
+  --color-crosshair:    rgba(13, 13, 13, 0.25);
+  --outline-image:      rgba(0, 0, 0, 0.1);
 
-  /* space / text / ease / dur / radius tokens: unchanged, see current tokens.css */
+  --color-accent:       #C4F23E;  /* signal layer */
+  --color-accent-2:     #D4F843;
+  --color-accent-ink:   #0D0D0D;  /* text on lime */
+  --color-accent-deep:  #4F6600;  /* lime that survives as text on canvas */
+  --color-focus:        #4F6600;
+  --color-error:        #BA1A1A;
+
+  --font-display: var(--font-syne),      ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-hanken),    ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains), ui-monospace, monospace;
+
+  --tracking-hero: -0.05em;  --tracking-display: -0.04em;
+  --tracking-heading: -0.03em;
+  --tracking-label: 0.08em;  --tracking-code: 0.04em;
+
+  --module: 120px;           /* 1440 / 12 — one square lattice cell */
   --radius-none: 0;
+  --radius-pill: 9999px;     /* filter chips only */
 }
 ```
 

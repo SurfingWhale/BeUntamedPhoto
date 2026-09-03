@@ -21,9 +21,9 @@ export default async function WorkPage() {
   return (
     <div className="page">
       <section className="page__intro">
-        <h2 className="page__title">
+        <h1 className="page__title">
           Work, <em>indexed</em>.
-        </h2>
+        </h1>
         <p className="fold-text__body">
           {albums.length === 0
             ? "The index is empty — the first galleries are being filed."

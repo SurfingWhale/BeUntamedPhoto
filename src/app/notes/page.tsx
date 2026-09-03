@@ -17,9 +17,9 @@ export default async function NotesPage() {
   return (
     <div className="page">
       <section className="page__intro">
-        <h2 className="page__title">
+        <h1 className="page__title">
           Leave a <em>note</em>.
-        </h2>
+        </h1>
         <p className="fold-text__body">
           If a frame stopped you, say so. Notes are public, signed with your
           display name, and never turned into a mailing list.

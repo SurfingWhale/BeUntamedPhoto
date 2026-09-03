@@ -83,6 +83,10 @@
   --color-scrim:        rgba(5, 28, 20, 0.62);
 
   /* ---- rules, radii, motion -------------------------------------- */
+  /* Image edge — pure black at 10%, never a tinted neutral: a tinted outline
+   * picks up the surface beneath it and reads as dirt on the photo edge. */
+  --outline-image: rgba(0, 0, 0, 0.1);
+
   --rule-hair: 1px;
   --radius-none: 0;
   --radius-sm:   0;      /* the system is rectilinear — no soft corners */
@@ -128,6 +132,7 @@
   --color-crosshair:    rgba(196, 242, 62, 0.3);
   --color-grid:         rgba(196, 242, 62, 0.09);
   --color-grid-laser:   rgba(196, 242, 62, 0.42);
+  --outline-image:      rgba(255, 255, 255, 0.1);
 
   --color-accent:       #C4F23E;
   --color-accent-2:     #D4F843;
@@ -160,6 +165,7 @@
     --color-crosshair:    rgba(196, 242, 62, 0.3);
     --color-grid:         rgba(196, 242, 62, 0.09);
   --color-grid-laser:   rgba(196, 242, 62, 0.42);
+  --outline-image:      rgba(255, 255, 255, 0.1);
 
     --color-accent:       #C4F23E;
     --color-accent-2:     #D4F843;

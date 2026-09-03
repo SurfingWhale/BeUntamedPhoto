@@ -17,7 +17,7 @@ export default async function AccountPage() {
     <div className="page">
       <section className="page__intro">
         <p className="u-mono">signed in · {viewer.email}</p>
-        <h2 className="page__title">{viewer.displayName}</h2>
+        <h1 className="page__title">{viewer.displayName}</h1>
         <p className="fold-text__body">
           Every gallery is open to you, including the held-back ones.{" "}
           <Link className="link" href="/work">

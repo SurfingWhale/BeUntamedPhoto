@@ -1,11 +1,19 @@
+"use client";
+
+import { useState } from "react";
+
 /**
  * The running strip. Movement comes from real archive metadata — gallery
  * counts, lane names, the year — never invented sale copy.
  *
- * The track is rendered twice so the loop is seamless; the duplicate is
- * hidden from assistive tech.
+ * WCAG 2.2.2: content that moves automatically for more than five seconds
+ * needs a pause control available to everyone, not only to people who have
+ * set prefers-reduced-motion. The strip also pauses on hover and on keyboard
+ * focus so a reader can finish a line.
  */
 export function Ticker({ items }: { items: string[] }) {
+  const [paused, setPaused] = useState(false);
+
   if (items.length === 0) return null;
 
   const track = (dup: boolean) => (
@@ -20,9 +28,19 @@ export function Ticker({ items }: { items: string[] }) {
   );
 
   return (
-    <div className="ticker">
-      {track(false)}
-      {track(true)}
+    <div className="ticker" data-paused={paused ? "true" : undefined}>
+      <div className="ticker__rail">
+        {track(false)}
+        {track(true)}
+      </div>
+      <button
+        type="button"
+        className="ticker__toggle"
+        onClick={() => setPaused((p) => !p)}
+        aria-pressed={paused}
+      >
+        {paused ? "Play" : "Pause"}
+      </button>
     </div>
   );
 }

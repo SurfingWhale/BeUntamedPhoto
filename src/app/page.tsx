@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { IndexFilter } from "@/components/index-filter";
 import { PhotoFold } from "@/components/photo-fold";
 import { Plate } from "@/components/plate";
 import { Ticker } from "@/components/ticker";
@@ -139,6 +140,10 @@ export default async function HomePage() {
       {/* ---- Portfolio Grid · three tiles, irregular spans ------------------ */}
       {shown.length > 0 && (
         <section className="grid-band plot">
+          <div className="head">
+            <h2 className="head__title">Recent work</h2>
+          </div>
+
           <div className="albums albums--few">
             {shown.map((album, i) => {
               const cover = covers.get(album.id);
@@ -200,38 +205,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="chips">
-          <span className="chip" data-active="true">
-            All
-          </span>
-          <Link className="chip" href="/work">
-            Food
-          </Link>
-          <Link className="chip" href="/work">
-            Sport
-          </Link>
-          <Link className="chip" href="/work">
-            Events
-          </Link>
-          <Link className="chip" href="/work">
-            Unfiled
-          </Link>
-        </div>
-
-        {albums.length > 0 && (
-          <div className="index">
-            {albums.slice(0, 6).map((album, i) => (
-              <Link className="index__row" key={album.id} href={`/work/${album.slug}`}>
-                <span className="index__no">[{plate(i)}]</span>
-                <span className="index__name">{album.title}</span>
-                <span className="index__meta">
-                  {album.place ?? "unfiled"} · {album.year ?? "—"}
-                  {album.visibility === "members" ? " · held" : ""} ↗
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
+        <IndexFilter albums={albums} />
       </section>
 
       <div className="rail">

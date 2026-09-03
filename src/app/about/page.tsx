@@ -19,9 +19,9 @@ export default async function AboutPage() {
     <div className="page">
       <section className="fold-text fold-text--tight">
         <p className="u-mono">About</p>
-        <h2 className="page__title">
+        <h1 className="page__title">
           {site.owner}, <em>working</em>.
-        </h2>
+        </h1>
         <div>
           <p className="fold-text__body">
             I photograph three things. Food — plated, steaming, close enough

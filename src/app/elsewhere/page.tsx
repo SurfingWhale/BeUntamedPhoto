@@ -11,9 +11,9 @@ export default function ElsewherePage() {
   return (
     <div className="page">
       <section className="page__intro">
-        <h2 className="page__title">
+        <h1 className="page__title">
           Three sites, one <em>practice</em>.
-        </h2>
+        </h1>
         <p className="fold-text__body">
           The archive here is the unsorted middle. The specialised work lives on
           its own ground, where it can be seen properly.

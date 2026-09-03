@@ -43,7 +43,10 @@ function Submit({ label }: { label: string }) {
   return (
     <button className="btn" type="submit" disabled={pending} aria-disabled={pending}>
       {pending && <span className="btn__spin" aria-hidden="true" />}
-      {pending ? "Working" : label}
+      {/* The label stays put while the request is in flight; the spinner
+          carries the state. Swapping it removes the confirmation of what is
+          being submitted. */}
+      {label}
     </button>
   );
 }

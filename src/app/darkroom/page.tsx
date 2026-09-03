@@ -21,7 +21,7 @@ export default async function DarkroomPage() {
     <div className="page">
       <section className="page__intro">
         <p className="u-mono">Owner only</p>
-        <h2 className="page__title">Darkroom</h2>
+        <h1 className="page__title">Darkroom</h1>
         <p className="fold-text__body">
           File a gallery, then open it to add plates. Held-back galleries store
           their files in a private bucket and are served through short-lived
