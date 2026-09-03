@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 import { AlbumForm } from "@/components/album-form";
+import { ClearCache } from "@/components/pwa";
 import { getAlbums } from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
 
@@ -59,6 +60,15 @@ export default async function DarkroomPage() {
         <section className="panel">
           <h2 className="panel__title">File a new gallery</h2>
           <AlbumForm />
+        </section>
+
+        <section className="panel">
+          <h2 className="panel__title">Maintenance</h2>
+          <p className="fold-text__body">
+            After a deploy, an installed copy of the site on a phone can still
+            be holding the previous build&rsquo;s assets. This drops them.
+          </p>
+          <ClearCache />
         </section>
       </div>
     </div>

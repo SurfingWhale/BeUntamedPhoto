@@ -5,8 +5,9 @@ import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
 import { GridLines } from "@/components/grid-lines";
 import { MotionRoot } from "@/components/motion";
+import { ServiceWorker } from "@/components/pwa";
 import { getViewer } from "@/lib/auth";
-import { site } from "@/lib/site";
+import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const syne = Syne({
@@ -30,19 +31,43 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
 });
 
+const DESCRIPTION =
+  "Photographs, galleries and creative work by Fauzy. Sport, food, and the frames in between.";
+
 export const metadata: Metadata = {
+  /* Required for the share card: WhatsApp and every other unfurler ignore a
+   * relative og:image, so these have to resolve to absolute URLs. */
+  metadataBase: new URL(siteUrl),
   title: {
     default: `${site.name} — ${site.tagline}`,
     template: `%s · ${site.name}`,
   },
-  description:
-    "Photographs, galleries and creative work by Muhammad Fauzy. Sport, food, and the frames in between.",
+  description: DESCRIPTION,
+  applicationName: site.name,
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    title: `${site.name} — ${site.tagline}`,
+    description: DESCRIPTION,
+    url: "/",
+    locale: "en_US",
+  },
+  twitter: { card: "summary_large_image" },
+  appleWebApp: {
+    capable: true,
+    title: site.name,
+    statusBarStyle: "black-translucent",
+  },
+  alternates: { canonical: "/" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  /* Matches the manifest, so an installed window's chrome is the slab rather
+   * than a browser default that clashes with it. */
+  themeColor: "#051C14",
 };
 
 /* Set the theme before first paint so the page never flashes the wrong ground. */
@@ -77,6 +102,7 @@ export default async function RootLayout({
             {children}
           </main>
           <Footer />
+          <ServiceWorker />
         </MotionRoot>
       </body>
     </html>

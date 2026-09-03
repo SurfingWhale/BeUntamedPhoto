@@ -127,7 +127,7 @@ export default async function HomePage() {
               {site.email}
             </a>
           </p>
-          <p className="label-wide story__by">archive by {site.owner.split(" ")[0]}</p>
+          <p className="label-wide story__by">archive by {site.owner}</p>
         </div>
       </section>
 

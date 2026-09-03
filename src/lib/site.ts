@@ -1,10 +1,25 @@
 /** Everything the page says about itself, in one place. */
 
+/**
+ * The origin every absolute URL is built from — Open Graph images and the
+ * manifest need one, and a relative og:image is simply ignored by WhatsApp.
+ *
+ * Vercel sets VERCEL_PROJECT_PRODUCTION_URL on every build, so this is correct
+ * without any configuration. Set NEXT_PUBLIC_SITE_URL once a custom domain is
+ * attached, otherwise cards keep pointing at the vercel.app hostname.
+ */
+export const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000")
+).replace(/\/$/, "");
+
 export const site = {
   name: "UNTAMED",
   wordmark: ["UNTAM", "E", "D"] as const,
-  tagline: "A visual archive by Muhammad Fauzy.",
-  owner: "Muhammad Fauzy",
+  tagline: "A visual archive by Fauzy.",
+  owner: "Fauzy",
   email: "untamed98x@gmail.com",
   github: "https://github.com/Untamed98x",
   mastLine: "Visual archive · frames, not feeds",
