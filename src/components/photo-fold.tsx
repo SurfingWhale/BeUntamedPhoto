@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { Plate } from "@/components/plate";
 import { plate } from "@/lib/format";
 import type { PhotoWithUrl } from "@/lib/gallery";
@@ -21,8 +23,15 @@ export function PhotoFold({
   const no = plate(index);
   const has = Boolean(photo?.url);
 
+  /* The fold takes the plate's own proportions on a phone — see .fold-photo
+   * in globals.css. Without this the CSS falls back to 3/4 and crops. */
+  const ratio =
+    photo?.width && photo?.height
+      ? ({ "--fold-ratio": `${photo.width} / ${photo.height}` } as CSSProperties)
+      : undefined;
+
   return (
-    <section className={`fold-photo fold-photo--${size}`}>
+    <section className={`fold-photo fold-photo--${size}`} style={ratio}>
       {has ? (
         // Storage URLs are signed / remote — a plain <img> keeps them unproxied.
         // eslint-disable-next-line @next/next/no-img-element

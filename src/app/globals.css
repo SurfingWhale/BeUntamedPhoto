@@ -627,17 +627,25 @@ img { display: block; max-width: 100%; }
   margin-block: 0;
   background: var(--color-paper-2);
 }
-/* Fold heights are whole modules, so a photograph's top and bottom edges land
- * on lattice rows the way the reference does. */
-/* Whole grid rows, but never taller than a sane frame: the fold is full-bleed,
- * so on a 375px phone a flat 600px height cropped a landscape shot to a 0.62
- * sliver. The min() caps the tall fold at 4:5 and the band at 3:2, which binds
- * only on phones — from 480px up these are the same heights as before. */
-.fold-photo--tall  { height: min(125vw, calc(var(--row) * 5)); }
-.fold-photo--band  { height: min(66.6vw, calc(var(--row) * 4)); }
+/* On a phone the frame sets the height, not the grid.
+ *
+ * This archive is shot vertical — the two featured plates measure 0.56 and
+ * 0.67 — and a full-bleed fold is the only thing on a phone screen. Forcing
+ * those into a landscape box cropped 62% of one photograph away. --fold-ratio
+ * carries the row's own width/height, so object-fit has nothing left to trim;
+ * the 3/4 fallback covers a plate whose dimensions were never recorded.
+ *
+ * Whole-module heights return at 60rem, where the fold is one element among
+ * several and its top and bottom edges landing on lattice rows is worth more
+ * than the last few percent of a frame. */
+.fold-photo--tall,
+.fold-photo--band {
+  height: auto;
+  aspect-ratio: var(--fold-ratio, 3 / 4);
+}
 @media (min-width: 60rem) {
-  .fold-photo--tall { height: calc(var(--row) * 6); }
-  .fold-photo--band { height: calc(var(--row) * 4); }
+  .fold-photo--tall { aspect-ratio: auto; height: calc(var(--row) * 6); }
+  .fold-photo--band { aspect-ratio: auto; height: calc(var(--row) * 4); }
 }
 .fold-photo__img {
   width: 100%;
@@ -1088,11 +1096,18 @@ img { display: block; max-width: 100%; }
 .album { display: grid; gap: var(--space-sm); min-width: 0; }
 .album__media {
   display: block;
-  aspect-ratio: 4 / 3;
+  /* Portrait by default, because the covers are: measured at 0.56, a 4/3 tile
+   * threw away 58% of one on a phone, where the tile is full width and the
+   * crop is most visible. The landscape tile and the alternating rhythm come
+   * back at 40rem, where two tiles sit side by side and are half the size. */
+  aspect-ratio: 3 / 4;
   background: var(--color-paper-2);
   overflow: hidden;
 }
-.album:nth-child(3n+2) .album__media { aspect-ratio: 3 / 4; }
+@media (min-width: 40rem) {
+  .album__media { aspect-ratio: 4 / 3; }
+  .album:nth-child(3n+2) .album__media { aspect-ratio: 3 / 4; }
+}
 .album__media {
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: 0;
