@@ -68,8 +68,8 @@ export function AlbumAdmin({
             <option value="members">Signed-in visitors only</option>
           </select>
           <p className="field__help">
-            Changing this does not move files already uploaded — new plates go to
-            the matching bucket.
+            Saving moves the files too, up to 60 at a time, so held-back plates
+            stop being reachable on a public link.
           </p>
         </div>
         <div>

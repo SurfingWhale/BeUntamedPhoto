@@ -77,6 +77,72 @@ export async function createAlbum(
   return { status: "ok", message: `Filed as /work/${slug}.` };
 }
 
+/* How many plates one save relocates. Held low so a long album cannot time the
+ * action out; the save reports what is left and moving the rest is another
+ * click on the same control. */
+const RELOCATE_BATCH = 60;
+
+type Stray = { id: string; path: string; bucket: string };
+
+/**
+ * Move an album's files to the bucket its visibility implies.
+ *
+ * Holding a gallery back used to be cosmetic. `updateAlbum` flipped
+ * `albums.visibility` and left the files alone, but `withUrls` picks a signed
+ * URL or a public one from `photos.bucket`, not from the album — so plates
+ * uploaded while the album was public kept being served from the public bucket
+ * on unsigned URLs that never expire. The page said "signed-in only"; the
+ * photographs stayed on the open internet for anyone holding a link.
+ *
+ * The order per plate is copy, then the row, then delete the source. Every
+ * interruption point leaves `photos.bucket` naming a bucket that really holds
+ * the file, so a half-finished move renders rather than 404s.
+ */
+async function relocate(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  albumId: string,
+  target: "gallery" | "gallery-private",
+): Promise<{ moved: number; remaining: number; error: string | null }> {
+  const { data, error } = await supabase
+    .from("photos")
+    .select("id, path, bucket")
+    .eq("album_id", albumId)
+    .neq("bucket", target)
+    .limit(RELOCATE_BATCH + 1);
+
+  if (error) return { moved: 0, remaining: 0, error: error.message };
+
+  const strays = (data ?? []) as Stray[];
+  const batch = strays.slice(0, RELOCATE_BATCH);
+  let moved = 0;
+
+  for (const photo of batch) {
+    const { error: copyError } = await supabase.storage
+      .from(photo.bucket)
+      .copy(photo.path, photo.path, { destinationBucket: target });
+
+    // A retry after a partial run finds the file already copied, which is the
+    // state we wanted, not a failure.
+    const duplicate = copyError?.message?.toLowerCase().includes("exist");
+    if (copyError && !duplicate) {
+      return { moved, remaining: strays.length - moved, error: copyError.message };
+    }
+
+    const { error: rowError } = await supabase
+      .from("photos")
+      .update({ bucket: target })
+      .eq("id", photo.id);
+    if (rowError) {
+      return { moved, remaining: strays.length - moved, error: rowError.message };
+    }
+
+    await supabase.storage.from(photo.bucket).remove([photo.path]);
+    moved += 1;
+  }
+
+  return { moved, remaining: Math.max(0, strays.length - moved), error: null };
+}
+
 export async function updateAlbum(
   _prev: DarkroomState,
   formData: FormData,
@@ -96,20 +162,56 @@ export async function updateAlbum(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("albums").update({ visibility }).eq("id", id);
+  const target = visibility === "members" ? "gallery-private" : "gallery";
 
-  if (error) return { status: "error", message: error.message };
+  /* Which half runs first is a safety decision, not a style one.
+   *
+   * Holding back: close the page first. The album stops listing the plates
+   * immediately, and the files follow. Anything already public stays reachable
+   * for the length of the move — but no new link to it is being handed out.
+   *
+   * Opening up: move the files first. Flipping the album public while its
+   * plates were still private would leave anonymous visitors unable to sign a
+   * URL for them, so the gallery would open onto missing images. */
+  const flip = () => supabase.from("albums").update({ visibility }).eq("id", id);
+
+  if (visibility === "members") {
+    const { error } = await flip();
+    if (error) return { status: "error", message: error.message };
+  }
+
+  const { moved, remaining, error: moveError } = await relocate(supabase, id, target);
+
+  if (visibility === "public" && !moveError) {
+    const { error } = await flip();
+    if (error) return { status: "error", message: error.message };
+  }
 
   revalidatePath("/darkroom");
   revalidatePath(`/darkroom/${slug}`);
   revalidatePath("/work");
-  return {
-    status: "ok",
-    message:
-      visibility === "members"
-        ? "Held back — signed-in visitors only."
-        : "Open to everyone.",
-  };
+  revalidatePath(`/work/${slug}`);
+
+  if (moveError) {
+    return {
+      status: "error",
+      message: `Moved ${moved} of the files, then stopped: ${moveError} — save again to carry on.`,
+    };
+  }
+
+  const settled =
+    visibility === "members"
+      ? "Held back — signed-in visitors only."
+      : "Open to everyone.";
+  const note =
+    moved > 0
+      ? ` Moved ${moved} ${moved === 1 ? "file" : "files"} to the ${
+          target === "gallery-private" ? "private" : "public"
+        } bucket.`
+      : "";
+  const more = remaining > 0 ? ` ${remaining} still to move — save again.` : "";
+
+  return { status: "ok", message: settled + note + more };
 }
 
 export async function deleteAlbum(
