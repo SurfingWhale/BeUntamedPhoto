@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { PhotoFold } from "@/components/photo-fold";
 import { Plate } from "@/components/plate";
+import { Ticker } from "@/components/ticker";
 import { getAlbums, getCovers, getFeatured } from "@/lib/gallery";
 import { plate } from "@/lib/format";
 import { elsewhere, site } from "@/lib/site";
@@ -20,6 +21,18 @@ export default async function HomePage() {
   const shown = albums.slice(0, 3);
   const covers = await getCovers(shown.map((a) => a.id));
   const year = new Date().getUTCFullYear();
+  const held = albums.filter((a) => a.visibility === "members").length;
+
+  /* Ticker content is real: counts and lanes, nothing invented. */
+  const tickerItems = [
+    `${site.name}®`,
+    `${albums.length} ${albums.length === 1 ? "gallery" : "galleries"} filed`,
+    held > 0 ? `${held} held back` : "open archive",
+    "01 food · visufavor",
+    "02 sport · untmd",
+    "03 events & everything else",
+    `dispatch ${year}`,
+  ];
 
   return (
     <div className="page">
@@ -49,6 +62,8 @@ export default async function HomePage() {
           <p className="u-mono">.colour picture</p>
         </div>
       </section>
+
+      <Ticker items={tickerItems} />
 
       {/* ---- the photograph · full bleed, edges on lattice rows ------------ */}
       <PhotoFold
@@ -166,7 +181,57 @@ export default async function HomePage() {
 
       <div className="rail">
         <span>
-          <span className="rail__no">02 →</span> Lanes
+          <span className="rail__no">02 →</span> Project index
+        </span>
+        <span>[choose by lane]</span>
+      </div>
+
+      {/* ---- project index · counter, category chips, numbered rows -------- */}
+      <section className="grid-band">
+        <div className="index-head">
+          <h2 className="head__title">The index</h2>
+          <p className="index-count">
+            ( {albums.length} {albums.length === 1 ? "gallery" : "galleries"} )
+          </p>
+        </div>
+
+        <div className="chips">
+          <span className="chip" data-active="true">
+            All
+          </span>
+          <Link className="chip" href="/work">
+            Food
+          </Link>
+          <Link className="chip" href="/work">
+            Sport
+          </Link>
+          <Link className="chip" href="/work">
+            Events
+          </Link>
+          <Link className="chip" href="/work">
+            Unfiled
+          </Link>
+        </div>
+
+        {albums.length > 0 && (
+          <div className="index">
+            {albums.slice(0, 6).map((album, i) => (
+              <Link className="index__row" key={album.id} href={`/work/${album.slug}`}>
+                <span className="index__no">[{plate(i)}]</span>
+                <span className="index__name">{album.title}</span>
+                <span className="index__meta">
+                  {album.place ?? "unfiled"} · {album.year ?? "—"}
+                  {album.visibility === "members" ? " · held" : ""} ↗
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <div className="rail">
+        <span>
+          <span className="rail__no">03 →</span> Lanes
         </span>
         <span>[food · sport · everything else]</span>
       </div>

@@ -10,6 +10,7 @@ export function GridLines() {
   return (
     <div className="gridlines" aria-hidden="true">
       <div className="gridlines__cols" />
+      <div className="gridlines__laser" />
       <div className="gridlines__marks">
         {["tl", "tr", "ml", "mr", "bl", "br"].map((pos) => (
           <span key={pos} className={`gridlines__plus gridlines__plus--${pos}`}>
