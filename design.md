@@ -4,16 +4,23 @@ A locked design system for this app. Every page redesign reads this file before
 emitting code. Do not regenerate per page — extend or amend this file when the
 system needs to grow.
 
-**Status:** applied to shared chrome + `/`. `tokens.css`, `src/app/globals.css`,
-`src/app/layout.tsx`, and `src/components/footer.tsx` now carry this system
-(near-white/forest-green · Archivo grotesque · lime accent · Ft5 statement
-footer) — live across every route since chrome and tokens are global. The
-home page (`/`) is the first page fully tuned to it; its structure needed
-almost no change since it was already low-density. `/work`, `/about`,
-`/notes` still render with the *old* macrostructure decisions (their JSX
-hasn't been touched) but inherit the new colours/type automatically — a
-Specimen-macrostructure pass on those pages (§ 3) is the natural next step,
-not yet done.
+**Status:** applied to shared chrome + `/`.
+
+- **Done:** `tokens.css`, `globals.css`, `layout.tsx`, `footer.tsx` carry the
+  system (near-white/forest-green · Archivo grotesque · lime accent · Ft5
+  statement footer) — global, so every route inherits colour + type.
+- **Done:** `/` rebuilt to the Portfolio Grid low-density shape in § 3 —
+  H6 hero fold → intro → three asymmetric tiles (spans 7 / 4 / 6, one
+  deliberately short of the edge) → forest-green band carrying the lane
+  index → closing fold. Five blocks, down from seven.
+- **Correction (2026-09-03):** the first pass on `/` only recoloured the old
+  Photographic macrostructure and was reported as "tuned" — it wasn't. The
+  green paper-band motif (§ 1) was missing entirely, and no restructuring had
+  happened. Fixed in the pass above. Lesson for future runs: a rebrand that
+  only swaps tokens is a reskin, and this file's § 3 is not satisfied by one.
+- **Not done:** `/work`, `/about`, `/notes` still run their old structure
+  (their JSX is untouched) wearing the new colours. The Specimen pass on
+  those — numbered plates, staggered spans — is the next step.
 
 ---
 
