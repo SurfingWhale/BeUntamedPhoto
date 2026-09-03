@@ -84,8 +84,10 @@ export default async function HomePage() {
             <br />
             over .
           </h1>
-          <p className="tag">14.8</p>
-          <p className="label-wide">camera : whatever is in reach</p>
+          <p className="tag">
+            {albums.length.toString().padStart(2, "0")} filed
+          </p>
+          <p className="label-wide">available for commissions</p>
         </div>
 
         <span className="mark mark--bold story__arrow" aria-hidden="true">
@@ -104,21 +106,24 @@ export default async function HomePage() {
           </span>
 
           <div className="story__pair">
-            <p className="story__no">14</p>
-            <p className="story__gloss">Where my feet stand,</p>
-            <p className="story__no">08</p>
-            <p className="story__gloss">there i take a photo.</p>
+            <p className="story__no">01</p>
+            <p className="story__gloss">Show up early,</p>
+            <p className="story__no">02</p>
+            <p className="story__gloss">wait for the real one.</p>
           </div>
 
           <p className="story__body">
-            I&rsquo;m {site.owner} — a data analyst by trade, which is a longer way
-            of saying I spend my days looking for the moment a pattern gives
-            itself away. A camera turned out to be the same habit pointed at the
-            world: hold still, wait, take the frame when it stops pretending.
+            I&rsquo;m {site.owner}, a photographer working across food, sport and
+            event documentation. Most of what I do is patience — holding a frame
+            until the arranged version of a moment drops away and the honest one
+            shows up.
           </p>
           <p className="story__body">
-            This is the archive. Sport lives at UNTMD Sports, food at VisuFavor,
-            and everything unsorted stays here.
+            Food work lives at VisuFavor, sport at UNTMD Sports, and events and
+            everything unsorted stay in this archive. Commissions and prints:{" "}
+            <a className="link" href={`mailto:${site.email}`}>
+              {site.email}
+            </a>
           </p>
           <p className="label-wide story__by">archive by {site.owner.split(" ")[0]}</p>
         </div>

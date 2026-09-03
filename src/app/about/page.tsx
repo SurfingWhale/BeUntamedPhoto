@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About",
-  description: `${site.owner} — data analyst by trade, photographer by habit.`,
+  description: `${site.owner} — photographer working across food, sport and event documentation.`,
 };
 
 export default async function AboutPage() {
@@ -24,17 +24,16 @@ export default async function AboutPage() {
         </h2>
         <div>
           <p className="fold-text__body">
-            Two disciplines, one habit. By trade I&rsquo;m a data analyst with an
-            accounting background — ledgers, forecasts, and the long argument
-            about what a number actually means. With a camera it&rsquo;s the same
-            work at a different shutter speed: wait for the thing to reveal its
-            shape, then take the frame.
+            I photograph three things. Food — plated, steaming, close enough
+            that you can read the texture. Sport — the half-second before the
+            point ends, the body already committed. And events, which is
+            everything else: the room as it actually was, not as it was posed.
           </p>
           <p className="fold-text__body">
-            Most of what I shoot falls into two piles. Sport — the half-second
-            before the point ends, the body already committed. And food —
-            plated, steaming, photographed close enough that you can read the
-            texture. Everything that fits neither stays here, unfiled.
+            The work is mostly patience. I&rsquo;d rather wait out the arranged
+            version of a moment than direct one into place, which means I shoot
+            long and keep less. What you see in these galleries is what survived
+            that edit.
           </p>
           <p className="fold-text__body">
             I don&rsquo;t retouch much. If the light was wrong, the frame was
@@ -73,18 +72,26 @@ export default async function AboutPage() {
 
       <section className="fold-text fold-text--tight">
         <div className="head">
-          <h2 className="head__title">Get in touch</h2>
+          <h2 className="head__title">Commissions</h2>
           <p className="head__sub">
-            Open for commissions, collaboration, or a conversation about light.
+            Open for food, sport and event work.
           </p>
         </div>
+        <p className="fold-text__body">
+          Send the date, the location, and roughly what the pictures are for —
+          menu, editorial, a team, a launch. I&rsquo;ll come back with what&rsquo;s
+          possible and what it costs. If it&rsquo;s not something I&rsquo;m the
+          right person for, I&rsquo;ll say so.
+        </p>
+        <p>
+          <a className="btn" href={`mailto:${site.email}`}>
+            {site.email} →
+          </a>
+        </p>
         <div className="foot__row" style={{ paddingBottom: "var(--space-xl)" }}>
-          <a className="foot__link" href={`mailto:${site.email}`}>
-            {site.email}
-          </a>
-          <a className="foot__link" href={site.github} target="_blank" rel="noreferrer">
-            GitHub ↗
-          </a>
+          <Link className="foot__link" href="/work">
+            See the galleries
+          </Link>
           <Link className="foot__link" href="/notes">
             Guestbook
           </Link>

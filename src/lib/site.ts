@@ -5,7 +5,7 @@ export const site = {
   wordmark: ["UNTAM", "E", "D"] as const,
   tagline: "A visual archive by Muhammad Fauzy.",
   owner: "Muhammad Fauzy",
-  email: "fauzymuhamad43@gmail.com",
+  email: "untamed98x@gmail.com",
   github: "https://github.com/Untamed98x",
   mastLine: "Visual archive · frames, not feeds",
 };
@@ -34,7 +34,7 @@ export const elsewhere = [
   {
     name: "Surfing Whale",
     href: "https://surfing-whale.vercel.app/",
-    what: "The other half of the practice — data analysis, ledgers, and the patterns underneath.",
+    what: "Studio notes and side projects — where things get built before they get shot.",
     go: "surfing-whale.vercel.app",
   },
 ] as const;

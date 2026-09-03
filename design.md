@@ -48,6 +48,29 @@ This file is also the answer to "why does the site look like this" — read
 
 ---
 
+## 0.5 · Content rules (binding — read before writing any copy)
+
+These govern every page, every meta description, every alt text. They are not
+style preferences; breaking one is a content bug.
+
+1. **This site is the creative practice only. Never mention the banking,
+   accounting, data-analyst, or finance side.** No "data analyst by trade",
+   no "ledgers", no "two disciplines", no "the other half of the practice".
+   A visiting client should see a photographer, full stop — a split identity
+   reads as a hobbyist who does this on weekends, which is the opposite of
+   the goal in rule 3.
+2. **Public contact is `untamed98x@gmail.com`.** That address, and only that
+   address, goes in the footer, the about page, metadata, and any mailto.
+   Do not surface any personal address.
+3. **The aim is client trust.** Every copy decision is judged against "does
+   this make a prospective client more confident hiring him?" In practice:
+   - Specific beats clever. What was shot, for whom, where, when.
+   - **No invented credentials.** No fake client names, no fabricated
+     campaign counts, no gear he doesn't own, no awards. An unproven claim
+     that gets checked destroys more trust than a modest true one builds.
+   - A clear, obvious way to make contact on every page.
+   - No copy lifted from reference designs — see § 3.6 note on provenance.
+
 ## 1 · Design DNA analysis — where the system comes from
 
 Two references were supplied. Per Hallmark's one-backbone rule, they don't
