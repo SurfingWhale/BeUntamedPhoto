@@ -5,35 +5,49 @@ import type { Metadata } from "next";
 import { Reveal } from "@/components/motion";
 import { SIZES } from "@/lib/images";
 import { NotesPanel } from "@/components/notes-panel";
+import { Pager } from "@/components/pager";
 import { Plate } from "@/components/plate";
-import { getAlbum, getPhotos } from "@/lib/gallery";
+import { clampPage, getAlbum, getPhotoPage, PER_PAGE } from "@/lib/gallery";
 import { getNotes } from "@/lib/notes";
 import { getViewer } from "@/lib/auth";
 import { formatDate, plate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-type Params = { params: Promise<{ slug: string }> };
+type Params = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
+};
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+/** generateMetadata takes the same props but needs only the slug. */
+type MetaParams = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: MetaParams): Promise<Metadata> {
   const { slug } = await params;
   const album = await getAlbum(slug);
   if (!album) return { title: "Not found" };
   return { title: album.title, description: album.subtitle ?? undefined };
 }
 
-export default async function AlbumPage({ params }: Params) {
+export default async function AlbumPage({ params, searchParams }: Params) {
   const { slug } = await params;
+  const page = clampPage((await searchParams).page);
   const album = await getAlbum(slug);
   if (!album) notFound();
 
   const viewer = await getViewer();
   const locked = album.visibility === "members" && !viewer;
 
-  const [photos, notes] = await Promise.all([
-    locked ? Promise.resolve([]) : getPhotos(album.id),
+  const EMPTY = { items: [], total: 0, page: 1, pages: 1, perPage: PER_PAGE };
+  const [plates, notes] = await Promise.all([
+    locked ? Promise.resolve(EMPTY) : getPhotoPage(album.id, page),
     getNotes(album.id),
   ]);
+  const photos = plates.items;
+
+  /* Plate numbers count from the start of the album, not the start of the
+   * page — plate 25 is plate 25 whichever page it is read on. */
+  const offset = (plates.page - 1) * plates.perPage;
 
   return (
     <div className="page">
@@ -76,7 +90,7 @@ export default async function AlbumPage({ params }: Params) {
         <div className="strip">
           {photos.map((photo, i) => (
             <Reveal as="figure" className="strip__item" key={photo.id} index={i % 2}>
-              <p className="strip__no">{plate(i)}</p>
+              <p className="strip__no">{plate(offset + i)}</p>
               <div className="strip__frame">
                 {photo.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -84,7 +98,7 @@ export default async function AlbumPage({ params }: Params) {
                     src={photo.url}
                     srcSet={photo.srcSet ?? undefined}
                     sizes={SIZES.plate}
-                    alt={photo.caption ?? `${album.title} — plate ${plate(i)}`}
+                    alt={photo.caption ?? `${album.title} — plate ${plate(offset + i)}`}
                     width={photo.width ?? undefined}
                     height={photo.height ?? undefined}
                     loading={i === 0 ? "eager" : "lazy"}
@@ -93,7 +107,7 @@ export default async function AlbumPage({ params }: Params) {
                   />
                 ) : (
                   <div style={{ aspectRatio: "3 / 2" }}>
-                    <Plate no={plate(i)} label="file missing" />
+                    <Plate no={plate(offset + i)} label="file missing" />
                   </div>
                 )}
               </div>
@@ -110,6 +124,16 @@ export default async function AlbumPage({ params }: Params) {
             </Reveal>
           ))}
         </div>
+      )}
+
+      {!locked && (
+        <Pager
+          base={`/work/${album.slug}`}
+          page={plates.page}
+          pages={plates.pages}
+          total={plates.total}
+          perPage={plates.perPage}
+        />
       )}
 
       <section className="fold-text fold-text--tight">

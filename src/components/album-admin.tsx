@@ -95,9 +95,17 @@ function Result({ state }: { state: DarkroomState }) {
 export function AlbumAdmin({
   album,
   photos,
+  offset = 0,
+  total = photos.length,
 }: {
   album: Album;
+  /** One page of the album, not the whole thing. */
   photos: PhotoWithUrl[];
+  /** How many plates come before this page — plate numbers count from the
+   * start of the album, not the start of the page. */
+  offset?: number;
+  /** Plates in the whole album, so the move arrows know the real ends. */
+  total?: number;
 }) {
   const [visState, visAction] = useActionState(updateAlbum, IDLE);
   const [delState, delAction] = useActionState(deleteAlbum, IDLE);
@@ -158,14 +166,14 @@ export function AlbumAdmin({
                 photoId={photo.id}
                 albumId={album.id}
                 slug={album.slug}
-                first={i === 0}
-                last={i === photos.length - 1}
-                index={i}
-                total={photos.length}
+                first={offset + i === 0}
+                last={offset + i === total - 1}
+                index={offset + i}
+                total={total}
               />
               <div className="plates__meta">
                 <p className="note__body" style={{ fontSize: "var(--text-base)" }}>
-                  Plate {plate(i)}
+                  Plate {plate(offset + i)}
                   {photo.caption ? ` · ${photo.caption}` : ""}
                   {photo.is_cover ? " · cover" : ""}
                 </p>

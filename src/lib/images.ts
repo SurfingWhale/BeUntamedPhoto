@@ -99,6 +99,6 @@ export const SIZES = {
   /** .strip__frame — full width inside the page gutter, narrower on the
    * 12-column cascade. */
   plate: "(min-width: 60rem) 60vw, 100vw",
-  /** .plates__thumb — a fixed 72px contact-sheet square. */
-  thumb: "72px",
+  /** .plates__thumb — a fixed 96px contact-sheet square. */
+  thumb: "96px",
 } as const;

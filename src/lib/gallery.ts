@@ -41,6 +41,31 @@ export type PhotoWithUrl = Photo & {
 const SIGNED_URL_TTL = 60 * 60; // 1 hour
 
 /**
+ * Private files are signed one request each, so the fan-out has to be bounded.
+ * An unbounded Promise.all over a 500-plate album opens 500 sockets at once and
+ * Supabase starts refusing them — which surfaces as plates that silently have
+ * no URL rather than as an error.
+ */
+const SIGN_CHUNK = 24;
+
+/** Plates per page, on the public gallery and in the darkroom alike. */
+export const PER_PAGE = 24;
+
+export type Paged<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  pages: number;
+  perPage: number;
+};
+
+/** A page number out of a query string, clamped to something sane. */
+export function clampPage(raw: string | string[] | undefined): number {
+  const n = Number(Array.isArray(raw) ? raw[0] : raw);
+  return Number.isInteger(n) && n > 1 ? n : 1;
+}
+
+/**
  * Every URL here is a resized render, never the stored object — see
  * `lib/images.ts` for why. Public files build their URL as a string and carry a
  * full srcset; private files are signed one at a time, because the transform is
@@ -54,11 +79,10 @@ export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
     .filter((p) => p.bucket === "gallery-private")
     .map((p) => p.path);
 
-  if (privatePaths.length > 0) {
-    // In parallel: N fast API calls beat one round trip that hands back a
-    // 7 MB original.
+  // In parallel, but in bounded batches — see SIGN_CHUNK.
+  for (let i = 0; i < privatePaths.length; i += SIGN_CHUNK) {
     const results = await Promise.all(
-      privatePaths.map(async (path) => {
+      privatePaths.slice(i, i + SIGN_CHUNK).map(async (path) => {
         const { data } = await supabase.storage
           .from("gallery-private")
           .createSignedUrl(path, SIGNED_URL_TTL, {
@@ -111,15 +135,55 @@ export async function getAlbum(slug: string): Promise<Album | null> {
   return (data as Album) ?? null;
 }
 
-export async function getPhotos(albumId: string): Promise<PhotoWithUrl[]> {
+/**
+ * One page of an album.
+ *
+ * This never selects a whole album, and that is the point. The unpaged version
+ * this replaces asked for every row: past PostgREST's row cap the tail came
+ * back missing with no error at all — the gallery simply stopped part way and
+ * looked complete — and every page load signed a URL for every private plate
+ * before rendering a single one.
+ */
+export async function getPhotoPage(
+  albumId: string,
+  page = 1,
+  perPage = PER_PAGE,
+): Promise<Paged<PhotoWithUrl>> {
+  const supabase = await createClient();
+  const from = (page - 1) * perPage;
+
+  const { data, count } = await supabase
+    .from("photos")
+    .select("*", { count: "exact" })
+    .eq("album_id", albumId)
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: true })
+    .range(from, from + perPage - 1);
+
+  const total = count ?? 0;
+  return {
+    items: await withUrls((data ?? []) as Photo[]),
+    total,
+    page,
+    pages: Math.max(1, Math.ceil(total / perPage)),
+    perPage,
+  };
+}
+
+/**
+ * The highest position in an album, so a new batch appends instead of landing
+ * on top of what is already filed.
+ */
+export async function getMaxPosition(albumId: string): Promise<number> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("photos")
-    .select("*")
+    .select("position")
     .eq("album_id", albumId)
-    .order("position", { ascending: true })
-    .order("created_at", { ascending: true });
-  return withUrls((data ?? []) as Photo[]);
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data?.position ?? -1;
 }
 
 /** One cover per album, for the index grid. */
