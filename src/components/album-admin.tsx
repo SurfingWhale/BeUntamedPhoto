@@ -12,6 +12,7 @@ import {
   type DarkroomState,
 } from "@/app/darkroom/actions";
 import { plate } from "@/lib/format";
+import { genres } from "@/lib/site";
 import { SIZES } from "@/lib/images";
 import type { Album, PhotoWithUrl } from "@/lib/gallery";
 
@@ -110,6 +111,29 @@ export function AlbumAdmin({
         <input type="hidden" name="id" value={album.id} />
         <input type="hidden" name="slug" value={album.slug} />
         <div className="field">
+          <label className="field__label" htmlFor="genre-edit">
+            Genre
+          </label>
+          <select
+            className="field__select"
+            id="genre-edit"
+            name="genre"
+            defaultValue={album.genre}
+            aria-describedby="genre-edit-help"
+          >
+            {genres.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.label}
+              </option>
+            ))}
+          </select>
+          <p className="field__help" id="genre-edit-help">
+            Decides which genre page this set appears on, and which chip it
+            answers to on the index.
+          </p>
+        </div>
+
+        <div className="field">
           <label className="field__label" htmlFor="visibility-edit">
             Who can see it
           </label>
@@ -129,7 +153,7 @@ export function AlbumAdmin({
         </div>
         <div>
           <button className="btn btn--quiet" type="submit">
-            Save visibility
+            Save gallery
           </button>
         </div>
         <Result state={visState} />

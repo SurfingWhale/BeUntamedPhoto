@@ -162,10 +162,14 @@ export async function updateAlbum(
 
   const id = String(formData.get("id") ?? "");
   const visibility = String(formData.get("visibility") ?? "public");
+  const genre = String(formData.get("genre") ?? "");
   const slug = String(formData.get("slug") ?? "");
 
   if (visibility !== "public" && visibility !== "members") {
     return { status: "error", message: "Visibility must be public or members." };
+  }
+  if (!genreIds.includes(genre as (typeof genreIds)[number])) {
+    return { status: "error", message: "Pick one of the listed genres." };
   }
 
   const supabase = await createClient();
@@ -180,7 +184,7 @@ export async function updateAlbum(
    * Opening up: move the files first. Flipping the album public while its
    * plates were still private would leave anonymous visitors unable to sign a
    * URL for them, so the gallery would open onto missing images. */
-  const flip = () => supabase.from("albums").update({ visibility }).eq("id", id);
+  const flip = () => supabase.from("albums").update({ visibility, genre }).eq("id", id);
 
   if (visibility === "members") {
     const { error } = await flip();
@@ -198,6 +202,9 @@ export async function updateAlbum(
   revalidatePath(`/darkroom/${slug}`);
   revalidatePath("/work");
   revalidatePath(`/work/${slug}`);
+  // The genre pages list by genre, so both the one it left and the one it
+  // joined are now wrong until they rebuild.
+  for (const g of genreIds) revalidatePath(`/work/genre/${g}`);
 
   if (moveError) {
     return {
