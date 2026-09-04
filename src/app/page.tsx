@@ -6,7 +6,7 @@ import { SIZES } from "@/lib/images";
 import { PhotoFold } from "@/components/photo-fold";
 import { Plate } from "@/components/plate";
 import { Ticker } from "@/components/ticker";
-import { getAlbums, getCovers, getFeatured } from "@/lib/gallery";
+import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
 import { plate } from "@/lib/format";
 import { elsewhere, site } from "@/lib/site";
 
@@ -20,9 +20,10 @@ const FALLBACK_LABELS = ["the opening frame", "between assignments"];
  * a narrow justified column, with the marks placed in the margins.
  * White carries ~85% of the page; green is the photograph and one tag. */
 export default async function HomePage() {
-  const [featured, albums] = await Promise.all([getFeatured(2), getAlbums()]);
+  // One wave, not a chain: covers arrive with their albums now, so nothing
+  // here waits on anything else.
+  const [featured, albums] = await Promise.all([getFeatured(2), getAlbumsWithCovers()]);
   const shown = albums.slice(0, 3);
-  const covers = await getCovers(shown.map((a) => a.id));
   const year = new Date().getUTCFullYear();
   const held = albums.filter((a) => a.visibility === "members").length;
 
@@ -150,7 +151,7 @@ export default async function HomePage() {
 
           <div className="albums albums--few">
             {shown.map((album, i) => {
-              const cover = covers.get(album.id);
+              const cover = album.cover;
               return (
                 <Reveal as="article" className="album" key={album.id} index={i}>
                   <Link

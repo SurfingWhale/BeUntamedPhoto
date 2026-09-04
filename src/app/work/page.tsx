@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Reveal } from "@/components/motion";
 import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
-import { getAlbums, getCovers } from "@/lib/gallery";
+import { getAlbumsWithCovers } from "@/lib/gallery";
 import { genres } from "@/lib/site";
 import { getViewer } from "@/lib/auth";
 import { plate } from "@/lib/format";
@@ -17,8 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkPage() {
-  const [albums, viewer] = await Promise.all([getAlbums(), getViewer()]);
-  const covers = await getCovers(albums.map((a) => a.id));
+  const [albums, viewer] = await Promise.all([getAlbumsWithCovers(), getViewer()]);
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   return (
@@ -66,7 +65,7 @@ export default async function WorkPage() {
       ) : (
         <div className="albums">
           {albums.map((album, i) => {
-            const cover = covers.get(album.id);
+            const cover = album.cover;
             return (
               <Reveal as="article" className="album" key={album.id} index={i}>
                 <Link

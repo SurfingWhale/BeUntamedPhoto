@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
 import { Plate } from "@/components/plate";
-import { getAlbumsByGenre, getCovers } from "@/lib/gallery";
+import { getAlbumsWithCovers } from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
 import { plate } from "@/lib/format";
 import { SIZES } from "@/lib/images";
@@ -47,8 +47,10 @@ export default async function GenrePage({ params }: Params) {
   const g = find(genre);
   if (!g) notFound();
 
-  const [albums, viewer] = await Promise.all([getAlbumsByGenre(g.id), getViewer()]);
-  const covers = await getCovers(albums.map((a) => a.id));
+  const [albums, viewer] = await Promise.all([
+    getAlbumsWithCovers(g.id),
+    getViewer(),
+  ]);
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   return (
@@ -78,7 +80,7 @@ export default async function GenrePage({ params }: Params) {
       ) : (
         <div className="albums">
           {albums.map((album, i) => {
-            const cover = covers.get(album.id);
+            const cover = album.cover;
             return (
               <Reveal as="article" className="album" key={album.id} index={i}>
                 <Link
