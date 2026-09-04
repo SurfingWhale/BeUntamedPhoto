@@ -1,6 +1,6 @@
 # PRD — the mobile page is laid out six times too wide, and the site links off-brand
 
-**Status:** open · written 2026-09-04, before any code
+**Status:** shipped 2026-09-04 in `ea73a48` — all criteria verified in a browser
 **Scope:** `/` on phone widths, plus the outbound links in `src/lib/site.ts`
 
 ---
