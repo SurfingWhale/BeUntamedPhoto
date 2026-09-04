@@ -1,67 +1,79 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
-import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
-import { getAlbums, getCovers } from "@/lib/gallery";
-import { genres } from "@/lib/site";
+import { getAlbumsByGenre, getCovers } from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
 import { plate } from "@/lib/format";
+import { SIZES } from "@/lib/images";
+import { genres, site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Galleries",
-  description: "Photographic galleries — sport, food, and unfiled work.",
-};
+type Params = { params: Promise<{ genre: string }> };
 
-export default async function WorkPage() {
-  const [albums, viewer] = await Promise.all([getAlbums(), getViewer()]);
+function find(id: string) {
+  return genres.find((g) => g.id === id);
+}
+
+/**
+ * A page per body of work, so a genre is a link.
+ *
+ * The filter on the home page only helps someone already on the site. What
+ * actually gets used is a URL that can be pasted into a WhatsApp message to
+ * one client — /work/genre/graduation, with its own share card, rather than
+ * "open my site and click the graduation filter".
+ */
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { genre } = await params;
+  const g = find(genre);
+  if (!g) return {};
+  return {
+    title: `${g.label} photography`,
+    description: `${g.blurb} ${g.label} commissions by ${site.owner}.`,
+    alternates: { canonical: `/work/genre/${g.id}` },
+    openGraph: {
+      title: `${g.label} photography by ${site.owner}`,
+      description: g.blurb,
+      url: `/work/genre/${g.id}`,
+    },
+  };
+}
+
+export default async function GenrePage({ params }: Params) {
+  const { genre } = await params;
+  const g = find(genre);
+  if (!g) notFound();
+
+  const [albums, viewer] = await Promise.all([getAlbumsByGenre(g.id), getViewer()]);
   const covers = await getCovers(albums.map((a) => a.id));
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   return (
     <div className="page">
       <section className="page__intro">
-        <h1 className="page__title">
-          Work, <em>indexed</em>.
-        </h1>
+        <p className="u-mono">{g.label}</p>
+        <h1 className="page__title">{g.label}.</h1>
+        <p className="fold-text__body">{g.blurb}</p>
         <p className="fold-text__body">
           {albums.length === 0
-            ? "Graduations, brand work, sport, food and events will be filed here."
-            : `${albums.length} ${albums.length === 1 ? "gallery" : "galleries"}${
+            ? `No ${g.label.toLowerCase()} sets are filed yet — the rest of the archive is open.`
+            : `${albums.length} ${albums.length === 1 ? "set" : "sets"}${
                 heldBack > 0 ? `, ${heldBack} held back for signed-in visitors` : ""
-              }.`}
+              }. Commissions open — ${site.email}.`}
         </p>
-        {!viewer && heldBack > 0 && (
-          <p>
-            <Link className="link" href="/enter">
-              Sign in to open them →
-            </Link>
-          </p>
-        )}
+        <p>
+          <Link className="link" href="/work">
+            ← Every gallery
+          </Link>
+        </p>
       </section>
-
-      {/* Links, not a client-side filter. A genre is something to send someone,
-          so it needs a URL — and these work before any JavaScript runs. */}
-      {albums.length > 0 && (
-        <nav className="page__pad" aria-label="Browse by genre">
-          <div className="chips">
-            {genres
-              .filter((g) => albums.some((a) => a.genre === g.id))
-              .map((g) => (
-                <Link className="chip" key={g.id} href={`/work/genre/${g.id}`}>
-                  {g.label} ({albums.filter((a) => a.genre === g.id).length})
-                </Link>
-              ))}
-          </div>
-        </nav>
-      )}
 
       {albums.length === 0 ? (
         <section className="page__pad page__pad-b">
-          <p className="notes__empty">Nothing filed yet.</p>
+          <p className="notes__empty">Nothing filed here yet.</p>
         </section>
       ) : (
         <div className="albums">
@@ -86,7 +98,6 @@ export default async function WorkPage() {
                       sizes={SIZES.tile}
                       alt={cover.caption ?? album.title}
                       loading={i < 2 ? "eager" : "lazy"}
-                      fetchPriority={i === 0 ? "high" : "auto"}
                       decoding="async"
                     />
                   ) : (
@@ -99,10 +110,8 @@ export default async function WorkPage() {
                   </h2>
                   <span className="album__year u-tabular">{album.year ?? "—"}</span>
                 </div>
-                <p className="album__sub">
-                  {album.subtitle ?? album.place ?? "unfiled"}
-                </p>
-                {album.visibility === "members" && (
+                <p className="album__sub">{album.subtitle ?? album.place ?? "unfiled"}</p>
+                {album.visibility === "members" && !viewer && (
                   <span className="lock">◆ signed-in only</span>
                 )}
               </Reveal>

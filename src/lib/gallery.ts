@@ -166,6 +166,18 @@ export async function getOversizedPhotos(limit = 200): Promise<PhotoWithUrl[]> {
   return withUrls(stale);
 }
 
+/** The sets filed under one body of work. */
+export async function getAlbumsByGenre(genre: string): Promise<Album[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("albums")
+    .select("*")
+    .eq("genre", genre)
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: false });
+  return (data ?? []) as Album[];
+}
+
 /** Photos across every album the viewer may see — the home-page folds. */
 export async function getFeatured(limit = 6): Promise<PhotoWithUrl[]> {
   const supabase = await createClient();
