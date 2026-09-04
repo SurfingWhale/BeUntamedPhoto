@@ -13,7 +13,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: `${site.name} — ${site.tagline}`,
     short_name: site.name,
     description:
-      "Photographs, galleries and creative work by Fauzy. Sport, food, and the frames in between.",
+      "Graduation, brand, sport, food and event photography by Fauzy. Commissions open across Jakarta and beyond.",
     start_url: "/",
     scope: "/",
     display: "standalone",

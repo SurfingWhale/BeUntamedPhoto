@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { PRIVATE_WIDTH, publicSrc, publicSrcSet, QUALITY } from "@/lib/images";
+import type { Genre } from "@/lib/site";
 
 export type Album = {
   id: string;
@@ -11,6 +12,7 @@ export type Album = {
   place: string | null;
   year: number | null;
   visibility: "public" | "members";
+  genre: Genre;
   position: number;
 };
 

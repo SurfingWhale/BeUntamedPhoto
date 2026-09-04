@@ -112,7 +112,7 @@ export default function Image() {
               display: "flex",
             }}
           >
-            Food, sport and event photography by {site.owner}
+            Graduation · brand · sport · food · events
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export default function Image() {
             color: DIM,
           }}
         >
-          <div style={{ display: "flex" }}>Commissions open</div>
+          <div style={{ display: "flex" }}>Commissions open · {site.owner}</div>
           <div style={{ display: "flex", color: LIME }}>{site.email}</div>
         </div>
       </div>

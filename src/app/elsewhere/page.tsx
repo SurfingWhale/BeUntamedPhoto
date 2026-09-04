@@ -16,8 +16,8 @@ export default function ElsewherePage() {
           Three sites, one <em>practice</em>.
         </h1>
         <p className="fold-text__body">
-          The archive here is the unsorted middle. The specialised work lives on
-          its own ground, where it can be seen properly.
+          Every genre is booked from this site. Sport and food have enough work
+          to warrant their own ground, where a client can see the depth of it.
         </p>
       </section>
 

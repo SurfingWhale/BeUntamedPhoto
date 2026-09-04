@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About",
-  description: `${site.owner} — photographer working across food, sport and event documentation.`,
+  description: `${site.owner} — graduation, brand, sport, food and event photography. Commissions open.`,
 };
 
 export default async function AboutPage() {
@@ -24,10 +24,12 @@ export default async function AboutPage() {
         </h1>
         <div>
           <p className="fold-text__body">
-            I photograph three things. Food — plated, steaming, close enough
-            that you can read the texture. Sport — the half-second before the
-            point ends, the body already committed. And events, which is
-            everything else: the room as it actually was, not as it was posed.
+            Graduations — the ceremony, the portraits, the family afterwards.
+            Brand work — product, campaign and founder frames shot to a brief.
+            Sport — the half-second before the point ends, the body already
+            committed. Food — plated, steaming, close enough to read the
+            texture. And events: the room as it actually was, not as it was
+            posed.
           </p>
           <p className="fold-text__body">
             The work is mostly patience. I&rsquo;d rather wait out the arranged
@@ -46,9 +48,10 @@ export default async function AboutPage() {
 
       <section className="fold-text">
         <div className="head">
-          <h2 className="head__title">Where the rest of it lives</h2>
+          <h2 className="head__title">Deeper portfolios</h2>
           <p className="head__sub">
-            Each site holds one part of the practice.
+            Two genres have enough work for their own site. Booked from here
+            either way.
           </p>
         </div>
         <div className="elsewhere">
@@ -79,9 +82,9 @@ export default async function AboutPage() {
         </div>
         <p className="fold-text__body">
           Send the date, the location, and roughly what the pictures are for —
-          menu, editorial, a team, a launch. I&rsquo;ll come back with what&rsquo;s
-          possible and what it costs. If it&rsquo;s not something I&rsquo;m the
-          right person for, I&rsquo;ll say so.
+          a graduation, a menu, a product drop, a team, a launch. I&rsquo;ll
+          come back with what&rsquo;s possible and what it costs. If it&rsquo;s
+          not something I&rsquo;m the right person for, I&rsquo;ll say so.
         </p>
         <p>
           <a className="btn" href={`mailto:${site.email}`}>

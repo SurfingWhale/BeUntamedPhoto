@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/auth";
+import { genreIds } from "@/lib/site";
 
 export type DarkroomState = { status: "idle" | "error" | "ok"; message: string };
 
@@ -40,6 +41,7 @@ export async function createAlbum(
   const place = String(formData.get("place") ?? "").trim() || null;
   const yearRaw = String(formData.get("year") ?? "").trim();
   const visibility = String(formData.get("visibility") ?? "public");
+  const genre = String(formData.get("genre") ?? "event");
   const slug = slugify(String(formData.get("slug") ?? "") || title);
 
   if (title.length < 2) {
@@ -54,6 +56,11 @@ export async function createAlbum(
   if (visibility !== "public" && visibility !== "members") {
     return { status: "error", message: "Visibility must be public or members." };
   }
+  // Checked here as well as by the database, so a bad value gets a sentence
+  // rather than a constraint violation.
+  if (!genreIds.includes(genre as (typeof genreIds)[number])) {
+    return { status: "error", message: "Pick one of the listed genres." };
+  }
 
   const year = yearRaw ? Number(yearRaw) : null;
   if (year !== null && (!Number.isInteger(year) || year < 1900 || year > 2200)) {
@@ -63,7 +70,7 @@ export async function createAlbum(
   const supabase = await createClient();
   const { error } = await supabase
     .from("albums")
-    .insert({ title, subtitle, place, year, visibility, slug });
+    .insert({ title, subtitle, place, year, visibility, genre, slug });
 
   if (error) {
     return {

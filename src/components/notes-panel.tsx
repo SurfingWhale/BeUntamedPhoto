@@ -19,7 +19,10 @@ function Submit({ label }: { label: string }) {
   return (
     <button className="btn" type="submit" disabled={pending} aria-disabled={pending}>
       {pending && <span className="btn__spin" aria-hidden="true" />}
-      {pending ? "Sending" : label}
+      {/* The label stays put, as it does in auth-forms — the spinner carries
+          the state. Two submit buttons behaving differently is the thing the
+          flow-vocabulary rule exists to stop. */}
+      {label}
     </button>
   );
 }

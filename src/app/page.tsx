@@ -116,14 +116,14 @@ export default async function HomePage() {
           </div>
 
           <p className="story__body">
-            I&rsquo;m {site.owner}, a photographer working across food, sport and
-            event documentation. Most of what I do is patience — holding a frame
-            until the arranged version of a moment drops away and the honest one
-            shows up.
+            I&rsquo;m {site.owner}. I shoot graduations, brand work, sport, food
+            and events. Most of it is patience — holding a frame until the
+            arranged version of a moment drops away and the honest one shows up.
           </p>
           <p className="story__body">
-            Food work lives at VisuFavor, sport at UNTMD Sports, and events and
-            everything unsorted stay in this archive. Commissions and prints:{" "}
+            Every genre is booked from here. Two of them have their own deeper
+            portfolios — UNTMD Sports and VisuFavor — but the brief comes to the
+            same inbox:{" "}
             <a className="link" href={`mailto:${site.email}`}>
               {site.email}
             </a>
@@ -244,7 +244,7 @@ export default async function HomePage() {
           <Link className="elsewhere__row" href="/work">
             <span className="elsewhere__name">UNTAMED</span>
             <span className="elsewhere__what">
-              Events and everything unsorted — the archive you&rsquo;re standing in.
+              Graduations, brand work and events — the full archive, filed by genre.
             </span>
             <span className="elsewhere__go">this site →</span>
           </Link>

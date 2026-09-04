@@ -32,7 +32,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 const DESCRIPTION =
-  "Photographs, galleries and creative work by Fauzy. Sport, food, and the frames in between.";
+  "Graduation, brand, sport, food and event photography by Fauzy. Commissions open across Jakarta and beyond.";
 
 export const metadata: Metadata = {
   /* Required for the share card: WhatsApp and every other unfurler ignore a

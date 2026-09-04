@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { createAlbum, type DarkroomState } from "@/app/darkroom/actions";
+import { genres } from "@/lib/site";
 
 const IDLE: DarkroomState = { status: "idle", message: "" };
 
@@ -53,6 +54,28 @@ export function AlbumForm() {
         />
         <p className="field__help" id="subtitle-help">
           One line. Optional.
+        </p>
+      </div>
+
+      <div className="field">
+        <label className="field__label" htmlFor="genre">
+          Genre
+        </label>
+        <select
+          className="field__select"
+          id="genre"
+          name="genre"
+          defaultValue="event"
+          aria-describedby="genre-help"
+        >
+          {genres.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.label}
+            </option>
+          ))}
+        </select>
+        <p className="field__help" id="genre-help">
+          Which body of work this belongs to. Visitors filter the index by it.
         </p>
       </div>
 

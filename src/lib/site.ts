@@ -18,7 +18,7 @@ export const siteUrl = (
 export const site = {
   name: "UNTAMED",
   wordmark: ["UNTAM", "E", "D"] as const,
-  tagline: "A visual archive by Fauzy.",
+  tagline: "Photography by Fauzy.",
   owner: "Fauzy",
   email: "untamed98x@gmail.com",
   mastLine: "Visual archive · frames, not feeds",
@@ -36,17 +36,40 @@ export const nav = [
  * and both point at the build side of the practice — a prospective client
  * following either one lands somewhere that reframes the photographer as a
  * hobbyist. UNTMD Sports and VisuFavor are photography and stay. */
+/**
+ * The bodies of work this practice takes commissions for.
+ *
+ * One list, read by the album form, the server-side validator, the index
+ * filter and the about page — the moment two of those disagree, a set becomes
+ * unfilterable. `id` matches the check constraint in supabase/add-genre.sql.
+ */
+export const genres = [
+  { id: "graduation", label: "Graduation", blurb: "Ceremonies, portraits, the family afterwards." },
+  { id: "brand", label: "Brand", blurb: "Product, campaign and founder work for a brief." },
+  { id: "sport", label: "Sport", blurb: "Court-side and field work, shot at speed." },
+  { id: "food", label: "Food", blurb: "Plated, steaming, close enough to read the texture." },
+  { id: "event", label: "Event", blurb: "The room as it actually was, not as it was posed." },
+] as const;
+
+export type Genre = (typeof genres)[number]["id"];
+
+export const genreIds = genres.map((g) => g.id) as readonly Genre[];
+
+export function genreLabel(id: string): string {
+  return genres.find((g) => g.id === id)?.label ?? "Event";
+}
+
 export const elsewhere = [
   {
     name: "UNTMD Sports",
     href: "https://untmd-sports.vercel.app/",
-    what: "Court-side and field work — motion, sweat, the half-second before the point ends.",
+    what: "More of the sport work — motion, sweat, the half-second before the point ends.",
     go: "untmd-sports.vercel.app",
   },
   {
     name: "VisuFavor",
     href: "https://visufavor.vercel.app/",
-    what: "Food, plated and photographed. Steam, char, the texture close enough to touch.",
+    what: "More of the food work — steam, char, the texture close enough to touch.",
     go: "visufavor.vercel.app",
   },
 ] as const;

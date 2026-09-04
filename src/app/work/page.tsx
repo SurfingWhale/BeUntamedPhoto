@@ -28,7 +28,7 @@ export default async function WorkPage() {
         </h1>
         <p className="fold-text__body">
           {albums.length === 0
-            ? "The index is empty — the first galleries are being filed."
+            ? "Graduations, brand work, sport, food and events will be filed here."
             : `${albums.length} ${albums.length === 1 ? "gallery" : "galleries"}${
                 heldBack > 0 ? `, ${heldBack} held back for signed-in visitors` : ""
               }.`}

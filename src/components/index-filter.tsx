@@ -5,43 +5,50 @@ import { useMemo, useState } from "react";
 
 import { Reveal } from "@/components/motion";
 import { plate } from "@/lib/format";
+import { genres, genreLabel } from "@/lib/site";
 import type { Album } from "@/lib/gallery";
 
-type Lens = "all" | "open" | "held";
-
-const LENSES: { id: Lens; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "open", label: "Open" },
-  { id: "held", label: "Held back" },
-];
+type Lens = "all" | (typeof genres)[number]["id"];
 
 /**
- * The index, with a real filter over a real field. The chips previously all
- * pointed at the same unfiltered page, which made them a false affordance —
- * they now narrow the list by album visibility, which is data that exists.
+ * The index, filtered by the body of work.
+ *
+ * It used to filter by visibility — All / Open / Held back — which is
+ * housekeeping. A visitor deciding whether to commission a graduation shoot
+ * does not care which sets are held back; they care whether graduations are
+ * shot here at all. Visibility belongs in the darkroom, and is there.
+ *
+ * Genres with nothing filed under them are not offered: an empty filter is a
+ * promise the archive cannot keep.
  */
 export function IndexFilter({ albums }: { albums: Album[] }) {
   const [lens, setLens] = useState<Lens>("all");
 
-  const counts = useMemo(
-    () => ({
-      all: albums.length,
-      open: albums.filter((a) => a.visibility === "public").length,
-      held: albums.filter((a) => a.visibility === "members").length,
-    }),
-    [albums],
+  const counts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of albums) map.set(a.genre, (map.get(a.genre) ?? 0) + 1);
+    return map;
+  }, [albums]);
+
+  const lenses = useMemo(
+    () => [
+      { id: "all" as const, label: "All", count: albums.length },
+      ...genres
+        .filter((g) => (counts.get(g.id) ?? 0) > 0)
+        .map((g) => ({ id: g.id, label: g.label, count: counts.get(g.id) ?? 0 })),
+    ],
+    [albums.length, counts],
   );
 
-  const shown = useMemo(() => {
-    if (lens === "open") return albums.filter((a) => a.visibility === "public");
-    if (lens === "held") return albums.filter((a) => a.visibility === "members");
-    return albums;
-  }, [albums, lens]);
+  const shown = useMemo(
+    () => (lens === "all" ? albums : albums.filter((a) => a.genre === lens)),
+    [albums, lens],
+  );
 
   return (
     <>
-      <div className="chips" role="group" aria-label="Filter galleries">
-        {LENSES.map((l) => (
+      <div className="chips" role="group" aria-label="Filter galleries by genre">
+        {lenses.map((l) => (
           <button
             key={l.id}
             type="button"
@@ -50,16 +57,14 @@ export function IndexFilter({ albums }: { albums: Album[] }) {
             aria-pressed={lens === l.id}
             onClick={() => setLens(l.id)}
           >
-            {l.label} ({counts[l.id]})
+            {l.label} ({l.count})
           </button>
         ))}
       </div>
 
       {shown.length === 0 ? (
         <p className="notes__empty">
-          {lens === "held"
-            ? "Nothing held back right now — every gallery is open."
-            : "Nothing filed under this view yet."}
+          Nothing filed under {genreLabel(lens)} yet.
         </p>
       ) : (
         <div className="index">
@@ -69,8 +74,8 @@ export function IndexFilter({ albums }: { albums: Album[] }) {
                 <span className="index__no">[{plate(i)}]</span>
                 <span className="index__name">{album.title}</span>
                 <span className="index__meta">
-                  {album.place ?? "unfiled"} · {album.year ?? "—"}
-                  {album.visibility === "members" ? " · held" : ""} ↗
+                  {genreLabel(album.genre)} · {album.place ?? "unfiled"} ·{" "}
+                  {album.year ?? "—"} ↗
                 </span>
               </Link>
             </Reveal>
