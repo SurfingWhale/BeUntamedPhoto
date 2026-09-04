@@ -1325,6 +1325,44 @@ img { display: block; max-width: 100%; }
 .elsewhere__what { color: var(--color-ink-2); font-size: var(--text-base); }
 .elsewhere__go { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); white-space: nowrap; }
 
+/* ------------------------------------------------------- commission */
+/* The exit from a gallery. On the slab, because it is the one block on the
+ * page that is not a photograph and should not pretend to be one. */
+.commission {
+  background: var(--color-paper-dark);
+  color: var(--color-ink-on-dark);
+  border-block: var(--rule-hair) solid var(--color-rule-on-dark);
+  padding: var(--space-2xl) var(--page-gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+}
+.commission > * { max-width: var(--page-max); margin-inline: auto; width: 100%; }
+.commission .u-mono { color: var(--color-ink-on-dark); opacity: 0.62; }
+.commission__line {
+  font-family: var(--font-display);
+  font-size: var(--text-display-s);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+  max-width: 16ch;
+}
+.commission .fold-text__body { color: var(--color-ink-on-dark); opacity: 0.72; }
+.commission__acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md) var(--space-lg);
+  margin-top: var(--space-sm);
+}
+.commission .btn {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border-color: var(--color-accent);
+}
+.commission .link { color: var(--color-ink-on-dark); border-bottom-color: var(--color-rule-on-dark); }
+
 /* --------------------------------------------------------- guestbook */
 .u-bare { list-style: none; padding: 0; margin: 0; }
 

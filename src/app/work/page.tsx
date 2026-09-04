@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { Commission } from "@/components/commission";
 import { Reveal } from "@/components/motion";
 import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
@@ -109,6 +110,8 @@ export default async function WorkPage() {
           })}
         </div>
       )}
+
+      <Commission />
     </div>
   );
 }

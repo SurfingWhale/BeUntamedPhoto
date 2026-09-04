@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import { Commission } from "@/components/commission";
 import { Reveal } from "@/components/motion";
 import { SIZES } from "@/lib/images";
 import { NotesPanel } from "@/components/notes-panel";
@@ -112,17 +113,23 @@ export default async function AlbumPage({ params }: Params) {
         </div>
       )}
 
-      <section className="fold-text fold-text--tight">
-        <div className="head">
-          <h2 className="head__title">Notes on this gallery</h2>
-          <p className="head__sub">
-            {viewer
-              ? "Say what you saw."
-              : "Signed-in visitors can leave a note here."}
-          </p>
-        </div>
-        <NotesPanel albumId={album.id} initialNotes={notes} viewer={viewer} />
-      </section>
+      <Commission genre={album.genre} />
+
+      {/* An empty comment box under every gallery reads as an abandoned site,
+          which costs more trust than the feature earns. A signed-out visitor
+          only sees this once there is something in it; signed in, the form is
+          there to be used. */}
+      {(notes.length > 0 || viewer) && (
+        <section className="fold-text fold-text--tight">
+          <div className="head">
+            <h2 className="head__title">Notes on this gallery</h2>
+            <p className="head__sub">
+              {viewer ? "Say what you saw." : "What other visitors said."}
+            </p>
+          </div>
+          <NotesPanel albumId={album.id} initialNotes={notes} viewer={viewer} />
+        </section>
+      )}
     </div>
   );
 }

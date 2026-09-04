@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import { Commission } from "@/components/commission";
 import { Reveal } from "@/components/motion";
 import { Plate } from "@/components/plate";
 import { getAlbumsWithCovers } from "@/lib/gallery";
@@ -121,6 +122,8 @@ export default async function GenrePage({ params }: Params) {
           })}
         </div>
       )}
+
+      <Commission genre={g.id} atGenre />
     </div>
   );
 }
