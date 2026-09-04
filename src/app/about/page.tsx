@@ -44,7 +44,9 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <PhotoFold photo={featured[0]} index={0} fallbackLabel="working portrait" />
+      <div className="plinth">
+        <PhotoFold photo={featured[0]} index={0} fallbackLabel="working portrait" />
+      </div>
 
       <section className="fold-text">
         <div className="head">
@@ -71,7 +73,9 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <PhotoFold photo={featured[1]} index={1} fallbackLabel="on assignment" />
+      <div className="plinth">
+        <PhotoFold photo={featured[1]} index={1} fallbackLabel="on assignment" />
+      </div>
 
       <section className="fold-text fold-text--tight">
         <div className="head">

@@ -69,13 +69,15 @@ export default async function HomePage() {
       <Ticker items={tickerItems} />
 
       {/* ---- the photograph · full bleed, edges on lattice rows ------------ */}
-      <PhotoFold
-        photo={featured[0]}
-        index={0}
-        size="tall"
-        priority
-        fallbackLabel={FALLBACK_LABELS[0]}
-      />
+      <div className="plinth">
+        <PhotoFold
+          photo={featured[0]}
+          index={0}
+          size="tall"
+          priority
+          fallbackLabel={FALLBACK_LABELS[0]}
+        />
+      </div>
 
       {/* ---- lower zone · display type against a narrow justified column --- */}
       <section className="story">
@@ -224,7 +226,7 @@ export default async function HomePage() {
       </div>
 
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
-      <section className="band plot">
+      <section className="band band--dark plot">
         <div className="elsewhere">
           {elsewhere.map((place, i) => (
             <Reveal
@@ -251,7 +253,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <PhotoFold photo={featured[1]} index={1} fallbackLabel={FALLBACK_LABELS[1]} />
+      <div className="plinth">
+        <PhotoFold photo={featured[1]} index={1} fallbackLabel={FALLBACK_LABELS[1]} />
+      </div>
     </div>
   );
 }

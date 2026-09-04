@@ -638,6 +638,36 @@ img { display: block; max-width: 100%; }
 }
 .form-note[data-tone="error"] { border-color: var(--color-error); color: var(--color-error); }
 
+/* A photograph set on the slab.
+ *
+ * On near-white a frame has almost nothing to push against — the hairline is
+ * doing all the work and the picture reads flat. Forest green gives it an
+ * edge, and the inset lets the ground show, so the plate sits ON something
+ * rather than being cut out of the page. This is the "full-green slab" the
+ * system dropped, brought back for the one job it is actually good at. */
+.plinth {
+  background: var(--color-paper-dark);
+  border-block: var(--rule-hair) solid var(--color-rule-on-dark);
+  padding: var(--space-lg) var(--page-gutter);
+}
+@media (min-width: 60rem) {
+  .plinth { padding: calc(var(--row) * 0.5) var(--page-gutter); }
+}
+.plinth .fold-photo { background: transparent; }
+/* The caption comes off the photograph and onto the slab.
+ *
+ * Laid over the frame it was white with a text-shadow, which is a bet on the
+ * picture being dark there — and on a high-key frame it washed out completely.
+ * Below it, on a known ground, it reads at 17.8:1 no matter what was shot. */
+.plinth .fold-photo { position: relative; }
+.plinth .fold-photo__cap {
+  position: static;
+  margin-top: var(--space-sm);
+  color: var(--color-ink-on-dark);
+  opacity: 0.72;
+  text-shadow: none;
+}
+
 /* ------------------------------------ Photographic macro · photo folds */
 .fold-photo {
   position: relative;
@@ -1053,7 +1083,6 @@ img { display: block; max-width: 100%; }
   /* width, or the auto margins below absorb the free space and shrink-wrap
    * this box instead of stretching it — see .page, a grid parent. */
   width: 100%;
-  width: 100%;
 }
 .band--dark .head__title { color: var(--color-ink-on-dark); }
 .band--dark .u-mono { color: var(--color-ink-on-dark-2); }
@@ -1269,6 +1298,11 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xs);
   padding-block: var(--space-lg);
+  padding-inline: var(--space-sm);
+  margin-inline: calc(var(--space-sm) * -1);
+  transition: background-color var(--dur-short) var(--ease-out),
+              color var(--dur-short) var(--ease-out),
+              transform var(--dur-short) var(--ease-out);
   border-top: var(--rule-hair) solid var(--color-rule);
   transition: background-color var(--dur-short) var(--ease-out);
 }
@@ -1281,8 +1315,14 @@ img { display: block; max-width: 100%; }
   }
 }
 @media (hover: hover) and (pointer: fine) {
-  .elsewhere__row:hover { background: var(--color-paper-2); }
-  .elsewhere__row:hover .elsewhere__name { color: var(--color-accent-deep); }
+  .elsewhere__row:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    transform: translateX(var(--space-xs));
+  }
+  .elsewhere__row:hover .elsewhere__name,
+  .elsewhere__row:hover .elsewhere__what,
+  .elsewhere__row:hover .elsewhere__go { color: var(--color-accent-ink); }
 }
 .elsewhere__name {
   font-family: var(--font-display);
