@@ -828,8 +828,12 @@ img { display: block; max-width: 100%; }
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
   gap: var(--space-2xs) var(--space-md);
-  padding-block: var(--space-md);
-  border-bottom: var(--rule-hair) solid var(--color-rule);
+  /* Roomier rows: at --space-md the index read as a dense list rather than a
+   * set of things you pick between. */
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-sm);
+  margin-inline: calc(var(--space-sm) * -1);
+  border-bottom: var(--rule-hair) solid var(--color-rule-2);
   /* transform, not padding — animating padding lays out on every frame. */
   transition: background-color var(--dur-short) var(--ease-out),
               color var(--dur-short) var(--ease-out),
@@ -843,9 +847,10 @@ img { display: block; max-width: 100%; }
 }
 .index__name {
   font-family: var(--font-display);
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: var(--tracking-heading);
+  font-size: clamp(1.5rem, 5.5vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.02;
   text-transform: uppercase;
 }
 .index__meta {
@@ -904,10 +909,12 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
 .open__no {
   font-family: var(--font-display);
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  letter-spacing: var(--tracking-heading);
-  line-height: 1;
+  /* Was --text-2xl, the same step as a section heading, which made the year
+   * read as a label. It opens the page; it should carry like one. */
+  font-size: clamp(4rem, 17vw, 11rem);
+  font-weight: 800;
+  letter-spacing: var(--tracking-hero);
+  line-height: 0.85;
 }
 .open__swatches { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); justify-items: start; }

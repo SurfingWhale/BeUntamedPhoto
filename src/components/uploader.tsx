@@ -25,6 +25,8 @@ type Staged = {
   rawBytes: number;
   ext: string;
   caption: string;
+  /** Set when the original was kept, with the reason why. */
+  kept: string | null;
 };
 
 type Status =
@@ -104,8 +106,9 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
     const next: Staged[] = [];
     for (const [i, file] of files.entries()) {
       setStatus({ kind: "encoding", done: i, total: files.length });
-      const { blob, width, height, ext } = await encodeToWebp(file);
+      const { blob, width, height, ext, passthrough, reason } = await encodeToWebp(file);
       next.push({
+        kept: passthrough ? (reason ?? "kept as-is") : null,
         key: `${file.name}-${Date.now()}-${i}`,
         name: file.name,
         blob,
@@ -196,12 +199,19 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
     setStaged([]);
     setPlace("");
     setTakenOn("");
+    const saved = Math.round(((rawBytes - storedBytes) / Math.max(rawBytes, 1)) * 100);
+    // Naming the reason matters more than the percentage: "0% smaller" with no
+    // explanation is how a batch of 82 MB originals got published unnoticed.
+    const kept = staged.filter((s) => s.kept);
+    const why = kept.length
+      ? ` ${kept.length} kept as ${kept.length === 1 ? "an original" : "originals"} — ${kept[0].kept}.`
+      : "";
     setStatus({
       kind: "ok",
       message:
         `${count} ${count === 1 ? "plate" : "plates"} published — ` +
-        `${formatBytes(rawBytes)} of originals stored as ${formatBytes(storedBytes)} ` +
-        `(${Math.round(((rawBytes - storedBytes) / Math.max(rawBytes, 1)) * 100)}% smaller).`,
+        `${formatBytes(rawBytes)} stored as ${formatBytes(storedBytes)} (${saved}% smaller).` +
+        why,
     });
     router.refresh();
   }
@@ -247,7 +257,12 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
                 <div className="stage__body">
                   <p className="stage__no u-tabular">
                     {String(i + 1).padStart(2, "0")}
-                    <span className="u-muted"> · {formatBytes(item.blob.size)}</span>
+                    <span className="u-muted">
+                      {" · "}
+                      {item.kept
+                        ? `${formatBytes(item.blob.size)} — original kept, ${item.kept}`
+                        : `${formatBytes(item.rawBytes)} → ${formatBytes(item.blob.size)}`}
+                    </span>
                   </p>
                   <label className="u-sr" htmlFor={`cap-${item.key}`}>
                     Caption for plate {i + 1}
