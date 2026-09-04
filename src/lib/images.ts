@@ -36,8 +36,36 @@ function origin(): string {
   return url.replace(/\/$/, "");
 }
 
-export function publicSrc(bucket: string, path: string, width: number): string {
-  const q = new URLSearchParams({ width: String(width), quality: String(QUALITY) });
+/**
+ * A height must be sent with the width.
+ *
+ * Given `width` alone the render endpoint resizes that axis and leaves the
+ * other at the source value: a 4000×6000 plate came back 750×6000, squashed,
+ * and `object-fit: cover` then cropped 90% of it away to fit the box. It also
+ * cost 205 KB to encode those wasted pixels, against 47 KB for the correct
+ * 750×1125.
+ *
+ * `resize=contain` fits the image inside the box without distorting it, so
+ * with the true ratio the output is exactly width×height, and with an unknown
+ * ratio the 1:3 bound below still preserves the aspect.
+ */
+export function publicSrc(
+  bucket: string,
+  path: string,
+  width: number,
+  intrinsicWidth?: number | null,
+  intrinsicHeight?: number | null,
+): string {
+  const height =
+    intrinsicWidth && intrinsicHeight
+      ? Math.round((width * intrinsicHeight) / intrinsicWidth)
+      : width * 3;
+  const q = new URLSearchParams({
+    width: String(width),
+    height: String(height),
+    resize: "contain",
+    quality: String(QUALITY),
+  });
   return `${origin()}${RENDER_PUBLIC}${bucket}/${path}?${q}`;
 }
 
@@ -49,10 +77,13 @@ export function publicSrcSet(
   bucket: string,
   path: string,
   intrinsicWidth: number | null,
+  intrinsicHeight: number | null,
 ): string {
   const widths = WIDTHS.filter((w) => !intrinsicWidth || w <= intrinsicWidth);
   if (widths.length === 0) widths.push(intrinsicWidth ?? WIDTHS[0]);
-  return widths.map((w) => `${publicSrc(bucket, path, w)} ${w}w`).join(", ");
+  return widths
+    .map((w) => `${publicSrc(bucket, path, w, intrinsicWidth, intrinsicHeight)} ${w}w`)
+    .join(", ");
 }
 
 /**

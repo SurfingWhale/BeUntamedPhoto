@@ -62,7 +62,14 @@ export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
         const { data } = await supabase.storage
           .from("gallery-private")
           .createSignedUrl(path, SIGNED_URL_TTL, {
-            transform: { width: PRIVATE_WIDTH, quality: QUALITY },
+            // Height and resize for the same reason as publicSrc: width alone
+            // leaves the other axis at the source value and squashes the plate.
+            transform: {
+              width: PRIVATE_WIDTH,
+              height: PRIVATE_WIDTH * 3,
+              resize: "contain",
+              quality: QUALITY,
+            },
           });
         return [path, data?.signedUrl ?? null] as const;
       }),
@@ -78,8 +85,8 @@ export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
     }
     return {
       ...p,
-      url: publicSrc("gallery", p.path, PRIVATE_WIDTH),
-      srcSet: publicSrcSet("gallery", p.path, p.width),
+      url: publicSrc("gallery", p.path, PRIVATE_WIDTH, p.width, p.height),
+      srcSet: publicSrcSet("gallery", p.path, p.width, p.height),
     };
   });
 }

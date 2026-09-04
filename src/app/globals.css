@@ -1439,6 +1439,37 @@ img { display: block; max-width: 100%; }
 }
 .field__file:focus-visible { outline-color: var(--color-focus); }
 
+/* ------------------------------------------------- the staging grid */
+/* Chosen plates, re-encoded and previewed, before anything is published. The
+ * row is thumbnail · caption · controls — the same shape as .plates__row in
+ * the list below it, so the darkroom reads as one place rather than two. */
+.stage { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
+.stage__item {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  gap: var(--space-md);
+  align-items: start;
+  padding-block: var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+.stage__thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  background: var(--color-paper-2);
+  outline: var(--rule-hair) solid var(--outline-image);
+  outline-offset: calc(var(--rule-hair) * -1);
+}
+.stage__body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); min-width: 0; }
+.stage__no {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-2);
+}
+.stage__acts { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); justify-items: stretch; }
+
 .plates { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
 .plates__row {
