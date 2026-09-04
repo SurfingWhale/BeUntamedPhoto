@@ -1,5 +1,9 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
+import { getViewer } from "@/lib/auth";
+import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
 import { PRIVATE_WIDTH, publicSrc, publicSrcSet, QUALITY } from "@/lib/images";
 import type { Genre } from "@/lib/site";
@@ -152,8 +156,33 @@ const PHOTO_COLUMNS =
  * first in JavaScript, so past PostgREST's row cap the later albums would have
  * silently had no cover at all.
  */
-export async function getAlbumsWithCovers(genre?: string): Promise<AlbumWithCover[]> {
-  const supabase = await createClient();
+/** The tag every darkroom write invalidates. */
+export const ALBUMS_TAG = "albums";
+
+/**
+ * The signed-out view of the index, cached.
+ *
+ * Cached with a session-less client on purpose. RLS then returns exactly what
+ * an anonymous visitor may see, so the cache can never come to hold a
+ * held-back gallery's plates — and it is only ever read on the signed-out
+ * path, so it can never be served to the wrong person either. A signed-in
+ * visitor queries live, because their view legitimately contains more.
+ */
+const readPublicAlbums = unstable_cache(
+  async (genre?: string) => {
+    const supabase = createAnonClient();
+    return runAlbumQuery(supabase, genre);
+  },
+  ["albums-with-covers"],
+  { tags: [ALBUMS_TAG], revalidate: 300 },
+);
+
+type AlbumRow = Album & { photos: Photo[] };
+
+async function runAlbumQuery(
+  supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createAnonClient>,
+  genre?: string,
+): Promise<AlbumRow[]> {
   let query = supabase
     .from("albums")
     .select(`${ALBUM_COLUMNS}, photos(${PHOTO_COLUMNS})`)
@@ -164,9 +193,21 @@ export async function getAlbumsWithCovers(genre?: string): Promise<AlbumWithCove
     .limit(1, { referencedTable: "photos" });
 
   if (genre) query = query.eq("genre", genre);
+  const { data, error } = await query;
+  if (error) {
+    // Swallowing this is how an empty index looks like an empty archive: the
+    // page still renders 200, just with nothing in it.
+    console.error("[gallery] album query failed:", error.message, error.details);
+    throw new Error(`Could not read the archive: ${error.message}`);
+  }
+  return (data ?? []) as AlbumRow[];
+}
 
-  const { data } = await query;
-  const rows = (data ?? []) as (Album & { photos: Photo[] })[];
+export async function getAlbumsWithCovers(genre?: string): Promise<AlbumWithCover[]> {
+  const viewer = await getViewer();
+  const rows = viewer
+    ? await runAlbumQuery(await createClient(), genre)
+    : await readPublicAlbums(genre);
 
   // One signing pass for every cover, rather than one per album.
   const covers = await withUrls(rows.map((r) => r.photos?.[0]).filter(Boolean));
@@ -203,14 +244,40 @@ export async function getOversizedPhotos(limit = 200): Promise<PhotoWithUrl[]> {
 }
 
 
-/** Photos across every album the viewer may see — the home-page folds. */
-export async function getFeatured(limit = 6): Promise<PhotoWithUrl[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
+async function runFeaturedQuery(
+  supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createAnonClient>,
+  limit: number,
+): Promise<Photo[]> {
+  const { data, error } = await supabase
     .from("photos")
-    .select("*")
+    .select(PHOTO_COLUMNS)
     .order("is_cover", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(limit);
-  return withUrls((data ?? []) as Photo[]);
+  if (error) {
+    console.error("[gallery] featured query failed:", error.message, error.details);
+    throw new Error(`Could not read the archive: ${error.message}`);
+  }
+  return (data ?? []) as Photo[];
+}
+
+const readPublicFeatured = unstable_cache(
+  async (limit: number) => runFeaturedQuery(createAnonClient(), limit),
+  ["featured-photos"],
+  { tags: [ALBUMS_TAG], revalidate: 300 },
+);
+
+/**
+ * Photos across every album the viewer may see — the home-page folds.
+ *
+ * Same split as the index: the signed-out result is cached behind a
+ * session-less client, so RLS decides what may be in the cache rather than
+ * the cache deciding what RLS meant.
+ */
+export async function getFeatured(limit = 6): Promise<PhotoWithUrl[]> {
+  const viewer = await getViewer();
+  const rows = viewer
+    ? await runFeaturedQuery(await createClient(), limit)
+    : await readPublicFeatured(limit);
+  return withUrls(rows);
 }

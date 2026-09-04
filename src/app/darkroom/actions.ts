@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/auth";
+import { ALBUMS_TAG } from "@/lib/gallery";
 import { genreIds } from "@/lib/site";
 
 export type DarkroomState = { status: "idle" | "error" | "ok"; message: string };
@@ -81,6 +82,9 @@ export async function createAlbum(
 
   revalidatePath("/darkroom");
   revalidatePath("/work");
+  // updateTag, not revalidateTag: these run in server actions, and the owner
+  // saving a change should see it, not stale-while-revalidate.
+  updateTag(ALBUMS_TAG);
   return { status: "ok", message: `Filed as /work/${slug}.` };
 }
 
@@ -223,6 +227,9 @@ export async function updateAlbum(
   revalidatePath("/darkroom");
   revalidatePath(`/darkroom/${slug}`);
   revalidatePath("/work");
+  // updateTag, not revalidateTag: these run in server actions, and the owner
+  // saving a change should see it, not stale-while-revalidate.
+  updateTag(ALBUMS_TAG);
   revalidatePath(`/work/${slug}`);
   // The genre pages list by genre, so both the one it left and the one it
   // joined are now wrong until they rebuild.
@@ -353,6 +360,9 @@ export async function swapPlateFile(input: {
 
   revalidatePath("/darkroom");
   revalidatePath("/work");
+  // updateTag, not revalidateTag: these run in server actions, and the owner
+  // saving a change should see it, not stale-while-revalidate.
+  updateTag(ALBUMS_TAG);
   return { status: "ok", message: "Replaced." };
 }
 
@@ -395,6 +405,9 @@ export async function deleteAlbum(
 
   revalidatePath("/darkroom");
   revalidatePath("/work");
+  // updateTag, not revalidateTag: these run in server actions, and the owner
+  // saving a change should see it, not stale-while-revalidate.
+  updateTag(ALBUMS_TAG);
   return { status: "ok", message: "Gallery removed." };
 }
 
@@ -435,6 +448,9 @@ export async function recordPhoto(input: {
   revalidatePath(`/darkroom/${input.slug}`);
   revalidatePath(`/work/${input.slug}`);
   revalidatePath("/work");
+  // updateTag, not revalidateTag: these run in server actions, and the owner
+  // saving a change should see it, not stale-while-revalidate.
+  updateTag(ALBUMS_TAG);
   revalidatePath("/");
   return { status: "ok", message: "Plate added." };
 }
@@ -469,6 +485,9 @@ export async function deletePhoto(
   revalidatePath(`/darkroom/${slug}`);
   revalidatePath(`/work/${slug}`);
   revalidatePath("/work");
+  // updateTag, not revalidateTag: these run in server actions, and the owner
+  // saving a change should see it, not stale-while-revalidate.
+  updateTag(ALBUMS_TAG);
   revalidatePath("/");
   return { status: "ok", message: "Plate removed." };
 }
@@ -495,5 +514,8 @@ export async function setCover(
 
   revalidatePath(`/darkroom/${slug}`);
   revalidatePath("/work");
+  // updateTag, not revalidateTag: these run in server actions, and the owner
+  // saving a change should see it, not stale-while-revalidate.
+  updateTag(ALBUMS_TAG);
   return { status: "ok", message: "Cover set." };
 }
