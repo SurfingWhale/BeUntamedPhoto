@@ -14,36 +14,45 @@ export function HashSession({ next }: { next: string }) {
   const router = useRouter();
   const [failed, setFailed] = useState<string | null>(null);
 
+  /* The whole handshake runs inside one async pass. The two failure paths
+   * used to set state synchronously in the effect body, which costs a second
+   * render before the browser has painted the first one. */
   useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.slice(1));
+    let live = true;
+    const fail = (message: string) => {
+      if (live) setFailed(message);
+    };
 
-    const errorDescription = params.get("error_description");
-    if (errorDescription) {
-      setFailed(errorDescription);
-      return;
-    }
+    void (async () => {
+      const params = new URLSearchParams(window.location.hash.slice(1));
 
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
+      const errorDescription = params.get("error_description");
+      if (errorDescription) return fail(errorDescription);
 
-    if (!accessToken || !refreshToken) {
-      setFailed("That link has already been used, or it expired.");
-      return;
-    }
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
 
-    const supabase = createClient();
-    supabase.auth
-      .setSession({ access_token: accessToken, refresh_token: refreshToken })
-      .then(({ error }) => {
-        if (error) {
-          setFailed(error.message);
-          return;
-        }
-        // Drop the tokens out of the address bar before moving on.
-        window.history.replaceState(null, "", window.location.pathname);
-        router.replace(next);
-        router.refresh();
+      if (!accessToken || !refreshToken) {
+        return fail("That link has already been used, or it expired.");
+      }
+
+      const supabase = createClient();
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
       });
+      if (error) return fail(error.message);
+      if (!live) return;
+
+      // Drop the tokens out of the address bar before moving on.
+      window.history.replaceState(null, "", window.location.pathname);
+      router.replace(next);
+      router.refresh();
+    })();
+
+    return () => {
+      live = false;
+    };
   }, [next, router]);
 
   return (

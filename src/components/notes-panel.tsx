@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { leaveNote, removeNote, type NoteState } from "@/app/notes/actions";
@@ -50,16 +50,23 @@ export function NotesPanel({
   viewer: Viewer;
 }) {
   const pathname = usePathname();
-  const [state, action] = useActionState(leaveNote, IDLE);
   const [count, setCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state.status === "ok") {
-      formRef.current?.reset();
-      setCount(0);
-    }
-  }, [state]);
+  /* Clearing the form belongs to the submit that succeeded, not to an effect
+   * watching the result afterwards — the effect fired a second render on
+   * every state change and re-ran whenever the same result came back. */
+  const [state, action] = useActionState(
+    async (prev: NoteState, form: FormData) => {
+      const result = await leaveNote(prev, form);
+      if (result.status === "ok") {
+        formRef.current?.reset();
+        setCount(0);
+      }
+      return result;
+    },
+    IDLE,
+  );
 
   const over = count > MAX;
 
