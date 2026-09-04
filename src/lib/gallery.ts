@@ -187,6 +187,71 @@ export async function getMaxPosition(albumId: string): Promise<number> {
 }
 
 /** One cover per album, for the index grid. */
+/** One photograph as a satellite site receives it. */
+export type FeedPhoto = {
+  slug: string;
+  title: string | null;
+  credit: string;
+  category: Genre;
+  src: string;
+  /** Widths the consumer may choose from. Not part of the minimum contract. */
+  srcset: string | null;
+  width: number | null;
+  height: number | null;
+  alt: string;
+};
+
+/**
+ * A photograph's stable name in the feed: the filename, without its extension.
+ *
+ * Consumers key on this to recognise the same plate between reads, so it must
+ * not change for a plate that has not changed. The storage path is fixed at
+ * upload and never rewritten, which is what makes it usable here.
+ */
+function feedSlug(path: string): string {
+  const file = path.split("/").pop() ?? path;
+  return file.replace(/\.[^.]+$/, "");
+}
+
+/**
+ * The public photographs of one genre, for a satellite site to render.
+ *
+ * Held-back galleries are excluded in the query rather than filtered
+ * afterwards — a feed is read by machines that will not notice a mistake, so
+ * the exclusion belongs where it cannot be forgotten.
+ *
+ * Bounded on purpose. This is a portfolio selection for another site's page,
+ * not a mirror of the archive, and an unbounded feed would hand a static page
+ * more markup than it can render.
+ */
+const FEED_LIMIT = 120;
+
+export async function getGenreFeed(genre: Genre): Promise<FeedPhoto[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("photos")
+    .select("*, albums!inner(title, genre, visibility, position)")
+    .eq("albums.genre", genre)
+    .eq("albums.visibility", "public")
+    .eq("bucket", "gallery")
+    .order("position", { ascending: true })
+    .limit(FEED_LIMIT);
+
+  type Row = Photo & { albums: { title: string } };
+
+  return ((data ?? []) as Row[]).map((row) => ({
+    slug: feedSlug(row.path),
+    title: row.caption,
+    credit: row.albums.title,
+    category: genre,
+    src: publicSrc("gallery", row.path, PRIVATE_WIDTH, row.width, row.height),
+    srcset: publicSrcSet("gallery", row.path, row.width, row.height),
+    width: row.width,
+    height: row.height,
+    alt: row.caption ?? `${row.albums.title} — photograph`,
+  }));
+}
+
 export async function getCovers(
   albumIds: string[],
 ): Promise<Map<string, PhotoWithUrl>> {

@@ -79,6 +79,41 @@ The running app needs only `NEXT_PUBLIC_SUPABASE_URL` and
 user, so no service-role key is deployed. `POSTGRES_URL_NON_POOLING` is used
 locally to apply the SQL files above.
 
+## Satellites
+
+The other two sites read from here rather than holding their own copies.
+
+**The genre feed.** `GET /api/feed/<genre>` returns the public photographs of
+one genre — `graduation`, `brand`, `sport`, `food` or `event`:
+
+```json
+{ "site": "untamed", "genre": "food", "photos": [
+  { "slug": "svaha-soto", "title": "Soto, Held", "credit": "VisuFavor",
+    "category": "food", "src": "https://...", "srcset": "https://... 750w, ...",
+    "width": 600, "height": 900, "alt": "Soto held in both hands" } ] }
+```
+
+Held-back galleries are excluded in the query, not filtered afterwards. A
+satellite holds no key and can address no genre but its own — the scoping is
+the route. CORS is allowed only for the origins listed in `elsewhere` in
+`src/lib/site.ts`, because the satellites fetch this from the visitor's
+browser.
+
+**Importing VisuFavor.** Its photographs live in its own repository, published
+as a manifest at `/export.json`. To bring them in:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SECRET_KEY=... \
+  node scripts/import-visufavor.mjs --dry-run
+```
+
+Drop `--dry-run` to write. It copies files into the `gallery` bucket under
+`food/visufavor/`, files the rows under one album, and **deletes nothing** at
+either end. Safe to run again: a plate whose storage path is already recorded
+is skipped, so a run that dies half way is finished by running it again. The
+secret key bypasses RLS, which is why this is a script you run rather than a
+page in the darkroom — never put that key in the app.
+
 ## Design system
 
 `tokens.css` is the single source of colour, type, space, and motion. Every
