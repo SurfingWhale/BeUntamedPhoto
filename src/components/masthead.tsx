@@ -49,6 +49,21 @@ export function Masthead({ viewer }: Props) {
       <div className="mast__rail">
         <nav className="mast__rail-inner mast__nav" aria-label="Primary">
           <ul>
+            {/* First, not last. The rail scrolls on a phone and the owner's own
+                entrance was the sixth item — off-screen, behind a swipe with no
+                cue that there was anything to swipe to. */}
+            {viewer?.isOwner && (
+              <li>
+                <Link
+                  className="mast__link"
+                  href="/darkroom"
+                  aria-current={pathname.startsWith("/darkroom") ? "page" : undefined}
+                >
+                  <span className="mast__no">—</span>
+                  <span>Darkroom</span>
+                </Link>
+              </li>
+            )}
             {nav.map((item, i) => {
               const current =
                 item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -65,18 +80,6 @@ export function Masthead({ viewer }: Props) {
                 </li>
               );
             })}
-            {viewer?.isOwner && (
-              <li>
-                <Link
-                  className="mast__link"
-                  href="/darkroom"
-                  aria-current={pathname.startsWith("/darkroom") ? "page" : undefined}
-                >
-                  <span className="mast__no">—</span>
-                  <span>Darkroom</span>
-                </Link>
-              </li>
-            )}
           </ul>
         </nav>
       </div>

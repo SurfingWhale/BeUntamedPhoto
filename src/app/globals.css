@@ -74,6 +74,9 @@ h1, h2, h3 {
   user-select: none;
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   border-inline: var(--rule-hair) solid var(--color-grid);
 }
 /* A modular field, not stripes: columns AND rows, so the cells read square.
@@ -298,6 +301,9 @@ img { display: block; max-width: 100%; }
 .mast__bar {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: var(--space-sm) var(--page-gutter);
   display: flex;
   flex-wrap: wrap;
@@ -314,6 +320,9 @@ img { display: block; max-width: 100%; }
 .mast__rail-inner {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: var(--space-2xs) var(--page-gutter);
 }
 .mast__id { display: flex; align-items: center; gap: var(--space-sm); }
@@ -373,6 +382,12 @@ img { display: block; max-width: 100%; }
   padding: var(--space-2xs) var(--page-gutter);
 }
 .mast__nav ul::-webkit-scrollbar { display: none; }
+/* The rail scrolls, and a hard cut at the edge reads as broken rather than as
+ * more. Fading the last few percent says "there is further to go" without
+ * spending a control on it. Removed once everything fits. */
+.mast__nav ul {
+  mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent 100%);
+}
 @media (min-width: 48rem) {
   .mast__sub { display: block; }
   .mast__bar { gap: var(--space-sm) var(--space-lg); }
@@ -382,6 +397,7 @@ img { display: block; max-width: 100%; }
     overflow-x: visible;
     margin-inline: 0;
     padding: 0;
+    mask-image: none;
   }
 }
 .mast__link {
@@ -866,6 +882,9 @@ img { display: block; max-width: 100%; }
 .open {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: calc(var(--row) * 0.75) var(--page-gutter) var(--row);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -898,6 +917,9 @@ img { display: block; max-width: 100%; }
   position: relative;
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1000,6 +1022,9 @@ img { display: block; max-width: 100%; }
 .band {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
@@ -1018,6 +1043,9 @@ img { display: block; max-width: 100%; }
 .band--dark > * {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   width: 100%;
 }
 .band--dark .head__title { color: var(--color-ink-on-dark); }
@@ -1037,6 +1065,9 @@ img { display: block; max-width: 100%; }
 .grid-band {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
   gap: var(--space-2xl);
@@ -1049,6 +1080,9 @@ img { display: block; max-width: 100%; }
 .rail {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: var(--space-sm) var(--page-gutter);
   border-top: var(--rule-hair) solid var(--color-rule);
   display: flex;
@@ -1166,6 +1200,9 @@ img { display: block; max-width: 100%; }
 .strip {
   max-width: var(--page-max);
   margin-inline: auto;
+  /* width, or the auto margins below absorb the free space and shrink-wrap
+   * this box instead of stretching it — see .page, a grid parent. */
+  width: 100%;
   padding: 0 var(--page-gutter) calc(var(--row) * 1.5);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
