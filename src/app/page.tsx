@@ -116,8 +116,8 @@ export default async function HomePage() {
           </div>
 
           <p className="story__body">
-            I&rsquo;m {site.owner}. I shoot graduations, brand work, sport, food
-            and events. Most of it is patience — holding a frame until the
+            I shoot graduations, brand work, sport, food and events. Most of
+            it is patience — holding a frame until the
             arranged version of a moment drops away and the honest one shows up.
           </p>
           <p className="story__body">
@@ -128,7 +128,7 @@ export default async function HomePage() {
               {site.email}
             </a>
           </p>
-          <p className="label-wide story__by">archive by {site.owner}</p>
+          <p className="label-wide story__by">archive by {site.byline}</p>
         </div>
       </section>
 

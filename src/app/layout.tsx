@@ -32,7 +32,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 const DESCRIPTION =
-  "Graduation, brand, sport, food and event photography by Fauzy. Commissions open across Jakarta and beyond.";
+  "Graduation, brand, sport, food and event photography. Commissions open across Jakarta and beyond.";
 
 export const metadata: Metadata = {
   /* Required for the share card: WhatsApp and every other unfurler ignore a

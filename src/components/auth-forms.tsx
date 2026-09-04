@@ -131,7 +131,7 @@ export function AuthForms({ next }: { next: string }) {
             name="display_name"
             label="Display name"
             autoComplete="nickname"
-            placeholder="Fauzy"
+            placeholder="Your name"
             help="Shown on notes you leave."
           />
         )}

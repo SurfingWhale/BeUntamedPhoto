@@ -130,7 +130,7 @@ export default function Image() {
             color: DIM,
           }}
         >
-          <div style={{ display: "flex" }}>Commissions open · {site.owner}</div>
+          <div style={{ display: "flex" }}>Commissions open</div>
           <div style={{ display: "flex", color: LIME }}>{site.email}</div>
         </div>
       </div>
