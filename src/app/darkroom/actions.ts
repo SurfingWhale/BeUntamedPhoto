@@ -221,6 +221,73 @@ export async function updateAlbum(
   return { status: "ok", message: settled + note + more };
 }
 
+/**
+ * Move one plate up or down its album.
+ *
+ * `photos.position` has been in the schema and read in order since the start,
+ * but nothing ever wrote to it after the upload, so a set arrived in whatever
+ * order the files were picked and stayed there. The sequence of a photo essay
+ * is the composition; this is the control that was missing.
+ *
+ * The whole album is renumbered on every move rather than the two rows being
+ * swapped. Older rows can share a position — the column defaults to 0 — and a
+ * swap between two rows that both say 0 does nothing at all. Renumbering makes
+ * the order well-defined no matter what it was before.
+ */
+export async function movePhoto(
+  _prev: DarkroomState,
+  formData: FormData,
+): Promise<DarkroomState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { status: "error", message: "Owner access only." };
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const albumId = String(formData.get("albumId") ?? "");
+  const slug = String(formData.get("slug") ?? "");
+  const dir = String(formData.get("dir") ?? "");
+
+  if (dir !== "up" && dir !== "down") {
+    return { status: "error", message: "Move a plate up or down." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("photos")
+    .select("id")
+    .eq("album_id", albumId)
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) return { status: "error", message: error.message };
+
+  const ids = (data ?? []).map((r) => (r as { id: string }).id);
+  const from = ids.indexOf(id);
+  if (from < 0) return { status: "error", message: "That plate is not in this gallery." };
+
+  const to = dir === "up" ? from - 1 : from + 1;
+  if (to < 0 || to >= ids.length) {
+    // Already at the end. Not an error worth a red message.
+    return { status: "ok", message: dir === "up" ? "Already first." : "Already last." };
+  }
+
+  [ids[from], ids[to]] = [ids[to], ids[from]];
+
+  const writes = await Promise.all(
+    ids.map((photoId, i) =>
+      supabase.from("photos").update({ position: i }).eq("id", photoId),
+    ),
+  );
+  const failed = writes.find((w) => w.error);
+  if (failed?.error) return { status: "error", message: failed.error.message };
+
+  revalidatePath(`/darkroom/${slug}`);
+  revalidatePath(`/work/${slug}`);
+  return { status: "ok", message: `Moved to position ${to + 1} of ${ids.length}.` };
+}
+
 export async function deleteAlbum(
   _prev: DarkroomState,
   formData: FormData,

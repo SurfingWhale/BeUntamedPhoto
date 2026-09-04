@@ -1443,7 +1443,8 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
 .plates__row {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
+  /* thumbnail · ordering · everything else */
+  grid-template-columns: 72px auto minmax(0, 1fr);
   gap: var(--space-md);
   align-items: start;
   padding-block: var(--space-md);
@@ -1455,6 +1456,16 @@ img { display: block; max-width: 100%; }
 }
 .plates__meta { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); min-width: 0; }
+/* Ordering sits beside the plate it moves. Stacked, because two arrows side by
+ * side at 44px each would squeeze the metadata column under 200px on a phone. */
+.plates__move { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); align-content: start; }
+.plates__arrow {
+  min-height: 34px;
+  padding-inline: var(--space-sm);
+  font-size: var(--text-md);
+  line-height: 1;
+}
+@media (pointer: coarse) { .plates__arrow { min-height: 44px; } }
 .plates__acts { display: flex; flex-wrap: wrap; gap: var(--space-md); }
 .plates__acts form { display: contents; }
 

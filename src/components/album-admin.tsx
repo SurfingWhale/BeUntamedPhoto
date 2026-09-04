@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import {
   deleteAlbum,
   deletePhoto,
+  movePhoto,
   setCover,
   updateAlbum,
   type DarkroomState,
@@ -22,6 +23,59 @@ function Pending({ label }: { label: string }) {
     <button className="note__del" type="submit" disabled={pending} aria-disabled={pending}>
       {pending ? "…" : label}
     </button>
+  );
+}
+
+/**
+ * Ordering lives next to the plate it reorders, not in a separate mode. The
+ * ends are disabled rather than hidden so the row never changes shape as a
+ * plate travels — a control that moves under your thumb is worse than one
+ * that greys out.
+ */
+function Move({
+  photoId,
+  albumId,
+  slug,
+  first,
+  last,
+  index,
+  total,
+}: {
+  photoId: string;
+  albumId: string;
+  slug: string;
+  first: boolean;
+  last: boolean;
+  index: number;
+  total: number;
+}) {
+  const [, action] = useActionState(movePhoto, IDLE);
+  return (
+    <form action={action} className="plates__move">
+      <input type="hidden" name="id" value={photoId} />
+      <input type="hidden" name="albumId" value={albumId} />
+      <input type="hidden" name="slug" value={slug} />
+      <button
+        className="tog plates__arrow"
+        type="submit"
+        name="dir"
+        value="up"
+        disabled={first}
+        aria-label={`Move plate ${index + 1} of ${total} earlier`}
+      >
+        ↑
+      </button>
+      <button
+        className="tog plates__arrow"
+        type="submit"
+        name="dir"
+        value="down"
+        disabled={last}
+        aria-label={`Move plate ${index + 1} of ${total} later`}
+      >
+        ↓
+      </button>
+    </form>
   );
 }
 
@@ -100,6 +154,15 @@ export function AlbumAdmin({
               ) : (
                 <div className="plates__thumb" aria-hidden="true" />
               )}
+              <Move
+                photoId={photo.id}
+                albumId={album.id}
+                slug={album.slug}
+                first={i === 0}
+                last={i === photos.length - 1}
+                index={i}
+                total={photos.length}
+              />
               <div className="plates__meta">
                 <p className="note__body" style={{ fontSize: "var(--text-base)" }}>
                   Plate {plate(i)}
