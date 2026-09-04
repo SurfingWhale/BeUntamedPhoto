@@ -164,12 +164,23 @@ export async function updateAlbum(
   const visibility = String(formData.get("visibility") ?? "public");
   const genre = String(formData.get("genre") ?? "");
   const slug = String(formData.get("slug") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  const subtitle = String(formData.get("subtitle") ?? "").trim() || null;
+  const place = String(formData.get("place") ?? "").trim() || null;
+  const yearRaw = String(formData.get("year") ?? "").trim();
 
   if (visibility !== "public" && visibility !== "members") {
     return { status: "error", message: "Visibility must be public or members." };
   }
   if (!genreIds.includes(genre as (typeof genreIds)[number])) {
     return { status: "error", message: "Pick one of the listed genres." };
+  }
+  if (title.length < 2) {
+    return { status: "error", message: "Give the gallery a title first." };
+  }
+  const year = yearRaw ? Number(yearRaw) : null;
+  if (year !== null && (!Number.isInteger(year) || year < 1900 || year > 2200)) {
+    return { status: "error", message: "That year doesn't look right." };
   }
 
   const supabase = await createClient();
@@ -184,7 +195,18 @@ export async function updateAlbum(
    * Opening up: move the files first. Flipping the album public while its
    * plates were still private would leave anonymous visitors unable to sign a
    * URL for them, so the gallery would open onto missing images. */
-  const flip = () => supabase.from("albums").update({ visibility, genre }).eq("id", id);
+  /* The slug is deliberately not editable here.
+   *
+   * It is the public URL, and this site's whole job is that a link can be
+   * pasted into a client's chat — changing it silently breaks every message
+   * already sent. It is also the folder prefix every photos.path was written
+   * with, so a rename would leave the files behind under the old name. The
+   * words a visitor reads are the title; that is what renaming should change. */
+  const flip = () =>
+    supabase
+      .from("albums")
+      .update({ visibility, genre, title, subtitle, place, year })
+      .eq("id", id);
 
   if (visibility === "members") {
     const { error } = await flip();

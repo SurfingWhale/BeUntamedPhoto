@@ -111,6 +111,72 @@ export function AlbumAdmin({
         <input type="hidden" name="id" value={album.id} />
         <input type="hidden" name="slug" value={album.slug} />
         <div className="field">
+          <label className="field__label" htmlFor="title-edit">
+            Title
+          </label>
+          <input
+            className="field__input"
+            id="title-edit"
+            name="title"
+            defaultValue={album.title}
+            required
+            aria-required="true"
+            aria-describedby="title-edit-help"
+          />
+          <p className="field__help" id="title-edit-help">
+            The name a visitor reads. The address stays{" "}
+            <strong>/work/{album.slug}</strong> — it is in every link already
+            sent, and it is the folder the files were written under.
+          </p>
+        </div>
+
+        <div className="field">
+          <label className="field__label" htmlFor="subtitle-edit">
+            Subtitle
+          </label>
+          <input
+            className="field__input"
+            id="subtitle-edit"
+            name="subtitle"
+            defaultValue={album.subtitle ?? ""}
+            placeholder="One line. Optional."
+          />
+          <p className="field__help" />
+        </div>
+
+        <div className="row2">
+          <div className="field">
+            <label className="field__label" htmlFor="place-edit">
+              Place
+            </label>
+            <input
+              className="field__input"
+              id="place-edit"
+              name="place"
+              defaultValue={album.place ?? ""}
+              placeholder="Bintaro"
+            />
+            <p className="field__help" />
+          </div>
+          <div className="field">
+            <label className="field__label" htmlFor="year-edit">
+              Year
+            </label>
+            <input
+              className="field__input"
+              id="year-edit"
+              name="year"
+              type="number"
+              min={1900}
+              max={2200}
+              defaultValue={album.year ?? ""}
+              placeholder="2026"
+            />
+            <p className="field__help" />
+          </div>
+        </div>
+
+        <div className="field">
           <label className="field__label" htmlFor="genre-edit">
             Genre
           </label>

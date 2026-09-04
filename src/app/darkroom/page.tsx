@@ -37,7 +37,7 @@ export default async function DarkroomPage() {
           {albums.length === 0 ? (
             <p className="notes__empty">Nothing filed yet.</p>
           ) : (
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            <ul className="u-bare">
               {albums.map((album) => (
                 <li className="note" key={album.id}>
                   <p className="note__body">

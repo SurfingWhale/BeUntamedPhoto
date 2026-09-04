@@ -123,7 +123,7 @@ export function NotesPanel({
       {initialNotes.length === 0 ? (
         <p className="notes__empty">No notes yet — be the first.</p>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        <ul className="u-bare">
           {initialNotes.map((note) => (
             <li className="note" key={note.id}>
               <p className="note__body">{note.body}</p>

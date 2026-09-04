@@ -145,7 +145,6 @@ h1, h2, h3 {
 }
 .mark--thin  { font-weight: 300; font-size: var(--text-2xl); }
 .mark--bold  { font-weight: 700; font-size: var(--text-xl); }
-.mark--quiet { color: var(--color-muted); }
 
 /* Corner brackets — ⌐ pins a block's top-right, ∟ its bottom-left. */
 .bracket {
@@ -159,7 +158,6 @@ h1, h2, h3 {
   pointer-events: none;
 }
 .bracket--tr { top: calc(var(--space-md) * -1); right: calc(var(--space-md) * -1); }
-.bracket--bl { bottom: calc(var(--space-md) * -1); left: calc(var(--space-md) * -1); }
 
 /* Swatch row — stepped diagonal, never a neat block. Colours are sampled
  * from the adjacent photograph and passed in as custom properties. */
@@ -240,7 +238,6 @@ img { display: block; max-width: 100%; }
   outline-offset: 2px;
 }
 
-.u-measure { max-width: var(--measure); }
 /* The clinical instrument layer — every index, coordinate and camera log. */
 .u-mono {
   font-family: var(--font-mono);
@@ -250,27 +247,8 @@ img { display: block; max-width: 100%; }
   color: var(--color-muted);
   font-weight: 400;
 }
-.u-code {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  letter-spacing: var(--tracking-code);
-  text-transform: uppercase;
-  font-weight: 500;
-}
 /* A lime signal tag — the accent's main job. Used sparingly. */
-.u-tag {
-  display: inline-block;
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  padding: 0.15em 0.5em;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-code);
-  text-transform: uppercase;
-  font-weight: 700;
-}
 .u-muted { color: var(--color-muted); }
-.u-ink2  { color: var(--color-ink-2); }
 .u-tabular { font-variant-numeric: tabular-nums; }
 .u-sr {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -723,7 +701,6 @@ img { display: block; max-width: 100%; }
   color: var(--color-paper);
   text-shadow: var(--shadow-cap);
 }
-.fold-photo__cap--ink { color: var(--color-ink-2); text-shadow: none; }
 
 /* Placeholder plate — an honest empty slot, not fake stock. */
 .plate {
@@ -1025,25 +1002,7 @@ img { display: block; max-width: 100%; }
   gap: var(--space-lg);
 }
 .fold-text--tight { padding-block: var(--space-2xl) var(--space-3xl); }
-.fold-text--wide  { padding-block: var(--space-4xl) var(--space-3xl); }
-.fold-text__lede {
-  font-family: var(--font-display);
-  font-size: var(--text-display-s);
-  font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
-  max-width: 18ch;
-}
 /* Emphasis is a lime marker stripe, not a colour change — the signal layer. */
-.fold-text__lede em {
-  font-style: normal;
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  padding-inline: 0.12em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
 .fold-text__body {
   max-width: var(--measure);
   font-size: var(--text-md);
@@ -1336,6 +1295,8 @@ img { display: block; max-width: 100%; }
 .elsewhere__go { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); white-space: nowrap; }
 
 /* --------------------------------------------------------- guestbook */
+.u-bare { list-style: none; padding: 0; margin: 0; }
+
 .notes { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
 .note {
