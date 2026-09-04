@@ -1513,6 +1513,41 @@ img { display: block; max-width: 100%; }
   .album__media img { transition: none; }
 }
 
+/* -------------------------------------------------------------- fab */
+/* Owner only, and the one floating thing the system allows: it is a tool, not
+ * part of the page, so it is allowed to sit on top of one. Rectilinear like
+ * everything else — the pill is reserved for filter chips. */
+.fab {
+  position: fixed;
+  right: max(var(--page-gutter), env(safe-area-inset-right));
+  bottom: max(var(--page-gutter), env(safe-area-inset-bottom));
+  z-index: var(--z-raised);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 48px;
+  padding-inline: var(--space-md);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border: var(--rule-hair) solid var(--color-accent-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: var(--tracking-code);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: transform var(--dur-micro) var(--ease-out);
+}
+.fab__mark { font-size: var(--text-lg); line-height: 1; }
+.fab:active { transform: translateY(1px); }
+@media (hover: hover) and (pointer: fine) {
+  .fab:hover { background: var(--color-accent-2); }
+}
+/* The masthead already carries a Darkroom link on a wide screen; the shortcut
+ * is for the phone, where that rail scrolls. */
+@media (min-width: 60rem) { .fab { display: none; } }
+@media (prefers-reduced-motion: reduce) { .fab { transition: none; } }
+
 /* --------------------------------------------------------- darkroom */
 .dark-grid { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-2xl); padding: 0 var(--page-gutter) var(--space-3xl); }
@@ -1521,6 +1556,15 @@ img { display: block; max-width: 100%; }
 }
 .panel { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-md); align-content: start; }
+/* On a phone the darkroom is one column, and Plates came first — so adding a
+ * frame in a hurry meant scrolling past the settings form and every existing
+ * plate to reach the file picker. Uploading is the reason the page gets opened
+ * on a phone at all. The desktop order, plates beside the uploader, is
+ * restored where both fit. */
+.panel--upload { order: -1; }
+@media (min-width: 64rem) { .panel--upload { order: 0; } }
+/* Somewhere for the shortcut to land. */
+#add-plates { scroll-margin-top: var(--space-2xl); }
 .panel__title {
   font-family: var(--font-display);
   font-size: var(--text-lg);

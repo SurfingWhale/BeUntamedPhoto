@@ -53,7 +53,7 @@ export default async function DarkroomAlbumPage({ params }: Params) {
           <AlbumAdmin album={album} photos={photos} />
         </section>
 
-        <section className="panel">
+        <section className="panel panel--upload" id="add-plates">
           <h2 className="panel__title">Add plates</h2>
           <Uploader
             albumId={album.id}

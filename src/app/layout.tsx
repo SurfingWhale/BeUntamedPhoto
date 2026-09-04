@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
 
 import { Masthead } from "@/components/masthead";
+import { Fab } from "@/components/fab";
 import { Footer } from "@/components/footer";
 import { GridLines } from "@/components/grid-lines";
 import { MediaFade } from "@/components/media";
@@ -106,6 +107,7 @@ export default async function RootLayout({
           {children}
         </main>
         <Footer />
+        <Fab />
         <ServiceWorker />
         <MediaFade />
       </body>
