@@ -33,23 +33,39 @@ rewritten.
 solved and in production.** What is missing is bulk intake, a routing step,
 and anything at all to do with the other two sites.
 
-## 2 · The one decision everything hangs on
+## 2 · Answered: three stacks, two Supabase projects, one site with no backend
 
-**Are VisuFavor and UNTMD Sports the same Supabase project as this one, or
-their own projects?** I cannot see them from this repository, and the answer
-changes the whole shape:
+This was written as an open question. It is not one any more — both satellite
+repositories were read directly.
 
-| | Same project | Three projects |
-| --- | --- | --- |
-| Cross-site reads | RLS and a view; no keys move | Needs each project's service-role key |
-| "Satellite sees only its genre" | Enforceable in the database | Enforceable only by whatever fetches for it |
-| Storage billed | Once | Once per copy |
-| Risk | Low | A key that can read and write everything, held by another app |
+| | UNTAMED | VisuFavor | UNTMD Sports |
+| --- | --- | --- | --- |
+| Framework | Next.js 16 | **Static HTML/CSS/JS, no build step** | Next.js 15 |
+| Database | Supabase Postgres | **None** | **Firebase Firestore** |
+| Auth | Supabase | None | Firebase |
+| Photographs | Supabase Storage — `gallery`, `gallery-private` | **14 JPEGs committed to the repo**, `images/`, 1.9 MB | 47 files committed to `public/`, 15 MB, **plus** Supabase Storage bucket `UNTMD_SPORTS` |
+| Supabase project | Provisioned by the Vercel Marketplace integration; the ref is not in the repo | — | `vkpdkntxsqexcfaiehgx` — created by hand in the dashboard |
 
-The rest of this proposal is written for **three separate projects**, because
-that is what "the buckets on UNTAMED and VisuFavor both already have content"
-implies. If they turn out to share one project, section 4.6 disappears and
-section 4.5 gets simpler.
+Three consequences, and they matter more than the original question did:
+
+1. **There is no shared project.** UNTMD Sports runs its own Supabase project,
+   created separately, holding one bucket named `UNTMD_SPORTS`. Nothing about
+   the two is connected today.
+2. **VisuFavor has no backend at all.** Its "bucket" is a folder in git. That
+   is not a limitation for this design — a static page can fetch a JSON feed
+   with plain JavaScript, and no key or SDK is involved. It is the cleanest
+   consumer of the three.
+3. **UNTMD Sports is not a thin satellite.** It has its own admin panel,
+   Firestore collections (`gallery`, `library`, `pricing`, `schedule`,
+   `stories`, `leads`), Google sign-in, a watermark tool, and phone uploads
+   that already write to its own Supabase bucket through
+   `/api/upload-url`. Folding it into the master is a decision about giving up
+   a working CMS, not a wiring job.
+
+There is also a loose end in this repository: `firebase-admin` sits in
+`package.json` and is imported nowhere in `src/`. Either it was added for a
+plan that stopped, or it is the beginning of reading UNTMD Sports' Firestore
+from here. It costs an install either way and should be removed or used.
 
 ## 3 · The shape being proposed: one archive, three windows
 
@@ -168,19 +184,43 @@ The satellites fetch that URL. **They hold no key, reach no bucket, and can
 ask for no genre but their own** — the scoping is the route, not a promise.
 Their existing content stays exactly where it is and renders alongside.
 
+This suits what they actually are. VisuFavor is a static page with no build
+step and no SDK, so a `fetch()` and some DOM is the only integration it can
+take — and the only one it needs. UNTMD Sports has its own data layer already;
+for it the feed is an extra section, not a replacement.
+
 ### 4.6 Pulling in what already lives on the satellites
 
-A one-time script, `scripts/import-satellite.ts` — deliberately not a live
-link:
+Two jobs, not one, and their sizes are nothing alike.
 
-- Takes that project's service-role key from the environment for the length of
-  the run, and nowhere else.
-- Lists its objects, downloads each, re-uploads under
-  `gallery/<genre>/imported-<site>/…`.
-- Inserts albums and photos with `source` set and `checksum` filled.
-- **Idempotent**: re-running skips anything whose checksum is already present.
-- **Deletes nothing on the satellite.** It reads and copies; that is all it is
-  allowed to do.
+**VisuFavor — an afternoon.** Fourteen JPEGs in a git folder, 1.9 MB, with
+their captions and categories in `js/script.js` as a plain array. Read the
+array, upload the files under `gallery/food/visufavor-<slug>/`, insert one
+album and fourteen photo rows. No key, no API, no permission needed — the
+repository is the export. The files stay in the repo untouched, so the live
+site keeps working exactly as it does now.
+
+**UNTMD Sports — a negotiation, not a script.** Its photographs live in three
+places at once: committed to `public/`, in its own Supabase bucket, and
+described by Firestore documents that also drive pricing, schedule and story
+content. Copying the images is easy; deciding what happens to a working admin
+panel is not. Three honest options, in rising order of effort:
+
+1. **Leave it alone.** UNTAMED links to it, as it does now. Nothing to build.
+2. **Point its uploader at this project.** `app/storage.ts` there is two
+   constants — a project URL and a bucket name. Change them and every *future*
+   phone upload lands in UNTAMED's bucket instead of its own. Its existing
+   photographs stay exactly where they are and keep rendering. This is the
+   smallest change that makes UNTAMED genuinely the master going forward, and
+   it deletes nothing.
+3. **Import the back catalogue too.** A script with that project's secret key,
+   reading Firestore for the metadata and its bucket for the files, writing
+   both into UNTAMED. Idempotent through the checksum index. This is the only
+   option that needs a credential, and the only one worth the guard rails in §8.
+
+Option 2 is the recommendation: it costs two lines in a repository we can
+already read, and it stops the split from getting wider while the bigger
+question stays open.
 
 ## 5 · What this does not do
 
@@ -206,12 +246,17 @@ even if the satellites are never wired up.
 
 ## 7 · What is needed before P1 starts
 
-1. **Same Supabase project, or three?** The project ref of each.
+1. ~~Same Supabase project, or three?~~ **Answered in §2** — three stacks,
+   two Supabase projects, one static site.
 2. **Volume**: photographs per batch, and typical file size off the camera.
-3. Do VisuFavor and UNTMD Sports have their own admin you want to keep, or
-   should the master become the only place anything is filed?
-4. For P4 only: a service-role key per satellite, and confirmation that
-   nothing there gets deleted.
+   This sets the upload concurrency and whether resumable uploads are needed.
+3. **UNTMD Sports' admin panel — keep it, or retire it?** This is the real
+   open question now, and it is a decision about how you want to work rather
+   than a technical one. §4.6 lists the three options; option 2 costs two
+   lines and does not close the door on either of the others.
+4. For the back-catalogue import only: the secret key for
+   `vkpdkntxsqexcfaiehgx`, and confirmation that nothing there gets deleted.
+   VisuFavor needs no key at all — its photographs are in its repository.
 
 ## 8 · Risks worth naming now
 
