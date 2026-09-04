@@ -1,24 +1,7 @@
 "use client";
 
-import { MotionConfig, motion, useScroll, useSpring } from "motion/react";
+import { useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
-
-/* The token easing, so Motion and the CSS transitions agree on one curve.
- * Mirrors --ease-out in tokens.css. */
-const EASE = [0.16, 1, 0.3, 1] as const;
-
-/**
- * reducedMotion="user" is the whole accessibility story for this layer: Motion
- * drops transform and layout animation for visitors who asked for less, and
- * keeps opacity, which is the correct substitute rather than nothing at all.
- */
-export function MotionRoot({ children }: { children: ReactNode }) {
-  return (
-    <MotionConfig reducedMotion="user" transition={{ duration: 0.5, ease: EASE }}>
-      {children}
-    </MotionConfig>
-  );
-}
 
 type RevealProps = {
   as?: "div" | "article" | "figure" | "li" | "a";
@@ -33,22 +16,48 @@ type RevealProps = {
 };
 
 /**
- * Scroll-triggered entrance.
+ * Scroll-triggered entrance, on an IntersectionObserver and a CSS transition.
  *
- * This replaces the old `.reveal` CSS class, which was motion in name only:
- * a keyframe with `animation-delay` fires on page load for every element on
- * the page, including the ones twenty screens down. By the time you scrolled
- * to them they had long finished, so scrolling revealed nothing. `whileInView`
- * ties the animation to the element actually entering the viewport.
+ * This used to be Motion. Two chunks of the client bundle carried it, 350 KB
+ * raw between them, for a fade and a progress bar — about two percent of what
+ * that library does. The same argument that ruled out 700 KB of three.js for
+ * an ornament applies here at a smaller scale.
+ *
+ * The observer sets a data attribute rather than React state: nothing
+ * re-renders, and the transition stays interruptible, which a keyframe would
+ * not be. Reduced motion and a scripting-disabled browser are handled in CSS
+ * next to the rule they affect.
  */
-export function Reveal({ as = "div", index = 0, ...rest }: RevealProps) {
-  const El = motion[as];
+export function Reveal({ as = "div", index = 0, className, style, ...rest }: RevealProps) {
+  const ref = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!("IntersectionObserver" in window)) {
+      el.dataset.shown = "true";
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        el.dataset.shown = "true";
+        io.disconnect();
+      },
+      // A little past the bottom edge, so a plate is already settling as it
+      // arrives rather than starting the moment it clips the viewport.
+      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const El = as as "div";
   return (
     <El
-      initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.5, ease: EASE, delay: index * 0.07 }}
+      ref={ref as React.Ref<HTMLDivElement>}
+      className={className ? `reveal ${className}` : "reveal"}
+      style={{ ...style, "--i": index } as CSSProperties}
       {...rest}
     />
   );
@@ -56,16 +65,38 @@ export function Reveal({ as = "div", index = 0, ...rest }: RevealProps) {
 
 /**
  * A lime hairline across the foot of the masthead tracking scroll depth.
- * The system already draws "laser" register lines down the page (design.md
- * § Grid); this is that same idea on the horizontal axis, so the one piece of
- * always-on motion reads as instrumentation rather than decoration.
+ *
+ * The system already draws "laser" register lines down the page; this is that
+ * idea on the horizontal axis. Written to a custom property inside a single
+ * rAF, so a scroll event never does layout work.
  */
 export function ScrollRule() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 220,
-    damping: 40,
-    restDelta: 0.001,
-  });
-  return <motion.div className="mast__progress" style={{ scaleX }} aria-hidden="true" />;
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const doc = document.documentElement;
+      const range = doc.scrollHeight - window.innerHeight;
+      const progress = range > 0 ? Math.min(1, Math.max(0, window.scrollY / range)) : 0;
+      el.style.setProperty("--progress", String(progress));
+    };
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
+
+  return <div ref={ref} className="mast__progress" aria-hidden="true" />;
 }

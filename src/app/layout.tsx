@@ -4,22 +4,26 @@ import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
 import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
 import { GridLines } from "@/components/grid-lines";
-import { MotionRoot } from "@/components/motion";
 import { ServiceWorker } from "@/components/pwa";
 import { getViewer } from "@/lib/auth";
 import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
+/* Only the weights the stylesheet actually asks for. Traced rule by rule,
+ * including the ones that inherit their family: .mark--bold and .rail__no set
+ * 700 without naming a family and land on Hanken and JetBrains respectively.
+ * A weight nothing uses is dead bytes; dropping one something uses is worse,
+ * because the browser then synthesises a fake bold. */
 const syne = Syne({
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["500", "700", "800"],
   variable: "--font-syne",
 });
 
 const hanken = Hanken_Grotesk({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "600", "700"],
   display: "swap",
   variable: "--font-hanken",
 });
@@ -93,17 +97,15 @@ export default async function RootLayout({
         <a className="u-skip" href="#main">
           Skip to content
         </a>
-        <MotionRoot>
-          <GridLines />
-          <Masthead viewer={viewer} />
-          {/* tabindex -1 so "Skip to content" actually moves focus here;
-              without it Safari scrolls but leaves focus back in the nav. */}
-          <main id="main" tabIndex={-1}>
-            {children}
-          </main>
-          <Footer />
-          <ServiceWorker />
-        </MotionRoot>
+        <GridLines />
+        <Masthead viewer={viewer} />
+        {/* tabindex -1 so "Skip to content" actually moves focus here;
+            without it Safari scrolls but leaves focus back in the nav. */}
+        <main id="main" tabIndex={-1}>
+          {children}
+        </main>
+        <Footer />
+        <ServiceWorker />
       </body>
     </html>
   );

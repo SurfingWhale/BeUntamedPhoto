@@ -406,9 +406,11 @@ img { display: block; max-width: 100%; }
   border-bottom-color: var(--color-accent);
 }
 .mast__aside { display: flex; align-items: center; gap: var(--space-sm); }
-/* Scroll depth as a register line. Sits on the masthead's own bottom rule and
- * is scaled from 0 → 1 by Motion, so it never lays out during scroll. */
+/* Scroll depth as a register line, on the masthead's own bottom rule. The
+ * progress is written to a custom property inside a rAF, so scrolling only
+ * ever touches a composited transform. */
 .mast__progress {
+  transform: scaleX(var(--progress, 0));
   position: absolute;
   inset-inline: 0;
   bottom: calc(var(--rule-hair) * -1);
@@ -1411,6 +1413,28 @@ img { display: block; max-width: 100%; }
 .foot__link { white-space: nowrap; border-bottom: var(--rule-hair) solid transparent; }
 @media (hover: hover) and (pointer: fine) {
   .foot__link:hover { color: var(--color-ink); border-bottom-color: var(--color-accent); }
+}
+
+/* ----------------------------------------------------------- reveal */
+/* Paired with components/motion.tsx, which sets data-shown from an
+ * IntersectionObserver. A transition rather than a keyframe, so a plate that
+ * arrives mid-animation is not fighting a timeline it cannot interrupt. */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity var(--dur-long) var(--ease-out),
+    transform var(--dur-long) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+.reveal[data-shown="true"] { opacity: 1; transform: none; }
+/* Without JavaScript nothing ever sets data-shown, and every revealed element
+ * would stay invisible. */
+@media (scripting: none) {
+  .reveal { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transform: none; transition-duration: var(--dur-short); }
 }
 
 /* --------------------------------------------------------- page shell */
