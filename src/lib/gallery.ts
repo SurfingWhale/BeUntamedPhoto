@@ -183,9 +183,19 @@ async function runAlbumQuery(
   supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createAnonClient>,
   genre?: string,
 ): Promise<AlbumRow[]> {
+  /* Ordered by when the work was made, not when it was uploaded.
+   *
+   * `year` is the album-level date the darkroom form already asks for, so it
+   * leads. nullsFirst false keeps the sets with no year from jumping to the
+   * top — they fall back to upload order behind everything dated. `position`
+   * stays as a tiebreaker so a set can still be pinned by hand within a year.
+   *
+   * Only three of six albums carry a year today; the rest sort by upload until
+   * that field is filled. */
   let query = supabase
     .from("albums")
     .select(`${ALBUM_COLUMNS}, photos(${PHOTO_COLUMNS})`)
+    .order("year", { ascending: false, nullsFirst: false })
     .order("position", { ascending: true })
     .order("created_at", { ascending: false })
     .order("is_cover", { ascending: false, referencedTable: "photos" })

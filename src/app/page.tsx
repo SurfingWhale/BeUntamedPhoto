@@ -23,7 +23,10 @@ export default async function HomePage() {
   // One wave, not a chain: covers arrive with their albums now, so nothing
   // here waits on anything else.
   const [featured, albums] = await Promise.all([getFeatured(2), getAlbumsWithCovers()]);
-  const shown = albums.slice(0, 3);
+  /* Six, not three. The section is there so someone can scroll a quick sense
+   * of the range of work; three tiles on a twelve-column field showed one
+   * genre and stopped. The grid already has spans for six. */
+  const shown = albums.slice(0, 6);
   const year = new Date().getUTCFullYear();
   const held = albums.filter((a) => a.visibility === "members").length;
 
