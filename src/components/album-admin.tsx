@@ -11,6 +11,7 @@ import {
   type DarkroomState,
 } from "@/app/darkroom/actions";
 import { plate } from "@/lib/format";
+import { SIZES } from "@/lib/images";
 import type { Album, PhotoWithUrl } from "@/lib/gallery";
 
 const IDLE: DarkroomState = { status: "idle", message: "" };
@@ -88,7 +89,14 @@ export function AlbumAdmin({
             <div className="plates__row" key={photo.id}>
               {photo.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="plates__thumb" src={photo.url} alt="" loading="lazy" />
+                <img
+                  className="plates__thumb"
+                  src={photo.url}
+                  srcSet={photo.srcSet ?? undefined}
+                  sizes={SIZES.thumb}
+                  alt=""
+                  loading="lazy"
+                />
               ) : (
                 <div className="plates__thumb" aria-hidden="true" />
               )}

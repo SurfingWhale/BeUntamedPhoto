@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { PRIVATE_WIDTH, publicSrc, publicSrcSet, QUALITY } from "@/lib/images";
 
 export type Album = {
   id: string;
@@ -27,13 +28,21 @@ export type Photo = {
   is_cover: boolean;
 };
 
-export type PhotoWithUrl = Photo & { url: string | null };
+export type PhotoWithUrl = Photo & {
+  /** The default source — a resized render, never the stored original. */
+  url: string | null;
+  /** Widths the browser may choose from. Null for private files, which can
+   * only afford one signed width each. */
+  srcSet: string | null;
+};
 
 const SIGNED_URL_TTL = 60 * 60; // 1 hour
 
 /**
- * Public-bucket files get a plain public URL; private-bucket files get a signed
- * one. Signing is batched per bucket so a 40-photo album is two round trips.
+ * Every URL here is a resized render, never the stored object — see
+ * `lib/images.ts` for why. Public files build their URL as a string and carry a
+ * full srcset; private files are signed one at a time, because the transform is
+ * signed into the token and the batch signer takes no transform options.
  */
 export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
   const supabase = await createClient();
@@ -44,21 +53,32 @@ export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
     .map((p) => p.path);
 
   if (privatePaths.length > 0) {
-    const { data } = await supabase.storage
-      .from("gallery-private")
-      .createSignedUrls(privatePaths, SIGNED_URL_TTL);
-
-    for (const row of data ?? []) {
-      if (row.path && row.signedUrl) signed.set(row.path, row.signedUrl);
+    // In parallel: N fast API calls beat one round trip that hands back a
+    // 7 MB original.
+    const results = await Promise.all(
+      privatePaths.map(async (path) => {
+        const { data } = await supabase.storage
+          .from("gallery-private")
+          .createSignedUrl(path, SIGNED_URL_TTL, {
+            transform: { width: PRIVATE_WIDTH, quality: QUALITY },
+          });
+        return [path, data?.signedUrl ?? null] as const;
+      }),
+    );
+    for (const [path, signedUrl] of results) {
+      if (signedUrl) signed.set(path, signedUrl);
     }
   }
 
   return photos.map((p) => {
     if (p.bucket === "gallery-private") {
-      return { ...p, url: signed.get(p.path) ?? null };
+      return { ...p, url: signed.get(p.path) ?? null, srcSet: null };
     }
-    const { data } = supabase.storage.from("gallery").getPublicUrl(p.path);
-    return { ...p, url: data.publicUrl };
+    return {
+      ...p,
+      url: publicSrc("gallery", p.path, PRIVATE_WIDTH),
+      srcSet: publicSrcSet("gallery", p.path, p.width),
+    };
   });
 }
 

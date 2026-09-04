@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
+import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
 import { getAlbums, getCovers } from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
@@ -64,6 +65,8 @@ export default async function WorkPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={cover.url}
+                      srcSet={cover.srcSet ?? undefined}
+                      sizes={SIZES.tile}
                       alt={cover.caption ?? album.title}
                       loading={i < 2 ? "eager" : "lazy"}
                       fetchPriority={i === 0 ? "high" : "auto"}

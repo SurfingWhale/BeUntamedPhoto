@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
+import { SIZES } from "@/lib/images";
 import { NotesPanel } from "@/components/notes-panel";
 import { Plate } from "@/components/plate";
 import { getAlbum, getPhotos } from "@/lib/gallery";
@@ -81,6 +82,8 @@ export default async function AlbumPage({ params }: Params) {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={photo.url}
+                    srcSet={photo.srcSet ?? undefined}
+                    sizes={SIZES.plate}
                     alt={photo.caption ?? `${album.title} — plate ${plate(i)}`}
                     width={photo.width ?? undefined}
                     height={photo.height ?? undefined}

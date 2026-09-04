@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { IndexFilter } from "@/components/index-filter";
 import { Reveal } from "@/components/motion";
+import { SIZES } from "@/lib/images";
 import { PhotoFold } from "@/components/photo-fold";
 import { Plate } from "@/components/plate";
 import { Ticker } from "@/components/ticker";
@@ -163,6 +164,8 @@ export default async function HomePage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={cover.url}
+                        srcSet={cover.srcSet ?? undefined}
+                        sizes={SIZES.tile}
                         alt={cover.caption ?? album.title}
                         loading={i === 0 ? "eager" : "lazy"}
                         decoding="async"

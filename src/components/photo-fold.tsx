@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 
 import { Plate } from "@/components/plate";
 import { plate } from "@/lib/format";
+import { SIZES } from "@/lib/images";
 import type { PhotoWithUrl } from "@/lib/gallery";
 
 type Props = {
@@ -38,6 +39,8 @@ export function PhotoFold({
         <img
           className="fold-photo__img"
           src={photo!.url!}
+          srcSet={photo!.srcSet ?? undefined}
+          sizes={SIZES.fold}
           alt={photo!.caption ?? `Plate ${no}`}
           width={photo!.width ?? undefined}
           height={photo!.height ?? undefined}
