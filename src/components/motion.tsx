@@ -70,6 +70,48 @@ export function Reveal({ as = "div", index = 0, className, style, ...rest }: Rev
  * idea on the horizontal axis. Written to a custom property inside a single
  * rAF, so a scroll event never does layout work.
  */
+/**
+ * Pulls the masthead out of the way going down, brings it back coming up.
+ *
+ * It is 130px of a 664px phone screen — a fifth of the viewport held by
+ * chrome, permanently, on a site whose entire job is showing photographs.
+ * This is motion that returns something rather than decorating: scroll down
+ * and the pictures get the space back, flick up and navigation is there
+ * without a trip to the top.
+ *
+ * The threshold means a small jitter near the top never triggers it, and it
+ * always returns at the top of the document regardless of direction.
+ */
+export function MastheadRetract() {
+  useEffect(() => {
+    const mast = document.querySelector<HTMLElement>(".mast");
+    if (!mast) return;
+    let last = window.scrollY;
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const delta = y - last;
+      if (Math.abs(delta) < 8) return;
+      // Past its own height, or the retract would hide it before it is clear.
+      mast.dataset.retracted = delta > 0 && y > mast.offsetHeight * 1.5 ? "true" : "false";
+      last = y;
+    };
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+    };
+  }, []);
+
+  return null;
+}
+
 export function ScrollRule() {
   const ref = useRef<HTMLDivElement | null>(null);
 

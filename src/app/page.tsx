@@ -42,7 +42,7 @@ export default async function HomePage() {
     <div className="page">
       {/* ---- opening zone · mostly empty, marks placed in the blank cells --- */}
       <section className="open">
-        <div className="open__label">
+        <Reveal className="open__label" index={0}>
           <p className="u-mono">
             visual
             <br />
@@ -50,13 +50,13 @@ export default async function HomePage() {
           </p>
           <p className="open__no">{`2K${String(year).slice(2)}`}</p>
           <p className="label-wide">frames not feeds</p>
-        </div>
+        </Reveal>
 
         <span className="mark mark--thin open__arrow" aria-hidden="true">
           ←
         </span>
 
-        <div className="open__swatches">
+        <Reveal className="open__swatches" index={2}>
           <div className="swatches" aria-hidden="true">
             <span className="swatch" style={{ background: "var(--color-ink)" }} />
             <span className="swatch" style={{ background: "var(--color-accent-deep)" }} />
@@ -64,7 +64,7 @@ export default async function HomePage() {
             <span className="swatch" style={{ background: "var(--color-accent)" }} />
           </div>
           <p className="u-mono">.colour picture</p>
-        </div>
+        </Reveal>
       </section>
 
       <Ticker items={tickerItems} />
@@ -82,7 +82,7 @@ export default async function HomePage() {
 
       {/* ---- lower zone · display type against a narrow justified column --- */}
       <section className="story">
-        <div className="story__head">
+        <Reveal className="story__head" index={0}>
           <h1 className="story__title">
             the half-second
             <br />
@@ -94,7 +94,7 @@ export default async function HomePage() {
             {albums.length.toString().padStart(2, "0")} filed
           </p>
           <p className="label-wide">available for commissions</p>
-        </div>
+        </Reveal>
 
         <span className="mark mark--bold story__arrow" aria-hidden="true">
           ↗
@@ -103,7 +103,7 @@ export default async function HomePage() {
           ∟
         </span>
 
-        <div className="story__col">
+        <Reveal className="story__col" index={1}>
           <span className="bracket bracket--tr" aria-hidden="true">
             ⌐
           </span>
@@ -132,7 +132,7 @@ export default async function HomePage() {
             </a>
           </p>
           <p className="label-wide story__by">archive by {site.owner}</p>
-        </div>
+        </Reveal>
       </section>
 
       <div className="rail">

@@ -4,6 +4,7 @@ import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
 import { Masthead } from "@/components/masthead";
 import { Footer } from "@/components/footer";
 import { GridLines } from "@/components/grid-lines";
+import { MediaFade } from "@/components/media";
 import { ServiceWorker } from "@/components/pwa";
 import { getViewer } from "@/lib/auth";
 import { site, siteUrl } from "@/lib/site";
@@ -75,7 +76,7 @@ export const viewport: Viewport = {
 };
 
 /* Set the theme before first paint so the page never flashes the wrong ground. */
-const THEME_BOOT = `(function(){try{var t=localStorage.getItem("untamed-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})()`;
+const THEME_BOOT = `(function(){try{var t=localStorage.getItem("untamed-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}document.documentElement.setAttribute("data-media","js")})()`;
 
 export default async function RootLayout({
   children,
@@ -106,6 +107,7 @@ export default async function RootLayout({
         </main>
         <Footer />
         <ServiceWorker />
+        <MediaFade />
       </body>
     </html>
   );

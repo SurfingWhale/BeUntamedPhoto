@@ -231,6 +231,17 @@ h1, h2, h3 {
 p { margin: 0; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
+/* The one piece of motion tied to something real happening. Gated on the
+ * attribute the boot script sets before first paint, so a browser with
+ * JavaScript off never hides an image it will not be told to show. */
+[data-media="js"] img {
+  opacity: 0;
+  transition: opacity var(--dur-long) var(--ease-out);
+}
+[data-media="js"] img[data-loaded="true"] { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  [data-media="js"] img { transition-duration: var(--dur-micro); }
+}
 
 :focus { outline: none; }
 :focus-visible {
@@ -271,6 +282,15 @@ img { display: block; max-width: 100%; }
   background: color-mix(in srgb, var(--color-paper) 92%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: var(--rule-hair) solid var(--color-rule);
+  transition: transform var(--dur-short) var(--ease-out);
+  will-change: transform;
+}
+/* 130px of a 664px phone is a fifth of the screen held by chrome. Scrolling
+ * down hands it back to the photographs; scrolling up returns it. */
+.mast[data-retracted="true"] { transform: translateY(-100%); }
+@media (prefers-reduced-motion: reduce) {
+  .mast { transition: none; }
+  .mast[data-retracted="true"] { transform: none; }
 }
 /* Two tiers, not one. Tier 1 is identity + account; tier 2 is a numbered
  * index rail matching the section rails in the page body. This is
@@ -899,10 +919,19 @@ img { display: block; max-width: 100%; }
   /* width, or the auto margins below absorb the free space and shrink-wrap
    * this box instead of stretching it — see .page, a grid parent. */
   width: 100%;
-  padding: calc(var(--row) * 0.75) var(--page-gutter) var(--row);
+  /* Tighter on a phone: the first photograph used to arrive a full screen
+   * down, so someone landing from a shared link met type before they met any
+   * work. The desktop proportions return at 60rem. */
+  padding: calc(var(--row) * 0.35) var(--page-gutter) calc(var(--row) * 0.5);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-xl);
+  gap: var(--space-lg);
+}
+@media (min-width: 60rem) {
+  .open {
+    padding: calc(var(--row) * 0.75) var(--page-gutter) var(--row);
+    gap: var(--space-xl);
+  }
 }
 @media (min-width: 60rem) {
   .open {

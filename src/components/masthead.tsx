@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { ScrollRule } from "@/components/motion";
+import { MastheadRetract, ScrollRule } from "@/components/motion";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { nav, site } from "@/lib/site";
 
@@ -85,6 +85,7 @@ export function Masthead({ viewer }: Props) {
       </div>
 
       <ScrollRule />
+      <MastheadRetract />
     </header>
   );
 }
