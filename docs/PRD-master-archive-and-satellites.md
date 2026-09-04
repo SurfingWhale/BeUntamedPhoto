@@ -69,8 +69,22 @@ from here. It costs an install either way and should be removed or used.
 
 ## 3 · The shape being proposed: one archive, three windows
 
-> UNTAMED holds the bytes. The satellites never get a key — they read a
-> genre-scoped feed and render it next to whatever they already have.
+> UNTAMED holds the bytes for everything it owns, and mirrors the one genre it
+> does not. No key moves in either direction.
+
+**The owner has decided UNTMD Sports keeps its admin panel.** That settles the
+direction of the data, and it is not the same for every genre:
+
+| Genre | Source of record | UNTAMED's role | The satellite's role |
+| --- | --- | --- | --- |
+| **Sport** | UNTMD Sports — its panel, its Firestore, its bucket | **Mirrors it, read-only** | Unchanged. Nothing is touched |
+| **Food** | UNTAMED | Files and rows live here | VisuFavor reads `/api/feed/food` |
+| Graduation, brand, event | UNTAMED | Only place they exist | — |
+
+An asymmetric design looks like a compromise and is not one. A genre with a
+working CMS behind it should be edited where that CMS is; a genre whose site is
+fourteen files in git should be edited here. Forcing both through one direction
+would break the half that already works.
 
 ```
             ┌──────────────────────────────────────┐
@@ -189,38 +203,65 @@ step and no SDK, so a `fetch()` and some DOM is the only integration it can
 take — and the only one it needs. UNTMD Sports has its own data layer already;
 for it the feed is an extra section, not a replacement.
 
-### 4.6 Pulling in what already lives on the satellites
+### 4.6 Sport: mirror it, don't move it
 
-Two jobs, not one, and their sizes are nothing alike.
+The previous revision recommended repointing UNTMD Sports' uploader at this
+project's bucket. **Keeping its admin panel makes that the wrong call**, and the
+reason is worth stating rather than quietly dropping: that panel writes a
+photograph's metadata — dimensions, blur placeholder, storage URL — into
+Firestore `library` as it uploads. Move the bytes here and the metadata stays
+there, and one photograph is split across two systems that do not know about
+each other: UNTAMED holding files it has no rows for, UNTMD Sports holding rows
+pointing into someone else's bucket. Worse than either end alone.
 
-**VisuFavor — an afternoon.** Fourteen JPEGs in a git folder, 1.9 MB, with
-their captions and categories in `js/script.js` as a plain array. Read the
-array, upload the files under `gallery/food/visufavor-<slug>/`, insert one
-album and fourteen photo rows. No key, no API, no permission needed — the
-repository is the export. The files stay in the repo untouched, so the live
-site keeps working exactly as it does now.
+So sport is mirrored, not migrated. What makes this cheap is already in that
+repository:
 
-**UNTMD Sports — a negotiation, not a script.** Its photographs live in three
-places at once: committed to `public/`, in its own Supabase bucket, and
-described by Firestore documents that also drive pricing, schedule and story
-content. Copying the images is easy; deciding what happens to a working admin
-panel is not. Three honest options, in rising order of effort:
+- `gallery`, `library`, `stories` and `pricing` are all `allow read: if true`
+  in `firestore.rules` — the front page has to render them for visitors who are
+  not signed in.
+- `app/firestoreRest.ts` already reads Firestore from the server over plain REST
+  with **no SDK and no credentials**, for exactly that reason.
+- The photographs themselves sit on public Supabase URLs.
 
-1. **Leave it alone.** UNTAMED links to it, as it does now. Nothing to build.
-2. **Point its uploader at this project.** `app/storage.ts` there is two
-   constants — a project URL and a bucket name. Change them and every *future*
-   phone upload lands in UNTAMED's bucket instead of its own. Its existing
-   photographs stay exactly where they are and keep rendering. This is the
-   smallest change that makes UNTAMED genuinely the master going forward, and
-   it deletes nothing.
-3. **Import the back catalogue too.** A script with that project's secret key,
-   reading Firestore for the metadata and its bucket for the files, writing
-   both into UNTAMED. Idempotent through the checksum index. This is the only
-   option that needs a credential, and the only one worth the guard rails in §8.
+So UNTAMED can read every sport photograph and its metadata **without a single
+credential, and without one line changing in UNTMD Sports.**
 
-Option 2 is the recommendation: it costs two lines in a repository we can
-already read, and it stops the split from getting wider while the bigger
-question stays open.
+```
+GET https://firestore.googleapis.com/v1/projects/<project>/databases/(default)/documents/library
+```
+
+The mirror is a scheduled route here that reads that collection and upserts rows
+keyed by the sport slug. Mirrored plates are marked `source = 'untmd-sports'`
+and are **read-only in the darkroom** — the panel over there is where they are
+edited, and two editors over one row is the bug this whole design exists to
+avoid.
+
+`external_url` earns its place here: a mirrored plate references the file where
+it already lives rather than copying it. One copy of the bytes, one storage
+bill, and no drift when a photograph is replaced over there.
+
+```sql
+-- A plate that lives in someone else's storage. Null for everything native.
+alter table public.photos add column if not exists external_url text;
+```
+
+**This also settles `firebase-admin`: remove it.** Public reads over REST are
+enough, and an admin SDK would mean holding a service account for a project
+whose data is already open to read. Dead weight, not a half-finished plan.
+
+### 4.7 Food: VisuFavor, an afternoon's import
+
+Fourteen JPEGs in a git folder, captions and categories in `js/script.js` as a
+plain array. Read the array, upload under `gallery/food/visufavor-<slug>/`,
+insert one album and fourteen rows. No key, no API, no permission — the
+repository is the export. The files stay in it untouched, so the live site keeps
+working exactly as it does now.
+
+Food is the genre where UNTAMED becomes the source of record, because VisuFavor
+has no admin to protect: it is a static page, and a static page consuming
+`/api/feed/food` is a strictly better arrangement than fourteen files nobody can
+add to without a commit.
 
 ## 5 · What this does not do
 
@@ -238,8 +279,8 @@ question stays open.
 | --- | --- | --- |
 | **P1** | Inbox album, bulk upload, `filePhotos` routing | This repo only. Nothing external changes, nothing is deleted |
 | **P2** | `/api/feed/[genre]`, cache headers, CORS allowlist | This repo only |
-| **P3** | Satellite reads the feed | The other two repos |
-| **P4** | One-time import from the satellites | Needs a service-role key per satellite |
+| **P3** | Sport mirror — scheduled Firestore REST read, upsert by slug | This repo only. No credential, no change to UNTMD Sports |
+| **P4** | VisuFavor: import its fourteen files, then point it at the feed | This repo, then the VisuFavor repo |
 
 P1 and P2 are useful on their own: bulk upload plus routing is worth having
 even if the satellites are never wired up.
@@ -250,13 +291,15 @@ even if the satellites are never wired up.
    two Supabase projects, one static site.
 2. **Volume**: photographs per batch, and typical file size off the camera.
    This sets the upload concurrency and whether resumable uploads are needed.
-3. **UNTMD Sports' admin panel — keep it, or retire it?** This is the real
-   open question now, and it is a decision about how you want to work rather
-   than a technical one. §4.6 lists the three options; option 2 costs two
-   lines and does not close the door on either of the others.
-4. For the back-catalogue import only: the secret key for
-   `vkpdkntxsqexcfaiehgx`, and confirmation that nothing there gets deleted.
-   VisuFavor needs no key at all — its photographs are in its repository.
+3. ~~UNTMD Sports' admin panel — keep it, or retire it?~~ **Decided: kept.**
+   Sport is mirrored read-only per §4.6, and nothing in that repository changes.
+4. ~~A secret key for `vkpdkntxsqexcfaiehgx`.~~ **No longer needed.** Its
+   Firestore collections are public-read and its photographs sit on public URLs,
+   so the mirror runs with no credential at all. VisuFavor never needed one
+   either.
+5. **The Claude GitHub App is not installed on either satellite**, so this
+   session can read them but cannot push. Only needed if the VisuFavor import
+   should be made from here.
 
 ## 8 · Risks worth naming now
 
