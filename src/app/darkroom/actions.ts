@@ -288,6 +288,45 @@ export async function movePhoto(
   return { status: "ok", message: `Moved to position ${to + 1} of ${ids.length}.` };
 }
 
+/**
+ * Point a plate at a freshly encoded file and delete the one it replaced.
+ *
+ * The client uploads the new object first, so the order here is row, then
+ * delete — at every interruption point `photos.path` names a file that exists.
+ * Losing the delete leaves an orphan, which costs storage; losing it the other
+ * way round would leave a gallery pointing at nothing.
+ */
+export async function swapPlateFile(input: {
+  id: string;
+  newPath: string;
+  oldPath: string;
+  bucket: string;
+  width: number | null;
+  height: number | null;
+}): Promise<DarkroomState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { status: "error", message: "Owner access only." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("photos")
+    .update({ path: input.newPath, width: input.width, height: input.height })
+    .eq("id", input.id);
+
+  if (error) return { status: "error", message: error.message };
+
+  if (input.oldPath !== input.newPath) {
+    await supabase.storage.from(input.bucket).remove([input.oldPath]);
+  }
+
+  revalidatePath("/darkroom");
+  revalidatePath("/work");
+  return { status: "ok", message: "Replaced." };
+}
+
 export async function deleteAlbum(
   _prev: DarkroomState,
   formData: FormData,

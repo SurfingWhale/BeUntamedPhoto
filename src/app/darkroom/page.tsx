@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 
 import { AlbumForm } from "@/components/album-form";
 import { ClearCache } from "@/components/pwa";
-import { getAlbums } from "@/lib/gallery";
+import { Reencode } from "@/components/reencode";
+import { getAlbums, getOversizedPhotos } from "@/lib/gallery";
 import { getViewer } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export default async function DarkroomPage() {
   if (!viewer) redirect("/enter?next=%2Fdarkroom");
   if (!viewer.isOwner) redirect("/work");
 
-  const albums = await getAlbums();
+  const [albums, oversized] = await Promise.all([getAlbums(), getOversizedPhotos()]);
 
   return (
     <div className="page">
@@ -69,6 +70,11 @@ export default async function DarkroomPage() {
             be holding the previous build&rsquo;s assets. This drops them.
           </p>
           <ClearCache />
+        </section>
+
+        <section className="panel">
+          <h2 className="panel__title">Stored file sizes</h2>
+          <Reencode photos={oversized} />
         </section>
       </div>
     </div>

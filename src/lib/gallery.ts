@@ -143,6 +143,29 @@ export async function getCovers(
   return new Map(withUrl.map((p) => [p.album_id, p]));
 }
 
+/**
+ * Plates still stored as an oversized original.
+ *
+ * Everything uploaded before the encoder worked is here: 27 files, 423
+ * megapixels, published as "0% smaller" because the WebP guard was
+ * all-or-nothing. Delivery is already fine — the render endpoint resizes on
+ * the way out — so this is about what the bucket is holding.
+ */
+export async function getOversizedPhotos(limit = 200): Promise<PhotoWithUrl[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("photos")
+    .select("*")
+    .order("created_at", { ascending: true })
+    .limit(limit);
+
+  const rows = (data ?? []) as Photo[];
+  const stale = rows.filter(
+    (p) => !p.path.toLowerCase().endsWith(".webp") || (p.width ?? 0) > 2400,
+  );
+  return withUrls(stale);
+}
+
 /** Photos across every album the viewer may see — the home-page folds. */
 export async function getFeatured(limit = 6): Promise<PhotoWithUrl[]> {
   const supabase = await createClient();
