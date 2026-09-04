@@ -21,7 +21,6 @@ export const site = {
   tagline: "A visual archive by Fauzy.",
   owner: "Fauzy",
   email: "untamed98x@gmail.com",
-  github: "https://github.com/Untamed98x",
   mastLine: "Visual archive · frames, not feeds",
 };
 
@@ -33,6 +32,10 @@ export const nav = [
   { href: "/notes", label: "Guestbook" },
 ] as const;
 
+/* Photography only. Surfing Whale and the GitHub account were both listed here
+ * and both point at the build side of the practice — a prospective client
+ * following either one lands somewhere that reframes the photographer as a
+ * hobbyist. UNTMD Sports and VisuFavor are photography and stay. */
 export const elsewhere = [
   {
     name: "UNTMD Sports",
@@ -45,11 +48,5 @@ export const elsewhere = [
     href: "https://visufavor.vercel.app/",
     what: "Food, plated and photographed. Steam, char, the texture close enough to touch.",
     go: "visufavor.vercel.app",
-  },
-  {
-    name: "Surfing Whale",
-    href: "https://surfing-whale.vercel.app/",
-    what: "Studio notes and side projects — where things get built before they get shot.",
-    go: "surfing-whale.vercel.app",
   },
 ] as const;

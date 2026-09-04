@@ -37,9 +37,6 @@ export function Footer() {
             {place.name}
           </a>
         ))}
-        <a className="foot__link" href={site.github} target="_blank" rel="noreferrer">
-          GitHub
-        </a>
         <Link className="foot__link" href="/notes">
           Guestbook
         </Link>

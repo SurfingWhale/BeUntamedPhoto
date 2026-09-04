@@ -5,7 +5,7 @@ import { elsewhere } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Elsewhere",
-  description: "The other sites — UNTMD Sports, VisuFavor, Surfing Whale.",
+  description: "The other sites — UNTMD Sports for sport, VisuFavor for food.",
 };
 
 export default function ElsewherePage() {
