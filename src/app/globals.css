@@ -1229,10 +1229,13 @@ img { display: block; max-width: 100%; }
   /* width, or the auto margins below absorb the free space and shrink-wrap
    * this box instead of stretching it — see .page, a grid parent. */
   width: 100%;
-  padding: 0 var(--page-gutter) calc(var(--row) * 1.5);
+  padding: 0 var(--page-gutter) var(--row);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-3xl);
+  /* 13 plates at --space-3xl put 624px of nothing between the pictures on a
+   * phone. This is a set someone is scrolling to see the work, not a page
+   * being read. */
+  gap: var(--space-2xl);
 }
 .strip__item { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0; }
@@ -1260,14 +1263,26 @@ img { display: block; max-width: 100%; }
   .strip {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--space-xl);
-    row-gap: calc(var(--row) * 1.5);
+    row-gap: calc(var(--row) * 0.6);
+    align-items: start;
   }
-  /* A four-step cascade: no two consecutive plates share a width or an edge,
-   * and the row never closes — there is always empty field beside a plate. */
-  .strip__item:nth-child(4n + 1) { grid-column: 2 / span 7; }
-  .strip__item:nth-child(4n + 2) { grid-column: 7 / span 5; }
-  .strip__item:nth-child(4n + 3) { grid-column: 1 / span 6; }
-  .strip__item:nth-child(4n + 4) { grid-column: 5 / span 8; }
+  /* Plates pair up, and the pairs alternate weight.
+   *
+   * The old cascade gave every plate its own row: consecutive spans overlapped
+   * in columns, so no two could ever sit side by side. Thirteen plates came to
+   * 16,427px — eighteen screens — with 180px of nothing between each, and no
+   * picture wider than 57% of the window. For a set someone opens to see the
+   * work quickly, the scroll was the whole experience.
+   *
+   * Pairing halves the rows without making a catalogue of it: the two plates
+   * in a row are different widths, the wide one swaps sides every other row,
+   * and the second of each pair drops half a module so no row reads as a
+   * shelf. The field still never closes — column 12 or column 1 is left open
+   * depending on the row. */
+  .strip__item:nth-child(4n + 1) { grid-column: 1 / span 7; }
+  .strip__item:nth-child(4n + 2) { grid-column: 8 / span 5; margin-top: calc(var(--row) * 0.5); }
+  .strip__item:nth-child(4n + 3) { grid-column: 1 / span 5; margin-top: calc(var(--row) * 0.5); }
+  .strip__item:nth-child(4n + 4) { grid-column: 6 / span 7; }
 
   /* The number hangs in the margin beside the frame, not above it. */
   .strip__item {
@@ -1324,44 +1339,6 @@ img { display: block; max-width: 100%; }
 }
 .elsewhere__what { color: var(--color-ink-2); font-size: var(--text-base); }
 .elsewhere__go { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); white-space: nowrap; }
-
-/* ------------------------------------------------------- commission */
-/* The exit from a gallery. On the slab, because it is the one block on the
- * page that is not a photograph and should not pretend to be one. */
-.commission {
-  background: var(--color-paper-dark);
-  color: var(--color-ink-on-dark);
-  border-block: var(--rule-hair) solid var(--color-rule-on-dark);
-  padding: var(--space-2xl) var(--page-gutter);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-md);
-}
-.commission > * { max-width: var(--page-max); margin-inline: auto; width: 100%; }
-.commission .u-mono { color: var(--color-ink-on-dark); opacity: 0.62; }
-.commission__line {
-  font-family: var(--font-display);
-  font-size: var(--text-display-s);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
-  max-width: 16ch;
-}
-.commission .fold-text__body { color: var(--color-ink-on-dark); opacity: 0.72; }
-.commission__acts {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-md) var(--space-lg);
-  margin-top: var(--space-sm);
-}
-.commission .btn {
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  border-color: var(--color-accent);
-}
-.commission .link { color: var(--color-ink-on-dark); border-bottom-color: var(--color-rule-on-dark); }
 
 /* --------------------------------------------------------- guestbook */
 .u-bare { list-style: none; padding: 0; margin: 0; }

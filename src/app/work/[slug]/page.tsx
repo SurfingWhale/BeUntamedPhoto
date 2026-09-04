@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { Commission } from "@/components/commission";
 import { Reveal } from "@/components/motion";
 import { SIZES } from "@/lib/images";
 import { NotesPanel } from "@/components/notes-panel";
@@ -112,8 +111,6 @@ export default async function AlbumPage({ params }: Params) {
           ))}
         </div>
       )}
-
-      <Commission genre={album.genre} />
 
       {/* An empty comment box under every gallery reads as an abandoned site,
           which costs more trust than the feature earns. A signed-out visitor
