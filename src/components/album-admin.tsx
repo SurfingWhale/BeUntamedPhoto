@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import {
@@ -18,12 +18,57 @@ import type { Album, PhotoWithUrl } from "@/lib/gallery";
 
 const IDLE: DarkroomState = { status: "idle", message: "" };
 
-function Pending({ label }: { label: string }) {
+function Pending({ label, danger = false }: { label: string; danger?: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <button className="note__del" type="submit" disabled={pending} aria-disabled={pending}>
+    <button
+      className={danger ? "note__del note__del--danger" : "note__del"}
+      type="submit"
+      disabled={pending}
+      aria-disabled={pending}
+    >
       {pending ? "…" : label}
     </button>
+  );
+}
+
+/**
+ * Removing a plate asks once.
+ *
+ * "make cover" and "remove" were the same grey word next to each other, and
+ * removing one took a single tap with nothing between the tap and the file
+ * being gone. On a phone, with both targets a thumb apart, that is a deletion
+ * waiting to happen. The first tap arms it, the second does it, and it
+ * disarms itself after a few seconds so a stray arm does not stay live.
+ */
+function RemovePlate({ children }: { children: React.ReactNode }) {
+  const [armed, setArmed] = useState(false);
+
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 4000);
+    return () => clearTimeout(t);
+  }, [armed]);
+
+  if (!armed) {
+    return (
+      <button
+        className="note__del note__del--danger"
+        type="button"
+        onClick={() => setArmed(true)}
+      >
+        remove
+      </button>
+    );
+  }
+  return (
+    <span className="confirm">
+      <span className="confirm__ask">delete this plate?</span>
+      {children}
+      <button className="note__del" type="button" onClick={() => setArmed(false)}>
+        cancel
+      </button>
+    </span>
   );
 }
 
@@ -277,7 +322,9 @@ export function AlbumAdmin({
                   <form action={photoAction}>
                     <input type="hidden" name="id" value={photo.id} />
                     <input type="hidden" name="slug" value={album.slug} />
-                    <Pending label="remove" />
+                    <RemovePlate>
+                      <Pending label="yes, delete" danger />
+                    </RemovePlate>
                   </form>
                 </div>
               </div>
@@ -308,7 +355,7 @@ export function AlbumAdmin({
           </p>
         </div>
         <div>
-          <button className="btn btn--quiet" type="submit">
+          <button className="btn btn--danger" type="submit">
             Delete gallery
           </button>
         </div>

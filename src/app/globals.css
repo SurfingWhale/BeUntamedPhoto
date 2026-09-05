@@ -239,6 +239,26 @@ img { display: block; max-width: 100%; }
   transition: opacity var(--dur-long) var(--ease-out);
 }
 [data-media="js"] img[data-loaded="true"] { opacity: 1; }
+/* Something has to happen while a photograph is on its way. The frame already
+ * reserves the right box; this says the box is waiting rather than empty. */
+[data-media="js"] .strip__frame:has(img:not([data-loaded])),
+[data-media="js"] .album__media:has(img:not([data-loaded])),
+[data-media="js"] .fold-photo:has(img:not([data-loaded])) {
+  background-image: linear-gradient(
+    100deg,
+    transparent 40%,
+    color-mix(in srgb, var(--color-ink) 5%, transparent) 50%,
+    transparent 60%
+  );
+  background-size: 300% 100%;
+  animation: waiting 1.4s ease-in-out infinite;
+}
+@keyframes waiting { to { background-position: -150% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  [data-media="js"] .strip__frame:has(img:not([data-loaded])),
+  [data-media="js"] .album__media:has(img:not([data-loaded])),
+  [data-media="js"] .fold-photo:has(img:not([data-loaded])) { animation: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   [data-media="js"] img { transition-duration: var(--dur-micro); }
 }
@@ -568,6 +588,21 @@ img { display: block; max-width: 100%; }
   background: transparent;
   color: var(--color-ink);
   border-color: var(--color-rule-2);
+}
+/* Save and Delete were the same quiet outline sitting one above the other.
+ * A button that destroys something has to say so before it is pressed, not
+ * after. */
+.btn--danger {
+  background: transparent;
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn--danger:hover {
+    background: var(--color-error);
+    color: var(--color-paper);
+    border-color: var(--color-error);
+  }
 }
 @media (hover: hover) and (pointer: fine) {
   .btn--quiet:hover { background: var(--color-paper-2); border-color: var(--color-ink-2); color: var(--color-ink); }
@@ -1324,11 +1359,21 @@ img { display: block; max-width: 100%; }
   padding: 0 var(--page-gutter) var(--row);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  /* 13 plates at --space-3xl put 624px of nothing between the pictures on a
-   * phone. This is a set someone is scrolling to see the work, not a page
-   * being read. */
-  gap: var(--space-2xl);
+  /* Plate one is the cover; the rest run two up.
+   *
+   * Full-width for every frame meant a phone showed one photograph per screen
+   * and thirteen of them read as a wall — nothing pulls the eye down when
+   * everything is the same size. The opening frame keeps the whole width, and
+   * from there the set is a contact sheet you can take in at a glance and tap
+   * into. Most people opening this link are on a phone. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg) var(--space-md);
 }
+.strip__item:first-child { grid-column: 1 / -1; }
+/* At half width the ledger under a plate has no room for two halves. */
+.strip__item:not(:first-child) .strip__cap { font-size: 0.625rem; }
+.strip__item:not(:first-child) .strip__cap > span:last-child { margin-inline-start: 0; }
+.strip__item:not(:first-child) .strip__no { font-size: var(--text-base); }
 .strip__item { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0; }
 .strip__no {
@@ -1358,6 +1403,12 @@ img { display: block; max-width: 100%; }
     row-gap: calc(var(--row) * 0.6);
     align-items: start;
   }
+  /* Restate plate one's span rather than resetting it to auto: :first-child
+   * and :nth-child(4n+1) have equal specificity, so `auto` won and knocked the
+   * whole pairing back to one plate per row. */
+  .strip__item:first-child { grid-column: 1 / span 7; }
+  .strip__item:not(:first-child) .strip__cap { font-size: var(--text-xs); }
+  .strip__item:not(:first-child) .strip__no { font-size: var(--text-lg); }
   /* Plates pair up, and the pairs alternate weight.
    *
    * The old cascade gave every plate its own row: consecutive spans overlapped
@@ -1464,6 +1515,23 @@ img { display: block; max-width: 100%; }
   .plates__acts { gap: var(--space-lg); }
 }
 @media (hover: hover) and (pointer: fine) { .note__del:hover { color: var(--color-error); } }
+/* "make cover" and "remove" were the same grey word a thumb apart. */
+.note__del--danger { color: var(--color-error); }
+
+/* The armed state of a two-step delete. */
+.confirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-md);
+}
+.confirm__ask {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-error);
+}
 .notes__empty { color: var(--color-muted); font-size: var(--text-md); font-family: var(--font-display); font-weight: 500; }
 
 /* --------------------------------------------------------- auth panel */

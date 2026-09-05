@@ -96,9 +96,11 @@ export const SIZES = {
   /** .album__media — one column, then two at 40rem, then irregular spans on
    * the 12-column field at 60rem, where a tile is between 4 and 7 columns. */
   tile: "(min-width: 60rem) 50vw, (min-width: 40rem) 50vw, 100vw",
-  /** .strip__frame — full width inside the page gutter, narrower on the
-   * 12-column cascade. */
+  /** .strip__frame, the opening plate — full width until the cascade pairs it. */
   plate: "(min-width: 60rem) 60vw, 100vw",
+  /** .strip__frame, every plate after the first — half width on a phone too,
+   * which quarters the bytes for the frames someone is scrolling past. */
+  plateHalf: "(min-width: 60rem) 60vw, 50vw",
   /** .plates__thumb — a fixed 72px contact-sheet square. */
   thumb: "72px",
 } as const;

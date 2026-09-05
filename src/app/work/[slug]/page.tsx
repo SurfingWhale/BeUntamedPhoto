@@ -83,7 +83,7 @@ export default async function AlbumPage({ params }: Params) {
                   <img
                     src={photo.url}
                     srcSet={photo.srcSet ?? undefined}
-                    sizes={SIZES.plate}
+                    sizes={i === 0 ? SIZES.plate : SIZES.plateHalf}
                     alt={photo.caption ?? `${album.title} — plate ${plate(i)}`}
                     width={photo.width ?? undefined}
                     height={photo.height ?? undefined}
