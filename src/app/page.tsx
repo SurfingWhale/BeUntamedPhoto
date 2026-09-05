@@ -148,11 +148,20 @@ export default async function HomePage() {
       {/* ---- Portfolio Grid · three tiles, irregular spans ------------------ */}
       {shown.length > 0 && (
         <section className="grid-band plot">
-          <div className="head">
-            <h2 className="head__title">Recent work</h2>
-          </div>
+          {/* Same pinning as the index below: the heading holds while the tiles
+              run under it, so the section you are in stays named. The wrapper
+              is what gives the sticky child room to travel. */}
+          <div className="index-wrap">
+            <div className="index-sticky">
+              <div className="index-head">
+                <h2 className="head__title">Recent work</h2>
+                <p className="index-count">
+                  ( {albums.length} filed )
+                </p>
+              </div>
+            </div>
 
-          <div className="albums albums--few">
+            <div className="albums albums--few">
             {shown.map((album, i) => {
               const cover = album.cover;
               return (
@@ -193,6 +202,7 @@ export default async function HomePage() {
                 </Reveal>
               );
             })}
+            </div>
           </div>
 
           <p>

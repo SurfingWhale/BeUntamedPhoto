@@ -857,15 +857,56 @@ img { display: block; max-width: 100%; }
  * which is the same trap that made it a plain scrolling element in the first
  * place. */
 .index-wrap { display: block; }
+/* It has to be a bar, not a banner. The first version pinned the display
+ * heading, the count and a wrapping two-row chip set — about 300px of an
+ * 844px phone, and the rows it was meant to introduce were hidden behind it.
+ * On a phone the title drops to the label size and shares a line with its
+ * count; the display setting returns at 60rem, where there is room for it. */
 .index-sticky {
   position: sticky;
   top: var(--mast-h, 0px);
   z-index: var(--z-raised);
   background: var(--color-paper);
-  padding-top: var(--space-md);
   transition: top var(--dur-short) var(--ease-out);
 }
-.index-sticky .chips { border-block-start: 0; }
+.index-sticky .index-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-block: var(--space-sm);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+.index-sticky .head__title {
+  font-size: var(--text-md);
+  letter-spacing: var(--tracking-heading);
+}
+.index-sticky .index-count { white-space: nowrap; }
+.index-sticky .chips {
+  border-block: 0;
+  padding-block: var(--space-xs);
+  /* One row that scrolls, never two that stack — wrapping doubled the height
+   * of the very thing covering the list. */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* No bleed into the gutter. Pulling the row out with negative margins made
+   * the whole sticky block 438px wide inside a 390px phone — the scroll
+   * container has to stay inside the measure it scrolls within. */
+  min-width: 0;
+  mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent 100%);
+}
+.index-sticky .chips::-webkit-scrollbar { display: none; }
+.index-sticky .chip { flex: none; }
+@media (min-width: 60rem) {
+  .index-sticky .head__title { font-size: var(--text-2xl); }
+  .index-sticky .chips {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    mask-image: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) { .index-sticky { transition: none; } }
 
 /* Index rows — a numbered table of the archive, hover flips the row. */
@@ -1076,6 +1117,11 @@ img { display: block; max-width: 100%; }
   width: 100%;
   padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
+  /* Pinned. An auto track takes its width from the widest child's
+   * min-content, which is how a nowrap chip row pushed this section to
+   * 438px inside a 390px phone — the same trap the ticker sprang on
+   * .page. This one was missed when the others were pinned. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xl);
 }
 @media (min-width: 60rem) {
@@ -1118,6 +1164,11 @@ img { display: block; max-width: 100%; }
   width: 100%;
   padding: calc(var(--row) * 0.75) var(--page-gutter);
   display: grid;
+  /* Pinned. An auto track takes its width from the widest child's
+   * min-content, which is how a nowrap chip row pushed this section to
+   * 438px inside a 390px phone — the same trap the ticker sprang on
+   * .page. This one was missed when the others were pinned. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xl);
 }
 @media (min-width: 60rem) {
