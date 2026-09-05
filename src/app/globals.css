@@ -846,6 +846,28 @@ img { display: block; max-width: 100%; }
   border-block: var(--rule-hair) solid var(--color-rule);
 }
 
+/* The index heading and its filters hold at the top while the rows run under
+ * them.
+ *
+ * Scrolling into this section leaves the question "what does he shoot" pinned
+ * where it can be answered, so someone can keep going until a lane they want
+ * appears rather than reading a list from memory. --mast-h is written by the
+ * masthead, and drops to 0 while it is retracted, so the two never stack. */
+/* Block, not grid. As a grid item the sticky child is bound to its own row,
+ * which is the same trap that made it a plain scrolling element in the first
+ * place. */
+.index-wrap { display: block; }
+.index-sticky {
+  position: sticky;
+  top: var(--mast-h, 0px);
+  z-index: var(--z-raised);
+  background: var(--color-paper);
+  padding-top: var(--space-md);
+  transition: top var(--dur-short) var(--ease-out);
+}
+.index-sticky .chips { border-block-start: 0; }
+@media (prefers-reduced-motion: reduce) { .index-sticky { transition: none; } }
+
 /* Index rows — a numbered table of the archive, hover flips the row. */
 .index { display: grid;
   grid-template-columns: minmax(0, 1fr); }
@@ -1156,14 +1178,33 @@ img { display: block; max-width: 100%; }
   .album:nth-child(6n+5) { grid-column: span 6; }
   .album:nth-child(6n+6) { grid-column: span 6; align-self: end; }
 }
-/* Home teaser — three tiles only, wider gaps, one deliberately left short of
- * the edge so the row never closes. Low density is the point (design.md § 11). */
-.albums--few { padding: 0; }
+/* Home teaser — a glance at the range, not a showcase of three.
+ *
+ * It was three tiles at full column width with 176px row gaps, which read as
+ * "here are three big things" rather than "here is what I shoot". Two up on a
+ * phone and three across on a wide screen says there is a body of work behind
+ * this without spending the whole page proving it — the full set is one tap
+ * away in the index below. */
+.albums--few {
+  padding: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg) var(--space-md);
+}
 @media (min-width: 60rem) {
-  .albums--few { gap: var(--space-4xl) var(--space-2xl); }
-  .albums--few .album:nth-child(1) { grid-column: 1 / span 7; }
-  .albums--few .album:nth-child(2) { grid-column: 9 / span 4; align-self: end; }
-  .albums--few .album:nth-child(3) { grid-column: 3 / span 6; }
+  .albums--few {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--space-2xl) var(--space-xl);
+  }
+  /* Three across, and the middle one hangs lower so the row is not a shelf. */
+  .albums--few .album:nth-child(3n + 1) { grid-column: span 4; align-self: start; }
+  .albums--few .album:nth-child(3n + 2) { grid-column: span 4; align-self: end; }
+  .albums--few .album:nth-child(3n + 3) { grid-column: span 4; align-self: start; }
+}
+/* At two up the title and year stop fitting on one line together. */
+.albums--few .album__meta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); }
+.albums--few .album__title { font-size: var(--text-base); }
+@media (min-width: 60rem) {
+  .albums--few .album__title { font-size: var(--text-md); }
 }
 
 .album { display: grid;

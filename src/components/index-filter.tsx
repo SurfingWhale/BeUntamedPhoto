@@ -46,20 +46,35 @@ export function IndexFilter({ albums }: { albums: Album[] }) {
   );
 
   return (
-    <>
-      <div className="chips" role="group" aria-label="Filter galleries by genre">
-        {lenses.map((l) => (
-          <button
-            key={l.id}
-            type="button"
-            className="chip"
-            data-active={lens === l.id ? "true" : undefined}
-            aria-pressed={lens === l.id}
-            onClick={() => setLens(l.id)}
-          >
-            {l.label} ({l.count})
-          </button>
-        ))}
+    /* One wrapper around both halves. A sticky element is bound by its
+       containing block, and as a direct grid item of .grid-band that block was
+       its own row — nowhere to travel, so it scrolled away like anything
+       else. */
+    <div className="index-wrap">
+      {/* Heading and filters travel together, because a filter with its
+          question scrolled off the screen is a row of unlabelled buttons. */}
+      <div className="index-sticky">
+        <div className="index-head">
+          <h2 className="head__title">The index</h2>
+          <p className="index-count">
+            ( {albums.length} {albums.length === 1 ? "gallery" : "galleries"} )
+          </p>
+        </div>
+
+        <div className="chips" role="group" aria-label="Filter galleries by genre">
+          {lenses.map((l) => (
+            <button
+              key={l.id}
+              type="button"
+              className="chip"
+              data-active={lens === l.id ? "true" : undefined}
+              aria-pressed={lens === l.id}
+              onClick={() => setLens(l.id)}
+            >
+              {l.label} ({l.count})
+            </button>
+          ))}
+        </div>
       </div>
 
       {shown.length === 0 ? (
@@ -68,7 +83,7 @@ export function IndexFilter({ albums }: { albums: Album[] }) {
         </p>
       ) : (
         <div className="index">
-          {shown.slice(0, 6).map((album, i) => (
+          {shown.map((album, i) => (
             <Reveal as="div" key={album.id} index={i}>
               <Link className="index__row" href={`/work/${album.slug}`}>
                 <span className="index__no">[{plate(i)}]</span>
@@ -82,6 +97,6 @@ export function IndexFilter({ albums }: { albums: Album[] }) {
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 }

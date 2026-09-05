@@ -89,23 +89,41 @@ export function MastheadRetract() {
     let last = window.scrollY;
     let frame = 0;
 
+    /* Anything else that sticks needs to know how much room this takes, and
+     * that it takes none while retracted — otherwise the index header would
+     * hold a gap under a masthead that is not there. */
+    const publish = (retracted: boolean) => {
+      document.documentElement.style.setProperty(
+        "--mast-h",
+        retracted ? "0px" : `${mast.offsetHeight}px`,
+      );
+    };
+
     const update = () => {
       frame = 0;
       const y = window.scrollY;
       const delta = y - last;
       if (Math.abs(delta) < 8) return;
       // Past its own height, or the retract would hide it before it is clear.
-      mast.dataset.retracted = delta > 0 && y > mast.offsetHeight * 1.5 ? "true" : "false";
+      const retracted = delta > 0 && y > mast.offsetHeight * 1.5;
+      mast.dataset.retracted = retracted ? "true" : "false";
+      publish(retracted);
       last = y;
     };
     const schedule = () => {
       if (frame) return;
       frame = requestAnimationFrame(update);
     };
+
+    publish(false);
+    const onResize = () => publish(mast.dataset.retracted === "true");
     window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", onResize);
     return () => {
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", onResize);
+      document.documentElement.style.removeProperty("--mast-h");
     };
   }, []);
 

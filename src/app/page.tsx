@@ -212,13 +212,6 @@ export default async function HomePage() {
 
       {/* ---- project index · counter, category chips, numbered rows -------- */}
       <section className="grid-band">
-        <div className="index-head">
-          <h2 className="head__title">The index</h2>
-          <p className="index-count">
-            ( {albums.length} {albums.length === 1 ? "gallery" : "galleries"} )
-          </p>
-        </div>
-
         <IndexFilter albums={albums} />
       </section>
 
