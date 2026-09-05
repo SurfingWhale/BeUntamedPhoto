@@ -1,6 +1,6 @@
 # UI/UX Flow — Be Untamed
 
-**Audited 2026-09-05** against the running site, not the source. Every route was
+**Audited 2026-09-05 · F1, F2 and F4 fixed the same day** against the running site, not the source. Every route was
 opened, every control in `<main>` and the chrome enumerated, and the redirects
 followed. Owner-only screens are read from code, because signing in as the
 owner is not possible from here — those rows are marked **(from code)**.
@@ -170,12 +170,12 @@ Ordered by how much it costs someone using the site.
 
 | # | Sev | Where | Finding |
 | --- | --- | --- | --- |
-| F1 | MED | `/enter` | The four modes are buttons, not routes. `/enter` cannot be linked in the mode someone needs — a "make an account" link from anywhere lands on Sign in. `next` survives, the mode does not. |
-| F2 | MED | `/notes` | The guestbook is empty and reachable from the footer on every page. On album pages it is hidden while empty and signed out; the standalone page is not, so the one route dedicated to it is the one that looks abandoned. |
+| F1 | ~~MED~~ **fixed** | `/enter` | The mode is a query parameter and the switchers are links. `/enter?mode=signup&next=…` opens the right form, back works, and an unknown mode falls back to sign in. |
+| F2 | ~~MED~~ **fixed** | `/notes` | One empty state instead of two competing ones. Signed out it reads "No notes yet" with a link into the galleries, so the page is a soft landing rather than a dead end; signed in the form is right there and the line is an invitation. |
 | F3 | MED | `/work/:slug` | One exit, `← All galleries`. Deliberate — the site is a link sent to someone already in a conversation — but it means a visitor who arrives from search has no way sideways. Recorded, not a defect. |
-| F4 | LOW | `/darkroom/:slug` | `Save gallery` and `Delete gallery` sit in the same panel. The delete needs the slug typed, so it is guarded, but the two live closer together than their consequences differ. |
-| F5 | LOW | chrome | The nav rail scrolls on a phone and `05 Guestbook` sits off-screen. There is a fade cue; there is no indicator of how many items remain. |
-| F6 | LOW | `/work` | Genre chips only appear for genres with something filed. Correct, but it means the set of chips changes as content is added, and a link to an empty genre page still resolves. |
+| F4 | ~~LOW~~ **fixed** | `/darkroom/:slug` | The delete form is its own territory: a 2px error-coloured rule, a `Permanent` label above it, and the button in the error colour. It still requires the slug typed. |
+| F5 | LOW · open | chrome | The nav rail scrolls on a phone and `05 Guestbook` sits off-screen. A fade marks that there is more. Left alone: a count or dots would add chrome to the thing already taking a fifth of the screen, and demoting Guestbook out of the nav is a content call, not a layout one. |
+| F6 | LOW · by design | `/work` | Genre chips only appear for genres with something filed, and an empty genre page still resolves with its own empty state and a way back. That is the right pair: a chip should not promise an empty room, but a URL already sent to someone must not 404 when the room is emptied. |
 | F7 | INFO | data | Three of six albums carry a `year`. The index sorts by it, so the undated three fall to upload order. Not a code defect — a content gap that changes the order shown. |
 | F8 | INFO | build | `unstable_cache` survives a local rebuild. A stale entry reads exactly like a broken query; clear `.next/cache` before concluding an ordering or filter change did not work. |
 

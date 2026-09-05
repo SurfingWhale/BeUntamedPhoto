@@ -335,7 +335,12 @@ export function AlbumAdmin({
         <Result state={photoState} />
       </div>
 
-      <form className="auth__form" action={delAction}>
+      {/* Its own territory, with a rule and a name. Sitting in the same column
+          as the settings above it, the delete form read as one more block of
+          fields — the same shape as the one that saves. A destructive area
+          should announce itself before the control inside it does. */}
+      <form className="auth__form danger-zone" action={delAction}>
+        <p className="danger-zone__label">Permanent</p>
         <input type="hidden" name="id" value={album.id} />
         <input type="hidden" name="slug" value={album.slug} />
         <div className="field">

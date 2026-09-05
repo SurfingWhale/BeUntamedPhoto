@@ -1,6 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import Link from "next/link";
+
+import type { Mode } from "@/lib/auth-mode";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import {
@@ -13,7 +16,7 @@ import {
 
 const IDLE: AuthState = { status: "idle", message: "" };
 
-type Mode = "signin" | "signup" | "link" | "reset";
+
 
 const COPY: Record<Mode, { title: string; blurb: string; submit: string }> = {
   signin: {
@@ -94,8 +97,7 @@ function Field({
   );
 }
 
-export function AuthForms({ next }: { next: string }) {
-  const [mode, setMode] = useState<Mode>("signin");
+export function AuthForms({ next, mode }: { next: string; mode: Mode }) {
 
   const action =
     mode === "signin"
@@ -108,6 +110,12 @@ export function AuthForms({ next }: { next: string }) {
 
   const [state, formAction] = useActionState<AuthState, FormData>(action, IDLE);
   const copy = COPY[mode];
+
+  /** Each mode is an address, so the switchers are links rather than buttons —
+   *  back works, a long-press offers "open in new tab", and the mode survives
+   *  being shared. `next` rides along or it would be dropped on the switch. */
+  const to = (m: Mode) =>
+    `/enter?mode=${m}&next=${encodeURIComponent(next)}`;
   const invalid = state.status === "error";
 
   return (
@@ -175,24 +183,24 @@ export function AuthForms({ next }: { next: string }) {
 
       <div className="auth__alt">
         {mode !== "signin" && (
-          <button className="link" type="button" onClick={() => setMode("signin")}>
+          <Link className="link" href={to("signin")}>
             Sign in
-          </button>
+          </Link>
         )}
         {mode !== "signup" && (
-          <button className="link" type="button" onClick={() => setMode("signup")}>
+          <Link className="link" href={to("signup")}>
             Make an account
-          </button>
+          </Link>
         )}
         {mode !== "link" && (
-          <button className="link" type="button" onClick={() => setMode("link")}>
+          <Link className="link" href={to("link")}>
             Email a link instead
-          </button>
+          </Link>
         )}
         {mode !== "reset" && (
-          <button className="link" type="button" onClick={() => setMode("reset")}>
-            Forgot password
-          </button>
+          <Link className="link" href={to("reset")}>
+            Reset password
+          </Link>
         )}
       </div>
     </div>

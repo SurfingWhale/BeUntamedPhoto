@@ -1518,6 +1518,20 @@ img { display: block; max-width: 100%; }
 /* "make cover" and "remove" were the same grey word a thumb apart. */
 .note__del--danger { color: var(--color-error); }
 
+/* A destructive area announces itself before the control inside it does. */
+.danger-zone {
+  border-top: 2px solid var(--color-error);
+  padding-top: var(--space-lg);
+  margin-top: var(--space-xl);
+}
+.danger-zone__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-error);
+}
+
 /* The armed state of a two-step delete. */
 .confirm {
   display: inline-flex;

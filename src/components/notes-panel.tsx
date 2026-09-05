@@ -121,7 +121,23 @@ export function NotesPanel({
       )}
 
       {initialNotes.length === 0 ? (
-        <p className="notes__empty">No notes yet — be the first.</p>
+        /* A guestbook with nothing in it and no way onward reads as an
+           abandoned site, and this page is linked from every footer. Signed
+           out, the prompt above already says how to take part, so repeating
+           "be the first" underneath it is a second empty message competing
+           with the first — the room to go and look at something is worth
+           more. Signed in, the form is right there, so the line is an
+           invitation rather than a shrug. */
+        viewer ? (
+          <p className="notes__empty">Nothing here yet — yours would be the first.</p>
+        ) : (
+          <p className="fold-text__body">
+            No notes yet.{" "}
+            <Link className="link" href="/work">
+              Go and look at the galleries →
+            </Link>
+          </p>
+        )
       ) : (
         <ul className="u-bare">
           {initialNotes.map((note) => (

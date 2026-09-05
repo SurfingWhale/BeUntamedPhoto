@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 import { AuthForms } from "@/components/auth-forms";
+import { isMode } from "@/lib/auth-mode";
 import { getViewer } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -14,14 +15,19 @@ export const metadata: Metadata = {
 export default async function EnterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; mode?: string }>;
 }) {
   const viewer = await getViewer();
-  const { next, error } = await searchParams;
+  const { next, error, mode } = await searchParams;
 
   if (viewer) redirect("/account");
 
   const target = next?.startsWith("/") && !next.startsWith("//") ? next : "/work";
+  /* The mode is in the URL so it can be linked. "Make an account" sent from
+   * anywhere used to land on Sign in, because the switcher was four buttons
+   * holding React state — the address could carry `next` but not which form
+   * the person actually needed. */
+  const start = isMode(mode) ? mode : "signin";
 
   return (
     <div className="page">
@@ -34,7 +40,7 @@ export default async function EnterPage({
           </p>
         </div>
       )}
-      <AuthForms next={target} />
+      <AuthForms next={target} mode={start} />
     </div>
   );
 }
