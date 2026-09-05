@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { leaveNote, removeNote, type NoteState } from "@/app/notes/actions";
@@ -50,16 +50,21 @@ export function NotesPanel({
   viewer: Viewer;
 }) {
   const pathname = usePathname();
-  const [state, action] = useActionState(leaveNote, IDLE);
   const [count, setCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state.status === "ok") {
+  /* Clearing the form belongs to the submission, not to a later effect
+   * watching for its result. Wrapping the action puts it where it happens:
+   * React treats this as part of the transition, so there is no extra render
+   * pass and no set-state-in-effect. */
+  const [state, action] = useActionState(async (prev: NoteState, formData: FormData) => {
+    const result = await leaveNote(prev, formData);
+    if (result.status === "ok") {
       formRef.current?.reset();
       setCount(0);
     }
-  }, [state]);
+    return result;
+  }, IDLE);
 
   const over = count > MAX;
 
