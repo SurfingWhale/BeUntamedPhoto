@@ -174,6 +174,7 @@ export default async function HomePage() {
           featured[0]
             ? {
                 url: featured[0].url,
+                srcSet: featured[0].srcSet,
                 caption: featured[0].caption,
                 width: featured[0].width,
                 height: featured[0].height,

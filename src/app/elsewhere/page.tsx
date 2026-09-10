@@ -30,7 +30,13 @@ export default async function ElsewherePage() {
       <Lanes
         archiveBanner={
           frame
-            ? { url: frame.url, caption: frame.caption, width: frame.width, height: frame.height }
+            ? {
+                url: frame.url,
+                srcSet: frame.srcSet,
+                caption: frame.caption,
+                width: frame.width,
+                height: frame.height,
+              }
             : null
         }
       />

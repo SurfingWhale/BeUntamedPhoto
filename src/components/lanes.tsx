@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SIZES } from "@/lib/images";
 import { elsewhere } from "@/lib/site";
 
 type Props = {
@@ -10,6 +11,8 @@ type Props = {
    */
   archiveBanner?: {
     url: string | null;
+    /** Widths the render endpoint can serve this frame at. */
+    srcSet?: string | null;
     caption: string | null;
     /* Reserved box, same reason as the committed banners: without it three
      * lazy frames grew this section 575px under the reader. */
@@ -48,6 +51,8 @@ export function Lanes({ archiveBanner }: Props) {
       addr: place.go,
       mark: "\u2197\uFE0E",
       banner: place.banner as string | null,
+      bannerSet: place.bannerSet as string | null,
+      bannerSizes: place.bannerSizes as string,
       w: place.w as number | null,
       h: place.h as number | null,
       alt: `${place.name} — ${place.what}`,
@@ -62,6 +67,11 @@ export function Lanes({ archiveBanner }: Props) {
       addr: "this site",
       mark: "\u2192",
       banner: archiveBanner?.url ?? null,
+      // Already resized on the way out of storage, so it brings its own.
+      bannerSet: archiveBanner?.srcSet ?? null,
+      // The archive frame's ratio changes with whichever plate is showing, so
+      // it is the one lane that has to fall back to the box.
+      bannerSizes: SIZES.lane,
       w: archiveBanner?.width ?? null,
       h: archiveBanner?.height ?? null,
       alt: archiveBanner?.caption ?? "A frame from the archive",
@@ -83,6 +93,12 @@ export function Lanes({ archiveBanner }: Props) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={lane.banner}
+                  srcSet={lane.bannerSet ?? undefined}
+                  /* Per lane, because contain means the frame is narrower
+                     than its box by however much the ratios differ. Without
+                     any sizes the browser assumes 100vw and takes the largest
+                     candidate on every screen. */
+                  sizes={lane.bannerSizes}
                   alt={lane.alt}
                   width={lane.w ?? undefined}
                   height={lane.h ?? undefined}
