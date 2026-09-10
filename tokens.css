@@ -17,6 +17,17 @@
   --tracking-heading:  -0.03em;
   --tracking-label:     0.08em;
   --tracking-code:      0.04em;
+  /* Capitals, set at display size.
+   *
+   * The step that was missing, and its absence is measurable: every uppercase
+   * heading on the site was tracked with --tracking-hero or --tracking-display,
+   * both negative. Caps have no ascenders or descenders to interlock, so the
+   * designer's sidebearings are already the tightest the letters read at;
+   * taking more out closes the counters. .foot__wordmark ran "UNTAMED" at
+   * 208px with -10.4em per pair — the word set 73px, 9%, narrower than Syne
+   * draws it. Lowercase display type still wants the negative steps above;
+   * this is only for the runs that are all capitals. */
+  --tracking-caps:      0.02em;
 
   --text-xs:      0.6875rem;  /* 11px · label-index */
   --text-sm:      0.75rem;    /* 12px · label-code  */

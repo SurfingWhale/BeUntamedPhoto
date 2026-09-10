@@ -56,6 +56,21 @@ body {
 }
 ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
 
+/* Every heading balances, every paragraph is set pretty.
+ *
+ * Only .story__body carried text-wrap before this, so 22 of the 23 text
+ * blocks on the site broke wherever the line happened to run out. Measured at
+ * 390: the plate captions ended on a last line 18% of their box, and the two
+ * "back" links on 31% and 28% — a word alone under a full line, which is the
+ * cheapest thing to read as careless. `balance` costs nothing on short blocks
+ * (the engine gives up past ~6 lines) and `pretty` only moves the last two
+ * lines of a paragraph, so neither can reflow a layout. */
+h1, h2, h3, h4, .page__title, .head__title, .album__title, .reel__name,
+.foot__statement, .foot__wordmark, .strip__cap, .fold-photo__cap {
+  text-wrap: balance;
+}
+p, li, figcaption, blockquote { text-wrap: pretty; }
+
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 800;
@@ -1256,6 +1271,7 @@ img { display: block; max-width: 100%; }
   .story__arrow { grid-column: 6; align-self: start; justify-self: center; margin-top: var(--module); }
   .story__foot  { grid-column: 6; justify-self: center; align-self: end; }
   .story__col   { grid-column: 8 / span 4; }
+  .story__body  { max-width: 34ch; }
 }
 .story__head { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); justify-items: start; align-content: start; }
@@ -1288,7 +1304,11 @@ img { display: block; max-width: 100%; }
 .story__gloss { font-size: var(--text-sm); color: var(--color-ink-2); }
 /* Narrow justified measure — the block reads as a grid cell. */
 .story__body {
-  max-width: 34ch;
+  /* Same reason as .head: this measure is a cell in the 12-column story grid,
+   * which does not exist below 60rem. Held to 286px of a 350px column it ran
+   * 35 characters a line over 5 and 6 lines — under the 45-character floor
+   * where a reader starts losing the line they are on. */
+  max-width: none;
   /* --text-base, not --text-sm: this is the site's bio, and 12px is the label
    * size. Long-form copy starts near the browser default, not at the floor. */
   font-size: var(--text-base);
@@ -1410,8 +1430,17 @@ img { display: block; max-width: 100%; }
 .rail__no { color: var(--color-ink); font-weight: 700; }
 
 /* section heads — stacked single column, never tag-left/head-right */
+/* 34ch is a grid cell's worth of text, and below 60rem there is no grid.
+ *
+ * The cap was unconditional, so on a 390px phone the section head was held to
+ * 286px inside a 350px column — 64px of dead space to its right, and the
+ * heading wrapping a line earlier than it needed to. The 12-column
+ * composition starts at 60rem; so does the cap. */
 .head { display: grid;
-  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); max-width: 34ch; }
+  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
+@media (min-width: 60rem) {
+  .head { max-width: 34ch; }
+}
 .head__title {
   /* Clamped, because .page__title is clamped too: a flat 2.5rem here rendered
    * the h2 larger than the h1 on every viewport under 800px. */
@@ -1898,7 +1927,16 @@ img { display: block; max-width: 100%; }
   font-family: var(--font-mono); font-size: var(--text-xs);
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
 }
-.foot__link { white-space: nowrap; border-bottom: var(--rule-hair) solid transparent; }
+/* inline-block with block padding, because an 11px footer link is an 18px
+ * target: under the 24px floor, and the two of them sit 8px apart. The padding
+ * takes it to 24px and drops the hover underline 3px clear of the baseline,
+ * which is where an underline belongs anyway. */
+.foot__link {
+  display: inline-block;
+  padding-block: 0.2rem;
+  white-space: nowrap;
+  border-bottom: var(--rule-hair) solid transparent;
+}
 @media (hover: hover) and (pointer: fine) {
   .foot__link:hover { color: var(--color-ink); border-bottom-color: var(--color-accent); }
 }
@@ -2110,4 +2148,24 @@ img { display: block; max-width: 100%; }
 .prog {
   font-family: var(--font-mono); font-size: var(--text-xs);
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
+}
+
+/* Capitals, tracked out rather than in — see --tracking-caps in tokens.css.
+ * Every rule below sets text-transform: uppercase, and every one of them was
+ * inheriting a negative step drawn for lowercase display type. */
+.foot__wordmark,
+.page__title,
+.page__title em,
+.head__title,
+.foot__statement,
+.foot__statement em,
+.mast__name,
+.mast__name em,
+/* Higher specificity than the flat .head__title below it, and it re-declares
+ * letter-spacing to reset the size — so it has to be named here too. */
+.index-sticky .head__title,
+.reel__name,
+.elsewhere__name,
+.album__title {
+  letter-spacing: var(--tracking-caps);
 }
