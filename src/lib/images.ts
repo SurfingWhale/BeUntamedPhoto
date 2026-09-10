@@ -101,6 +101,6 @@ export const SIZES = {
   /** .strip__frame, every plate after the first — half width on a phone too,
    * which quarters the bytes for the frames someone is scrolling past. */
   plateHalf: "(min-width: 60rem) 60vw, 50vw",
-  /** .plates__thumb — a fixed 72px contact-sheet square. */
-  thumb: "72px",
+  /** .plates__thumb — a fixed 96px contact-sheet square. */
+  thumb: "96px",
 } as const;

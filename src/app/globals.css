@@ -747,6 +747,42 @@ img { display: block; max-width: 100%; }
 @media (min-width: 60rem) {
   .fold-photo--tall { aspect-ratio: auto; height: calc(var(--row) * 6); }
   .fold-photo--band { aspect-ratio: auto; height: calc(var(--row) * 4); }
+
+  /* A vertical plate cannot run full-bleed on a wide screen without losing
+   * most of itself. At 1440px a 2:3 frame stands 2160px tall, and a four-row
+   * band shows 480px of it — 22%. Cropping 78% of a photograph to hold a
+   * rectangle is the wrong trade, and this archive is shot vertical, so a
+   * portrait stops bleeding here and stands as a centred column instead.
+   * Nothing is cropped; the frame is capped at seven rows so the page keeps
+   * its rhythm.
+   *
+   * Landscape plates keep bleeding: the crop there is a few percent off the
+   * top and bottom, which is what a band is for. */
+  .fold-photo[data-shape="portrait"] {
+    height: auto;
+    display: grid;
+    gap: var(--space-xs);
+    padding-block-end: var(--space-md);
+  }
+  .fold-photo[data-shape="portrait"] .fold-photo__img {
+    width: auto;
+    max-width: 100%;
+    max-height: calc(var(--row) * 7);
+    margin-inline: auto;
+    object-fit: contain;
+  }
+  /* The caption is set in paper over a photograph. With the frame centred it
+   * would land on the ground beside it instead, where white on near-white is
+   * simply unreadable — so it steps out and sits under the plate in ink. */
+  .fold-photo[data-shape="portrait"] .fold-photo__cap {
+    position: static;
+    max-width: var(--page-max);
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+    color: var(--color-ink-2);
+    text-shadow: none;
+  }
 }
 .fold-photo__img {
   width: 100%;
@@ -1903,16 +1939,19 @@ img { display: block; max-width: 100%; }
 .stage { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
 .stage__item {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) auto;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
   gap: var(--space-md);
   align-items: start;
   padding-block: var(--space-md);
   border-top: var(--rule-hair) solid var(--color-rule);
 }
 .stage__thumb {
-  width: 72px;
-  height: 72px;
-  object-fit: cover;
+  width: 96px;
+  height: 96px;
+  /* contain, not cover — before publishing is exactly when you need to see
+   * which frame you actually picked, and a square crop of a vertical one hides
+   * the half that identifies it. */
+  object-fit: contain;
   background: var(--color-paper-2);
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: calc(var(--rule-hair) * -1);
@@ -1932,14 +1971,17 @@ img { display: block; max-width: 100%; }
 .plates__row {
   display: grid;
   /* thumbnail · ordering · everything else */
-  grid-template-columns: 72px auto minmax(0, 1fr);
+  grid-template-columns: 96px auto minmax(0, 1fr);
   gap: var(--space-md);
   align-items: start;
   padding-block: var(--space-md);
   border-top: var(--rule-hair) solid var(--color-rule);
 }
 .plates__thumb {
-  width: 72px; height: 72px; object-fit: cover;
+  width: 96px; height: 96px;
+  /* Same reason as .stage__thumb: this is the list where a plate has to be
+   * recognised. Letterboxing costs a little grey and answers "which one?". */
+  object-fit: contain;
   background: var(--color-paper-2);
 }
 .plates__meta { display: grid;
