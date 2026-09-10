@@ -47,12 +47,24 @@ both. Rewriting history on an already-public repo is not reliable.
 ```bash
 npx tsc --noEmit
 npm run lint
-NEXT_PUBLIC_SUPABASE_URL="https://placeholder.supabase.co" \
-NEXT_PUBLIC_SUPABASE_ANON_KEY="placeholder" npm run build
+npm run build   # needs real Supabase credentials — see below
 ```
 
-The build needs only those two variables; nothing renders live data at
-build time.
+**The build reads the database now.** Every public page is prerendered, so
+`next build` runs the archive and featured queries for real and writes their
+answer into the HTML. Point it at the live project (or a local Supabase) with
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+
+Placeholder credentials no longer get you a build. It fails at `/about` with
+`Could not read the archive`, and that is the intended behaviour, not a
+regression: the query throws rather than returning nothing, because an empty
+result renders an empty archive at 200 — a site that looks finished and blank.
+Failing the deploy is the cheaper way to find out.
+
+Somewhere with no database reachable, `tsc` and `lint` still tell you almost
+everything. If you need the route table too, the trick is to make the two
+`throw new Error(\`Could not read the archive\`)` in `src/lib/gallery.ts`
+return `[]` for one build and then put them back — never commit that.
 
 ## Conventions
 
@@ -62,6 +74,24 @@ build time.
 - **Photographs run full-bleed.** Everything else is held to `--page-max`.
 - **Writes are owner-only through RLS.** A held-back gallery's files live in
   the private bucket and are served through short-lived signed links.
+- **The public tree is prerendered, and one cookie read undoes it.** `/`,
+  `/about`, `/work`, `/work/genre/*`, `/elsewhere` and `/notes` are static with
+  `revalidate = 300`; the galleries are `generateStaticParams`-registered and
+  cached on first request. Anything reachable from those pages — including the
+  root layout and every component in it — must not call `cookies()`, and so
+  must not call `getViewer()` or `createClient()`. A single one turns the whole
+  tree back into `no-store`, silently. `<Fab />` in the root layout did exactly
+  that, and cost every page its cache to draw one button for one person.
+
+  Ask from the browser instead: `useViewer()`, or `<SignedIn>` / `<SignedOut>` /
+  `<NotesGate>` around the parts that differ. The server still decides anything
+  that matters, because every write goes through RLS.
+
+  On a route that has `revalidate` or `generateStaticParams`, `cookies()` is not
+  a quiet fall back to per-request rendering — it throws `DYNAMIC_SERVER_USAGE`
+  and the page 500s. That is why a held-back gallery has its own dynamic route
+  at `/work/[slug]/open` rather than a branch inside the cached one.
+
 - **Safe-area insets.** Installed, the app is standalone with
   `viewport-fit: cover`, so anything pinned to an edge needs its
   `env(safe-area-inset-*)`, or iOS draws the status bar over it.

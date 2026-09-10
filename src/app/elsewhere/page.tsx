@@ -3,6 +3,10 @@ import type { Metadata } from "next";
 import { Lanes } from "@/components/lanes";
 import { getFeatured } from "@/lib/gallery";
 
+/* Prerendered and revalidated: one featured frame and three fixed lanes,
+ * nothing per-visitor. */
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Elsewhere",
   description: "The other sites — UNTMD Sports for sport, VisuFavor for food.",

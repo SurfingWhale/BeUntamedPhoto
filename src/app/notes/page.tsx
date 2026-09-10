@@ -2,9 +2,16 @@ import type { Metadata } from "next";
 
 import { NotesPanel } from "@/components/notes-panel";
 import { getNotes } from "@/lib/notes";
-import { getViewer } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
+/**
+ * Prerendered and revalidated, not rendered per request.
+ *
+ * Nothing here is per-visitor — the masthead asks about the reader on its own —
+ * so rendering it for every arrival bought nothing and cost a cache: a page
+ * Next treats as dynamic goes out with `no-store`, which forbids the CDN and
+ * the browser alike from keeping it.
+ */
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Guestbook",
@@ -12,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NotesPage() {
-  const [notes, viewer] = await Promise.all([getNotes(null), getViewer()]);
+  const notes = await getNotes(null);
 
   return (
     <div className="page">
@@ -27,7 +34,7 @@ export default async function NotesPage() {
       </section>
 
       <section className="fold-text fold-text--tight">
-        <NotesPanel initialNotes={notes} viewer={viewer} />
+        <NotesPanel initialNotes={notes} />
       </section>
     </div>
   );

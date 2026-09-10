@@ -11,7 +11,15 @@ import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
 import { plate } from "@/lib/format";
 import { site } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+/**
+ * Prerendered and revalidated, not rendered per request.
+ *
+ * Nothing here is per-visitor — the masthead asks about the reader on its own —
+ * so rendering it for every arrival bought nothing and cost a cache: a page
+ * Next treats as dynamic goes out with `no-store`, which forbids the CDN and
+ * the browser alike from keeping it.
+ */
+export const revalidate = 300;
 
 const FALLBACK_LABELS = ["the opening frame", "between assignments"];
 

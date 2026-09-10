@@ -4,17 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { MastheadRetract, ScrollRule } from "@/components/motion";
+import { useViewer } from "@/components/use-viewer";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { nav, site } from "@/lib/site";
 
-type Props = {
-  viewer: { displayName: string; isOwner: boolean } | null;
-};
-
 /* Technical header rail — wordmark block left, indexed monospace nav centre,
  * account + theme right. Hairline rule beneath, sticky over the grid. */
-export function Masthead({ viewer }: Props) {
+export function Masthead() {
   const pathname = usePathname();
+  /* Asked here rather than passed in. The layout used to fetch it, which made
+   * every page in the app read a cookie — and a page that reads a cookie is
+   * rendered per request and sent `no-store`. */
+  const viewer = useViewer();
 
   return (
     <header className="mast">

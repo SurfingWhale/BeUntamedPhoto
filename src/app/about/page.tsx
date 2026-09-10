@@ -5,7 +5,15 @@ import { PhotoFold } from "@/components/photo-fold";
 import { getFeatured } from "@/lib/gallery";
 import { elsewhere, site } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+/**
+ * Prerendered and revalidated, not rendered per request.
+ *
+ * Nothing here is per-visitor — the masthead asks about the reader on its own —
+ * so rendering it for every arrival bought nothing and cost a cache: a page
+ * Next treats as dynamic goes out with `no-store`, which forbids the CDN and
+ * the browser alike from keeping it.
+ */
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "About",

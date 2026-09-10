@@ -5,12 +5,26 @@ import type { Metadata } from "next";
 import { Reveal } from "@/components/motion";
 import { Plate } from "@/components/plate";
 import { getAlbumsWithCovers } from "@/lib/gallery";
-import { getViewer } from "@/lib/auth";
+import { SignedOut } from "@/components/signed-out";
 import { plate } from "@/lib/format";
 import { SIZES } from "@/lib/images";
 import { genres, site } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+/**
+ * Prerendered at build time, one page per genre, revalidated every five
+ * minutes.
+ *
+ * This is the page meant to be pasted into a message to one client, so it is
+ * also the page most likely to be opened cold on a phone. It used to be
+ * `force-dynamic`, which meant every one of those arrivals waited on two
+ * queries and got the answer back marked `no-store`. There are five genres and
+ * they are known here, in code — so all five are built ahead.
+ */
+export const revalidate = 300;
+
+export function generateStaticParams() {
+  return genres.map((g) => ({ genre: g.id }));
+}
 
 type Params = { params: Promise<{ genre: string }> };
 
@@ -51,10 +65,7 @@ export default async function GenrePage({ params }: Params) {
   const g = find(genre);
   if (!g) notFound();
 
-  const [albums, viewer] = await Promise.all([
-    getAlbumsWithCovers(g.id),
-    getViewer(),
-  ]);
+  const albums = await getAlbumsWithCovers(g.id);
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   return (
@@ -117,8 +128,10 @@ export default async function GenrePage({ params }: Params) {
                   <span className="album__year u-tabular">{album.year ?? "—"}</span>
                 </div>
                 <p className="album__sub">{album.subtitle ?? album.place ?? "unfiled"}</p>
-                {album.visibility === "members" && !viewer && (
-                  <span className="lock">◆ signed-in only</span>
+                {album.visibility === "members" && (
+                  <SignedOut>
+                    <span className="lock">◆ signed-in only</span>
+                  </SignedOut>
                 )}
               </Reveal>
             );

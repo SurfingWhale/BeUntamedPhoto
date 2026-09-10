@@ -1,156 +1,30 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { Reveal } from "@/components/motion";
-import { SIZES } from "@/lib/images";
-import { NotesPanel } from "@/components/notes-panel";
-import { Pager } from "@/components/pager";
-import { Plate } from "@/components/plate";
-import { clampPage, getAlbum, getPhotoPage, PER_PAGE } from "@/lib/gallery";
-import { getNotes } from "@/lib/notes";
-import { getViewer } from "@/lib/auth";
-import { formatDate, plate } from "@/lib/format";
+import { AlbumView, albumMetadata } from "@/components/album-view";
 
-export const dynamic = "force-dynamic";
+type Params = { params: Promise<{ slug: string }> };
 
-type Params = {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string | string[] }>;
-};
+/**
+ * Page one of a gallery, prerendered on first request and served from the
+ * cache after — which is why it takes no `searchParams`. Reading one would
+ * make this the only page of the gallery that could not be cached, and it is
+ * the page every visitor arrives on. The rest live at `p/[n]`.
+ */
+export const revalidate = 300;
 
-/** generateMetadata takes the same props but needs only the slug. */
-type MetaParams = { params: Promise<{ slug: string }> };
-
-export async function generateMetadata({ params }: MetaParams): Promise<Metadata> {
-  const { slug } = await params;
-  const album = await getAlbum(slug);
-  if (!album) return { title: "Not found" };
-  return { title: album.title, description: album.subtitle ?? undefined };
+/* An empty array is not the same as no function at all. Without it Next treats
+ * every path under this segment as fully dynamic; with it, each path is
+ * rendered the first time it is asked for and cached from then on. */
+export async function generateStaticParams() {
+  return [];
 }
 
-export default async function AlbumPage({ params, searchParams }: Params) {
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const page = clampPage((await searchParams).page);
-  const album = await getAlbum(slug);
-  if (!album) notFound();
+  return albumMetadata(slug);
+}
 
-  const viewer = await getViewer();
-  const locked = album.visibility === "members" && !viewer;
-
-  const EMPTY = { items: [], total: 0, page: 1, pages: 1, perPage: PER_PAGE };
-  const [plates, notes] = await Promise.all([
-    locked ? Promise.resolve(EMPTY) : getPhotoPage(album.id, page),
-    getNotes(album.id),
-  ]);
-  const photos = plates.items;
-
-  /* Plate numbers count from the start of the album, not the start of the
-   * page — plate 25 is plate 25 whichever page it is read on. */
-  const offset = (plates.page - 1) * plates.perPage;
-
-  return (
-    <div className="page">
-      <section className="page__intro">
-        <p className="u-mono">
-          {album.year ?? "—"}
-          {album.place ? ` · ${album.place}` : ""}
-          {album.visibility === "members" ? " · signed-in only" : ""}
-        </p>
-        <h1 className="page__title">{album.title}</h1>
-        {album.subtitle && <p className="fold-text__body">{album.subtitle}</p>}
-        <p>
-          <Link className="link" href="/work">
-            ← All galleries
-          </Link>
-        </p>
-      </section>
-
-      {locked ? (
-        <section className="fold-text fold-text--tight">
-          <div className="head">
-            <span className="lock">◆ held back</span>
-            <h2 className="head__title">This gallery opens once you&rsquo;re signed in.</h2>
-            <p className="head__sub">
-              Client work before it runs, and frames still under argument. Free
-              to make an account — no mailing list, no follow-up.
-            </p>
-          </div>
-          <p>
-            <Link className="link" href={`/enter?next=${encodeURIComponent(`/work/${album.slug}`)}`}>
-              Sign in to open it →
-            </Link>
-          </p>
-        </section>
-      ) : photos.length === 0 ? (
-        <section className="page__pad page__pad-b">
-          <p className="notes__empty">This gallery is still being filed.</p>
-        </section>
-      ) : (
-        <div className="strip">
-          {photos.map((photo, i) => (
-            <Reveal as="figure" className="strip__item" key={photo.id} index={i % 2}>
-              <p className="strip__no">{plate(offset + i)}</p>
-              <div className="strip__frame">
-                {photo.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photo.url}
-                    srcSet={photo.srcSet ?? undefined}
-                    sizes={i === 0 ? SIZES.plate : SIZES.plateHalf}
-                    alt={photo.caption ?? `${album.title} — plate ${plate(offset + i)}`}
-                    width={photo.width ?? undefined}
-                    height={photo.height ?? undefined}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    fetchPriority={i === 0 ? "high" : "auto"}
-                    decoding="async"
-                  />
-                ) : (
-                  <div style={{ aspectRatio: "3 / 2" }}>
-                    <Plate no={plate(offset + i)} label="file missing" />
-                  </div>
-                )}
-              </div>
-              <figcaption className="strip__cap">
-                {/* The number is already hung in the margin — the caption
-                    carries only what the number cannot say. */}
-                {photo.caption && <span>{photo.caption}</span>}
-                <span>
-                  {[photo.place, formatDate(photo.taken_on)]
-                    .filter(Boolean)
-                    .join(" · ") || "unfiled"}
-                </span>
-              </figcaption>
-            </Reveal>
-          ))}
-        </div>
-      )}
-
-      {!locked && (
-        <Pager
-          base={`/work/${album.slug}`}
-          page={plates.page}
-          pages={plates.pages}
-          total={plates.total}
-          perPage={plates.perPage}
-        />
-      )}
-
-      {/* An empty comment box under every gallery reads as an abandoned site,
-          which costs more trust than the feature earns. A signed-out visitor
-          only sees this once there is something in it; signed in, the form is
-          there to be used. */}
-      {(notes.length > 0 || viewer) && (
-        <section className="fold-text fold-text--tight">
-          <div className="head">
-            <h2 className="head__title">Notes on this gallery</h2>
-            <p className="head__sub">
-              {viewer ? "Say what you saw." : "What other visitors said."}
-            </p>
-          </div>
-          <NotesPanel albumId={album.id} initialNotes={notes} viewer={viewer} />
-        </section>
-      )}
-    </div>
-  );
+export default async function AlbumPage({ params }: Params) {
+  const { slug } = await params;
+  return <AlbumView slug={slug} page={1} />;
 }

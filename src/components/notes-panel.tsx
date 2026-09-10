@@ -6,13 +6,12 @@ import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { leaveNote, removeNote, type NoteState } from "@/app/notes/actions";
+import { useViewer } from "@/components/use-viewer";
 import { formatDate } from "@/lib/format";
 import type { Note } from "@/lib/notes";
 
 const MAX = 500;
 const IDLE: NoteState = { status: "idle", message: "" };
-
-type Viewer = { id: string; displayName: string; isOwner: boolean } | null;
 
 function Submit({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -43,13 +42,15 @@ function DeleteNote({ id, path }: { id: string; path: string }) {
 export function NotesPanel({
   albumId = null,
   initialNotes,
-  viewer,
 }: {
   albumId?: string | null;
   initialNotes: Note[];
-  viewer: Viewer;
 }) {
   const pathname = usePathname();
+  /* Asked here rather than passed in. The pages that hold this panel are
+   * prerendered and shared, so they cannot know who is reading — and the form
+   * is the only part of them that depends on it. */
+  const viewer = useViewer();
   const [count, setCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 

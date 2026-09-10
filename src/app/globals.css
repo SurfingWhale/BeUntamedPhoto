@@ -481,6 +481,12 @@ img { display: block; max-width: 100%; }
 
 /* ------------------------------------------------------------ controls */
 .tog {
+  /* Wide enough for either label the account control carries — "[Sign in]" or
+   * a display name. The signed-out label ships in the prerendered HTML and is
+   * replaced once the client knows better; without this the masthead visibly
+   * jumped sideways when it was. */
+  min-width: 9.5ch;
+  text-align: center;
   appearance: none;
   background: transparent;
   border: var(--rule-hair) solid var(--color-rule-2);

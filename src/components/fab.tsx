@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
-import { getViewer } from "@/lib/auth";
+import { useViewer } from "@/components/use-viewer";
 
 /**
  * A standing shortcut into the darkroom, for the owner only.
@@ -12,14 +14,20 @@ import { getViewer } from "@/lib/auth";
  *
  * It lands on the darkroom index rather than the open gallery's uploader.
  * Knowing which gallery is on screen would mean passing the path down from the
- * middleware, and that file is the one refreshing the auth token — a tap is
- * not worth reaching into it. The gallery list is the first thing on the
- * darkroom, so it is two taps from anywhere.
+ * proxy, and that file is the one refreshing the auth token — a tap is not
+ * worth reaching into it. The gallery list is the first thing on the darkroom,
+ * so it is two taps from anywhere.
  *
- * getViewer is deduped per request, so this costs no extra query.
+ * It asks from the browser, and that is the whole point. This sits in the root
+ * layout, so when it asked on the server every page in the site read a cookie
+ * to draw it — and a page that reads a cookie is rendered per request and sent
+ * `no-store`. One button for one person was holding the entire public archive
+ * out of every cache. Appearing a moment late costs nothing: it is pinned to
+ * the corner, so nothing reflows around it, and the darkroom it opens checks
+ * again on the server anyway.
  */
-export async function Fab() {
-  const viewer = await getViewer();
+export function Fab() {
+  const viewer = useViewer();
   if (!viewer?.isOwner) return null;
 
   return (

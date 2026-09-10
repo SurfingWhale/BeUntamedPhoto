@@ -6,10 +6,18 @@ import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
 import { getAlbumsWithCovers } from "@/lib/gallery";
 import { genres } from "@/lib/site";
-import { getViewer } from "@/lib/auth";
+import { SignedOut } from "@/components/signed-out";
 import { plate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+/**
+ * Prerendered and revalidated, not rendered per request.
+ *
+ * Nothing here is per-visitor — the masthead asks about the reader on its own —
+ * so rendering it for every arrival bought nothing and cost a cache: a page
+ * Next treats as dynamic goes out with `no-store`, which forbids the CDN and
+ * the browser alike from keeping it.
+ */
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Galleries",
@@ -17,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkPage() {
-  const [albums, viewer] = await Promise.all([getAlbumsWithCovers(), getViewer()]);
+  const albums = await getAlbumsWithCovers();
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   return (
@@ -33,12 +41,14 @@ export default async function WorkPage() {
                 heldBack > 0 ? `, ${heldBack} held back for signed-in visitors` : ""
               }.`}
         </p>
-        {!viewer && heldBack > 0 && (
-          <p>
-            <Link className="link" href="/enter">
-              Sign in to open them →
-            </Link>
-          </p>
+        {heldBack > 0 && (
+          <SignedOut>
+            <p>
+              <Link className="link" href="/enter">
+                Sign in to open them →
+              </Link>
+            </p>
+          </SignedOut>
         )}
       </section>
 

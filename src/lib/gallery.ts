@@ -2,7 +2,6 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 
-import { getViewer } from "@/lib/auth";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
 import { PRIVATE_WIDTH, publicSrc, publicSrcSet, QUALITY } from "@/lib/images";
@@ -51,14 +50,18 @@ const SIGNED_URL_TTL = 60 * 60; // 1 hour
  * signed into the token and the batch signer takes no transform options.
  */
 export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
-  const supabase = await createClient();
   const signed = new Map<string, string>();
 
   const privatePaths = photos
     .filter((p) => p.bucket === "gallery-private")
     .map((p) => p.path);
 
+  /* The cookie-bound client is built only when there is something to sign.
+   * Reading a cookie is what makes a page render per request, and an album of
+   * public plates needs no signature at all — so a public gallery no longer
+   * pays for one, which is what lets the page holding it be cached. */
   if (privatePaths.length > 0) {
+    const supabase = await createClient();
     // In parallel: N fast API calls beat one round trip that hands back a
     // 7 MB original.
     const results = await Promise.all(
@@ -105,8 +108,11 @@ export async function getAlbums(): Promise<Album[]> {
   return (data ?? []) as Album[];
 }
 
+/* Album metadata is world-readable — supabase/rls-albums.sql says so and why —
+ * so the anonymous client returns exactly the rows the cookie-bound one would,
+ * and costs the caller no cookie. */
 export async function getAlbum(slug: string): Promise<Album | null> {
-  const supabase = await createClient();
+  const supabase = createAnonClient();
   const { data } = await supabase
     .from("albums")
     .select("*")
@@ -145,8 +151,12 @@ export async function getPhotoPage(
   albumId: string,
   page = 1,
   perPage = PER_PAGE,
+  /* "public" reads as nobody, which is what an open gallery needs and what
+   * lets the page holding it be cached. A held-back gallery has to ask as the
+   * viewer, or its own plates are invisible to it. */
+  scope: "public" | "viewer" = "viewer",
 ): Promise<Paged<PhotoWithUrl>> {
-  const supabase = await createClient();
+  const supabase = scope === "public" ? createAnonClient() : await createClient();
   const from = (page - 1) * perPage;
 
   const { data, count, error } = await supabase
@@ -281,11 +291,23 @@ async function runAlbumQuery(
   return (data ?? []) as AlbumRow[];
 }
 
+/**
+ * The index, as anybody sees it.
+ *
+ * Every caller is a public page that is prerendered and shared, so the read
+ * has to be the anonymous one — not as a fallback but as the only correct
+ * answer. Asking as the viewer would cost two things at once: `cookies()` is
+ * what makes a page render per request and ship `no-store`, and the extra a
+ * signed-in viewer would get back is a held-back gallery's cover, which lives
+ * in the private bucket behind a short-lived signed link. That link has no
+ * business in markup held for five minutes and handed to whoever asks next.
+ *
+ * Held-back galleries are still listed — album rows are world-readable — they
+ * just carry no cover here. The gallery itself asks as the viewer and shows
+ * the plates in full.
+ */
 export async function getAlbumsWithCovers(genre?: string): Promise<AlbumWithCover[]> {
-  const viewer = await getViewer();
-  const rows = viewer
-    ? await runAlbumQuery(await createClient(), genre)
-    : await readPublicAlbums(genre);
+  const rows = await readPublicAlbums(genre);
 
   // One signing pass for every cover, rather than one per album.
   const covers = await withUrls(rows.map((r) => r.photos?.[0]).filter(Boolean));
@@ -346,16 +368,12 @@ const readPublicFeatured = unstable_cache(
 );
 
 /**
- * Photos across every album the viewer may see — the home-page folds.
+ * Photos across the open albums — the home-page folds.
  *
- * Same split as the index: the signed-out result is cached behind a
- * session-less client, so RLS decides what may be in the cache rather than
- * the cache deciding what RLS meant.
+ * Anonymous for the same two reasons as the index: RLS decides what may be in
+ * the cache rather than the cache deciding what RLS meant, and no page that
+ * calls this reads a cookie, so all of them can be prerendered.
  */
 export async function getFeatured(limit = 6): Promise<PhotoWithUrl[]> {
-  const viewer = await getViewer();
-  const rows = viewer
-    ? await runFeaturedQuery(await createClient(), limit)
-    : await readPublicFeatured(limit);
-  return withUrls(rows);
+  return withUrls(await readPublicFeatured(limit));
 }

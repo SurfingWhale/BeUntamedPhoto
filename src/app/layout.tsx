@@ -7,7 +7,6 @@ import { Footer } from "@/components/footer";
 import { GridLines } from "@/components/grid-lines";
 import { MediaFade } from "@/components/media";
 import { ServiceWorker } from "@/components/pwa";
-import { getViewer } from "@/lib/auth";
 import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -79,11 +78,9 @@ export const viewport: Viewport = {
 /* Set the theme before first paint so the page never flashes the wrong ground. */
 const THEME_BOOT = `(function(){try{var t=localStorage.getItem("untamed-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}document.documentElement.setAttribute("data-media","js")})()`;
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const viewer = await getViewer();
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -100,7 +97,7 @@ export default async function RootLayout({
           Skip to content
         </a>
         <GridLines />
-        <Masthead viewer={viewer} />
+        <Masthead />
         {/* tabindex -1 so "Skip to content" actually moves focus here;
             without it Safari scrolls but leaves focus back in the nav. */}
         <main id="main" tabIndex={-1}>

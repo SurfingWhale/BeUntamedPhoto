@@ -8,6 +8,12 @@ export const alt = `${site.name} — ${site.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+/* Five cards, all known here — built ahead so an unfurler that has never asked
+ * before does not wait on a render. */
+export function generateStaticParams() {
+  return genres.map((g) => ({ genre: g.id }));
+}
+
 const syne = await readFile(join(process.cwd(), "assets/Syne-ExtraBold.ttf"));
 const mono = await readFile(join(process.cwd(), "assets/JetBrainsMono-Regular.ttf"));
 

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
 
 export type Note = {
@@ -11,8 +12,21 @@ export type Note = {
   display_name: string;
 };
 
-export async function getNotes(albumId: string | null, limit = 50): Promise<Note[]> {
-  const supabase = await createClient();
+/**
+ * Notes on an album, or the guestbook when albumId is null.
+ *
+ * `scope` is not a performance knob. The anonymous client cannot see notes on
+ * a held-back gallery — the policy ties a note's visibility to its album's —
+ * so a page showing one has to ask as the viewer. Everywhere else "public" is
+ * both correct and cacheable, because reading a cookie is what stops a page
+ * being cached at all.
+ */
+export async function getNotes(
+  albumId: string | null,
+  scope: "public" | "viewer" = "public",
+  limit = 50,
+): Promise<Note[]> {
+  const supabase = scope === "public" ? createAnonClient() : await createClient();
   let query = supabase
     .from("notes_with_author")
     .select("*")

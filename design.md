@@ -256,7 +256,7 @@ These are not typos — they are the reference's voice:
 - `.COLOR PICTURE` — a leading period on a label
 - `NATURE'S    ATMOSPHERE` — exaggerated word gaps, words landing on separate
   grid columns rather than sharing a normal space
-- `archive by dila` — letter-spaced lowercase for attribution
+- `archive by untamed` — letter-spaced lowercase for attribution
 - Numerals (`2K25`, `14`, `08`, `14.8`) are used as **graphic objects**, set
   large and bare, not as data inside sentences
 
