@@ -960,19 +960,34 @@ img { display: block; max-width: 100%; }
  * count; the display setting returns at 60rem, where there is room for it. */
 .index-sticky {
   position: sticky;
-  top: var(--mast-h, 0px);
+  /* max(), not --mast-h alone. The masthead publishes --mast-h: 0px while it is
+   * retracted, so on a downward scroll this bar pinned to the very top of the
+   * viewport — and the app is viewport-fit: cover with a translucent status
+   * bar, so iOS drew the clock straight over the heading. The masthead itself
+   * has guarded against this since the cramped fix; this is the same hazard in
+   * a second component, which is why it is now a rule in CLAUDE.md.
+   *
+   * When the masthead is out, --mast-h already includes its own inset, so the
+   * max() resolves to it and nothing double-counts. */
+  top: max(var(--mast-h, 0px), env(safe-area-inset-top, 0px));
   z-index: var(--z-raised);
   background: var(--color-paper);
   transition: top var(--dur-short) var(--ease-out);
 }
+/* Stacked, not a row. This block used to set `display: flex` with
+ * `justify-content: space-between`, which is the tag-left/heading-right pattern
+ * design.md § 11 names as a templated AI tell — and which the comment at the
+ * top of this section already forbade. It rendered "THE INDEX <-> ( 7
+ * GALLERIES )". The count is metadata about the heading, so it sits under it in
+ * the mono voice, and the whole bar is shorter for it. */
 .index-sticky .index-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-md);
-  padding-block: var(--space-sm);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding-block: var(--space-xs);
   border-bottom: var(--rule-hair) solid var(--color-rule);
 }
+.index-sticky .index-count { font-size: var(--text-xs); }
 .index-sticky .head__title {
   font-size: var(--text-md);
   letter-spacing: var(--tracking-heading);
@@ -1011,14 +1026,15 @@ img { display: block; max-width: 100%; }
 /* Two columns on a phone, three once there is room: at 375px the nowrap meta
  * took ~145px and the number ~30px, squeezing an 18px uppercase title into
  * ~130px. The meta drops under the title instead. */
+/* Cover left, words right. The cover is the point of the row — this is a
+ * photographer's index — and it sits in the margin the plate number used to
+ * hold alone, so the row gains an image without gaining much height. */
 .index__row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: var(--space-2xs) var(--space-md);
-  /* Roomier rows: at --space-md the index read as a dense list rather than a
-   * set of things you pick between. */
-  padding-block: var(--space-lg);
+  grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-md);
+  padding-block: var(--space-sm);
   padding-inline: var(--space-sm);
   margin-inline: calc(var(--space-sm) * -1);
   border-bottom: var(--rule-hair) solid var(--color-rule-2);
@@ -1026,6 +1042,25 @@ img { display: block; max-width: 100%; }
   transition: background-color var(--dur-short) var(--ease-out),
               color var(--dur-short) var(--ease-out),
               transform var(--dur-short) var(--ease-out);
+}
+.index__frame {
+  display: block;
+  height: 120px;
+  background: var(--color-paper-2);
+}
+/* contain, not cover: the same reason .plates__thumb letterboxes. A vertical
+ * graduation frame and a horizontal court frame both have to be recognisable,
+ * and this archive does not crop plates to make a grid tidy. */
+.index__frame img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  outline: var(--rule-hair) solid var(--outline-image);
+  outline-offset: calc(var(--rule-hair) * -1);
+}
+.index__text { display: grid; gap: var(--space-3xs); min-width: 0; }
+@media (min-width: 48rem) {
+  .index__row { grid-template-columns: 220px minmax(0, 1fr); }
+  .index__frame { height: 148px; }
 }
 .index__no {
   font-family: var(--font-mono);
@@ -1035,7 +1070,7 @@ img { display: block; max-width: 100%; }
 }
 .index__name {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 5.5vw, 2.5rem);
+  font-size: clamp(1.125rem, 4.6vw, 2rem);
   font-weight: 800;
   letter-spacing: var(--tracking-display);
   line-height: 1.02;
@@ -1047,15 +1082,10 @@ img { display: block; max-width: 100%; }
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-muted);
-  white-space: nowrap;
-  grid-column: 2;
-}
-@media (min-width: 48rem) {
-  .index__row {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: var(--space-sm) var(--space-md);
-  }
-  .index__meta { grid-column: auto; }
+  /* Wraps now. It was nowrap to survive a three-column row; in its own column
+   * under the title it has the width to break naturally, and nowrap here would
+   * push the row wider than a 390px phone. */
+  text-wrap: pretty;
 }
 @media (hover: hover) and (pointer: fine) {
   .index__row:hover {
@@ -1306,14 +1336,21 @@ img { display: block; max-width: 100%; }
 .head__sub { color: var(--color-muted); font-size: var(--text-base); }
 
 /* --------------------------------------------------------- album index */
+/* Two up from the start.
+ *
+ * One column meant 430px per gallery and 4.9 phone screens for seven of them,
+ * on the page a client is actually sent a link to. Two up halves it, and the
+ * tiles keep their own proportions so nothing is cropped to make the grid
+ * tidy. The row gap stays generous — § 11 asks for few elements and real
+ * negative space, and two columns of photographs is still few. */
 .albums {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-2xl) var(--space-lg);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xl) var(--space-md);
   padding: 0 var(--page-gutter) var(--space-3xl);
 }
 @media (min-width: 40rem) {
-  .albums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .albums { gap: var(--space-2xl) var(--space-lg); }
 }
 @media (min-width: 60rem) {
   .albums { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-3xl) var(--space-xl); }
@@ -1325,33 +1362,11 @@ img { display: block; max-width: 100%; }
   .album:nth-child(6n+5) { grid-column: span 6; }
   .album:nth-child(6n+6) { grid-column: span 6; align-self: end; }
 }
-/* Home teaser — a glance at the range, not a showcase of three.
- *
- * It was three tiles at full column width with 176px row gaps, which read as
- * "here are three big things" rather than "here is what I shoot". Two up on a
- * phone and three across on a wide screen says there is a body of work behind
- * this without spending the whole page proving it — the full set is one tap
- * away in the index below. */
-.albums--few {
-  padding: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-lg) var(--space-md);
-}
-@media (min-width: 60rem) {
-  .albums--few {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: var(--space-2xl) var(--space-xl);
-  }
-  /* Three across, and the middle one hangs lower so the row is not a shelf. */
-  .albums--few .album:nth-child(3n + 1) { grid-column: span 4; align-self: start; }
-  .albums--few .album:nth-child(3n + 2) { grid-column: span 4; align-self: end; }
-  .albums--few .album:nth-child(3n + 3) { grid-column: span 4; align-self: start; }
-}
 /* At two up the title and year stop fitting on one line together. */
-.albums--few .album__meta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); }
-.albums--few .album__title { font-size: var(--text-base); }
+.albums .album__meta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); }
+.albums .album__title { font-size: var(--text-base); }
 @media (min-width: 60rem) {
-  .albums--few .album__title { font-size: var(--text-md); }
+  .albums .album__title { font-size: var(--text-md); }
 }
 
 .album { display: grid;
@@ -1589,18 +1604,35 @@ img { display: block; max-width: 100%; }
   }
 }
 
-.lane__frame { min-width: 0; }
-.lane__frame { display: grid; justify-items: start; }
+/* The frame reserves its own height; the photograph sits inside it.
+ *
+ * This used to be a bare `width: auto; height: auto` on the image, with the
+ * height left to the file. Measured, that grew this section from 1219px to
+ * 1794px — 575px arriving under the reader's thumb as three lazy banners
+ * landed, because `.lane__frame` was 0px tall until then.
+ *
+ * Adding width/height attributes to the <img> did not fix it, and that is the
+ * part worth remembering: those attributes are only presentational hints, and
+ * any author `width`/`height` declaration beats them. The CSS was overriding
+ * the very thing meant to reserve the box.
+ *
+ * A fixed frame also gives the three rows one depth, which the previous
+ * comment already wanted — § 11 asks for rhythm, not for one big thing. */
+.lane__frame {
+  min-width: 0;
+  display: grid;
+  justify-items: start;
+  align-items: center;
+  height: calc(var(--row) * 2.4);
+}
 .lane__frame img {
-  /* The frame keeps the photograph's own proportions — no crop, and no
-   * letterbox either, because nothing is forced into a fixed box. A vertical
-   * frame is capped by height instead, so it gets narrower rather than making
-   * its row twice as tall as the others: three rows of wildly different depth
-   * reads as an accident, and § 11 asks for rhythm, not for one big thing. */
+  /* No crop and no distortion: the photograph keeps its own proportions and is
+   * bounded by the frame on both axes, so a vertical banner gets narrower
+   * rather than making its row twice as deep. */
   width: auto;
-  max-width: 100%;
-  max-height: calc(var(--row) * 3.5);
   height: auto;
+  max-width: 100%;
+  max-height: 100%;
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: calc(var(--rule-hair) * -1);
 }

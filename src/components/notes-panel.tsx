@@ -7,7 +7,7 @@ import { useFormStatus } from "react-dom";
 
 import { leaveNote, removeNote, type NoteState } from "@/app/notes/actions";
 import { useViewer } from "@/components/use-viewer";
-import { formatDate } from "@/lib/format";
+import { authorName, formatDate } from "@/lib/format";
 import type { Note } from "@/lib/notes";
 
 const MAX = 500;
@@ -153,7 +153,7 @@ export function NotesPanel({
                   start tag closes an open <p> during parsing — which threw the
                   button out of this flex row and broke hydration. */}
               <div className="note__meta">
-                <span>{note.display_name}</span>
+                <span>{authorName(note)}</span>
                 <span>{formatDate(note.created_at)}</span>
                 {viewer && (viewer.id === note.user_id || viewer.isOwner) && (
                   <DeleteNote id={note.id} path={pathname} />

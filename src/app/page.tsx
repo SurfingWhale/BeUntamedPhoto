@@ -1,14 +1,9 @@
-import Link from "next/link";
-
 import { IndexFilter } from "@/components/index-filter";
 import { Reveal } from "@/components/motion";
-import { SIZES } from "@/lib/images";
 import { Lanes } from "@/components/lanes";
 import { PhotoFold } from "@/components/photo-fold";
-import { Plate } from "@/components/plate";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
-import { plate } from "@/lib/format";
 import { site } from "@/lib/site";
 
 /**
@@ -23,7 +18,16 @@ export const revalidate = 300;
 
 const FALLBACK_LABELS = ["the opening frame", "between assignments"];
 
-/* Composition studied from the reference layout (design.md § 3.6):
+/* One index, not two.
+ *
+ * This page used to render albums.slice(0, 6) as a cover grid under "Recent
+ * work" and then all seven again as a numbered list under "The index" — 2162px
+ * of a 6569px page, measured, listing the same galleries twice in two visual
+ * languages. Six titles appeared twice in the rendered DOM. The grid is gone
+ * and the list carries the covers, so the page is shorter and still shows
+ * photographs, which § 10 requires of a content page.
+ *
+ * Composition studied from the reference layout (design.md § 3.6):
  * an opening zone that is mostly empty, a full-bleed photograph whose edges
  * land on lattice rows, then a lower zone of huge light display type against
  * a narrow justified column, with the marks placed in the margins.
@@ -32,10 +36,6 @@ export default async function HomePage() {
   // One wave, not a chain: covers arrive with their albums now, so nothing
   // here waits on anything else.
   const [featured, albums] = await Promise.all([getFeatured(2), getAlbumsWithCovers()]);
-  /* Six, not three. The section is there so someone can scroll a quick sense
-   * of the range of work; three tiles on a twelve-column field showed one
-   * genre and stopped. The grid already has spans for six. */
-  const shown = albums.slice(0, 6);
   const year = new Date().getUTCFullYear();
   const held = albums.filter((a) => a.visibility === "members").length;
 
@@ -108,8 +108,10 @@ export default async function HomePage() {
           <p className="label-wide">available for commissions</p>
         </Reveal>
 
+        {/* Variation selector, not a bare arrow: U+2197 has an emoji
+            presentation and rendered as a blue glyph on a phone. */}
         <span className="mark mark--bold story__arrow" aria-hidden="true">
-          ↗
+          {"\u2197\uFE0E"}
         </span>
         <span className="mark mark--thin story__foot" aria-hidden="true">
           ∟
@@ -149,82 +151,7 @@ export default async function HomePage() {
 
       <div className="rail">
         <span>
-          <span className="rail__no">01 →</span> Selected galleries
-        </span>
-        <span>[{albums.length} filed]</span>
-      </div>
-
-      {/* ---- Portfolio Grid · three tiles, irregular spans ------------------ */}
-      {shown.length > 0 && (
-        <section className="grid-band plot">
-          {/* Same pinning as the index below: the heading holds while the tiles
-              run under it, so the section you are in stays named. The wrapper
-              is what gives the sticky child room to travel. */}
-          <div className="index-wrap">
-            <div className="index-sticky">
-              <div className="index-head">
-                <h2 className="head__title">Recent work</h2>
-                <p className="index-count">
-                  ( {albums.length} filed )
-                </p>
-              </div>
-            </div>
-
-            <div className="albums albums--few">
-            {shown.map((album, i) => {
-              const cover = album.cover;
-              return (
-                <Reveal as="article" className="album" key={album.id} index={i}>
-                  <Link
-                    className="album__media"
-                    href={`/work/${album.slug}`}
-                    style={
-                      cover?.width && cover?.height
-                        ? ({ "--tile-ratio": `${cover.width} / ${cover.height}` } as React.CSSProperties)
-                        : undefined
-                    }
-                  >
-                    {cover?.url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={cover.url}
-                        srcSet={cover.srcSet ?? undefined}
-                        sizes={SIZES.tile}
-                        alt={cover.caption ?? album.title}
-                        loading={i === 0 ? "eager" : "lazy"}
-                        decoding="async"
-                      />
-                    ) : (
-                      <Plate no={plate(i)} label="no cover yet" />
-                    )}
-                  </Link>
-                  <div className="album__meta">
-                    <h3 className="album__title">
-                      <Link href={`/work/${album.slug}`}>{album.title}</Link>
-                    </h3>
-                    <span className="album__year u-tabular">{album.year ?? "—"}</span>
-                  </div>
-                  <p className="album__sub">{album.subtitle ?? album.place ?? "unfiled"}</p>
-                  {album.visibility === "members" && (
-                    <span className="lock">◆ signed-in only</span>
-                  )}
-                </Reveal>
-              );
-            })}
-            </div>
-          </div>
-
-          <p>
-            <Link className="link" href="/work">
-              Open the full index →
-            </Link>
-          </p>
-        </section>
-      )}
-
-      <div className="rail">
-        <span>
-          <span className="rail__no">02 →</span> Project index
+          <span className="rail__no">01 →</span> The index
         </span>
         <span>[choose by lane]</span>
       </div>
@@ -236,7 +163,7 @@ export default async function HomePage() {
 
       <div className="rail">
         <span>
-          <span className="rail__no">03 →</span> Lanes
+          <span className="rail__no">02 →</span> Lanes
         </span>
         <span>[food · sport · everything else]</span>
       </div>
@@ -244,7 +171,14 @@ export default async function HomePage() {
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
       <Lanes
         archiveBanner={
-          featured[0] ? { url: featured[0].url, caption: featured[0].caption } : null
+          featured[0]
+            ? {
+                url: featured[0].url,
+                caption: featured[0].caption,
+                width: featured[0].width,
+                height: featured[0].height,
+              }
+            : null
         }
       />
 

@@ -103,4 +103,8 @@ export const SIZES = {
   plateHalf: "(min-width: 60rem) 60vw, 50vw",
   /** .plates__thumb — a fixed 96px contact-sheet square. */
   thumb: "96px",
+  /** .index__frame — a fixed-height cover in the index margin. It is 120px
+   * tall and at most ~40vw wide, so a phone at 3x needs ~470px and never the
+   * 1500w candidate a full-width tile would ask for. */
+  cover: "(min-width: 48rem) 220px, 40vw",
 } as const;

@@ -6,7 +6,9 @@ import { useMemo, useState } from "react";
 import { Reveal } from "@/components/motion";
 import { plate } from "@/lib/format";
 import { genres, genreLabel } from "@/lib/site";
-import type { Album } from "@/lib/gallery";
+import { SIZES } from "@/lib/images";
+import { Plate } from "@/components/plate";
+import type { AlbumWithCover } from "@/lib/gallery";
 
 type Lens = "all" | (typeof genres)[number]["id"];
 
@@ -20,8 +22,14 @@ type Lens = "all" | (typeof genres)[number]["id"];
  *
  * Genres with nothing filed under them are not offered: an empty filter is a
  * promise the archive cannot keep.
+ *
+ * Each row carries its cover. It did not, and the home page compensated by
+ * printing a separate grid of the same seven galleries above it — 2162px of
+ * one page listing one set twice. design.md § 10 asks a content page for
+ * "typography + the photographs only", and a photographer's index with no
+ * photographs in it reads as a directory, because it was one.
  */
-export function IndexFilter({ albums }: { albums: Album[] }) {
+export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
   const [lens, setLens] = useState<Lens>("all");
 
   const counts = useMemo(() => {
@@ -86,11 +94,30 @@ export function IndexFilter({ albums }: { albums: Album[] }) {
           {shown.map((album, i) => (
             <Reveal as="div" key={album.id} index={i}>
               <Link className="index__row" href={`/work/${album.slug}`}>
-                <span className="index__no">[{plate(i)}]</span>
-                <span className="index__name">{album.title}</span>
-                <span className="index__meta">
-                  {genreLabel(album.genre)} · {album.place ?? "unfiled"} ·{" "}
-                  {album.year ?? "—"} ↗
+                <span className="index__frame">
+                  {album.cover?.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={album.cover.url}
+                      srcSet={album.cover.srcSet ?? undefined}
+                      sizes={SIZES.cover}
+                      alt={album.cover.caption ?? album.title}
+                      width={album.cover.width ?? undefined}
+                      height={album.cover.height ?? undefined}
+                      loading={i < 2 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  ) : (
+                    <Plate no={plate(i)} label="no cover" />
+                  )}
+                </span>
+                <span className="index__text">
+                  <span className="index__no">[{plate(i)}]</span>
+                  <span className="index__name">{album.title}</span>
+                  <span className="index__meta">
+                    {genreLabel(album.genre)} · {album.place ?? "unfiled"} ·{" "}
+                    {album.year ?? "\u2014"} {"\u2197\uFE0E"}
+                  </span>
                 </span>
               </Link>
             </Reveal>

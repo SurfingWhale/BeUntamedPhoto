@@ -75,7 +75,7 @@ export default async function AboutPage() {
             >
               <span className="elsewhere__name">{place.name}</span>
               <span className="elsewhere__what">{place.what}</span>
-              <span className="elsewhere__go">{place.go} ↗</span>
+              <span className="elsewhere__go">{place.go} {"\u2197\uFE0E"}</span>
             </a>
           ))}
         </div>

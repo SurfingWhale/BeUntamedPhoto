@@ -73,6 +73,10 @@ export function genreLabel(id: string): string {
  * lane on this page should not go grey because another deployment is down, and
  * a background frame is worth a hundred kilobytes of our own. Both are
  * re-encoded to WebP from frames those repositories already publish.
+ *
+ * `w`/`h` are the files' own pixel dimensions, and they are not decoration: a
+ * lazy banner with no reserved box made the lanes section grow 575px while a
+ * visitor was mid-scroll. Measured. If a banner is re-encoded, re-measure it.
  */
 export const elsewhere = [
   {
@@ -82,6 +86,8 @@ export const elsewhere = [
     go: "untmd-sports.vercel.app",
     lane: "Sport",
     banner: "/lanes/sport.webp",
+    w: 1600,
+    h: 1066,
   },
   {
     name: "VisuFavor",
@@ -90,5 +96,7 @@ export const elsewhere = [
     go: "visufavor.vercel.app",
     lane: "Food",
     banner: "/lanes/food.webp",
+    w: 600,
+    h: 750,
   },
 ] as const;

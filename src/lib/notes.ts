@@ -10,7 +10,18 @@ export type Note = {
   created_at: string;
   user_id: string;
   display_name: string;
+  /**
+   * The author's role, so the guestbook can sign an owner's note with the
+   * archive's byline instead of a profile name.
+   *
+   * Optional, and deliberately so: the column arrives with
+   * supabase/byline-on-owner-notes.sql, and until that has been run against a
+   * project this is undefined rather than a crash. `authorName` treats
+   * undefined as "not the owner", which is the same answer it gave before.
+   */
+  role?: string | null;
 };
+
 
 /**
  * Notes on an album, or the guestbook when albumId is null.

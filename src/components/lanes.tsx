@@ -9,7 +9,14 @@ type Props = {
    * committed still from the site they point at; this one takes whatever the
    * archive is showing, so it is never out of date with the work.
    */
-  archiveBanner?: { url: string | null; caption: string | null } | null;
+  archiveBanner?: {
+    url: string | null;
+    caption: string | null;
+    /* Reserved box, same reason as the committed banners: without it three
+     * lazy frames grew this section 575px under the reader. */
+    width?: number | null;
+    height?: number | null;
+  } | null;
 };
 
 /**
@@ -37,6 +44,8 @@ export function Lanes({ archiveBanner }: Props) {
       addr: place.go,
       mark: "\u2197\uFE0E",
       banner: place.banner as string | null,
+      w: place.w as number | null,
+      h: place.h as number | null,
       alt: `${place.name} — ${place.what}`,
     })),
     {
@@ -49,6 +58,8 @@ export function Lanes({ archiveBanner }: Props) {
       addr: "this site",
       mark: "\u2192",
       banner: archiveBanner?.url ?? null,
+      w: archiveBanner?.width ?? null,
+      h: archiveBanner?.height ?? null,
       alt: archiveBanner?.caption ?? "A frame from the archive",
     },
   ];
@@ -63,7 +74,14 @@ export function Lanes({ archiveBanner }: Props) {
                 // Storage and satellite URLs are remote — a plain <img> keeps
                 // them unproxied, as everywhere else in this archive.
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={lane.banner} alt={lane.alt} loading="lazy" decoding="async" />
+                <img
+                  src={lane.banner}
+                  alt={lane.alt}
+                  width={lane.w ?? undefined}
+                  height={lane.h ?? undefined}
+                  loading="lazy"
+                  decoding="async"
+                />
               ) : null}
             </span>
             <span className="lane__body">
