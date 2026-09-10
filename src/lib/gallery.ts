@@ -115,15 +115,83 @@ export async function getAlbum(slug: string): Promise<Album | null> {
   return (data as Album) ?? null;
 }
 
-export async function getPhotos(albumId: string): Promise<PhotoWithUrl[]> {
+/** Plates per page, on the public gallery and in the darkroom alike. */
+export const PER_PAGE = 24;
+
+export type Paged<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  pages: number;
+  perPage: number;
+};
+
+/** A page number out of a query string, clamped to something sane. */
+export function clampPage(raw: string | string[] | undefined): number {
+  const n = Number(Array.isArray(raw) ? raw[0] : raw);
+  return Number.isInteger(n) && n > 1 ? n : 1;
+}
+
+/**
+ * One page of an album.
+ *
+ * This never selects a whole album, and that is the point. The unpaged version
+ * it replaces asked for every row, which failed two ways at once. Past
+ * PostgREST's row cap the tail came back missing with no error — the gallery
+ * stopped part way and looked complete. And every page load signed a URL for
+ * every private plate before rendering a single one.
+ */
+export async function getPhotoPage(
+  albumId: string,
+  page = 1,
+  perPage = PER_PAGE,
+): Promise<Paged<PhotoWithUrl>> {
+  const supabase = await createClient();
+  const from = (page - 1) * perPage;
+
+  const { data, count, error } = await supabase
+    .from("photos")
+    .select("*", { count: "exact" })
+    .eq("album_id", albumId)
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: true })
+    .range(from, from + perPage - 1);
+
+  // Same reason the album query throws: a swallowed error here renders an
+  // empty gallery at 200, which reads as "nothing filed" rather than "broken".
+  if (error) {
+    console.error("[gallery] plate page failed:", error.message, error.details);
+    throw new Error(`Could not read the gallery: ${error.message}`);
+  }
+
+  const total = count ?? 0;
+  return {
+    items: await withUrls((data ?? []) as Photo[]),
+    total,
+    page,
+    pages: Math.max(1, Math.ceil(total / perPage)),
+    perPage,
+  };
+}
+
+/**
+ * The highest position in an album, so a new batch appends instead of landing
+ * on top of what is already filed.
+ *
+ * The darkroom used to reduce over the rows on screen for this, which was
+ * right only while every row was on screen. On page two it would hand the
+ * uploader a position that is already taken.
+ */
+export async function getMaxPosition(albumId: string): Promise<number> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("photos")
-    .select("*")
+    .select("position")
     .eq("album_id", albumId)
-    .order("position", { ascending: true })
-    .order("created_at", { ascending: true });
-  return withUrls((data ?? []) as Photo[]);
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data?.position ?? -1;
 }
 
 /** An album with the one photograph that fronts it. */
