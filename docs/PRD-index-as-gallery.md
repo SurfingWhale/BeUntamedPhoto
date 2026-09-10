@@ -262,8 +262,23 @@ everything a carousel".
 Remove the `.grid-band.plot` cover grid from `src/app/page.tsx`. The index
 below it becomes the only index, and gains the covers.
 
-Saves **~1200px** and removes six duplicated titles. Home page goes from 7.8
-screens to roughly **5.2**.
+Saves **1240px** (the grid plus the section rail that introduced it) and
+removes six duplicated titles.
+
+Together with § 5.3 replacing the text list with a strip, the arithmetic on the
+measured sections is:
+
+| | px | screens |
+| --- | --- | --- |
+| measured | 6569 | 7.8 |
+| less "Recent work" + its rail | −1240 | |
+| less the list → strip (est. 520px) | −445 | |
+| **projected** | **4884** | **5.8** |
+
+The strip's 520px is the one number in this document that is an estimate rather
+than a measurement, and it is the reason the projection is 5.8 rather than a
+rounder figure. An earlier draft of this PRD claimed **5.2 screens** — that
+overstated the saving by 495px and is corrected here.
 
 ### 5.3 The index becomes a film strip
 
@@ -377,7 +392,7 @@ shipped in a different component.
 
 | # | criterion | how it is checked |
 | --- | --- | --- |
-| 1 | `/` ≤ **5.2 screens** at 390×844 (from 7.8) | `scrollHeight / 844` |
+| 1 | `/` ≤ **6.0 screens** at 390×844 (from 7.8) | `scrollHeight / 844` |
 | 2 | **Zero** duplicated album titles on `/` | query `.album__title, .index__name`, compare sets |
 | 3 | Seven galleries reachable within **one screen** of the index heading | offset of the last card |
 | 4 | `/work` ≤ **2.6 screens** (from 4.9) | `scrollHeight / 844` |
