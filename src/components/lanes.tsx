@@ -102,7 +102,18 @@ export function Lanes({ archiveBanner }: Props) {
                   alt={lane.alt}
                   width={lane.w ?? undefined}
                   height={lane.h ?? undefined}
-                  loading={i < 2 ? "eager" : "lazy"}
+                  /* Never eager, on any page.
+                   *
+                   * An eager frame emits a preload hint, and that hint travels
+                   * in the prefetched payload of every route linking here —
+                   * the masthead links /elsewhere from all of them. So an
+                   * album page, which renders no reel at all, was pulling
+                   * 113KB of lane stills; making only /elsewhere eager still
+                   * leaked 54KB of it. /elsewhere is a secondary page and its
+                   * LCP is not worth taxing the page every shared link lands
+                   * on. Lazy costs it almost nothing: these sit in the opening
+                   * viewport there, and lazy only defers what is off-screen. */
+                  loading="lazy"
                   decoding="async"
                 />
               ) : null}
