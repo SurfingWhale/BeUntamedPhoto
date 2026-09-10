@@ -94,4 +94,17 @@ return `[]` for one build and then put them back — never commit that.
 
 - **Safe-area insets.** Installed, the app is standalone with
   `viewport-fit: cover`, so anything pinned to an edge needs its
-  `env(safe-area-inset-*)`, or iOS draws the status bar over it.
+  `env(safe-area-inset-*)`, or iOS draws the status bar over it. This has
+  shipped broken twice — first the masthead, then `.index-sticky` — so a new
+  sticky element takes `top: max(var(--mast-h, 0px), env(safe-area-inset-top, 0px))`,
+  not `--mast-h` alone. The masthead publishes `--mast-h: 0px` while retracted.
+
+- **Reserve every image box, and know why the attributes alone will not.**
+  `width`/`height` on an `<img>` are only *presentational hints*: any author
+  `width` or `height` declaration beats them. `.lane__frame img` carried
+  `width: auto; height: auto`, so three lazy banners reserved nothing and grew
+  that section 575px under the reader — and adding the attributes did not fix
+  it, because the CSS was overriding them. Either give the wrapper a definite
+  height, or leave the image's `width`/`height` out of the stylesheet so the
+  hints and the attribute-derived `aspect-ratio` can do their job. Measure the
+  drift, do not assume: scroll the page and diff section heights.
