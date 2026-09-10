@@ -1502,6 +1502,111 @@ img { display: block; max-width: 100%; }
 .elsewhere__what { color: var(--color-ink-2); font-size: var(--text-base); }
 .elsewhere__go { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); white-space: nowrap; }
 
+/* ------------------------------------------------------------- lanes */
+/* The three lanes — sport, food, and the archive itself.
+ *
+ * A list of names and domains was inert: a client cannot tell from a URL that
+ * there is a body of sport work behind it. So each lane shows a frame from the
+ * site it leads to.
+ *
+ * The first attempt made those frames full-bleed backgrounds under a forest
+ * scrim, which broke the system in four places at once — design.md § 3.6 says
+ * green is never a section and that full-bleed slabs were removed on
+ * 2026-09-03 for reading heavy and cheap; § 3.5 says canvas sections stay
+ * transparent so the drawn lattice reads through them; § 10 forbids background
+ * texture of any kind and says photography IS the imagery. A photograph printed
+ * under type is a texture, not an image.
+ *
+ * So: canvas ground, hairlines, and the photograph as a real frame beside the
+ * words. It hooks harder this way, because an undarkened frame reads.
+ */
+.lanes {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: 0 var(--page-gutter) calc(var(--row) * 1.5);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.lane {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  padding-block: var(--space-2xl);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  text-decoration: none;
+}
+.lane:last-child { border-bottom: var(--rule-hair) solid var(--color-rule); }
+@media (min-width: 48rem) {
+  .lane {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: var(--space-2xl);
+    align-items: start;
+    padding-block: var(--space-3xl);
+  }
+}
+
+.lane__frame { min-width: 0; }
+.lane__frame { display: grid; justify-items: start; }
+.lane__frame img {
+  /* The frame keeps the photograph's own proportions — no crop, and no
+   * letterbox either, because nothing is forced into a fixed box. A vertical
+   * frame is capped by height instead, so it gets narrower rather than making
+   * its row twice as tall as the others: three rows of wildly different depth
+   * reads as an accident, and § 11 asks for rhythm, not for one big thing. */
+  width: auto;
+  max-width: 100%;
+  max-height: calc(var(--row) * 3.5);
+  height: auto;
+  outline: var(--rule-hair) solid var(--outline-image);
+  outline-offset: calc(var(--rule-hair) * -1);
+}
+
+/* Numeral, then label, then name, stacked — the section rhythm in § 11. Never
+ * the tag-left/heading-right two-column shape it names as a templated tell. */
+.lane__body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); align-content: start; }
+.lane__no {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+/* A text label, so tracked-uppercase body rather than mono — mono is reserved
+ * for indices, coordinates and camera logs. */
+.lane__label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-ink-2);
+}
+.lane__name {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  transition: color var(--dur-micro) var(--ease-out);
+}
+.lane__what { color: var(--color-ink-2); font-size: var(--text-base); max-width: 46ch; }
+/* The address is metadata, so it is mono and bracketed, per § 3.5. */
+.lane__addr {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-muted);
+  margin-top: var(--space-2xs);
+}
+.lane__mark { color: var(--color-accent-deep); font-weight: 700; }
+
+@media (hover: hover) and (pointer: fine) {
+  .lane:hover .lane__name { color: var(--color-accent-deep); }
+  .lane:hover .lane__addr { color: var(--color-ink-2); }
+}
+
 /* --------------------------------------------------------- guestbook */
 .u-bare { list-style: none; padding: 0; margin: 0; }
 

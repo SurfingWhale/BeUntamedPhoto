@@ -3,12 +3,13 @@ import Link from "next/link";
 import { IndexFilter } from "@/components/index-filter";
 import { Reveal } from "@/components/motion";
 import { SIZES } from "@/lib/images";
+import { Lanes } from "@/components/lanes";
 import { PhotoFold } from "@/components/photo-fold";
 import { Plate } from "@/components/plate";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
 import { plate } from "@/lib/format";
-import { elsewhere, site } from "@/lib/site";
+import { site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -233,32 +234,11 @@ export default async function HomePage() {
       </div>
 
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
-      <section className="band band--dark plot">
-        <div className="elsewhere">
-          {elsewhere.map((place, i) => (
-            <Reveal
-              as="a"
-              key={place.href}
-              index={i}
-              className="elsewhere__row"
-              href={place.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className="elsewhere__name">{place.name}</span>
-              <span className="elsewhere__what">{place.what}</span>
-              <span className="elsewhere__go">{place.go} ↗</span>
-            </Reveal>
-          ))}
-          <Link className="elsewhere__row" href="/work">
-            <span className="elsewhere__name">UNTAMED</span>
-            <span className="elsewhere__what">
-              Graduations, brand work and events — the full archive, filed by genre.
-            </span>
-            <span className="elsewhere__go">this site →</span>
-          </Link>
-        </div>
-      </section>
+      <Lanes
+        archiveBanner={
+          featured[0] ? { url: featured[0].url, caption: featured[0].caption } : null
+        }
+      />
 
       <div className="plinth">
         <PhotoFold photo={featured[1]} index={1} fallbackLabel={FALLBACK_LABELS[1]} />

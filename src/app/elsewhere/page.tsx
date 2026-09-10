@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 
-import { Reveal } from "@/components/motion";
-import { elsewhere } from "@/lib/site";
+import { Lanes } from "@/components/lanes";
+import { getFeatured } from "@/lib/gallery";
 
 export const metadata: Metadata = {
   title: "Elsewhere",
   description: "The other sites — UNTMD Sports for sport, VisuFavor for food.",
 };
 
-export default function ElsewherePage() {
+export default async function ElsewherePage() {
+  const [frame] = await getFeatured(1);
+
   return (
     <div className="page">
       <section className="page__intro">
@@ -21,25 +23,9 @@ export default function ElsewherePage() {
         </p>
       </section>
 
-      <section className="fold-text fold-text--tight">
-        <div className="elsewhere">
-          {elsewhere.map((place, i) => (
-            <Reveal
-              as="a"
-              key={place.href}
-              index={i}
-              className="elsewhere__row"
-              href={place.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className="elsewhere__name">{place.name}</span>
-              <span className="elsewhere__what">{place.what}</span>
-              <span className="elsewhere__go">{place.go} ↗</span>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      <Lanes
+        archiveBanner={frame ? { url: frame.url, caption: frame.caption } : null}
+      />
     </div>
   );
 }

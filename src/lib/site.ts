@@ -66,17 +66,29 @@ export function genreLabel(id: string): string {
   return genres.find((g) => g.id === id)?.label ?? "Event";
 }
 
+/**
+ * The other two sites.
+ *
+ * `banner` is a still from that site, committed here rather than hotlinked: a
+ * lane on this page should not go grey because another deployment is down, and
+ * a background frame is worth a hundred kilobytes of our own. Both are
+ * re-encoded to WebP from frames those repositories already publish.
+ */
 export const elsewhere = [
   {
     name: "UNTMD Sports",
     href: "https://untmd-sports.vercel.app/",
     what: "More of the sport work — motion, sweat, the half-second before the point ends.",
     go: "untmd-sports.vercel.app",
+    lane: "Sport",
+    banner: "/lanes/sport.webp",
   },
   {
     name: "VisuFavor",
     href: "https://visufavor.vercel.app/",
     what: "More of the food work — steam, char, the texture close enough to touch.",
     go: "visufavor.vercel.app",
+    lane: "Food",
+    banner: "/lanes/food.webp",
   },
 ] as const;
