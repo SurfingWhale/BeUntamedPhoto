@@ -82,7 +82,23 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    /* The font classes go on <html>, not <body>.
+     *
+     * next/font puts `--font-syne` and friends on whatever element carries the
+     * generated class. tokens.css builds `--font-display: var(--font-syne),
+     * ...` on `:root`, and a var() is substituted on the element that holds
+     * the *declaration* — so with the classes on <body>, `--font-syne` was
+     * undefined at `:root`, `--font-display` computed to the guaranteed-
+     * invalid value, and every descendant inherited that invalidity. Measured:
+     * every element on every route rendered in `-apple-system`, all 47 faces
+     * reported `unloaded`, and the three preloaded woff2 files were fetched
+     * and then used by nothing. Syne, Hanken Grotesk and JetBrains Mono have
+     * never once appeared on this site. */
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${syne.variable} ${hanken.variable} ${jetbrains.variable}`}
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         {/* Motion server-renders its initial state as an inline opacity:0, so
@@ -92,7 +108,7 @@ export default function RootLayout({
           <style>{`[style*="opacity:0"]{opacity:1!important;transform:none!important}`}</style>
         </noscript>
       </head>
-      <body className={`${syne.variable} ${hanken.variable} ${jetbrains.variable}`}>
+      <body>
         <a className="u-skip" href="#main">
           Skip to content
         </a>
