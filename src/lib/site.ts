@@ -18,8 +18,15 @@ export const siteUrl = (
 export const site = {
   name: "UNTAMED",
   wordmark: ["UNTAM", "E", "D"] as const,
-  tagline: "Photography by Fauzy.",
-  owner: "Fauzy",
+  tagline: "Graduation, brand, sport, food and event photography.",
+  /**
+   * The public byline — every page that signs off reads from here. It is the
+   * brand and not a legal name on purpose: a name is the strongest thing tying
+   * this work to whoever made it, and this site is the creative practice and
+   * nothing else. See the rule in CLAUDE.md before changing this line.
+   */
+  byline: "UNTAMED",
+  /** The archive's own address. Never a personal account. */
   email: "untamed98x@gmail.com",
   mastLine: "Visual archive · frames, not feeds",
 };

@@ -9,7 +9,7 @@ Read this first if a session was cut off. Section 7 is the resume point.
 
 ## 1. The goal this serves
 
-Fauzy sells photography and creative commissions. He is expanding past the
+UNTAMED sells photography and creative commissions, expanding past the
 three genres the site names — into graduations, brand work, and more — while
 sport already lives at UNTMD Sports and food at VisuFavor.
 
@@ -25,7 +25,7 @@ of them is structural.
 
 | # | Sev | Location | Before | After | Why |
 | --- | --- | --- | --- | --- | --- |
-| W1 | HIGH | `src/app/page.tsx:123`, `src/app/about/page.tsx` | "Food work lives at VisuFavor, sport at UNTMD Sports, and events and everything unsorted stay in this archive." | Lead with the range Fauzy shoots; name the other two sites as deeper portfolios, not as redirects | The line **sends a paying client away**. Someone who arrived wanting food or sport is told this is not the place. For a commissions site that is the most expensive sentence on it |
+| W1 | HIGH | `src/app/page.tsx:123`, `src/app/about/page.tsx` | "Food work lives at VisuFavor, sport at UNTMD Sports, and events and everything unsorted stay in this archive." | Lead with the range the archive shoots; name the other two sites as deeper portfolios, not as redirects | The line **sends a paying client away**. Someone who arrived wanting food or sport is told this is not the place. For a commissions site that is the most expensive sentence on it |
 | W2 | HIGH | `src/app/page.tsx:118`, `/about`, OG card, `layout.tsx` description | "food, sport and event documentation" | One line that covers the genres actually offered, graduations and brand included | Three named genres is a closed list. A client shooting a graduation reads it and concludes no |
 | W3 | HIGH | `src/app/elsewhere/page.tsx:18`, `page.tsx:243` | "The archive here is the unsorted middle." / "Events and everything unsorted — the archive you're standing in." | Position the archive as the full body of work, with two specialised portfolios beside it | "Unsorted", "leftover", "the middle" is the vocabulary of a hobby project. It reads as a shoebox, not a practice |
 | W4 | MED | `src/app/about/page.tsx:80` | "Send the date, the location, and roughly what the pictures are for — menu, editorial, a team, a launch." | Add graduation and brand to the examples | The examples are the real genre list a reader believes, more than any heading |

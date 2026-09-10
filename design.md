@@ -26,8 +26,8 @@ system needs to grow.
 
 ## 0 · Brand context — why this exists
 
-UNTAMED (this site, `beuntamed-photo.vercel.app`) is Muhammad Fauzy's master
-photography archive. It is the hub that ties together three shooting lanes
+UNTAMED (this site, `beuntamed-photo.vercel.app`) is the master photography
+archive. It is the hub that ties together three shooting lanes
 that don't share one visual identity today:
 
 | Lane | Where it lives | Genre |
@@ -53,15 +53,22 @@ This file is also the answer to "why does the site look like this" — read
 These govern every page, every meta description, every alt text. They are not
 style preferences; breaking one is a content bug.
 
-1. **This site is the creative practice only. Never mention the banking,
-   accounting, data-analyst, or finance side.** No "data analyst by trade",
-   no "ledgers", no "two disciplines", no "the other half of the practice".
-   A visiting client should see a photographer, full stop — a split identity
-   reads as a hobbyist who does this on weekends, which is the opposite of
-   the goal in rule 3.
+1. **This site is the creative practice only.** No other career, trade,
+   industry or employer appears anywhere on it — no "by trade", no "two
+   disciplines", no "the other half of the practice". A visiting client sees
+   a photographer, full stop: a split identity reads as a hobbyist who does
+   this on weekends, which is the opposite of the goal in rule 3. This
+   document is public, so it does not name what is being kept off; the terms
+   to check for are the owner's to hand over.
 2. **Public contact is `untamed98x@gmail.com`.** That address, and only that
    address, goes in the footer, the about page, metadata, and any mailto.
    Do not surface any personal address.
+2b. **The byline is the brand, never a legal name.** `site.byline` reads
+   "UNTAMED" and every sign-off reads from it. Rule 1 keeps the other career
+   off the site; this one keeps the person off it, and a check for one will
+   not catch the other. The name had already reached `site.owner`, the
+   site-wide description in `layout.tsx`, the manifest, a form placeholder
+   and the README — see CLAUDE.md before committing copy.
 3. **The aim is client trust.** Every copy decision is judged against "does
    this make a prospective client more confident hiring him?" In practice:
    - Specific beats clever. What was shot, for whom, where, when.

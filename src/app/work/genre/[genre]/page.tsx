@@ -32,14 +32,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!g) return {};
   return {
     title: `${g.label} photography`,
-    description: `${g.blurb} ${g.label} commissions by ${site.owner}.`,
+    description: `${g.blurb} ${g.label} commissions open.`,
     alternates: { canonical: `/work/genre/${g.id}` },
     openGraph: {
       // Set explicitly: this object replaces the layout's rather than merging
       // with it, so the site-wide type does not carry through.
       type: "website",
       siteName: site.name,
-      title: `${g.label} photography by ${site.owner}`,
+      title: `${g.label} photography · ${site.name}`,
       description: g.blurb,
       url: `/work/genre/${g.id}`,
     },

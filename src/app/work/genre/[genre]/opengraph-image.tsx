@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { genres, site } from "@/lib/site";
 
-export const alt = "Photography by Fauzy";
+export const alt = `${site.name} — ${site.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -65,7 +65,7 @@ export default async function Image({ params }: { params: Promise<{ genre: strin
               display: "flex",
             }}
           >
-            UNTAMED · {site.owner.toUpperCase()}
+            {site.name} · COMMISSIONS OPEN
           </div>
           <div
             style={{
