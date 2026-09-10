@@ -41,6 +41,21 @@ const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
  * file is re-encoded to WebP before it is uploaded. */
 const MAX_BYTES = 60 * 1024 * 1024;
 
+/**
+ * How many plates upload at once.
+ *
+ * Four, not one and not all of them. Sequential cost a full round trip per
+ * plate — one upload plus one server action — so a batch of 200 spent 400
+ * waits end to end. Unbounded is the other mistake: a hundred parallel
+ * uploads on a phone gets throttled, and the refusals come back as failures
+ * rather than as queueing.
+ *
+ * Encoding stays sequential on purpose — see the loop in onChoose. That work
+ * is canvas memory, not network, and running it in parallel is what kills a
+ * tab on iOS.
+ */
+const UPLOAD_LANES = 4;
+
 function safeName(name: string, ext: string) {
   const dot = name.includes(".") ? name.lastIndexOf(".") : name.length;
   const stem = name
@@ -147,72 +162,123 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
     setStaged((prev) => prev.map((s, i) => (i === index ? { ...s, caption } : s)));
   }
 
+  /** Publish one staged plate. Its position comes from where it sits on the
+   * stage, so the published order is the composed order no matter which lane
+   * finishes first. */
+  async function publishOne(
+    supabase: ReturnType<typeof createClient>,
+    item: Staged,
+    index: number,
+  ): Promise<string | null> {
+    const path = `${slug}/${safeName(item.name, item.ext)}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(path, item.blob, {
+        cacheControl: "31536000",
+        contentType: item.blob.type,
+      });
+    if (uploadError) return uploadError.message;
+
+    const result = await recordPhoto({
+      albumId,
+      slug,
+      bucket,
+      path,
+      caption: item.caption.trim() || null,
+      place: place.trim() || null,
+      takenOn: takenOn.trim() || null,
+      width: item.width || null,
+      height: item.height || null,
+      // The staged order is the published order.
+      position: startPosition + index,
+    });
+
+    if (result.status === "error") {
+      // The row is what makes a file a plate. Without one the object is
+      // unreachable litter, so it goes back out.
+      await supabase.storage.from(bucket).remove([path]);
+      return result.message;
+    }
+    return null;
+  }
+
   async function publish() {
     if (staged.length === 0) return;
     const supabase = createClient();
-    setStatus({ kind: "uploading", done: 0, total: staged.length });
+    const batch = staged;
+    setStatus({ kind: "uploading", done: 0, total: batch.length });
 
-    let rawBytes = 0;
-    let storedBytes = 0;
+    /* One plate failing no longer abandons the rest.
+     *
+     * It used to return on the first error, which left the plates before it
+     * published, the plates after it never attempted, and one message on
+     * screen that said nothing about either. Now every plate is attempted, the
+     * failures stay on the stage, and pressing publish again retries only
+     * those. */
+    const failed: { item: Staged; message: string }[] = [];
+    let done = 0;
 
-    for (const [i, item] of staged.entries()) {
-      setStatus({ kind: "uploading", done: i, total: staged.length });
-      const path = `${slug}/${safeName(item.name, item.ext)}`;
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(path, item.blob, {
-          cacheControl: "31536000",
-          contentType: item.blob.type,
-        });
+    const queue = batch.map((item, index) => ({ item, index }));
+    const lanes = Array.from(
+      { length: Math.min(UPLOAD_LANES, queue.length) },
+      async () => {
+        for (;;) {
+          const job = queue.shift();
+          if (!job) return;
+          const message = await publishOne(supabase, job.item, job.index);
+          if (message) failed.push({ item: job.item, message });
+          done += 1;
+          setStatus({ kind: "uploading", done, total: batch.length });
+        }
+      },
+    );
+    await Promise.all(lanes);
 
-      if (uploadError) {
-        setStatus({ kind: "error", message: `${item.name} — ${uploadError.message}` });
-        return;
-      }
+    const published = batch.filter((b) => !failed.some((f) => f.item.key === b.key));
+    published.forEach((sp) => URL.revokeObjectURL(sp.previewUrl));
+    setStaged(failed.map((f) => f.item));
 
-      rawBytes += item.rawBytes;
-      storedBytes += item.blob.size;
-
-      const result = await recordPhoto({
-        albumId,
-        slug,
-        bucket,
-        path,
-        caption: item.caption.trim() || null,
-        place: place.trim() || null,
-        takenOn: takenOn.trim() || null,
-        width: item.width || null,
-        height: item.height || null,
-        // The staged order is the published order.
-        position: startPosition + i,
+    if (published.length === 0) {
+      setStatus({
+        kind: "error",
+        message: `Nothing published — ${failed[0].item.name}: ${failed[0].message}`,
       });
-
-      if (result.status === "error") {
-        await supabase.storage.from(bucket).remove([path]);
-        setStatus({ kind: "error", message: result.message });
-        return;
-      }
+      return;
     }
 
-    const count = staged.length;
-    staged.forEach((s) => URL.revokeObjectURL(s.previewUrl));
-    setStaged([]);
-    setPlace("");
-    setTakenOn("");
+    const rawBytes = published.reduce((n, sp) => n + sp.rawBytes, 0);
+    const storedBytes = published.reduce((n, sp) => n + sp.blob.size, 0);
+    const count = published.length;
+    if (failed.length === 0) {
+      setPlace("");
+      setTakenOn("");
+    }
     const saved = Math.round(((rawBytes - storedBytes) / Math.max(rawBytes, 1)) * 100);
     // Naming the reason matters more than the percentage: "0% smaller" with no
     // explanation is how a batch of 82 MB originals got published unnoticed.
-    const kept = staged.filter((s) => s.kept);
+    const kept = published.filter((sp) => sp.kept);
     const why = kept.length
       ? ` ${kept.length} kept as ${kept.length === 1 ? "an original" : "originals"} — ${kept[0].kept}.`
       : "";
-    setStatus({
-      kind: "ok",
-      message:
-        `${count} ${count === 1 ? "plate" : "plates"} published — ` +
-        `${formatBytes(rawBytes)} stored as ${formatBytes(storedBytes)} (${saved}% smaller).` +
-        why,
-    });
+    const summary =
+      `${count} ${count === 1 ? "plate" : "plates"} published — ` +
+      `${formatBytes(rawBytes)} stored as ${formatBytes(storedBytes)} (${saved}% smaller).` +
+      why;
+
+    /* A partial batch reports as an error, not as a success with a footnote:
+     * plates are still sitting on the stage and someone has to press publish
+     * again. */
+    setStatus(
+      failed.length > 0
+        ? {
+            kind: "error",
+            message:
+              `${summary} ${failed.length} still on the stage — ` +
+              `${failed[0].item.name}: ${failed[0].message}. Publish again to retry those.`,
+          }
+        : { kind: "ok", message: summary },
+    );
     router.refresh();
   }
 
