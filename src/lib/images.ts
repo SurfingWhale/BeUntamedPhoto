@@ -103,8 +103,12 @@ export const SIZES = {
   plateHalf: "(min-width: 60rem) 60vw, 50vw",
   /** .plates__thumb — a fixed 96px contact-sheet square. */
   thumb: "96px",
-  /** .index__frame — a fixed-height cover in the index margin. It is 120px
-   * tall and at most ~40vw wide, so a phone at 3x needs ~470px and never the
-   * 1500w candidate a full-width tile would ask for. */
-  cover: "(min-width: 48rem) 220px, 40vw",
+  /** .reel__frame — a cover in the index reel.
+   *
+   * Measured, not guessed: the card is `min(78%, 21rem)` of the reel's content
+   * box, which inside the index section comes out at 242px on a 390px phone —
+   * 62vw. At 3x that needs ~726px, so the browser takes the 750w candidate and
+   * never the 1500w one a full-width tile would ask for. If the card width
+   * rule changes, re-measure this. */
+  cover: "(min-width: 60rem) 26rem, (min-width: 48rem) 42vw, 62vw",
 } as const;

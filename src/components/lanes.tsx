@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Reveal } from "@/components/motion";
 import { elsewhere } from "@/lib/site";
 
 type Props = {
@@ -31,6 +30,11 @@ type Props = {
  * Rendered by both the home page and /elsewhere from one component. There were
  * two copies of this list, and a list in two places disagrees with itself after
  * the first edit.
+ *
+ * Three destinations are a choice set, so they run sideways in a reel, the same
+ * primitive the index uses. Stacked they were 1688px — two phone screens for
+ * three links, which is exactly what § 11 tells you to cut. The banner is not
+ * smaller for it; there are simply not three of them stacked down the page.
  */
 export function Lanes({ archiveBanner }: Props) {
   const lanes = [
@@ -65,11 +69,14 @@ export function Lanes({ archiveBanner }: Props) {
   ];
 
   return (
-    <div className="lanes">
+    <div className="reel" aria-label="The three sites">
       {lanes.map((lane, i) => {
         const body = (
           <>
-            <span className="lane__frame">
+            <span className="reel__no">
+              [{String(i + 1).padStart(2, "0")}] {lane.label}
+            </span>
+            <span className="reel__frame">
               {lane.banner ? (
                 // Storage and satellite URLs are remote — a plain <img> keeps
                 // them unproxied, as everywhere else in this archive.
@@ -79,37 +86,31 @@ export function Lanes({ archiveBanner }: Props) {
                   alt={lane.alt}
                   width={lane.w ?? undefined}
                   height={lane.h ?? undefined}
-                  loading="lazy"
+                  loading={i < 2 ? "eager" : "lazy"}
                   decoding="async"
                 />
               ) : null}
             </span>
-            <span className="lane__body">
-              <span className="lane__no">{String(i + 1).padStart(2, "0")}</span>
-              <span className="lane__label">{lane.label}</span>
-              <span className="lane__name">{lane.name}</span>
-              <span className="lane__what">{lane.what}</span>
-              <span className="lane__addr">
-                [{lane.addr}] <span className="lane__mark">{lane.mark}</span>
-              </span>
+            <span className="reel__name">{lane.name}</span>
+            <span className="lane__what">{lane.what}</span>
+            <span className="reel__meta">
+              [{lane.addr}] {lane.mark}
             </span>
           </>
         );
 
         return lane.external ? (
-          <Reveal
-            as="a"
+          <a
+            className="reel__card"
             key={lane.key}
-            index={i}
-            className="lane"
             href={lane.href}
             target="_blank"
             rel="noreferrer"
           >
             {body}
-          </Reveal>
+          </a>
         ) : (
-          <Link className="lane" key={lane.key} href={lane.href}>
+          <Link className="reel__card" key={lane.key} href={lane.href}>
             {body}
           </Link>
         );

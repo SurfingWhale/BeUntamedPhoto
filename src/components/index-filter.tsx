@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { Reveal } from "@/components/motion";
 import { plate } from "@/lib/format";
 import { genres, genreLabel } from "@/lib/site";
 import { SIZES } from "@/lib/images";
@@ -23,11 +22,17 @@ type Lens = "all" | (typeof genres)[number]["id"];
  * Genres with nothing filed under them are not offered: an empty filter is a
  * promise the archive cannot keep.
  *
- * Each row carries its cover. It did not, and the home page compensated by
+ * Each card carries its cover. It did not, and the home page compensated by
  * printing a separate grid of the same seven galleries above it — 2162px of
  * one page listing one set twice. design.md § 10 asks a content page for
  * "typography + the photographs only", and a photographer's index with no
  * photographs in it reads as a directory, because it was one.
+ *
+ * It runs sideways because seven galleries are a set you choose between, not
+ * a thing you read — see the .reel note in globals.css. Stacked with covers it
+ * was 1273px; as a reel it is one card deep, and the chips cap how many are in
+ * it at once. /work stays vertical: that is the survey page, and someone sent
+ * that link is there to see everything at once.
  */
 export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
   const [lens, setLens] = useState<Lens>("all");
@@ -90,37 +95,33 @@ export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
           Nothing filed under {genreLabel(lens)} yet.
         </p>
       ) : (
-        <div className="index">
+        <div className="reel" aria-label="Galleries">
           {shown.map((album, i) => (
-            <Reveal as="div" key={album.id} index={i}>
-              <Link className="index__row" href={`/work/${album.slug}`}>
-                <span className="index__frame">
-                  {album.cover?.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={album.cover.url}
-                      srcSet={album.cover.srcSet ?? undefined}
-                      sizes={SIZES.cover}
-                      alt={album.cover.caption ?? album.title}
-                      width={album.cover.width ?? undefined}
-                      height={album.cover.height ?? undefined}
-                      loading={i < 2 ? "eager" : "lazy"}
-                      decoding="async"
-                    />
-                  ) : (
-                    <Plate no={plate(i)} label="no cover" />
-                  )}
-                </span>
-                <span className="index__text">
-                  <span className="index__no">[{plate(i)}]</span>
-                  <span className="index__name">{album.title}</span>
-                  <span className="index__meta">
-                    {genreLabel(album.genre)} · {album.place ?? "unfiled"} ·{" "}
-                    {album.year ?? "\u2014"} {"\u2197\uFE0E"}
-                  </span>
-                </span>
-              </Link>
-            </Reveal>
+            <Link className="reel__card" key={album.id} href={`/work/${album.slug}`}>
+              <span className="reel__no">[{plate(i)}]</span>
+              <span className="reel__frame">
+                {album.cover?.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={album.cover.url}
+                    srcSet={album.cover.srcSet ?? undefined}
+                    sizes={SIZES.cover}
+                    alt={album.cover.caption ?? album.title}
+                    width={album.cover.width ?? undefined}
+                    height={album.cover.height ?? undefined}
+                    loading={i < 2 ? "eager" : "lazy"}
+                    decoding="async"
+                  />
+                ) : (
+                  <Plate no={plate(i)} label="no cover" />
+                )}
+              </span>
+              <span className="reel__name">{album.title}</span>
+              <span className="reel__meta">
+                {genreLabel(album.genre)} · {album.place ?? "unfiled"} ·{" "}
+                {album.year ?? "\u2014"} {"\u2197\uFE0E"}
+              </span>
+            </Link>
           ))}
         </div>
       )}

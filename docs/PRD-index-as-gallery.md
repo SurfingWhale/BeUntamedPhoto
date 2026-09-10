@@ -1,6 +1,24 @@
 # PRD — the index reads as a directory, and the home page prints it twice
 
-**Status:** proposed — nothing below is coded yet
+**Status:** phases 0–2 shipped. Measured outcome, at 390×844 DPR3:
+
+| | before | after | § |
+| --- | --- | --- | --- |
+| `/` | 8.5 screens | **4.8** | 5.2, 5.3, 5.4 |
+| `/work` | 4.9 screens | **2.8** | 5.3 |
+| `/work` rasterised image area | 26.6 MB | **6.1 MB** | 5.3 |
+| height drift while scrolling | +575px | **0** | 5.6c |
+| duplicate titles on `/` | 6 | **0** | 5.2 |
+| index section | 1273px | **568px** | 5.3 |
+| lanes section | 1688px | **355px** | 5.3 |
+
+`/` beat the 6.0-screen criterion because the lanes became a reel too — three
+destinations are a choice set on the same reasoning as the seven galleries, and
+stacked they were the largest block on the page. Phase 3 (per-plate
+containment, the `sizes` audit on the album page) and the § 6 lattice question
+are still open. The § 9 name leak needs `supabase/byline-on-owner-notes.sql`
+run against the master project; until then the code falls back to the profile
+name, which is the old behaviour.
 **Scope:** the index on `/` and `/work`, the plate strip on `/work/[slug]`, and
 the sticky/safe-area and layout-shift defects found while measuring them
 **Raised by the owner:** *"the index needs to be magnetic disappear, looks like
