@@ -1502,8 +1502,43 @@ img { display: block; max-width: 100%; }
 .strip__item:not(:first-child) .strip__cap { font-size: 0.625rem; }
 .strip__item:not(:first-child) .strip__cap > span:last-child { margin-inline-start: 0; }
 .strip__item:not(:first-child) .strip__no { font-size: var(--text-base); }
+/* align-content: start, or a row's spare height is dealt out between the
+ * number, the frame and the caption.
+ *
+ * Measured on a mixed-ratio gallery: a landscape plate with a 146px frame
+ * shares a row with a portrait one and gets stretched to 314px, and the extra
+ * 168px goes into this grid's gaps — its caption ends up floating a finger's
+ * width below its own photograph while the portrait beside it sits tight. The
+ * row stays as tall as its tallest plate, which is what keeps the contact
+ * sheet regular; the parts inside one plate now stay together. */
 .strip__item { display: grid;
-  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0; }
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-sm); min-width: 0; }
+
+/* Why there is no `content-visibility: auto` on these plates.
+ *
+ * It was tried and measured, because 23.9MB of rasterised image area on a
+ * 24-plate gallery is 100% offscreen at load. The browser does skip them —
+ * 13 of 24 at load, verified through contentvisibilityautostatechange — but
+ * two measurements said not to ship it:
+ *
+ * 1. It cannot report an honest height here, and not for want of tuning. The
+ *    estimate was computed per plate from that photograph's own stored ratio,
+ *    which sounds exact and is not: these are grid items, and a grid row
+ *    stretches every item to the tallest one. Measured, a plate with a 146px
+ *    frame sits in a 314px box because its neighbour is a portrait. A plate's
+ *    height is a function of its *sibling*, so no per-item intrinsic size can
+ *    match it, and the page misreported itself by 105px.
+ * 2. It buys nothing measurable at this volume: full style+layout recalc was
+ *    19.9ms with it against 20.4ms without, inside the noise, and the A/B in
+ *    docs/PRD-index-as-gallery.md § 4 found a clean 16.7ms median frame and
+ *    zero dropped frames either way.
+ *
+ * If this is revisited, the grid has to stop stretching rows first.
+ */
+
+
 .strip__no {
   font-family: var(--font-mono);
   font-size: var(--text-lg);

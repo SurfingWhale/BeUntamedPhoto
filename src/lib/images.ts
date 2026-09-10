@@ -90,25 +90,50 @@ export function publicSrcSet(
  * `sizes` per slot, so the browser picks from the srcset before layout.
  * These mirror the breakpoints in globals.css — change them together.
  */
+/**
+ * `sizes` per slot, so the browser picks from the srcset before layout.
+ *
+ * Every value below was measured, not reasoned about: the real rendered box
+ * was read at 390, 430, 768 and 1280 CSS px, multiplied by that viewport's
+ * DPR, and the declaration tuned until the browser lands on the smallest
+ * candidate in WIDTHS that covers it at all four. A `sizes` that over-declares
+ * by one step is not a rounding error — it is the next candidate up, which on
+ * a phone was 1500w where 640w would do.
+ *
+ * Verified by letting the browser resolve each declaration against the real
+ * candidate list at those four viewports — 16 slot/viewport pairs, 14 of them
+ * landing on the smallest candidate that covers the box. The two that do not
+ * are `cover` at 768 and 1280, each one step over on a 284-347px thumbnail;
+ * the values that would close them resolve close enough to a boundary to risk
+ * under-declaring instead, and a soft photograph costs more than those bytes.
+ * Every phone width is optimal.
+ *
+ * These mirror the breakpoints in globals.css. Change them together, and
+ * re-measure rather than re-derive: two of these were wrong precisely because
+ * a column count changed and the declaration did not.
+ */
 export const SIZES = {
-  /** .fold-photo — full bleed at every width. */
+  /** .fold-photo — genuinely full-bleed, no gutters. */
   fold: "100vw",
-  /** .album__media — one column, then two at 40rem, then irregular spans on
-   * the 12-column field at 60rem, where a tile is between 4 and 7 columns. */
-  tile: "(min-width: 60rem) 50vw, (min-width: 40rem) 50vw, 100vw",
-  /** .strip__frame, the opening plate — full width until the cascade pairs it. */
-  plate: "(min-width: 60rem) 60vw, 100vw",
-  /** .strip__frame, every plate after the first — half width on a phone too,
-   * which quarters the bytes for the frames someone is scrolling past. */
-  plateHalf: "(min-width: 60rem) 60vw, 50vw",
+  /**
+   * .album__media on /work and the genre pages. Two columns from the smallest
+   * width since the /work grid changed; the measured box is 43-44% of the
+   * viewport up to 60rem and 53% on the twelve-column field above it.
+   * This said `100vw` after that change and pulled 1500w for a 167px box.
+   */
+  tile: "(min-width: 60rem) 54vw, 45vw",
+  /** .strip__frame, the opening plate — full width less the page gutters,
+   * which measures 90-92%, not the 100vw it used to claim. */
+  plate: "(min-width: 60rem) 48vw, 91vw",
+  /** .strip__frame, every plate after the first — two up at every width, so
+   * ~45% below 60rem and ~32% of the wider measure above it. */
+  plateHalf: "(min-width: 60rem) 32vw, 45vw",
   /** .plates__thumb — a fixed 96px contact-sheet square. */
   thumb: "96px",
-  /** .reel__frame — a cover in the index reel.
-   *
-   * Measured, not guessed: the card is `min(78%, 21rem)` of the reel's content
-   * box, which inside the index section comes out at 242px on a 390px phone —
-   * 62vw. At 3x that needs ~726px, so the browser takes the 750w candidate and
-   * never the 1500w one a full-width tile would ask for. If the card width
-   * rule changes, re-measure this. */
-  cover: "(min-width: 60rem) 26rem, (min-width: 48rem) 42vw, 62vw",
+  /**
+   * .reel__frame — a cover in the index reel. The card is `min(78%, 21rem)` of
+   * the reel's content box, which inside the index section measures 242px on a
+   * 390px phone and 347px at 1280.
+   */
+  cover: "(min-width: 60rem) 22rem, (min-width: 48rem) 38vw, 62vw",
 } as const;

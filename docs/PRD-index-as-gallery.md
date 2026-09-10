@@ -28,11 +28,39 @@ which was not in the plan below: three destinations are a choice set on the
 same reasoning as the seven galleries, and stacked they had become the largest
 block on the page.
 
-**Still open.** Phase 3 — per-plate containment and the `sizes` audit on the
-album page, which is still 6.1 screens for 24 plates. The § 6 lattice question,
-which is the owner's to answer. And the § 9 name leak, which needs
-`supabase/byline-on-owner-notes.sql` run against the master project: until then
-the code falls back to the profile name, which is the old behaviour.
+**Phase 3, and the part of it that was rejected.** The `sizes` audit shipped:
+four of the six declarations were over-declaring, the worst by three candidate
+steps — `/work` tiles still said `100vw` after § 5.3 made them two columns, so
+a phone pulled a 1500w file for a 167px box. All four were retuned against the
+measured box at 390, 430, 768 and 1280 CSS px, and the result was verified by
+letting the browser resolve each declaration against the real candidate list:
+14 of 16 slot/viewport pairs now land on the smallest candidate that covers the
+box, every phone width among them.
+
+**`content-visibility: auto` was tried and rejected, on measurement.** The
+browser does skip the plates — 13 of 24 at load, confirmed through
+`contentvisibilityautostatechange` — but it cannot report an honest height
+here, and not for want of tuning. The estimate was computed per plate from that
+photograph's own stored ratio, which sounds exact and is not: these are grid
+items, and a grid row stretches every item to the tallest one. A plate with a
+146px frame measures 314px because its neighbour is a portrait. A plate's
+height is a function of its *sibling*, so no per-item intrinsic size can match
+it, and the page misreported itself by 105px. Against that, full style+layout
+recalc was 19.9ms with it and 20.4ms without — inside the noise, consistent
+with § 4. Revisiting it means stopping the grid stretching rows first; the
+reasoning is recorded in `globals.css` beside `.strip__item`.
+
+That measurement did turn up a real defect, now fixed: the row's spare height
+was being dealt out between a plate's number, frame and caption, so a landscape
+plate's caption floated ~168px below its own photograph while the portrait
+beside it sat tight. `align-content: start` on `.strip__item`; the caption gap
+is now a uniform 12px on every plate.
+
+**Still open.** The § 6 lattice question, which is the owner's to answer. And
+the § 9 name leak, which needs `supabase/byline-on-owner-notes.sql` run against
+the master project: until then the code falls back to the profile name, which
+is the old behaviour. The album page stays 6.1 screens for 24 plates, and that
+is the intended shape — those plates are the content, not chrome.
 
 ---
 
