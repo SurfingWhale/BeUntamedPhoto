@@ -25,10 +25,14 @@ export function PhotoFold({
   const has = Boolean(photo?.url);
 
   /* The fold takes the plate's own proportions on a phone — see .fold-photo
-   * in globals.css. Without this the CSS falls back to 3/4 and crops. */
+   * in globals.css. Without this the CSS falls back to 0.75 and crops.
+   *
+   * A single number, not `w / h`: the stylesheet caps this with min() so an
+   * opening frame is never wider than 4:5, and min() takes numbers. An
+   * aspect-ratio of one number means that number to 1, which is the same box. */
   const ratio =
     photo?.width && photo?.height
-      ? ({ "--fold-ratio": `${photo.width} / ${photo.height}` } as CSSProperties)
+      ? ({ "--fold-ratio": `${(photo.width / photo.height).toFixed(4)}` } as CSSProperties)
       : undefined;
 
   /* Landscape or portrait decides whether the plate can bleed at all on a wide

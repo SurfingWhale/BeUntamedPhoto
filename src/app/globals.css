@@ -748,8 +748,25 @@ img { display: block; max-width: 100%; }
 .fold-photo--tall,
 .fold-photo--band {
   height: auto;
-  aspect-ratio: var(--fold-ratio, 3 / 4);
+  aspect-ratio: var(--fold-ratio, 0.75);
 }
+/* The opening frame is never wider than 4:5, because the plate's own ratio is
+ * not always tall enough to open a page.
+ *
+ * The rule above keeps whatever proportions the photograph has, which is right
+ * for the vertical plates it was written for. But the featured plate is
+ * currently landscape at 1.50, and 350px of width across a phone made it
+ * 233px tall — a strip 28% of one screen, under a 145px masthead.
+ *
+ * Capping the ratio and not the height, because .plinth sizes this box
+ * shrink-to-fit: a min-height of 5 rows made aspect-ratio derive the *width*
+ * from the new height and the frame came out 731px wide inside a 390px
+ * viewport, hidden only by overflow-x: clip. Measured, and the third time
+ * that has happened in this stylesheet.
+ *
+ * min() only ever lowers a landscape number: a 0.56 plate stays 0.56 and
+ * still crops nothing. Measured: 233px -> 437px, 52% of the screen. */
+.fold-photo--tall { aspect-ratio: min(var(--fold-ratio, 0.75), 0.8); }
 @media (min-width: 60rem) {
   .fold-photo--tall { aspect-ratio: auto; height: calc(var(--row) * 6); }
   .fold-photo--band { aspect-ratio: auto; height: calc(var(--row) * 4); }
@@ -771,9 +788,27 @@ img { display: block; max-width: 100%; }
     padding-block-end: var(--space-md);
   }
   .fold-photo[data-shape="portrait"] .fold-photo__img {
+    /* A definite height, and the width derived from it.
+     *
+     * This branch used to set `width: auto` and leave `height: 100%` from
+     * .fold-photo__img standing, against a parent whose height is auto — a
+     * percentage against nothing. Author declarations also beat the width and
+     * height attributes, so no aspect-ratio was derived either and the frame
+     * had no intrinsic box: it measured 0x0 at 1440, which kept it far from
+     * the viewport, so its lazy load never fired and it stayed 0x0 forever.
+     * The second photograph on / and on /about was invisible at every width
+     * from 960px up. `height: auto` alone does not fix it — with both
+     * dimensions auto an unloaded image has no intrinsic size at all.
+     *
+     * Seven rows was already the intended cap; making it the height gives the
+     * box a definite side to derive the other from. object-fit: contain has
+     * nothing left to letterbox, so the plate is still uncropped, and the
+     * frame still lands on the lattice. See CLAUDE.md: presentational hints
+     * lose to any author declaration, and this is the second photograph it
+     * has cost. Measured: 0x0 -> 560x840. */
+    height: calc(var(--row) * 7);
     width: auto;
     max-width: 100%;
-    max-height: calc(var(--row) * 7);
     margin-inline: auto;
     object-fit: contain;
   }
