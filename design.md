@@ -138,9 +138,12 @@ The load-bearing layout decision on this site.
 - Two columns on a phone, asymmetric spans on the twelve-column field above
   60rem. A tile keeps its cover's own proportions — **nothing is cropped to
   make a row tidy**, and a row's height is its tallest member.
-- Every card wants **a border that fits**: in the reference each one sits in a
-  subtle bordered or filled box. *Not yet built — `.album` and `.reel__card`
-  still float with only the photograph outlined.*
+- **Every card sits in a box**, and this is most of why the reference's very
+  small type reads as composed rather than stranded. A hairline border, a
+  `--color-paper-white` ground, no radius and no shadow. The photograph
+  reaches three edges and only the text is padded — padding the photograph too
+  would mount it twice and cost real width on a phone column. In dark the two
+  grounds are the same value, so the hairline carries it alone.
 
 ### Page skeletons
 
@@ -196,7 +199,7 @@ one that would justify a webfont.
 | Role | Rule |
 | --- | --- |
 | Logotype | its own face, wide and geometric, tracking positive |
-| Headings | **sentence case**, bold, tight tracking, left-aligned |
+| Headings | **sentence case**, bold, **tracked in** (negative), left-aligned |
 | Body | regular; near-black primary, grey secondary |
 | Labels / meta | small, grey, sentence case |
 | Capitals | the wordmark, the ticker, tiny labels and control text. **Never a heading and never a card title** — that is the line § 12 gates |
@@ -207,6 +210,13 @@ corrected; the labels were already right. The scale lives in `tokens.css`.
 `--text-base` and `--text-md` are deliberately held *above* where the reference
 would put them rather than following it all the way down — that is reading copy
 on a phone, and this is an archive read on phones. Everything larger came down.
+
+**Tracking follows the case, not the size.** Capitals have no ascenders or
+descenders to interlock, so their sidebearings are already as tight as the
+letters read — `--tracking-caps` tracks them *out*. Lowercase display type
+wants the negative steps. Only the two wordmarks are capitals, so only they
+take the positive step; every heading takes a negative one. Getting this
+backwards is invisible in a diff and obvious on the page.
 
 **Two signatures worth keeping:**
 

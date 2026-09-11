@@ -1145,7 +1145,13 @@ img { display: block; max-width: 100%; }
   align-content: start;
   text-decoration: none;
   min-width: 0;
+  /* The same box as .album — see the note there. The plate number sits above
+   * the photograph inside the box, which is where the reference puts it. */
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-white);
+  padding-block: var(--space-xs) var(--space-sm);
 }
+.reel__card > :not(.reel__frame) { padding-inline: var(--space-sm); }
 @media (min-width: 48rem) {
   .reel__card { width: min(44%, 24rem); }
 }
@@ -1568,8 +1574,29 @@ img { display: block; max-width: 100%; }
  * 18 / 15 / 12 is three levels where there were one and a half. */
 .albums .album__title { font-size: var(--text-md); }
 
+/* A card is a box, not a photograph with a loose caption under it.
+ *
+ * "border yang sesuai" — the reference puts every card inside a subtle
+ * bordered, filled box, and it is most of why its very small type reads as
+ * composed rather than stranded. A photograph with its meta floating beneath
+ * reads as a contact sheet; the same pair inside a hairline box reads as a
+ * mounted print. design.md § 4.
+ *
+ * The photograph reaches three edges and only the text is padded, which is the
+ * reference's shape. Padding the photograph too would mount it twice, and it
+ * would cost the tile real width on a 167px phone column.
+ *
+ * No shadow and no radius — the hairline and the tonal step between
+ * --color-paper-white and the frame's --color-paper-2 are the whole effect.
+ * In dark those two tokens are the same value, so there the hairline carries
+ * it alone; it is lime at 0.18 there and reads clearly enough on its own, and
+ * the frame's ground only shows while the photograph is still arriving. */
 .album { display: grid;
-  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0; }
+  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0;
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-white);
+  padding-block-end: var(--space-sm); }
+.album > :not(.album__media) { padding-inline: var(--space-sm); }
 .album__media {
   display: block;
   /* The tile keeps its cover's shape, but never goes landscape.
@@ -2250,21 +2277,23 @@ img { display: block; max-width: 100%; }
 }
 
 /* Capitals, tracked out rather than in — see --tracking-caps in tokens.css.
- * Every rule below sets text-transform: uppercase, and every one of them was
- * inheriting a negative step drawn for lowercase display type. */
+ *
+ * Only the two runs that are still all capitals. This block used to name nine
+ * selectors, from when every heading on the site was uppercase; the
+ * de-shouting pass moved six of them to sentence case and left them here, so
+ * .page__title, .head__title, .foot__statement, .reel__name,
+ * .elsewhere__name and .album__title were lowercase display type tracked
+ * *out* — the opposite of what design.md § 5 asks for and of what their own
+ * rules declare. Removing them from this block is the whole fix: each one
+ * already sets --tracking-hero, --tracking-display or --tracking-heading, and
+ * this block was the last declaration overriding it.
+ *
+ * The wordmarks keep it. Both are set in capitals on purpose (design.md § 5
+ * allows the wordmark, the ticker, tiny labels and control text), and caps
+ * have no ascenders or descenders to interlock, so a negative step only
+ * closes their counters. */
 .foot__wordmark,
-.page__title,
-.page__title em,
-.head__title,
-.foot__statement,
-.foot__statement em,
 .mast__name,
-.mast__name em,
-/* Higher specificity than the flat .head__title below it, and it re-declares
- * letter-spacing to reset the size — so it has to be named here too. */
-.index-sticky .head__title,
-.reel__name,
-.elsewhere__name,
-.album__title {
+.mast__name em {
   letter-spacing: var(--tracking-caps);
 }
