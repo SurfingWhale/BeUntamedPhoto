@@ -56,12 +56,27 @@
   --text-xs:      0.6875rem;  /* 11px · label-index */
   --text-sm:      0.75rem;    /* 12px · label-code  */
   --text-base:    0.9375rem;  /* 15px · body-md     */
-  --text-md:      1.125rem;   /* 18px · body-lg     */
-  --text-lg:      1.5rem;     /* 24px · headline-sm */
+  --text-md:      1rem;       /* 16px · body-lg     */
+  --text-lg:      1.25rem;    /* 20px · headline-sm */
   --text-xl:      1.75rem;
-  --text-2xl:     2.5rem;     /* 40px · headline-md */
+  --text-2xl:     2rem;       /* 32px · headline-md */
   --text-3xl:     4rem;       /* 64px · headline-lg */
-  --text-display-s: clamp(2.25rem, 5vw, 4rem);
+  /* Small type against generous space — the owner's own read of the
+   * reference, 2026-09-11: "spacing yang enak terus typography yang kecil
+   * banget". Measured against it at 1440px, our display sizes were the thing
+   * out of proportion, not the small ones:
+   *
+   *   page title   4.44% of viewport width   reference ~2.4%   1.85x
+   *   body         1.25%                     ~0.85%            1.47x
+   *   card meta    0.83%                     ~0.70%            1.19x  (fine)
+   *   chip / nav   0.83%                     ~0.70%            1.19x  (fine)
+   *
+   * So the display steps came down and the label steps stayed. The reference
+   * figures are eyeballed off a screenshot and carry maybe ±20%; ours are
+   * measured. --text-base stays at 15px and --text-md stops at 16px rather
+   * than following the reference all the way down, because that is reading
+   * copy on a phone and this is not a desktop fashion site. */
+  --text-display-s: clamp(1.625rem, 2.6vw, 2.25rem);
   --text-display:   clamp(3rem, 8.5vw, 7rem);   /* 112px · headline-hero */
 
   /* ---- space — Stitch's rhythm, opened up one step for air -------- */

@@ -391,6 +391,75 @@ travels, the fiction does not.
 
 ---
 
+## 3.8 · The owner's own read of the reference — 2026-09-11
+
+Recorded in his words, because it is a sharper design read than anything § 1
+to § 3.6 managed from the same two images, and because the last thing this
+brief should lose again is the owner's actual eye:
+
+> *"dia make spacing yang enak terus typography yang kecil banget dengan border
+> yang sesuai ada hero dengan font putih terus ada permainan color juga di
+> salah satu katanya, itu yang gadipunya ai"*
+
+Five qualities, and one verdict. Taken one at a time, with what was found when
+each was checked:
+
+**1 · Comfortable spacing.** Not merely "a lot" — *pleasant*. Section block
+padding measured 120px at 1440 and 52px at 390, which is already in the right
+register. This one was already right and is the reason the type correction
+below works rather than leaving the page looking empty.
+
+**2 · Very small typography.** Measured, and he was right, and the interesting
+part is *which* type. At 1440px, as a share of viewport width:
+
+| role | ours, before | reference (est.) | ratio |
+| --- | --- | --- | --- |
+| page title | **4.44%** | ~2.4% | **1.85×** |
+| body | **1.25%** | ~0.85% | **1.47×** |
+| card title | 1.25% | ~1.0% | 1.25× |
+| card meta | 0.83% | ~0.70% | 1.19× |
+| chip / nav | 0.83% | ~0.70% | 1.19× |
+
+The *labels* were already about right. It was the **display** sizes that were
+out, by nearly double. Corrected: `--text-display-s` to
+`clamp(1.625rem, 2.6vw, 2.25rem)` — 36px at 1440, 2.50% against the
+reference's ~2.4% — `--text-2xl` 40 → 32px, `--text-lg` 24 → 20px, `--text-md`
+18 → 16px. The reference figures are eyeballed off a screenshot and carry maybe
+±20%; ours are measured.
+
+`--text-base` stays 15px and `--text-md` stops at 16px rather than following
+the reference all the way down. That is reading copy on a phone, and this is a
+photography archive read on phones, not a desktop fashion site. Small type is
+the look; unreadable type is not, and that trade is stated rather than silently
+taken.
+
+**3 · Borders that fit.** Not yet done, and the gap is real: in the reference
+every product card sits in a subtle bordered or filled box. `.album` and
+`.reel__card` here float on the page with no container at all — only the
+photograph carries a hairline outline. This is the next thing to try.
+
+**4 · A hero with white type.** **The largest structural gap on the site.** The
+reference opens on a full-bleed photograph with the logotype set over it in
+light type, a caption card floating on it, and a thumbnail strip at its foot.
+This site opens on roughly 330px of masthead and nav before any photograph
+appears. § 3.7 records the structure; nothing has been built toward it.
+
+**5 · Colour played on one word.** Already in the build, and worth saying so:
+`.page__title em` gives one word a lime ground — `Work, `*`indexed`*`.` — and
+the wordmark carries a lime `E`. His instinct and the code already agree here.
+The discipline to keep is *one* word, once per page.
+
+**"itu yang gadipunya ai."** The honest reading of that, against this session's
+record: what was missing was not taste in the abstract. It was that four
+documents' worth of decisions were measured against `design.md` — a paraphrase
+— while the references sat unseen. The five divergences in § 3.7 and the 1.85×
+in the table above were all invisible until the image was on screen. The
+correction is procedural, and it is in § 8 of
+`docs/RESEARCH-reference-vs-built.md`: check design fidelity against the
+images, or say plainly that you cannot.
+
+---
+
 ## 4 · Theme — superseded, kept for provenance
 
 Paper alternates light and dark-green, per the Nomvnt rhythm. Accent is the
