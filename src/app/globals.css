@@ -1259,6 +1259,127 @@ img { display: block; max-width: 100%; }
  * in the emptiness; that emptiness is the composition. */
 /* Bottom padding outweighs top so the opening sits INTO the page rather than
  * floating off it (slop-test gate 54). */
+/* ------------------------------------------------------------------- hero */
+/* The opening photograph, carrying the statement in light type.
+ *
+ * The height is definite and expressed in --row, the lattice module, the same
+ * way .reel__frame and .fold-photo--tall are. That is what reserves the box
+ * before the bytes land, and it is also what lets the image's width and
+ * height live in this stylesheet at all: CLAUDE.md's presentational-hints
+ * rule says either give the wrapper a definite height or keep width/height
+ * out of the CSS, and this is the former. Three lane banners once grew a
+ * section 575px under the reader by getting that backwards.
+ *
+ * No aspect-ratio here, deliberately. With one set, flooring a height makes
+ * the *width* derive from it — the blowout family CLAUDE.md records three of.
+ * A definite height on a full-bleed box has no such failure mode.
+ *
+ * The svh line is second so an engine without it keeps the --row height
+ * rather than nothing. And the frame stops short of the full screen on
+ * purpose: at 390 it draws about 624 of 844, which leaves the ticker below it
+ * already visible. The invitation to scroll is a band of real content, not a
+ * chevron.
+ *
+ * Nothing here is pinned to a screen edge — the masthead is above it and the
+ * ticker below — so it needs no env(safe-area-inset-*). That is why the
+ * credit sits with the type at the foot rather than in the top corner, where
+ * it would have been both under the notch and under the masthead. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  height: calc(var(--row) * 6.4);
+  height: min(calc(var(--row) * 6.4), 76svh);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: var(--color-paper-dark);
+}
+.hero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The one place a photograph is cropped on purpose. design.md § 7 forbids
+   * cropping to tidy a layout, and that rule is about tiles in a grid; here
+   * the photograph is a ground for type rather than a plate to be read, and
+   * the same frames are shown uncropped in the galleries. */
+  object-position: center;
+  z-index: -2;
+}
+/* The scrim. See --color-scrim-* in tokens.css for why this is a legibility
+ * device and not the background texture § 7 rules out. It covers only the
+ * lower band, so the top of the photograph is untouched. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 68%;
+  background: linear-gradient(
+    to top,
+    var(--color-scrim-3),
+    var(--color-scrim-2) 38%,
+    var(--color-scrim-0)
+  );
+  z-index: -1;
+  pointer-events: none;
+}
+.hero__type {
+  grid-row: 2;
+  align-self: end;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--space-lg) var(--page-gutter) var(--space-lg);
+  display: grid;
+  gap: var(--space-md);
+}
+.hero__line {
+  /* --text-display exists for exactly this and had no caller until now. */
+  font-size: var(--text-display);
+  font-weight: 800;
+  letter-spacing: var(--tracking-hero);
+  color: var(--color-ink-on-dark);
+  /* No line-height here on purpose: it inherits the sentence-case-safe 1.08
+   * from the h1-h3 rule, so changing this copy to something with a descender
+   * on the first line cannot collide it with the second. */
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.hero__line em {
+  font-style: normal;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding-inline: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-lg);
+}
+.hero__sub {
+  font-size: var(--text-base);
+  color: var(--color-ink-on-dark);
+  max-width: 38ch;
+}
+/* White, not the muted --color-ink-on-dark-2 that every other on-slab label
+ * uses. Over a photograph a tint cannot be guaranteed: composited over a
+ * pure-white frame this line measured 4.32:1, under the 4.5 an 11px run
+ * needs. On a photograph the hierarchy has to come from size, weight and
+ * tracking — which this already has against a 15px sub — and not from a
+ * lightness step that depends on what someone uploaded. */
+.hero__credit {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-ink-on-dark);
+  white-space: nowrap;
+}
+
 .open {
   max-width: var(--page-max);
   margin-inline: auto;

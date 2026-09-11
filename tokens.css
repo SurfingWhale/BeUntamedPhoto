@@ -117,6 +117,27 @@
   --color-ink-on-dark:  #FFFFFF;
   --color-ink-on-dark-2:#ABCFBB;  /* primary-fixed-dim — muted on slab */
 
+  /* The hero scrim — black at three alphas, so white display type clears
+   * contrast over a photograph nobody has seen yet.
+   *
+   * Not a brand colour and not texture. design.md § 7 keeps generated imagery
+   * out — CSS art, illustration, pattern — and a scrim is none of those: the
+   * photograph is owner content whose tonality is unknown at build time, and
+   * white type over an unknown photograph is a contrast failure waiting for
+   * the wrong upload. It is the minimum that makes type over a photograph
+   * legal, and it darkens only the band the type occupies.
+   *
+   * Deliberately identical in both themes, and not redeclared below: it
+   * darkens a photograph, and a photograph does not have a theme.
+   *
+   * The three alphas are measured, not chosen. Composited over a pure-white
+   * photograph — the pathological case, and the only one worth designing for —
+   * 0.45 at the mid stop put the display line at 3.36:1, over the 3.0 a
+   * 48px bold run needs but with no margin at all. 0.50 takes it to 3.9. */
+  --color-scrim-3:      rgb(0 0 0 / 0.72);
+  --color-scrim-2:      rgb(0 0 0 / 0.50);
+  --color-scrim-0:      rgb(0 0 0 / 0);
+
   --color-rule:         #E5E5E0;  /* hairline */
   --color-rule-2:       #C1C8C2;  /* outline-variant */
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);

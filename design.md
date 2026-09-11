@@ -152,9 +152,12 @@ The load-bearing layout decision on this site.
   carries a sticky head above it — a count and the genre chips — which is the
   only sticky thing on the page besides the masthead, and therefore the only
   other place § 10's safe-area rule bites.
-  *The reference opens on a full-bleed photograph with the logotype set over
-  it in light type. This page opens on ~330px of masthead first. Not yet
-  built, and it is the largest remaining structural gap.*
+  The hero is a full-bleed photograph with the statement set on it in white,
+  the lime landing on one word, and a plate credit beside the tagline at its
+  foot. It stops at ~74% of the first screen so the ticker below it is already
+  visible — the invitation to scroll is a band of real content, not a chevron.
+  The typographic zone that used to be the front door is now an interstitial
+  below the ticker.
 - **`/work`, `/work/[slug]`, `/about`, `/notes`** — typography and the
   photographs, nothing else. Plates carry numbered labels.
 - **`/enter`, `/account`, `/darkroom`** — function only. No enrichment of any
@@ -260,9 +263,21 @@ Values in `tokens.css`. How they are used:
 - Full-bleed, and they are the imagery — negative space is the enrichment.
 - **Type over a photograph is in.** The reference's two strongest moments are
   its hero logotype and its photo-backed filter row. What stays out is
-  *generated* texture: CSS art, illustration, gradients, pattern.
+  *generated* texture: CSS art, illustration, decorative gradients, pattern.
+  A **scrim** is not on that list — it is a legibility device, because the
+  photograph is owner content whose tonality is unknown at build time and
+  white type over an unknown photograph is a contrast failure waiting for the
+  wrong upload. Its alphas are `--color-scrim-*` and they are *measured*
+  against a pure-white frame, the only case worth designing for.
+- **Contrast over a photograph is measured on composited pixels**, never
+  reasoned about. Sample what is actually behind the glyphs. And hierarchy
+  there comes from size, weight and tracking — not from a lightness step,
+  which cannot be guaranteed against something someone else uploaded.
 - **Never cropped to fit a layout.** Boxes take the photograph's own
-  proportions, or the photograph is contained and letterboxed.
+  proportions, or the photograph is contained and letterboxed. The hero is the
+  single exception, and only because there the photograph is a *ground for
+  type* rather than a plate to be read — and every one of those frames is also
+  shown uncropped inside its gallery.
 - **Every image box is reserved before the bytes land.** `width`/`height`
   attributes are only presentational hints and lose to any author `width` or
   `height` declaration — see `CLAUDE.md`, where this cost a 575px jump.
@@ -362,6 +377,16 @@ tr '\n' ' ' < src/app/globals.css | tr ';' '\n' \
 # Every sign-off reads from the byline. This one prints, and is read: the
 # byline must be what src/lib/site.ts defines and what src/ signs off with.
 grep -rn "site\.byline" src/ && grep -n "byline:" src/lib/site.ts
+
+# Comment markers balance in both stylesheets. Cheap, and it earns its place:
+# a comment closed one line early inside tokens.css turned the whole rest of
+# :root into stray text — every colour, size and easing after that point
+# silently gone. CSS does not error, the build was green, lint was green, and
+# the only tell was a contrast measurement coming back as if the scrim were
+# not there. Any count mismatch here means a stylesheet is truncated.
+for f in tokens.css src/app/globals.css; do
+  printf '%s %s %s\n' "$f" "$(grep -o '/\*' "$f" | wc -l)" "$(grep -o '\*/' "$f" | wc -l)"
+done | awk '$2 != $3 { print "UNBALANCED: " $0 }'
 ```
 
 In a browser, at 390×844 and 1440, because four of the five regressions this

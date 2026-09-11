@@ -1,6 +1,7 @@
 import { IndexFilter } from "@/components/index-filter";
 import { Reveal } from "@/components/motion";
 import { Lanes } from "@/components/lanes";
+import { Hero } from "@/components/hero";
 import { PhotoFold } from "@/components/photo-fold";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
@@ -16,7 +17,9 @@ import { site } from "@/lib/site";
  */
 export const revalidate = 300;
 
-const FALLBACK_LABELS = ["the opening frame", "between assignments"];
+/* One label, for the one PhotoFold left on this page. The hero draws its own
+ * placeholder ground and needs none. */
+const CLOSING_FALLBACK = "between assignments";
 
 /* One index, not two.
  *
@@ -27,15 +30,32 @@ const FALLBACK_LABELS = ["the opening frame", "between assignments"];
  * and the list carries the covers, so the page is shorter and still shows
  * photographs, which § 10 requires of a content page.
  *
- * Composition studied from the reference layout (design.md § 3.6):
- * an opening zone that is mostly empty, a full-bleed photograph whose edges
- * land on lattice rows, then a lower zone of huge light display type against
- * a narrow justified column, with the marks placed in the margins.
- * White carries ~85% of the page; green is the photograph and one tag. */
+ * Composition, in the order it draws (design.md § 4):
+ *
+ *   hero · ticker · opening zone · statement · label + gallery reel ·
+ *   label + lanes reel · closing plate
+ *
+ * The hero is new and the order around it changed. This page used to open on
+ * the masthead, then a screen of mostly-empty typography, then the ticker,
+ * then its first photograph — so someone arriving from a shared link met type
+ * before they met any work, which is the opposite of the reference. The
+ * photograph is first now, with the statement set on it in light type, and
+ * the plinth that used to hold that same plate is gone rather than repeating
+ * it a screen later.
+ *
+ * The typographic opening zone survives, below the ticker, as an interstitial
+ * rather than as the front door. Its "frames not feeds" label went with it:
+ * that line is the hero's now, and one page does not say it twice. */
 export default async function HomePage() {
   // One wave, not a chain: covers arrive with their albums now, so nothing
   // here waits on anything else.
-  const [featured, albums] = await Promise.all([getFeatured(2), getAlbumsWithCovers()]);
+  /* Three plates, not two: the hero takes the first, the lane banner the
+   * second and the closing fold the third, so no photograph appears twice on
+   * the page. Fewer than three in the archive and the tail degrades — the
+   * banner falls back to the hero's plate, four screens away, and PhotoFold
+   * draws its numbered Plate placeholder. */
+  const [featured, albums] = await Promise.all([getFeatured(3), getAlbumsWithCovers()]);
+  const banner = featured[1] ?? featured[0];
   const year = new Date().getUTCFullYear();
   const held = albums.filter((a) => a.visibility === "members").length;
 
@@ -52,6 +72,11 @@ export default async function HomePage() {
 
   return (
     <div className="page">
+      {/* ---- the hero · full bleed, the statement set on it in light type -- */}
+      <Hero photo={featured[0]} />
+
+      <Ticker items={tickerItems} />
+
       {/* ---- opening zone · mostly empty, marks placed in the blank cells --- */}
       <section className="open">
         <Reveal className="open__label" index={0}>
@@ -61,7 +86,6 @@ export default async function HomePage() {
             archive
           </p>
           <p className="open__no">{`2K${String(year).slice(2)}`}</p>
-          <p className="label-wide">frames not feeds</p>
         </Reveal>
 
         <span className="mark mark--thin open__arrow" aria-hidden="true">
@@ -79,29 +103,16 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      <Ticker items={tickerItems} />
-
-      {/* ---- the photograph · full bleed, edges on lattice rows ------------ */}
-      <div className="plinth">
-        <PhotoFold
-          photo={featured[0]}
-          index={0}
-          size="tall"
-          priority
-          fallbackLabel={FALLBACK_LABELS[0]}
-        />
-      </div>
-
       {/* ---- lower zone · display type against a narrow justified column --- */}
       <section className="story">
         <Reveal className="story__head" index={0}>
-          <h1 className="story__title">
+          <h2 className="story__title">
             the half-second
             <br />
             before it is
             <br />
             over .
-          </h1>
+          </h2>
           <p className="tag">
             {albums.length.toString().padStart(2, "0")} filed
           </p>
@@ -167,20 +178,20 @@ export default async function HomePage() {
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
       <Lanes
         archiveBanner={
-          featured[0]
+          banner
             ? {
-                url: featured[0].url,
-                srcSet: featured[0].srcSet,
-                caption: featured[0].caption,
-                width: featured[0].width,
-                height: featured[0].height,
+                url: banner.url,
+                srcSet: banner.srcSet,
+                caption: banner.caption,
+                width: banner.width,
+                height: banner.height,
               }
             : null
         }
       />
 
       <div className="plinth">
-        <PhotoFold photo={featured[1]} index={1} fallbackLabel={FALLBACK_LABELS[1]} />
+        <PhotoFold photo={featured[2]} index={2} fallbackLabel={CLOSING_FALLBACK} />
       </div>
     </div>
   );
