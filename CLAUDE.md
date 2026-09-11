@@ -92,6 +92,16 @@ return `[]` for one build and then put them back — never commit that.
   and the page 500s. That is why a held-back gallery has its own dynamic route
   at `/work/[slug]/open` rather than a branch inside the cached one.
 
+- **A client component's props are published.** Every field on an object
+  handed to a `"use client"` component is serialised into the HTML as the RSC
+  payload, whether or not anything renders it — and on a prerendered page that
+  payload sits in a shared cache. Substituting a value inside the component is
+  therefore not a fix: the guestbook rendered the byline correctly while the
+  stored personal name sat in view-source a few kilobytes below. Anything that
+  must not be published has to be gone **before the data leaves the server** —
+  in the data layer, not the view. Verify by planting the value in a fixture
+  and grepping the whole served response for it, not by reading the DOM.
+
 - **Safe-area insets.** Installed, the app is standalone with
   `viewport-fit: cover`, so anything pinned to an edge needs its
   `env(safe-area-inset-*)`, or iOS draws the status bar over it. This has

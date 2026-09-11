@@ -1,49 +1,27 @@
--- The guestbook was publishing a personal name.
+-- OPTIONAL. The guestbook no longer needs this.
 --
--- notes_with_author selects profiles.display_name beside every note, and
--- profiles.display_name defaults to the email local-part (schema.sql). /notes
--- and every gallery guestbook is public, and since the prerender work those
--- pages are cached and shared for five minutes. So a note left by the owner
--- published a personal name to every visitor and held it in a shared cache.
+-- The leak it was written for — `notes_with_author` publishing a personal name
+-- beside every note on a public, cached page — is closed in code. `getNotes`
+-- looks up which accounts hold the owner role and substitutes `site.byline`
+-- before the rows leave the server, so nothing depends on this file having
+-- been run. See the note in src/lib/notes.ts.
 --
--- CLAUDE.md states the rule as standing and categorical: no legal name on the
--- site, and the public byline is site.byline.
+-- What is left here is cosmetic and affects one person: the masthead greets a
+-- signed-in reader by `profiles.display_name`, so the owner sees their own
+-- stored name in the corner. Nobody else ever does. Run this if you would
+-- rather it read the byline there too.
 --
--- The view now also returns the author's role. The byline itself stays in
--- src/lib/site.ts rather than being hardcoded here, so there is still one
--- place that decides what the archive is called — the app substitutes it for
--- any note whose author is the owner.
---
--- Run this against the master project. It is idempotent; re-running is safe.
+-- Idempotent; re-running is safe.
 
-create or replace view public.notes_with_author
-with (security_invoker = true) as
-  select n.id, n.album_id, n.body, n.created_at, n.user_id,
-         p.display_name,
-         p.role
-  from public.notes n
-  join public.profiles p on p.id = n.user_id
-  where n.hidden = false;
-
--- Belt and braces, and the part that closes the hole immediately even if the
--- app were not updated: the stored value for the owner account becomes the
--- byline. Anything that reads display_name by another path then agrees.
---
--- This also fixes the masthead, which greets the owner by that same value.
 update public.profiles
    set display_name = 'UNTAMED'
  where role = 'owner'
    and display_name <> 'UNTAMED';
 
--- Verify. Both should come back clean:
+-- Verify:
 --
 --   select display_name, role from public.profiles where role = 'owner';
---     -> display_name is 'UNTAMED'
 --
---   select display_name, count(*) from public.notes_with_author
---    group by display_name order by 2 desc;
---     -> no personal name in the list
---
--- If a personal name still appears above, a non-owner account carries it and
--- that account's own display_name needs changing — the rule is about the
--- owner, but check before assuming.
+-- And to confirm the code-side fix rather than this one, view-source any
+-- gallery with an owner note on it: the byline should appear and the stored
+-- name should not, including inside the serialised payload at the end.

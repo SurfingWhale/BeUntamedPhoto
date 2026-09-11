@@ -145,14 +145,12 @@ create policy notes_owner on public.notes for update
 
 -- Public read view that joins the author name without exposing auth.users.
 --
--- `role` travels with the name because this view is read on public, cached
--- pages: the app renders any owner-authored note under site.byline rather than
--- a profile name. See supabase/byline-on-owner-notes.sql for why.
+-- An owner-authored note is signed with site.byline instead of this
+-- display_name, and that substitution happens in getNotes rather than here —
+-- see the note in src/lib/notes.ts. This view needs no migration for it.
 create or replace view public.notes_with_author
 with (security_invoker = true) as
-  select n.id, n.album_id, n.body, n.created_at, n.user_id,
-         p.display_name,
-         p.role
+  select n.id, n.album_id, n.body, n.created_at, n.user_id, p.display_name
   from public.notes n
   join public.profiles p on p.id = n.user_id
   where n.hidden = false;

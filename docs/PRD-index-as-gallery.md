@@ -56,11 +56,25 @@ plate's caption floated ~168px below its own photograph while the portrait
 beside it sat tight. `align-content: start` on `.strip__item`; the caption gap
 is now a uniform 12px on every plate.
 
-**Still open.** The § 6 lattice question, which is the owner's to answer. And
-the § 9 name leak, which needs `supabase/byline-on-owner-notes.sql` run against
-the master project: until then the code falls back to the profile name, which
-is the old behaviour. The album page stays 6.1 screens for 24 plates, and that
-is the intended shape — those plates are the content, not chrome.
+**§ 9 is closed, in code, with no migration to run.** `profiles` is
+world-readable by policy, so `getNotes` reads which accounts hold the owner
+role through the anonymous client — cached for an hour, and anonymous on
+purpose, since a cookie read there would cost every guestbook page its cache —
+and substitutes `site.byline` before the rows are returned.
+
+Substituting it in the panel was tried first and was **not enough.** The rows
+are props of a client component, so the raw `display_name` was serialised into
+the RSC payload: the page rendered the byline and shipped the personal name in
+view-source, inside a response cached for five minutes. Verified by planting a
+name in a fixture and grepping the whole served response — 1 occurrence with
+the component-level fix, 0 with the data-layer one, and the visitor's own name
+untouched in both. That lesson is now a convention in `CLAUDE.md`.
+`supabase/byline-on-owner-notes.sql` survives as optional: all it does now is
+change what the masthead greets the owner with, which only the owner ever sees.
+
+**Still open.** The § 6 lattice question, which is the owner's to answer. The
+album page stays 6.1 screens for 24 plates, and that is the intended shape —
+those plates are the content, not chrome.
 
 ---
 

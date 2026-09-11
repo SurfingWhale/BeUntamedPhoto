@@ -1,7 +1,10 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
+import { site } from "@/lib/site";
 
 export type Note = {
   id: string;
@@ -11,16 +14,47 @@ export type Note = {
   user_id: string;
   display_name: string;
   /**
-   * The author's role, so the guestbook can sign an owner's note with the
-   * archive's byline instead of a profile name.
+   * Who the note is signed by, and always safe to render or serialise.
    *
-   * Optional, and deliberately so: the column arrives with
-   * supabase/byline-on-owner-notes.sql, and until that has been run against a
-   * project this is undefined rather than a crash. `authorName` treats
-   * undefined as "not the owner", which is the same answer it gave before.
+   * `getNotes` substitutes the archive's byline for any owner-authored note
+   * before returning, so nothing downstream has to remember to. That is the
+   * point: this array is handed to a client component, which means every field
+   * on it is serialised into the HTML and held in a shared cache, whether or
+   * not anything renders it.
    */
-  role?: string | null;
 };
+
+/**
+ * The ids of any owner-role account.
+ *
+ * Read separately rather than joined into `notes_with_author`, because that
+ * would need a migration run against the live project and this needs to hold
+ * without one. `profiles` is world-readable by policy — `profiles_read ...
+ * using (true)` in supabase/schema.sql — so the anonymous client can see
+ * `role`, and it must be the anonymous client: a cookie read here would make
+ * every page that shows a guestbook render per request and ship `no-store`.
+ *
+ * One row, cached for an hour. An owner account is not something that changes
+ * between two page loads.
+ */
+const readOwnerIds = unstable_cache(
+  async (): Promise<string[]> => {
+    const { data, error } = await createAnonClient()
+      .from("profiles")
+      .select("id")
+      .eq("role", "owner");
+    if (error) {
+      // Not fatal, and deliberately so: the fallback is the stored display
+      // name, which is what shipped before this existed. A guestbook that 500s
+      // is worse than one that signs a note the old way.
+      console.error("[notes] owner lookup failed:", error.message);
+      return [];
+    }
+    return (data ?? []).map((r) => r.id as string);
+  },
+  ["owner-ids"],
+  { revalidate: 3600 },
+);
 
 
 /**
@@ -46,6 +80,25 @@ export async function getNotes(
 
   query = albumId === null ? query.is("album_id", null) : query.eq("album_id", albumId);
 
-  const { data } = await query;
-  return (data ?? []) as Note[];
+  const [{ data }, owners] = await Promise.all([query, readOwnerIds()]);
+  const rows = (data ?? []) as Note[];
+
+  /* Sign the owner's own notes as the archive, here and not in a component.
+   *
+   * The guestbook is public, prerendered, and held in a shared cache for five
+   * minutes, and `profiles.display_name` defaults to the email local-part — so
+   * a note left by the owner published a personal name to every visitor. The
+   * rule in CLAUDE.md is standing and categorical.
+   *
+   * Substituting it in the panel was tried first and was not enough: these
+   * rows are props of a client component, so the raw value was serialised into
+   * the RSC payload and sat in view-source — rendered correctly, leaked
+   * anyway. Verified by planting a personal name in a fixture and grepping the
+   * served HTML for it. The name has to be gone before the data leaves the
+   * server, which is here.
+   */
+  const owned = new Set(owners);
+  return rows.map((n) =>
+    owned.has(n.user_id) ? { ...n, display_name: site.byline } : n,
+  );
 }
