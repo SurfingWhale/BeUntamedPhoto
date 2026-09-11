@@ -1141,6 +1141,33 @@ img { display: block; max-width: 100%; }
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: calc(var(--rule-hair) * -1);
 }
+/* The index covers crop; the lane banners do not.
+ *
+ * `contain` above is right for the lanes: those are stills borrowed from two
+ * other sites at ratios this page does not control, they already paint 84-96%
+ * of their frame, and cropping someone else's banner to tidy a row is the
+ * wrong trade.
+ *
+ * It is wrong for the index. Those are this archive's own covers, the archive
+ * is shot vertical, and a 2:3 plate letterboxed into a landscape frame paints
+ * a strip down the middle of a grey card. Painted pixels as a share of the
+ * frame — computed from each image's natural size and the contain scale, not
+ * from its element box, because the box fills the frame either way and that
+ * is what made this easy to miss:
+ *
+ *   @390    59%  (142x215 painted inside 240x215)   ->  100%
+ *   @1440   45%  (176x264 painted inside 395x264)   ->  100%
+ *
+ * Over half of every card at desktop was empty ground. .album__media already
+ * crops the very same covers with object-fit: cover, so this is the
+ * consistent answer as well as the one that shows the photograph.
+ *
+ * Scoped to .index-wrap, which holds exactly those seven frames. The three
+ * lane frames sit outside it. The archive lane is the odd one — it carries a
+ * plate from here, not a borrowed still, and paints 43-53% — but it stands in
+ * a row of two borrowed banners, and cropping one of three would make that
+ * row disagree with itself. Left as it is, deliberately. */
+.index-wrap .reel__frame img { object-fit: cover; }
 .reel__no {
   font-family: var(--font-mono);
   font-size: var(--text-xs);

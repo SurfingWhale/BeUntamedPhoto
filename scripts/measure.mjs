@@ -599,6 +599,30 @@ async function browserChecks(chromium, executablePath) {
           const stickies = [];
           const slots = [];
 
+          /* Every CSS rule whose selector this element matches, asked whether
+           * it names a safe-area inset — in `top`, in padding, anywhere. Same-
+           * origin stylesheets only; a cross-origin sheet throws on cssRules
+           * and there are none here. */
+          const authoredInset = (el) => {
+            for (const sheet of document.styleSheets) {
+              let rules;
+              try {
+                rules = sheet.cssRules;
+              } catch {
+                continue;
+              }
+              for (const rule of rules) {
+                if (!rule.selectorText || !rule.cssText.includes("safe-area-inset")) continue;
+                try {
+                  if (el.matches(rule.selectorText)) return true;
+                } catch {
+                  /* a selector this browser cannot parse is not a match */
+                }
+              }
+            }
+            return false;
+          };
+
           for (const el of document.querySelectorAll("*")) {
             const cs = getComputedStyle(el);
             const hasText = [...el.childNodes].some(
@@ -612,9 +636,27 @@ async function browserChecks(chromium, executablePath) {
                 stickies.push({
                   sel: name(el),
                   top,
-                  usesInset: /safe-area-inset/.test(
-                    el.style.top || "",
-                  ) || /max\(/.test(top),
+                  /* `top` is one of two correct answers, and this gate only
+                   * knew the one. .mast pins at top: 0 and spends the inset on
+                   * `padding-top: env(safe-area-inset-top, 0px)` instead, so
+                   * the header's own ground fills the strip and the status bar
+                   * reads against the page rather than the photograph — which
+                   * is what the comment on that rule says it is for, and is
+                   * the better answer for a bar that is opaque. Checking only
+                   * `top` failed .mast on all 5 routes at both viewports and
+                   * .index-sticky on /: 10 of 10 browser gates red on a HEAD
+                   * with nothing wrong with it, which is how a real
+                   * regression goes unnoticed.
+                   *
+                   * So: does any rule that matches this element mention the
+                   * inset at all? Computed padding cannot answer it — the
+                   * inset is 0px in a desktop Chromium, so env() and a plain
+                   * 0 are indistinguishable after resolution. The authored
+                   * text can. */
+                  usesInset:
+                    /safe-area-inset/.test(el.style.top || "") ||
+                    /max\(/.test(top) ||
+                    authoredInset(el),
                 });
             }
 
