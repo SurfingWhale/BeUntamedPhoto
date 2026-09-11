@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from "next";
 import { Masthead } from "@/components/masthead";
 import { Fab } from "@/components/fab";
 import { Footer } from "@/components/footer";
-import { GridLines } from "@/components/grid-lines";
 import { MediaFade } from "@/components/media";
 import { ServiceWorker } from "@/components/pwa";
 import { site, siteUrl } from "@/lib/site";
@@ -85,7 +84,6 @@ export default function RootLayout({
         <a className="u-skip" href="#main">
           Skip to content
         </a>
-        <GridLines />
         <Masthead />
         {/* tabindex -1 so "Skip to content" actually moves focus here;
             without it Safari scrolls but leaves focus back in the nav. */}

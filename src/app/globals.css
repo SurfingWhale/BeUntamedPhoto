@@ -1,14 +1,25 @@
-/* Hallmark · genre: editorial · macrostructure family: Portfolio Grid (hub) ·
- * Specimen (content) · typography-only (app) · design-system: design.md ·
- * designed-as-app
- * enrichment: none — negative space + photography is the enrichment
- * nav: two-tier technical rail (wordmark bar + numbered index rail, not N1/N6)
- * footer: Ft5 statement, canvas ground
- * anchor hue: 155 neutral-green / 120 lime · accent: chartreuse, token-only
- * axes: paper=near-white · display=grotesque · accent=chromatic-lime
- * marks: ←/↗/⌐/∟ are author-directed ornament (gate 55 knowingly overridden)
- * contrast: pass (46–50) · mobile: pass (36, 59, 61–68)
- * pre-emit critique: P4 H4 E4 S4 R4 V4
+/* The site's whole stylesheet. UNTAMED — a photography archive.
+ *
+ * Two authorities, and neither of them is this comment:
+ *
+ *   design.md   what the layout, type, colour and motion are meant to be,
+ *               and § 12 there is the set of checks that hold it — run them
+ *               with `npm run measure`.
+ *   tokens.css  every colour, size, space, easing and duration. Nothing in
+ *               this file may introduce a literal one.
+ *
+ * The header that used to sit here was a catalog vocabulary from somewhere
+ * else — "macrostructure family", "gate 55 knowingly overridden", "pre-emit
+ * critique: P4 H4 E4 S4 R4 V4" — naming a system this repo does not have, and
+ * by the end several of its claims were simply false. It was the same chain of
+ * stale assertions design.md had become, in the file below it. Removed for the
+ * same reason: a comment that cannot be checked is not documentation.
+ *
+ * What is worth knowing before editing: the public tree is prerendered, so
+ * nothing reachable from it may read a cookie (CLAUDE.md says why, and what it
+ * cost); photographs run full-bleed and everything else is held to
+ * --page-max; and the long comments further down are each a bug that shipped.
+ * Read the one next to a rule before changing that rule.
  */
 @import "tailwindcss";
 @import "../../tokens.css";
@@ -21,8 +32,10 @@ html {
    * tallest, which is the phone, plus whatever the status bar takes. */
   scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 8.5rem);
 }
-/* Crosshair cursor — the `+` register mark, made into the pointer. Scaled up
- * so it reads as a drafting tool rather than an arrow. */
+/* Crosshair cursor — a drafting mark made into the pointer, scaled up so it
+ * reads as an instrument rather than an arrow. It used to echo the `+` marks
+ * on the drawn lattice; the lattice is gone and this is now the only place
+ * that register mark survives, which is reason enough to keep it. */
 body {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><path d='M18 3v30M3 18h30' stroke='%230d0d0d' stroke-width='1' opacity='0.75'/></svg>")
       18 18,
@@ -85,86 +98,27 @@ h1, h2, h3 {
   margin: 0;
 }
 
-/* --------------------------------------------- the exposed Swiss grid */
-/* Hairline columns inside the 1440px measure, fixed behind everything, with
- * `+` register marks. This is the brand's thesis: the blueprint stays visible. */
-/* Absolute, not fixed: the lattice scrolls with the document, which is the
- * only way content can actually sit ON it. A fixed lattice slides under
- * scrolling content and can never align — that was the earlier mistake. */
-.gridlines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  z-index: var(--z-grid);
-  pointer-events: none;
-  user-select: none;
-  max-width: var(--page-max);
-  margin-inline: auto;
-  /* width, or the auto margins below absorb the free space and shrink-wrap
-   * this box instead of stretching it — see .page, a grid parent. */
-  width: 100%;
-  border-inline: var(--rule-hair) solid var(--color-grid);
-}
-/* A modular field, not stripes: columns AND rows, so the cells read square.
- * Row height tracks the computed column width — `100vw / n`, capped at the
- * module size the 1440px measure yields (1440 / 12 = 120px) — so a cell stays
- * square at every width instead of only at the max measure. */
-.gridlines__cols {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, var(--color-grid) var(--rule-hair), transparent var(--rule-hair)),
-    linear-gradient(to bottom, var(--color-grid) var(--rule-hair), transparent var(--rule-hair));
-  background-size: calc(100% / 4) min(calc(100vw / 4), var(--module));
-}
-@media (min-width: 48rem) {
-  .gridlines__cols { background-size: calc(100% / 8) min(calc(100vw / 8), var(--module)); }
-}
-@media (min-width: 75rem) {
-  /* the full 12-column architectural field */
-  .gridlines__cols { background-size: calc(100% / 12) min(calc(100vw / 12), var(--module)); }
-}
+/* The drawn lattice is gone — see the commit, and design.md § 4.
+ *
+ * Measured before removing it, one horizontal scan on bare paper: 383 of 390
+ * pixels were paper, and the column hairlines came in at 1.08-1.16:1 against
+ * it. That is not a subtle texture, it is nothing — the layer called itself
+ * "the blueprint stays visible" and the blueprint was not visible. Roughly
+ * half its area was behind the hero and the card grounds by then anyway.
+ * Neither reference has a drawn lattice, and the Corbusier study's ruler
+ * lines are explicitly a presentation aid rather than a texture to reproduce.
+ *
+ * What survives is the mark vocabulary below, which is the same restraint
+ * idea and is actually legible: glyphs placed in margins and empty cells. */
 
-/* Laser register lines — every 4th column runs lime and slightly brighter,
- * marking the major divisions of the field. Sparse on purpose: the accent
- * stays a signal, not a wash. */
-.gridlines__laser {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, var(--color-grid-laser) var(--rule-hair), transparent var(--rule-hair));
-  background-size: calc(100% / 2) 100%;
-}
-@media (min-width: 48rem) {
-  .gridlines__laser { background-size: calc(100% / 4) 100%; }
-}
-@media (min-width: 75rem) {
-  .gridlines__laser { background-size: calc(100% / 3) 100%; }
-}
-.gridlines__plus {
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  line-height: 1;
-  color: var(--color-crosshair);
-  transform: translate(-50%, -50%);
-}
-.gridlines__plus--tl { top: 6rem;  left: 0; }
-.gridlines__plus--tr { top: 6rem;  left: 100%; }
-.gridlines__plus--ml { top: 50%;   left: 0; }
-.gridlines__plus--mr { top: 50%;   left: 100%; }
-.gridlines__plus--bl { top: calc(100% - 4rem); left: 0; }
-.gridlines__plus--br { top: calc(100% - 4rem); left: 100%; }
-
-/* Content paints above the grid. Canvas sections stay transparent so the
- * hairlines read through them; only slab sections deliberately occlude. */
+/* A stacking context per region, so the hero's own layers and the sticky
+ * masthead cannot interleave. --z-base is the floor of the scale now that the
+ * lattice that sat below it is gone. */
 .mast, main, .foot { position: relative; z-index: var(--z-base); }
 
 /* ------------------------------------------------- the mark vocabulary */
-/* Marks live in margins and empty cells. They mark positions on the lattice;
- * they never decorate content. See design.md § 3.6. */
+/* Marks live in margins and empty cells. They mark positions; they never
+ * decorate content. See design.md § 4. */
 .mark {
   display: inline-block;
   line-height: 1;

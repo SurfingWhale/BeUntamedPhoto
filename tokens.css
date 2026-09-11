@@ -93,7 +93,6 @@
   --space-2xl: clamp(2.5rem, 8vw, 5rem);
   --space-3xl: clamp(3.25rem, 12vw, 7.5rem);
   --space-4xl: clamp(4rem, 16vw, 11rem);
-  --subgrid-gap: 2rem;
   --page-gutter: clamp(1.25rem, 4vw, 2.5rem);
   --page-max: 1440px;
   --measure: 62ch;
@@ -143,15 +142,13 @@
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
   --color-crosshair:    rgba(13, 13, 13, 0.25);
   --color-crosshair-on-dark: rgba(196, 242, 62, 0.3);
-  /* The lattice sits lighter than a hairline rule — a field to place things
-   * on, not a border. Every 4th line runs lime and slightly brighter: the
-   * "laser" register lines that mark the major column divisions. */
-  --color-grid:         rgba(13, 13, 13, 0.07);
-  --color-grid-laser:   rgba(107, 150, 0, 0.34);
   --module:             120px;   /* 1440 / 12 — one square cell */
-  /* The row height the lattice actually paints — see .gridlines__cols, which
-   * uses this same min() at these same breakpoints. Block padding measured in
-   * --row lands on a real grid row at 375px, not only at 1440px. */
+  /* The modular unit the layout is measured in: a cell that stays square at
+   * every width, not only at the max measure. Nothing draws it — the lattice
+   * that used to is gone — but the rhythm is real and 22 rules read from it,
+   * the hero's frame height and every .reel__frame among them. Keeping the
+   * unit while dropping the drawing is the whole point: the structure is in
+   * the proportions, not in visible ruler lines. */
   --row: min(calc(100vw / 4), var(--module));
 
   --color-accent:       #C4F23E;  /* acid lime — the signal layer */
@@ -161,7 +158,6 @@
   --color-focus:        #4F6600;
   --color-error:        #BA1A1A;
   --color-ok:           #4F6600;
-  --color-scrim:        rgba(5, 28, 20, 0.62);
 
   /* ---- rules, radii, motion -------------------------------------- */
   /* Image edge — pure black at 10%, never a tinted neutral: a tinted outline
@@ -169,8 +165,7 @@
   --outline-image: rgba(0, 0, 0, 0.1);
 
   --rule-hair: 1px;
-  --radius-none: 0;
-  --radius-sm:   0;      /* the system is rectilinear — no soft corners */
+  --radius-none: 0;      /* the system is rectilinear — no soft corners */
   --radius-pill: 9999px; /* the single exception: filter chips */
   --shadow-cap:  0 1px 12px rgba(5, 28, 20, 0.7);
 
@@ -180,8 +175,6 @@
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long:  420ms;
-
-  --z-grid: 0;
   --z-base: 1;
   --z-raised: 10;
   --z-dropdown: 100;
@@ -218,8 +211,6 @@
   --color-rule-2:       rgba(196, 242, 62, 0.32);
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
   --color-crosshair:    rgba(196, 242, 62, 0.3);
-  --color-grid:         rgba(196, 242, 62, 0.09);
-  --color-grid-laser:   rgba(196, 242, 62, 0.42);
   --outline-image:      rgba(255, 255, 255, 0.1);
 
   --color-accent:       #C4F23E;
@@ -229,7 +220,6 @@
   --color-focus:        #C4F23E;
   --color-error:        #FFB4AB;
   --color-ok:           #AAD61E;
-  --color-scrim:        rgba(2, 16, 9, 0.72);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -251,8 +241,6 @@
     --color-rule-2:       rgba(196, 242, 62, 0.32);
     --color-rule-on-dark: rgba(196, 242, 62, 0.2);
     --color-crosshair:    rgba(196, 242, 62, 0.3);
-    --color-grid:         rgba(196, 242, 62, 0.09);
-  --color-grid-laser:   rgba(196, 242, 62, 0.42);
   --outline-image:      rgba(255, 255, 255, 0.1);
 
     --color-accent:       #C4F23E;
@@ -262,6 +250,5 @@
     --color-focus:        #C4F23E;
     --color-error:        #FFB4AB;
     --color-ok:           #AAD61E;
-    --color-scrim:        rgba(2, 16, 9, 0.72);
   }
 }

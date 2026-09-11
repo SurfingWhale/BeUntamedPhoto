@@ -180,13 +180,26 @@ force the text glyph. `←` and `→` have no emoji form and need nothing — th
 are ten of them in the pages now and they are fine. The only `↗` in the tree
 is inside a CSS comment.
 
-### The drawn lattice — the one open question
+### There is no drawn lattice, and there was never a case for one
 
-`<GridLines />` draws a hairline column lattice site-wide. **Neither reference
-has one**, and the Corbusier study's ruler lines are explicitly a presentation
-aid. It survives only because the owner asked for it against an earlier,
-wrong description of the references. It has not been removed on that basis
-alone. **Ask before touching it.**
+`<GridLines />` is gone. Three reasons, and the middle one is the one that
+settles it:
+
+1. **Neither reference has a drawn lattice.** The Corbusier study's ruler
+   lines are explicitly a presentation aid showing the column grid — copying
+   them would be copying the wrong layer.
+2. **It was invisible.** Measured on bare paper, one horizontal scan at 390:
+   383 of 390 pixels were paper, and the column hairlines came in at
+   **1.08–1.16:1** against it. That is not subtle texture, it is nothing. The
+   layer's own comment called itself "the blueprint stays visible".
+3. By the time the hero and the card grounds existed, roughly **half its area
+   was behind opaque content** anyway.
+
+**The modular unit survives; only the drawing is gone.** `--row` is a cell
+that stays square at every width, 22 rules read from it, and the hero's frame
+height and every `.reel__frame` are measured in it. That is where the
+structure lives — in the proportions, not in visible ruler lines. Same for the
+marks above: they are the restraint idea, and they are legible.
 
 ---
 
@@ -351,53 +364,56 @@ this quiet may not want them at all.
 
 ## 12 · Checks
 
-Rules that are not asserted anywhere are a document, not a system. These are
-the ones that have each already cost a visible regression:
+**`npm run measure`.** Rules that are not asserted anywhere are a document,
+not a system — and this file *was* a document for months while the site
+drifted from it. The checks below are that script, not a description of one.
 
-Each one is a **gate: it prints nothing when the site is correct.** That is the
-whole point, and the first draft of this section failed it — its uppercase
-check returned 27 defensible hits and its literal-value check 119, so neither
-could say pass or fail. A check you have to read by eye is a reminder, not a
-check.
+It has two halves. The **static gates** read the files and always run; the
+**browser checks** need the site running and skip, loudly, if it is not. Both
+exit non-zero on failure, so this is what CI runs.
 
 ```bash
-# No heading or card title in capitals. Rule blocks are joined first, because
-# these declarations are spread over several lines.
-# Found .foot__statement, which had outlived the de-shouting pass.
-tr '\n' ' ' < src/app/globals.css | tr '}' '\n' \
-  | grep -E "(h[1-3]|__title|__statement|reel__name|elsewhere__name|\.chip)[^{]*\{[^{]*uppercase"
-
-# No literal colour in anything that paints. Narrowed to the painting
-# properties, because px literals are legitimate — hairlines, hit targets,
-# mask stops — and a check that flags them flags 119 lines and gates nothing.
-tr '\n' ' ' < src/app/globals.css | tr ';' '\n' \
-  | grep -E "(^|[ {])(color|background|background-color|border(-[a-z]+)?-color|fill|stroke|outline-color)[[:space:]]*:" \
-  | grep -vE "var\(--|currentColor|transparent|inherit|none"
-
-# Every sign-off reads from the byline. This one prints, and is read: the
-# byline must be what src/lib/site.ts defines and what src/ signs off with.
-grep -rn "site\.byline" src/ && grep -n "byline:" src/lib/site.ts
-
-# Comment markers balance in both stylesheets. Cheap, and it earns its place:
-# a comment closed one line early inside tokens.css turned the whole rest of
-# :root into stray text — every colour, size and easing after that point
-# silently gone. CSS does not error, the build was green, lint was green, and
-# the only tell was a contrast measurement coming back as if the scrim were
-# not there. Any count mismatch here means a stylesheet is truncated.
-for f in tokens.css src/app/globals.css; do
-  printf '%s %s %s\n' "$f" "$(grep -o '/\*' "$f" | wc -l)" "$(grep -o '\*/' "$f" | wc -l)"
-done | awk '$2 != $3 { print "UNBALANCED: " $0 }'
+npm run measure                   # gates, then the browser against :3000
+npm run measure -- --static       # gates only, no browser, no server
+npm run measure -- --base <url>   # measure a deploy instead
 ```
 
-In a browser, at 390×844 and 1440, because four of the five regressions this
-month were invisible to anything that did not measure rendered boxes:
+Every gate **prints nothing when the site is correct**, and every one of them
+exists because the thing it checks already shipped broken once. Each was
+proved by reintroducing that exact bug and watching it fail:
 
-- how many distinct font families the page draws in;
-- display type as a share of viewport width, against § 5;
-- scroll height per page, and **height drift across a full scroll — must be 0**;
+| Gate | What shipped broken |
+| --- | --- |
+| No heading or card title in capitals | `.foot__statement` outlived the de-shouting pass |
+| `--tracking-caps` only on the wordmarks | six sentence-case headings tracked *out* for weeks |
+| No literal colour in anything that paints | — |
+| Comment markers balance | a comment closed one line early silently truncated `tokens.css` |
+| `--color-accent-ink` only ever sits on lime | `.rail__mark` was drawn in the dark theme's own background colour |
+| No orphaned tokens | four went dead the day the lattice did |
+| The byline is the brand | `CLAUDE.md` is the authority; this one prints and is read |
+
+The two allowlists are the point rather than a weakness: a token used outside
+its role, or one that has gone dead, has to be named in the script with a
+reason. That makes it a decision instead of an accident.
+
+The browser half measures, at 390×844 dpr3 and 1440×900, on every public page:
+
+- **height drift across a full scroll — must be 0.** The lanes grew a section
+  575px under the reader because `width`/`height` attributes lose to an author
+  `width: auto`;
+- how many distinct font families the page actually draws in — three were
+  specified and never applied for months, and nothing but this notices;
 - the rendered box of every `sizes` slot against the candidate the browser
-  actually picks;
-- the computed `top` of every sticky element against `env(safe-area-inset-top)`.
+  picked — four declarations were wrong, one pulling 1500w into a 167px box;
+- the computed `top` of every sticky element against `env(safe-area-inset-top)`
+  — shipped broken twice;
+- scroll height and screen count per page, and display type as a share of
+  viewport width.
+
+**What a gate cannot see.** `.rail__mark` passed every colour check while
+being invisible, because the value came from a token — just the wrong one. It
+took a dark-mode screenshot. So: look at both themes, and measure contrast on
+*composited pixels* rather than on the token you think is underneath.
 
 ---
 
@@ -412,3 +428,7 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-10 | Webfonts found never to have applied — a `var()` resolving on `<body>` while the families were built on `:root`. The owner chose the system stack once he saw them. |
 | 2026-09-11 | Reference images seen directly for the first time. Nomvnt confirmed as the backbone. Five divergences corrected: headings to sentence case, labels quieted, lime freed from a 5% ration, type over photographs allowed, lattice left standing but unsupported by either reference. Display type scale brought down ~1.85× to match. |
 | 2026-09-11 | This file rewritten as one current document. Its checks rewritten as gates; the first two found `.foot__statement` still uppercase and `h1–h3` still on an all-caps leading floor. |
+| 2026-09-11 | Cards put in boxes. Six sentence-case headings recovered the negative tracking a stale caps block was overriding. |
+| 2026-09-11 | The hero built: full-bleed photograph, statement in white, lime on one word. Scrim alphas measured against a white frame. |
+| 2026-09-11 | Drawn lattice removed — measured at 1.08–1.16:1 against the paper, and in neither reference. Four tokens went dead with it. |
+| 2026-09-11 | The checks became `npm run measure`: seven static gates and a browser half, each gate proved by reintroducing the bug it targets. |
