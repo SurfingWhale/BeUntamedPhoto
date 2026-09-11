@@ -137,3 +137,40 @@ return `[]` for one build and then put them back — never commit that.
   height, or leave the image's `width`/`height` out of the stylesheet so the
   hints and the attribute-derived `aspect-ratio` can do their job. Measure the
   drift, do not assume: scroll the page and diff section heights.
+
+- **`npm run measure` is the design system, asserted.** Seven static gates on
+  the files, plus a browser half that needs the site running. Every gate is
+  there because the thing it checks already shipped broken, and each was proved
+  by reintroducing that exact bug. `design.md` § 12 is the index of them. CI
+  runs the static half; the browser half — height drift, the `sizes` slots, how
+  many typefaces the page draws in — is still a local step somebody has to
+  remember, because `next build` needs real credentials.
+
+- **A gate sees a literal; it cannot see a token used outside its role.**
+  `--color-accent-ink` means text *on* lime. `.rail__mark` used it on a canvas:
+  near-black in light so it looked right by accident, and `#051C14` — the
+  page's own background — in dark, so the glyph was painted in the background
+  colour and vanished. The value came from a token, the CSS was valid and every
+  colour check passed. **Look at both themes**, and measure contrast on the
+  *composited pixels* rather than on the token you believe is underneath. The
+  accent that survives on a canvas is `--color-accent-deep`.
+
+- **A `ch` cap belongs on the element whose own font it constrains.** `.head`
+  capped a box at `34ch` that holds a display heading *and* a body-face sub, so
+  the `ch` resolved in the body face and then constrained a heading set in a
+  different one. Invisible while both faces were the same stack; the moment
+  Syne landed — 52.8% wider at the same point size, measured — a 24-character
+  section heading went to three lines while the box stayed 324px. A cap that
+  exists for layout reasons belongs in layout units (`--module`). A face change
+  is also when every `clamp` floor has to be re-derived: `--text-display`'s
+  3rem put a three-word hero on three lines at 390px.
+
+- **A fixture is a measuring instrument, and it needs calibrating.** A gutter
+  measurement reported the hero and the credit overflowing and nearly got
+  correct CSS "fixed". The fixture was missing Tailwind's preflight, so
+  `box-sizing` was `content-box` and every padded block came out one gutter too
+  wide on each side. The tell was a right gutter of exactly `-40px` at 1440 and
+  exactly `-30.7px` at 768 — the gutter value itself, which is not the shape a
+  real overflow has. When a measurement disagrees with the code, suspect the
+  instrument before the code; and load the preflight in any fixture that
+  measures a box.

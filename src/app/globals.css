@@ -1,14 +1,25 @@
-/* Hallmark · genre: editorial · macrostructure family: Portfolio Grid (hub) ·
- * Specimen (content) · typography-only (app) · design-system: design.md ·
- * designed-as-app
- * enrichment: none — negative space + photography is the enrichment
- * nav: two-tier technical rail (wordmark bar + numbered index rail, not N1/N6)
- * footer: Ft5 statement, canvas ground
- * anchor hue: 155 neutral-green / 120 lime · accent: chartreuse, token-only
- * axes: paper=near-white · display=grotesque · accent=chromatic-lime
- * marks: ←/↗/⌐/∟ are author-directed ornament (gate 55 knowingly overridden)
- * contrast: pass (46–50) · mobile: pass (36, 59, 61–68)
- * pre-emit critique: P4 H4 E4 S4 R4 V4
+/* The site's whole stylesheet. UNTAMED — a photography archive.
+ *
+ * Two authorities, and neither of them is this comment:
+ *
+ *   design.md   what the layout, type, colour and motion are meant to be,
+ *               and § 12 there is the set of checks that hold it — run them
+ *               with `npm run measure`.
+ *   tokens.css  every colour, size, space, easing and duration. Nothing in
+ *               this file may introduce a literal one.
+ *
+ * The header that used to sit here was a catalog vocabulary from somewhere
+ * else — "macrostructure family", "gate 55 knowingly overridden", "pre-emit
+ * critique: P4 H4 E4 S4 R4 V4" — naming a system this repo does not have, and
+ * by the end several of its claims were simply false. It was the same chain of
+ * stale assertions design.md had become, in the file below it. Removed for the
+ * same reason: a comment that cannot be checked is not documentation.
+ *
+ * What is worth knowing before editing: the public tree is prerendered, so
+ * nothing reachable from it may read a cookie (CLAUDE.md says why, and what it
+ * cost); photographs run full-bleed and everything else is held to
+ * --page-max; and the long comments further down are each a bug that shipped.
+ * Read the one next to a rule before changing that rule.
  */
 @import "tailwindcss";
 @import "../../tokens.css";
@@ -21,8 +32,10 @@ html {
    * tallest, which is the phone, plus whatever the status bar takes. */
   scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 8.5rem);
 }
-/* Crosshair cursor — the `+` register mark, made into the pointer. Scaled up
- * so it reads as a drafting tool rather than an arrow. */
+/* Crosshair cursor — a drafting mark made into the pointer, scaled up so it
+ * reads as an instrument rather than an arrow. It used to echo the `+` marks
+ * on the drawn lattice; the lattice is gone and this is now the only place
+ * that register mark survives, which is reason enough to keep it. */
 body {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><path d='M18 3v30M3 18h30' stroke='%230d0d0d' stroke-width='1' opacity='0.75'/></svg>")
       18 18,
@@ -75,92 +88,37 @@ h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: var(--tracking-display);
-  line-height: 1.0;
+  /* 1.0 was a floor for all-caps display, where there are no descenders to
+   * clear. Headings are sentence case now (design.md § 5), so a two-line
+   * heading collided its descenders with the next line's cap-tops. 1.08 is
+   * still tight display leading and clears them. */
+  line-height: 1.08;
   overflow-wrap: anywhere;
   min-width: 0;
   margin: 0;
 }
 
-/* --------------------------------------------- the exposed Swiss grid */
-/* Hairline columns inside the 1440px measure, fixed behind everything, with
- * `+` register marks. This is the brand's thesis: the blueprint stays visible. */
-/* Absolute, not fixed: the lattice scrolls with the document, which is the
- * only way content can actually sit ON it. A fixed lattice slides under
- * scrolling content and can never align — that was the earlier mistake. */
-.gridlines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  z-index: var(--z-grid);
-  pointer-events: none;
-  user-select: none;
-  max-width: var(--page-max);
-  margin-inline: auto;
-  /* width, or the auto margins below absorb the free space and shrink-wrap
-   * this box instead of stretching it — see .page, a grid parent. */
-  width: 100%;
-  border-inline: var(--rule-hair) solid var(--color-grid);
-}
-/* A modular field, not stripes: columns AND rows, so the cells read square.
- * Row height tracks the computed column width — `100vw / n`, capped at the
- * module size the 1440px measure yields (1440 / 12 = 120px) — so a cell stays
- * square at every width instead of only at the max measure. */
-.gridlines__cols {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, var(--color-grid) var(--rule-hair), transparent var(--rule-hair)),
-    linear-gradient(to bottom, var(--color-grid) var(--rule-hair), transparent var(--rule-hair));
-  background-size: calc(100% / 4) min(calc(100vw / 4), var(--module));
-}
-@media (min-width: 48rem) {
-  .gridlines__cols { background-size: calc(100% / 8) min(calc(100vw / 8), var(--module)); }
-}
-@media (min-width: 75rem) {
-  /* the full 12-column architectural field */
-  .gridlines__cols { background-size: calc(100% / 12) min(calc(100vw / 12), var(--module)); }
-}
+/* The drawn lattice is gone — see the commit, and design.md § 4.
+ *
+ * Measured before removing it, one horizontal scan on bare paper: 383 of 390
+ * pixels were paper, and the column hairlines came in at 1.08-1.16:1 against
+ * it. That is not a subtle texture, it is nothing — the layer called itself
+ * "the blueprint stays visible" and the blueprint was not visible. Roughly
+ * half its area was behind the hero and the card grounds by then anyway.
+ * Neither reference has a drawn lattice, and the Corbusier study's ruler
+ * lines are explicitly a presentation aid rather than a texture to reproduce.
+ *
+ * What survives is the mark vocabulary below, which is the same restraint
+ * idea and is actually legible: glyphs placed in margins and empty cells. */
 
-/* Laser register lines — every 4th column runs lime and slightly brighter,
- * marking the major divisions of the field. Sparse on purpose: the accent
- * stays a signal, not a wash. */
-.gridlines__laser {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, var(--color-grid-laser) var(--rule-hair), transparent var(--rule-hair));
-  background-size: calc(100% / 2) 100%;
-}
-@media (min-width: 48rem) {
-  .gridlines__laser { background-size: calc(100% / 4) 100%; }
-}
-@media (min-width: 75rem) {
-  .gridlines__laser { background-size: calc(100% / 3) 100%; }
-}
-.gridlines__plus {
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  line-height: 1;
-  color: var(--color-crosshair);
-  transform: translate(-50%, -50%);
-}
-.gridlines__plus--tl { top: 6rem;  left: 0; }
-.gridlines__plus--tr { top: 6rem;  left: 100%; }
-.gridlines__plus--ml { top: 50%;   left: 0; }
-.gridlines__plus--mr { top: 50%;   left: 100%; }
-.gridlines__plus--bl { top: calc(100% - 4rem); left: 0; }
-.gridlines__plus--br { top: calc(100% - 4rem); left: 100%; }
-
-/* Content paints above the grid. Canvas sections stay transparent so the
- * hairlines read through them; only slab sections deliberately occlude. */
+/* A stacking context per region, so the hero's own layers and the sticky
+ * masthead cannot interleave. --z-base is the floor of the scale now that the
+ * lattice that sat below it is gone. */
 .mast, main, .foot { position: relative; z-index: var(--z-base); }
 
 /* ------------------------------------------------- the mark vocabulary */
-/* Marks live in margins and empty cells. They mark positions on the lattice;
- * they never decorate content. See design.md § 3.6. */
+/* Marks live in margins and empty cells. They mark positions; they never
+ * decorate content. See design.md § 4. */
 .mark {
   display: inline-block;
   line-height: 1;
@@ -236,22 +194,6 @@ h1, h2, h3 {
   word-spacing: 1.5em;
 }
 
-/* `+` register marks on a container's own corners */
-.plot { position: relative; }
-.plot::before,
-.plot::after {
-  content: "+";
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  line-height: 1;
-  color: var(--color-crosshair);
-  pointer-events: none;
-}
-.plot::before { top: var(--space-xs); left: var(--space-xs); }
-.plot::after  { bottom: var(--space-xs); right: var(--space-xs); }
-.band--dark .plot::before,
-.band--dark .plot::after { color: var(--color-crosshair-on-dark); }
 p { margin: 0; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
@@ -617,8 +559,9 @@ img { display: block; max-width: 100%; }
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  /* Sentence case, like the reference's category row — "Jackets", "Knitwear",
+   * "Trousers", with the active one in lime. See design.md § 3.7. */
   cursor: pointer;
   white-space: nowrap;
   transition: background-color var(--dur-micro) var(--ease-out),
@@ -784,7 +727,6 @@ img { display: block; max-width: 100%; }
  * Whole-module heights return at 60rem, where the fold is one element among
  * several and its top and bottom edges landing on lattice rows is worth more
  * than the last few percent of a frame. */
-.fold-photo--tall,
 .fold-photo--band {
   height: auto;
   aspect-ratio: var(--fold-ratio, 0.75);
@@ -805,9 +747,7 @@ img { display: block; max-width: 100%; }
  *
  * min() only ever lowers a landscape number: a 0.56 plate stays 0.56 and
  * still crops nothing. Measured: 233px -> 437px, 52% of the screen. */
-.fold-photo--tall { aspect-ratio: min(var(--fold-ratio, 0.75), 0.8); }
 @media (min-width: 60rem) {
-  .fold-photo--tall { aspect-ratio: auto; height: calc(var(--row) * 6); }
   .fold-photo--band { aspect-ratio: auto; height: calc(var(--row) * 4); }
 
   /* A vertical plate cannot run full-bleed on a wide screen without losing
@@ -1001,11 +941,10 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xs);
 }
+/* "( 7 galleries )" — sentence case, like the reference's "( 24 Products )". */
 .index-count {
-  font-family: var(--font-mono);
   font-size: var(--text-sm);
-  letter-spacing: var(--tracking-code);
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--color-muted);
 }
 .chips {
@@ -1141,7 +1080,13 @@ img { display: block; max-width: 100%; }
   align-content: start;
   text-decoration: none;
   min-width: 0;
+  /* The same box as .album — see the note there. The plate number sits above
+   * the photograph inside the box, which is where the reference puts it. */
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-white);
+  padding-block: var(--space-xs) var(--space-sm);
 }
+.reel__card > :not(.reel__frame) { padding-inline: var(--space-sm); }
 @media (min-width: 48rem) {
   .reel__card { width: min(44%, 24rem); }
 }
@@ -1203,16 +1148,15 @@ img { display: block; max-width: 100%; }
 .reel__name {
   font-family: var(--font-display);
   font-size: clamp(1.125rem, 4.4vw, 1.5rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: var(--tracking-display);
-  line-height: 1.02;
-  text-transform: uppercase;
+  line-height: 1.06;
 }
+/* Small, grey, sentence case — the reference's "Classic, Oversized Fit", not a
+ * tracked-capitals rail. */
 .reel__meta {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--color-muted);
   text-wrap: pretty;
 }
@@ -1250,6 +1194,127 @@ img { display: block; max-width: 100%; }
  * in the emptiness; that emptiness is the composition. */
 /* Bottom padding outweighs top so the opening sits INTO the page rather than
  * floating off it (slop-test gate 54). */
+/* ------------------------------------------------------------------- hero */
+/* The opening photograph, carrying the statement in light type.
+ *
+ * The height is definite and expressed in --row, the lattice module, the same
+ * way .reel__frame and .fold-photo--tall are. That is what reserves the box
+ * before the bytes land, and it is also what lets the image's width and
+ * height live in this stylesheet at all: CLAUDE.md's presentational-hints
+ * rule says either give the wrapper a definite height or keep width/height
+ * out of the CSS, and this is the former. Three lane banners once grew a
+ * section 575px under the reader by getting that backwards.
+ *
+ * No aspect-ratio here, deliberately. With one set, flooring a height makes
+ * the *width* derive from it — the blowout family CLAUDE.md records three of.
+ * A definite height on a full-bleed box has no such failure mode.
+ *
+ * The svh line is second so an engine without it keeps the --row height
+ * rather than nothing. And the frame stops short of the full screen on
+ * purpose: at 390 it draws about 624 of 844, which leaves the ticker below it
+ * already visible. The invitation to scroll is a band of real content, not a
+ * chevron.
+ *
+ * Nothing here is pinned to a screen edge — the masthead is above it and the
+ * ticker below — so it needs no env(safe-area-inset-*). That is why the
+ * credit sits with the type at the foot rather than in the top corner, where
+ * it would have been both under the notch and under the masthead. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  height: calc(var(--row) * 6.4);
+  height: min(calc(var(--row) * 6.4), 76svh);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: var(--color-paper-dark);
+}
+.hero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The one place a photograph is cropped on purpose. design.md § 7 forbids
+   * cropping to tidy a layout, and that rule is about tiles in a grid; here
+   * the photograph is a ground for type rather than a plate to be read, and
+   * the same frames are shown uncropped in the galleries. */
+  object-position: center;
+  z-index: -2;
+}
+/* The scrim. See --color-scrim-* in tokens.css for why this is a legibility
+ * device and not the background texture § 7 rules out. It covers only the
+ * lower band, so the top of the photograph is untouched. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 68%;
+  background: linear-gradient(
+    to top,
+    var(--color-scrim-3),
+    var(--color-scrim-2) 38%,
+    var(--color-scrim-0)
+  );
+  z-index: -1;
+  pointer-events: none;
+}
+.hero__type {
+  grid-row: 2;
+  align-self: end;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--space-lg) var(--page-gutter) var(--space-lg);
+  display: grid;
+  gap: var(--space-md);
+}
+.hero__line {
+  /* --text-display exists for exactly this and had no caller until now. */
+  font-size: var(--text-display);
+  font-weight: 800;
+  letter-spacing: var(--tracking-hero);
+  color: var(--color-ink-on-dark);
+  /* No line-height here on purpose: it inherits the sentence-case-safe 1.08
+   * from the h1-h3 rule, so changing this copy to something with a descender
+   * on the first line cannot collide it with the second. */
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.hero__line em {
+  font-style: normal;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding-inline: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-lg);
+}
+.hero__sub {
+  font-size: var(--text-base);
+  color: var(--color-ink-on-dark);
+  max-width: 38ch;
+}
+/* White, not the muted --color-ink-on-dark-2 that every other on-slab label
+ * uses. Over a photograph a tint cannot be guaranteed: composited over a
+ * pure-white frame this line measured 4.32:1, under the 4.5 an 11px run
+ * needs. On a photograph the hierarchy has to come from size, weight and
+ * tracking — which this already has against a 15px sub — and not from a
+ * lightness step that depends on what someone uploaded. */
+.hero__credit {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-ink-on-dark);
+  white-space: nowrap;
+}
+
 .open {
   max-width: var(--page-max);
   margin-inline: auto;
@@ -1406,8 +1471,15 @@ img { display: block; max-width: 100%; }
 @media (min-width: 60rem) {
   .band { padding-block: calc(var(--row) * 1.5); }
 }
-/* Slab environment — the one place a section paints over the grid, and it
- * brings its own lime register marks with it. */
+/* Slab environment — a section on deep green instead of canvas.
+ *
+ * NOTHING USES THIS. Its callers went when the lanes became a reel (8418e1b),
+ * and it is kept because design.md § 11 lists a green slab as something a page
+ * may sit on — deleting the only implementation of a documented option is a
+ * design decision, not a cleanup. `npm run measure` knows it is unused and
+ * holds it on a named allowlist rather than letting it rot quietly. The
+ * descendant rules below are what a slab needs to invert; they are correct and
+ * untested, in that order. */
 .band--dark {
   max-width: none;
   background: var(--color-paper-dark);
@@ -1455,47 +1527,101 @@ img { display: block; max-width: 100%; }
 }
 
 /* A section divider rail — index number, title, right-hand metadata. */
+/* A section label, and nothing more.
+ *
+ * design.md § 3.7: in the reference this is a small glyph and two or three
+ * words, grey, sentence case, top-left — `⊹ Featured Collection`. What was
+ * here instead was a full-width rail with a mono numeral, an arrow, capitals,
+ * a hairline across the page and a bracketed phrase at the far right, which is
+ * louder than the heading it introduces and is the pattern § 11 itself calls a
+ * templated tell. The numeral, the capitals, the rule and the right-hand
+ * bracket are gone; the label names the section and gets out of the way. */
 .rail {
   max-width: var(--page-max);
   margin-inline: auto;
   /* width, or the auto margins below absorb the free space and shrink-wrap
    * this box instead of stretching it — see .page, a grid parent. */
   width: 100%;
-  padding: var(--space-sm) var(--page-gutter);
-  border-top: var(--rule-hair) solid var(--color-rule);
+  padding: var(--space-lg) var(--page-gutter) var(--space-2xs);
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-xs) var(--space-lg);
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  letter-spacing: var(--tracking-code);
-  text-transform: uppercase;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
   color: var(--color-muted);
 }
-.rail__no { color: var(--color-ink); font-weight: 700; }
+/* The glyph, not a numeral. Small, and it sits on the label's baseline. */
+/* --color-accent-deep, not --color-accent-ink. "Ink" means text *on* lime,
+ * and every other use of it in this file pairs it with a lime ground; this
+ * mark sits on canvas. In light that token is near-black and looked fine by
+ * accident. In dark it is #051C14 — the page's own background — so the glyph
+ * was painted in the background colour and vanished. --color-accent-deep is
+ * the accent that survives on a canvas, in both themes, which is why link
+ * hover uses it too. Caught by screenshotting the dark scheme, not by any
+ * check: the CSS was valid and both gates passed. */
+.rail__mark { color: var(--color-accent-deep); font-size: 0.75em; }
 
 /* section heads — stacked single column, never tag-left/head-right */
-/* 34ch is a grid cell's worth of text, and below 60rem there is no grid.
+/* A grid cell's worth of text, and below 60rem there is no grid.
  *
  * The cap was unconditional, so on a 390px phone the section head was held to
  * 286px inside a 350px column — 64px of dead space to its right, and the
  * heading wrapping a line earlier than it needed to. The 12-column
- * composition starts at 60rem; so does the cap. */
+ * composition starts at 60rem; so does the cap.
+ *
+ * Three modules, not 34ch. This box holds a display-face heading *and* a
+ * body-face sub, so a ch cap resolves in whichever face the container itself
+ * inherits — the body one — and then constrains a heading set in a different
+ * face. That was invisible while both faces were the same stack. Syne is 52.8%
+ * wider than the system sans at the same size, measured, and the 34ch cap
+ * immediately put "Three sites, one practice" on three lines at 1440 while the
+ * box stayed 324px because the cap never knew the heading had changed face.
+ *
+ * A cap that exists for layout reasons belongs in layout units. --module is
+ * the unit the rest of the composition is measured in, three of them is what
+ * "a grid cell's worth" meant, and it cannot drift when a face changes.
+ *
+ * A ch cap on the element whose own font it constrains is still right, and
+ * self-corrects for any face — .hero__line, .page__title and .foot__statement
+ * all keep theirs. */
 .head { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
 @media (min-width: 60rem) {
-  .head { max-width: 34ch; }
+  .head { max-width: calc(var(--module) * 3); }
 }
+/* Sentence case, not capitals.
+ *
+ * design.md § 3.7, written with the reference open: not one heading on that
+ * page is set in capitals — "Must-Have Outerwear", "The Winter Collection
+ * Drop", "Heard from our costumers". The old § 3.5 table said `uppercase` and
+ * it was a mistake in a paraphrase, applied site-wide, and it is most of why
+ * the owner said the built site was "beda banget" from what he sent. Capitals
+ * survive only where the reference keeps them: the ticker and the tiny labels.
+ */
 .head__title {
   /* Clamped, because .page__title is clamped too: a flat 2.5rem here rendered
    * the h2 larger than the h1 on every viewport under 800px. */
-  font-size: clamp(1.75rem, 4.2vw, var(--text-2xl));
+  /* Down with the display scale in tokens.css — see the note there. */
+  font-size: clamp(1.375rem, 2.2vw, var(--text-2xl));
   font-weight: 700;
   letter-spacing: var(--tracking-display);
-  text-transform: uppercase;
+  text-wrap: balance;
 }
 .head__sub { color: var(--color-muted); font-size: var(--text-base); }
+/* The second line steps in — the reference's heading signature.
+ *
+ * "Must-Have / ‎ Outerwear", "The Winter / ‎ Collection Drop": every two-line
+ * heading on that page sets its second line indented to the right. A negative
+ * text-indent against matching padding does it with no markup and no guessed
+ * break point, and it is invisible on a heading that fits one line, because
+ * then there is no second line to step.
+ */
+.head__title,
+.page__title {
+  padding-inline-start: 1.6em;
+  text-indent: -1.6em;
+}
+
 
 /* --------------------------------------------------------- album index */
 /* Two up from the start.
@@ -1535,8 +1661,47 @@ img { display: block; max-width: 100%; }
  * 18 / 15 / 12 is three levels where there were one and a half. */
 .albums .album__title { font-size: var(--text-md); }
 
+/* A card is a box, not a photograph with a loose caption under it.
+ *
+ * "border yang sesuai" — the reference puts every card inside a subtle
+ * bordered, filled box, and it is most of why its very small type reads as
+ * composed rather than stranded. A photograph with its meta floating beneath
+ * reads as a contact sheet; the same pair inside a hairline box reads as a
+ * mounted print. design.md § 4.
+ *
+ * The photograph reaches three edges and only the text is padded, which is the
+ * reference's shape. Padding the photograph too would mount it twice, and it
+ * would cost the tile real width on a 167px phone column.
+ *
+ * No shadow and no radius — the hairline and the tonal step between
+ * --color-paper-white and the frame's --color-paper-2 are the whole effect.
+ * In dark those two tokens are the same value, so there the hairline carries
+ * it alone; it is lime at 0.18 there and reads clearly enough on its own, and
+ * the frame's ground only shows while the photograph is still arriving. */
 .album { display: grid;
-  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0; }
+  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0;
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-white);
+  padding-block-end: var(--space-sm);
+  /* Both of these exist because the box is now visible, and neither mattered
+   * while the card was transparent.
+   *
+   * A grid row stretches every member to the tallest, so a card whose cover is
+   * shorter than its neighbour's used to get the difference distributed
+   * between its own rows — a hole opening between the year and the plate count
+   * while the taller card's text packed tight. As negative space on an
+   * invisible card that read as air. Inside a bordered box it reads as broken.
+   *
+   * align-content: start packs the card's own rows against the top so the
+   * photograph, title and meta stay one block. align-self: start stops the
+   * card stretching at all, so the box ends where its content does and a row
+   * of two boxes is honestly ragged — which is what "a row's height is its
+   * tallest member, and nothing is cropped to make a row tidy" means. The
+   * nth-child rules below deliberately override this with `end` on alternate
+   * cards above 60rem; that offset is the composition, not a side effect. */
+  align-content: start;
+  align-self: start; }
+.album > :not(.album__media) { padding-inline: var(--space-sm); }
 .album__media {
   display: block;
   /* The tile keeps its cover's shape, but never goes landscape.
@@ -1578,7 +1743,6 @@ img { display: block; max-width: 100%; }
   font-size: var(--text-md);
   font-weight: 700;
   letter-spacing: var(--tracking-heading);
-  text-transform: uppercase;
 }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 /* Metadata under the name, not a second body copy — see .albums
@@ -1767,7 +1931,6 @@ img { display: block; max-width: 100%; }
 }
 .elsewhere__name {
   font-family: var(--font-display);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-heading);
   font-size: var(--text-lg);
   font-weight: 700;
@@ -1803,20 +1966,8 @@ img { display: block; max-width: 100%; }
  * image on the site, not just these three.
  */
 .lane__what { color: var(--color-ink-2); font-size: var(--text-base); max-width: 46ch; }
-/* The address is metadata, so it is mono and bracketed, per § 3.5. */
-.lane__addr {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-code);
-  color: var(--color-muted);
-  margin-top: var(--space-2xs);
-}
-.lane__mark { color: var(--color-accent-deep); font-weight: 700; }
-
-@media (hover: hover) and (pointer: fine) {
-  .lane:hover .lane__name { color: var(--color-accent-deep); }
-  .lane:hover .lane__addr { color: var(--color-ink-2); }
-}
+/* .lane__addr, .lane__mark, .lane__name and the .lane hover rules went with
+ * the stacked layout above — the reel cards carry .reel__meta instead. */
 
 /* ------------------------------------------------------------- pager */
 /* Sits under a gallery, not over it: page controls are housekeeping, and a
@@ -1952,13 +2103,16 @@ img { display: block; max-width: 100%; }
   overflow: clip;
 }
 .foot > * { max-width: var(--page-max); margin-inline: auto; width: 100%; }
+/* Sentence case, like every other heading. The uppercase here outlived the
+ * de-shouting pass and was the last one left; see design.md § 12, which
+ * now gates it. The source copy was already sentence case — only the CSS
+ * was shouting — so nothing in footer.tsx changed. */
 .foot__statement {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.5rem, 3.5vw, 2.5rem);
-  line-height: 1.04;
+  line-height: 1.08;
   letter-spacing: var(--tracking-display);
-  text-transform: uppercase;
   max-width: 22ch;
 }
 .foot__statement em {
@@ -2036,10 +2190,10 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
 .page__title {
   font-size: var(--text-display-s);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
-  max-width: 18ch;
+  text-wrap: balance;
+  max-width: 20ch;
 }
 .page__title em {
   font-style: normal;
@@ -2118,7 +2272,6 @@ img { display: block; max-width: 100%; }
   font-size: var(--text-lg);
   font-weight: 700;
   letter-spacing: var(--tracking-heading);
-  text-transform: uppercase;
 }
 .row2 { display: grid; gap: var(--space-md); }
 @media (min-width: 34rem) { .row2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -2217,21 +2370,23 @@ img { display: block; max-width: 100%; }
 }
 
 /* Capitals, tracked out rather than in — see --tracking-caps in tokens.css.
- * Every rule below sets text-transform: uppercase, and every one of them was
- * inheriting a negative step drawn for lowercase display type. */
+ *
+ * Only the two runs that are still all capitals. This block used to name nine
+ * selectors, from when every heading on the site was uppercase; the
+ * de-shouting pass moved six of them to sentence case and left them here, so
+ * .page__title, .head__title, .foot__statement, .reel__name,
+ * .elsewhere__name and .album__title were lowercase display type tracked
+ * *out* — the opposite of what design.md § 5 asks for and of what their own
+ * rules declare. Removing them from this block is the whole fix: each one
+ * already sets --tracking-hero, --tracking-display or --tracking-heading, and
+ * this block was the last declaration overriding it.
+ *
+ * The wordmarks keep it. Both are set in capitals on purpose (design.md § 5
+ * allows the wordmark, the ticker, tiny labels and control text), and caps
+ * have no ascenders or descenders to interlock, so a negative step only
+ * closes their counters. */
 .foot__wordmark,
-.page__title,
-.page__title em,
-.head__title,
-.foot__statement,
-.foot__statement em,
 .mast__name,
-.mast__name em,
-/* Higher specificity than the flat .head__title below it, and it re-declares
- * letter-spacing to reset the size — so it has to be named here too. */
-.index-sticky .head__title,
-.reel__name,
-.elsewhere__name,
-.album__title {
+.mast__name em {
   letter-spacing: var(--tracking-caps);
 }

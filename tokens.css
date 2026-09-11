@@ -2,37 +2,38 @@
  * theme: Swiss Neo-Grotesque Studio — ported from the Stitch export's
  * DESIGN.md, with two corrections the author asked for: more negative space,
  * and the grid drawn visibly (hairline columns + `+` crosshairs).
- * display: Syne · body: Hanken Grotesk · label/metadata: JetBrains Mono
+ * display: Syne 800, subset and self-hosted · body and metadata: system sans
  * paper #FBFBF9 · slab #051C14 · signal #C4F23E · hairline #E5E5E0
  * shapes: 0px everywhere; pills only for filter chips
  */
 :root {
   /* ---- type ------------------------------------------------------ */
-  /* The system face, which is what this site has always actually rendered.
+  /* Two voices: one face for the display role, the system stack for the rest.
    *
-   * These three named Syne, Hanken Grotesk and JetBrains Mono through
-   * next/font variables, and none of them ever applied — the variables were
-   * defined on <body> while these declarations sit on :root, so every one
-   * computed to the guaranteed-invalid value and font-family fell through to
-   * the stack below. The whole site has been in the system face since it was
-   * built. When that was fixed and the three webfonts finally appeared, the
-   * owner's answer was immediate: the system face was the one he wanted.
+   * --font-display once named Syne here and it never applied, for the whole
+   * life of the site. next/font put its variable on <body> while these
+   * declarations sit on :root, and a custom property resolves where its
+   * declaration lives, not where it is used — so --font-display computed to
+   * the guaranteed-invalid value and every descendant inherited that. The
+   * build was green, the CSS was valid, three woff2 files were preloaded and
+   * used by nothing, and `document.fonts` reporting 47 faces `unloaded` was
+   * the only tell. The loader's class is on <html> now. `npm run measure`
+   * asserts the result rather than the intent: EXPECTED_FAMILIES is 2.
    *
-   * So it is the system face on purpose now, rather than by accident. This is
-   * the exact stack that was rendering, so nothing moves. It also costs
-   * nothing: three variable families were 99KB on the wire and the largest
-   * non-image item on every page, and a face already on the device has no
-   * download, no swap and no layout shift.
+   * The fallback after var(--font-syne) is not decoration. Until the woff2
+   * arrives — and on any engine where it fails — the display role has to land
+   * on a real face, and `swap` means that first paint definitely happens.
    *
-   * --font-mono is the same sans deliberately, not an oversight. The 11px
-   * uppercase label rails have always drawn in this face, and switching them
-   * to a real monospace now would change a page the owner just said was
-   * right. `ui-monospace, SFMono-Regular, Menlo, monospace` is there for
-   * free whenever he wants those rails set properly. */
+   * Body and metadata stay on the system stack deliberately. design.md § 5
+   * asks body to be a neutral grotesque, and the system stack *is* one on
+   * every platform, for zero bytes. There is no monospace in the reference at
+   * all — prices, counters and meta are all the neutral sans — so --font-mono
+   * pointing at the same stack is the design, not an oversight. It keeps the
+   * 33 label rules that read from it in the register the reference uses. */
   --system-sans: -apple-system, "system-ui", "Segoe UI", Roboto,
     "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-display: var(--system-sans);
+  --font-display: var(--font-syne), var(--system-sans);
   --font-body:    var(--system-sans);
   --font-mono:    var(--system-sans);
 
@@ -56,13 +57,38 @@
   --text-xs:      0.6875rem;  /* 11px · label-index */
   --text-sm:      0.75rem;    /* 12px · label-code  */
   --text-base:    0.9375rem;  /* 15px · body-md     */
-  --text-md:      1.125rem;   /* 18px · body-lg     */
-  --text-lg:      1.5rem;     /* 24px · headline-sm */
+  --text-md:      1rem;       /* 16px · body-lg     */
+  --text-lg:      1.25rem;    /* 20px · headline-sm */
   --text-xl:      1.75rem;
-  --text-2xl:     2.5rem;     /* 40px · headline-md */
+  --text-2xl:     2rem;       /* 32px · headline-md */
   --text-3xl:     4rem;       /* 64px · headline-lg */
-  --text-display-s: clamp(2.25rem, 5vw, 4rem);
-  --text-display:   clamp(3rem, 8.5vw, 7rem);   /* 112px · headline-hero */
+  /* Small type against generous space — the owner's own read of the
+   * reference, 2026-09-11: "spacing yang enak terus typography yang kecil
+   * banget". Measured against it at 1440px, our display sizes were the thing
+   * out of proportion, not the small ones:
+   *
+   *   page title   4.44% of viewport width   reference ~2.4%   1.85x
+   *   body         1.25%                     ~0.85%            1.47x
+   *   card meta    0.83%                     ~0.70%            1.19x  (fine)
+   *   chip / nav   0.83%                     ~0.70%            1.19x  (fine)
+   *
+   * So the display steps came down and the label steps stayed. The reference
+   * figures are eyeballed off a screenshot and carry maybe ±20%; ours are
+   * measured. --text-base stays at 15px and --text-md stops at 16px rather
+   * than following the reference all the way down, because that is reading
+   * copy on a phone and this is not a desktop fashion site. */
+  --text-display-s: clamp(1.625rem, 2.6vw, 2.25rem);
+  /* The hero statement, and its only caller.
+   *
+   * The floor came down from 3rem when Syne landed. Syne is 52.8% wider than
+   * the system sans at the same point size, measured, and at 48px "Frames, not
+   * feeds." set on *three* lines inside a 390px phone — a three-word statement
+   * broken three ways. Measured by size at 360 and 390: 44px and up gives
+   * three lines, 42px is the largest that gives two, and 2.5rem leaves the
+   * longest line at 296 of 350 available px so the copy can change without
+   * breaking the shape. A face change is exactly when a clamp floor has to be
+   * re-derived; nothing else reads this token. */
+  --text-display:   clamp(2.5rem, 8.5vw, 7rem);  /* 112px · headline-hero */
 
   /* ---- space — Stitch's rhythm, opened up one step for air -------- */
   --space-3xs: 0.125rem;
@@ -78,7 +104,6 @@
   --space-2xl: clamp(2.5rem, 8vw, 5rem);
   --space-3xl: clamp(3.25rem, 12vw, 7.5rem);
   --space-4xl: clamp(4rem, 16vw, 11rem);
-  --subgrid-gap: 2rem;
   --page-gutter: clamp(1.25rem, 4vw, 2.5rem);
   --page-max: 1440px;
   --measure: 62ch;
@@ -102,20 +127,37 @@
   --color-ink-on-dark:  #FFFFFF;
   --color-ink-on-dark-2:#ABCFBB;  /* primary-fixed-dim — muted on slab */
 
+  /* The hero scrim — black at three alphas, so white display type clears
+   * contrast over a photograph nobody has seen yet.
+   *
+   * Not a brand colour and not texture. design.md § 7 keeps generated imagery
+   * out — CSS art, illustration, pattern — and a scrim is none of those: the
+   * photograph is owner content whose tonality is unknown at build time, and
+   * white type over an unknown photograph is a contrast failure waiting for
+   * the wrong upload. It is the minimum that makes type over a photograph
+   * legal, and it darkens only the band the type occupies.
+   *
+   * Deliberately identical in both themes, and not redeclared below: it
+   * darkens a photograph, and a photograph does not have a theme.
+   *
+   * The three alphas are measured, not chosen. Composited over a pure-white
+   * photograph — the pathological case, and the only one worth designing for —
+   * 0.45 at the mid stop put the display line at 3.36:1, over the 3.0 a
+   * 48px bold run needs but with no margin at all. 0.50 takes it to 3.9. */
+  --color-scrim-3:      rgb(0 0 0 / 0.72);
+  --color-scrim-2:      rgb(0 0 0 / 0.50);
+  --color-scrim-0:      rgb(0 0 0 / 0);
+
   --color-rule:         #E5E5E0;  /* hairline */
   --color-rule-2:       #C1C8C2;  /* outline-variant */
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
-  --color-crosshair:    rgba(13, 13, 13, 0.25);
-  --color-crosshair-on-dark: rgba(196, 242, 62, 0.3);
-  /* The lattice sits lighter than a hairline rule — a field to place things
-   * on, not a border. Every 4th line runs lime and slightly brighter: the
-   * "laser" register lines that mark the major column divisions. */
-  --color-grid:         rgba(13, 13, 13, 0.07);
-  --color-grid-laser:   rgba(107, 150, 0, 0.34);
   --module:             120px;   /* 1440 / 12 — one square cell */
-  /* The row height the lattice actually paints — see .gridlines__cols, which
-   * uses this same min() at these same breakpoints. Block padding measured in
-   * --row lands on a real grid row at 375px, not only at 1440px. */
+  /* The modular unit the layout is measured in: a cell that stays square at
+   * every width, not only at the max measure. Nothing draws it — the lattice
+   * that used to is gone — but the rhythm is real and 22 rules read from it,
+   * the hero's frame height and every .reel__frame among them. Keeping the
+   * unit while dropping the drawing is the whole point: the structure is in
+   * the proportions, not in visible ruler lines. */
   --row: min(calc(100vw / 4), var(--module));
 
   --color-accent:       #C4F23E;  /* acid lime — the signal layer */
@@ -125,7 +167,6 @@
   --color-focus:        #4F6600;
   --color-error:        #BA1A1A;
   --color-ok:           #4F6600;
-  --color-scrim:        rgba(5, 28, 20, 0.62);
 
   /* ---- rules, radii, motion -------------------------------------- */
   /* Image edge — pure black at 10%, never a tinted neutral: a tinted outline
@@ -133,8 +174,7 @@
   --outline-image: rgba(0, 0, 0, 0.1);
 
   --rule-hair: 1px;
-  --radius-none: 0;
-  --radius-sm:   0;      /* the system is rectilinear — no soft corners */
+  --radius-none: 0;      /* the system is rectilinear — no soft corners */
   --radius-pill: 9999px; /* the single exception: filter chips */
   --shadow-cap:  0 1px 12px rgba(5, 28, 20, 0.7);
 
@@ -144,8 +184,6 @@
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long:  420ms;
-
-  --z-grid: 0;
   --z-base: 1;
   --z-raised: 10;
   --z-dropdown: 100;
@@ -181,9 +219,6 @@
   --color-rule:         rgba(196, 242, 62, 0.18);
   --color-rule-2:       rgba(196, 242, 62, 0.32);
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
-  --color-crosshair:    rgba(196, 242, 62, 0.3);
-  --color-grid:         rgba(196, 242, 62, 0.09);
-  --color-grid-laser:   rgba(196, 242, 62, 0.42);
   --outline-image:      rgba(255, 255, 255, 0.1);
 
   --color-accent:       #C4F23E;
@@ -193,7 +228,6 @@
   --color-focus:        #C4F23E;
   --color-error:        #FFB4AB;
   --color-ok:           #AAD61E;
-  --color-scrim:        rgba(2, 16, 9, 0.72);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -214,9 +248,6 @@
     --color-rule:         rgba(196, 242, 62, 0.18);
     --color-rule-2:       rgba(196, 242, 62, 0.32);
     --color-rule-on-dark: rgba(196, 242, 62, 0.2);
-    --color-crosshair:    rgba(196, 242, 62, 0.3);
-    --color-grid:         rgba(196, 242, 62, 0.09);
-  --color-grid-laser:   rgba(196, 242, 62, 0.42);
   --outline-image:      rgba(255, 255, 255, 0.1);
 
     --color-accent:       #C4F23E;
@@ -226,6 +257,5 @@
     --color-focus:        #C4F23E;
     --color-error:        #FFB4AB;
     --color-ok:           #AAD61E;
-    --color-scrim:        rgba(2, 16, 9, 0.72);
   }
 }

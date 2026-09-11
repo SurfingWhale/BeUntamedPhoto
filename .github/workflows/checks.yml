@@ -1,0 +1,50 @@
+name: checks
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      # The design system, asserted. Every gate here exists because the thing
+      # it checks already shipped broken once — see design.md § 12 for which,
+      # and scripts/measure.mjs for the proof that each one can fail.
+      - name: Design gates
+        run: npm run measure -- --static
+
+# What this workflow deliberately does NOT do, so nobody wastes an afternoon
+# wiring it up and finding out:
+#
+#   `next build` reads the database. Every public page is prerendered, so the
+#   build runs the archive and featured queries for real — placeholder
+#   credentials fail it at /about with "Could not read the archive", and that
+#   is the intended behaviour, not a regression (CLAUDE.md says why). So there
+#   is no build step and no server here, and therefore no browser half of
+#   `npm run measure`.
+#
+#   To add it: give the repository NEXT_PUBLIC_SUPABASE_URL and
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY as secrets, then append a job that runs
+#   `npm run build`, starts `npm start`, and runs `npm run measure` without
+#   --static. The harness finds Chromium via CHROME_PATH or a system install
+#   and skips loudly rather than failing if neither is there.
+#
+#   Until then the browser checks are a local step, and the ones that matter
+#   most — height drift, the sizes slots, how many typefaces the page actually
+#   draws in — are the ones a human has to remember to run. That is a real
+#   gap, not a resolved one.
