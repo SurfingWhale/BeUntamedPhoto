@@ -130,6 +130,10 @@ export const SIZES = {
   plateHalf: "(min-width: 60rem) 32vw, 45vw",
   /** .plates__thumb — a fixed 96px contact-sheet square. */
   thumb: "96px",
+  /** .reel__frame — the lane banners, measured box by box rather than guessed:
+   * 218px at 320, 273 at 390, 304 at 430, 311 at 768, 293 at 1024 and 416
+   * from 1440 up. Declared at the widest each range actually reaches. */
+  lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 304px",
   /**
    * .reel__frame — a cover in the index reel. The card is `min(78%, 21rem)` of
    * the reel's content box, which inside the index section measures 242px on a

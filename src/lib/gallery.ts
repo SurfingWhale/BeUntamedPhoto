@@ -170,6 +170,31 @@ export async function getPhotoPage(
   // Same reason the album query throws: a swallowed error here renders an
   // empty gallery at 200, which reads as "nothing filed" rather than "broken".
   if (error) {
+    /* An offset past the last row is a wrong URL, not a broken gallery.
+     *
+     * PostgREST answers a range it cannot satisfy with PGRST103 — "An offset
+     * of 24 was requested, but there are only 7 rows" — and throwing on it
+     * meant /work/in-bloom/p/2 answered 500. AlbumView already knows what to
+     * do with a page past the end; it just never got the chance, because this
+     * threw first. Returning the page as empty with the real total lets that
+     * guard turn it into the 404 it always meant to be.
+     *
+     * The extra count query only ever runs on this path, so a gallery that
+     * pages normally still costs one round trip. */
+    if (error.code === "PGRST103" || /range not satisfiable/i.test(error.message)) {
+      const { count: real } = await supabase
+        .from("photos")
+        .select("id", { count: "exact", head: true })
+        .eq("album_id", albumId);
+      const total = real ?? 0;
+      return {
+        items: [],
+        total,
+        page,
+        pages: Math.max(1, Math.ceil(total / perPage)),
+        perPage,
+      };
+    }
     console.error("[gallery] plate page failed:", error.message, error.details);
     throw new Error(`Could not read the gallery: ${error.message}`);
   }

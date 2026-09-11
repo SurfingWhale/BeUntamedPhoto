@@ -56,6 +56,21 @@ body {
 }
 ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
 
+/* Every heading balances, every paragraph is set pretty.
+ *
+ * Only .story__body carried text-wrap before this, so 22 of the 23 text
+ * blocks on the site broke wherever the line happened to run out. Measured at
+ * 390: the plate captions ended on a last line 18% of their box, and the two
+ * "back" links on 31% and 28% — a word alone under a full line, which is the
+ * cheapest thing to read as careless. `balance` costs nothing on short blocks
+ * (the engine gives up past ~6 lines) and `pretty` only moves the last two
+ * lines of a paragraph, so neither can reflow a layout. */
+h1, h2, h3, h4, .page__title, .head__title, .album__title, .reel__name,
+.foot__statement, .foot__wordmark, .strip__cap, .fold-photo__cap {
+  text-wrap: balance;
+}
+p, li, figcaption, blockquote { text-wrap: pretty; }
+
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 800;
@@ -294,17 +309,28 @@ img { display: block; max-width: 100%; }
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
 }
+/* The skip link was on screen.
+ *
+ * It hid itself with translateY(-200%) — twice its own height, about 68px —
+ * while sitting at `top: 16px + env(safe-area-inset-top)`. On an iPhone 12
+ * that inset is 47px, so the link was pushed to 63px and pulled back 68px:
+ * a net -5px, which left 29px of a black chip over the status bar clock on
+ * every page. A transform measured in percentages of the element cannot be
+ * trusted to clear an offset measured in the device's insets.
+ *
+ * Clipped out instead, which does not depend on either. It is still in the
+ * accessibility tree and still the first thing a keyboard reaches. */
 .u-skip {
   position: absolute; left: var(--space-md);
   /* Focused at the top of the page it would otherwise open under the
    * status bar on an installed copy. */
   top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
-  transform: translateY(-200%);
+  clip-path: inset(50%);
   background: var(--color-ink); color: var(--color-paper);
   padding: var(--space-xs) var(--space-md); z-index: var(--z-toast);
   font-size: var(--text-sm);
 }
-.u-skip:focus-visible { transform: translateY(0); }
+.u-skip:focus-visible { clip-path: none; }
 
 /* ----------------------------------- masthead · technical header rail */
 .mast {
@@ -346,9 +372,19 @@ img { display: block; max-width: 100%; }
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  /* 12px, not 28px: the wordmark plus the account/theme pair measures ~340px
-   * against ~335px of phone content width, and the wider gap was the whole
-   * difference between one row and two. */
+  /* 12px, not 28px, and it is no longer enough to hold one row.
+   *
+   * That was measured before the typefaces were ever applied — see the
+   * font-variable fix in layout.tsx. Set in Syne Extrabold the wordmark is
+   * far wider than it was in the system grotesque the number came from.
+   * Measured now at 390: .mast__id 257px + this 12px gap + .mast__aside
+   * 170px = 439px against 350px of content width, so the bar wraps and the
+   * masthead stands 145px — 17% of an 844px screen, though it retracts on
+   * scroll. Closing that 89px means shrinking the wordmark, dropping the
+   * register glyph or cutting the toggle labels, all of which are the
+   * owner's call and none of which belong in a measurement pass. Left as
+   * two rows deliberately; the gap stays 12px because 28px would wrap the
+   * rail as well. */
   gap: var(--space-sm);
 }
 .mast__rail {
@@ -374,7 +410,10 @@ img { display: block; max-width: 100%; }
   color: var(--color-accent);
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 0.9375rem;
+  /* --text-base, which is the same 0.9375rem this was written as. The literal
+   * was the only font-size in the stylesheet not reading from the scale, so a
+   * change to the scale would have left the register glyph behind. */
+  font-size: var(--text-base);
   line-height: 1;
 }
 .mast__name {
@@ -748,8 +787,25 @@ img { display: block; max-width: 100%; }
 .fold-photo--tall,
 .fold-photo--band {
   height: auto;
-  aspect-ratio: var(--fold-ratio, 3 / 4);
+  aspect-ratio: var(--fold-ratio, 0.75);
 }
+/* The opening frame is never wider than 4:5, because the plate's own ratio is
+ * not always tall enough to open a page.
+ *
+ * The rule above keeps whatever proportions the photograph has, which is right
+ * for the vertical plates it was written for. But the featured plate is
+ * currently landscape at 1.50, and 350px of width across a phone made it
+ * 233px tall — a strip 28% of one screen, under a 145px masthead.
+ *
+ * Capping the ratio and not the height, because .plinth sizes this box
+ * shrink-to-fit: a min-height of 5 rows made aspect-ratio derive the *width*
+ * from the new height and the frame came out 731px wide inside a 390px
+ * viewport, hidden only by overflow-x: clip. Measured, and the third time
+ * that has happened in this stylesheet.
+ *
+ * min() only ever lowers a landscape number: a 0.56 plate stays 0.56 and
+ * still crops nothing. Measured: 233px -> 437px, 52% of the screen. */
+.fold-photo--tall { aspect-ratio: min(var(--fold-ratio, 0.75), 0.8); }
 @media (min-width: 60rem) {
   .fold-photo--tall { aspect-ratio: auto; height: calc(var(--row) * 6); }
   .fold-photo--band { aspect-ratio: auto; height: calc(var(--row) * 4); }
@@ -771,9 +827,27 @@ img { display: block; max-width: 100%; }
     padding-block-end: var(--space-md);
   }
   .fold-photo[data-shape="portrait"] .fold-photo__img {
+    /* A definite height, and the width derived from it.
+     *
+     * This branch used to set `width: auto` and leave `height: 100%` from
+     * .fold-photo__img standing, against a parent whose height is auto — a
+     * percentage against nothing. Author declarations also beat the width and
+     * height attributes, so no aspect-ratio was derived either and the frame
+     * had no intrinsic box: it measured 0x0 at 1440, which kept it far from
+     * the viewport, so its lazy load never fired and it stayed 0x0 forever.
+     * The second photograph on / and on /about was invisible at every width
+     * from 960px up. `height: auto` alone does not fix it — with both
+     * dimensions auto an unloaded image has no intrinsic size at all.
+     *
+     * Seven rows was already the intended cap; making it the height gives the
+     * box a definite side to derive the other from. object-fit: contain has
+     * nothing left to letterbox, so the plate is still uncropped, and the
+     * frame still lands on the lattice. See CLAUDE.md: presentational hints
+     * lose to any author declaration, and this is the second photograph it
+     * has cost. Measured: 0x0 -> 560x840. */
+    height: calc(var(--row) * 7);
     width: auto;
     max-width: 100%;
-    max-height: calc(var(--row) * 7);
     margin-inline: auto;
     object-fit: contain;
   }
@@ -1083,7 +1157,29 @@ img { display: block; max-width: 100%; }
 .reel__frame {
   height: calc(var(--row) * 2.2);
   display: grid;
+  /* Pinned, or the height below it does not resolve.
+   *
+   * The frame's own height is definite, but its single row was implicit and
+   * auto-sized, so `height: 100%` on the image was a percentage against a
+   * track whose size depended on that image — cyclic, and Chromium resolves
+   * that as `auto`. The width/height attributes then supplied an
+   * aspect-ratio, and a 1600x2400 plate rendered 363px tall inside a 215px
+   * frame and spilled 148px onto .reel__name and .reel__meta below it. The
+   * text overlapped the photograph on the home-page index and on both lanes.
+   *
+   * Proved by elimination in the browser: inline `height: 100%` did not fix
+   * it, `place-items: stretch` did not fix it, clearing the aspect-ratio did
+   * not fix it, and `display: flex` with centring fixed it immediately —
+   * which is the percentage-resolution difference, not the alignment.
+   * minmax(0, 1fr) makes the track definite and keeps the grid, which is the
+   * same pin used on every other grid in this file.
+   *
+   * overflow: hidden is the guard, not the fix: no frame may ever paint
+   * outside itself onto the card's own text again. */
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
+  overflow: hidden;
   background: var(--color-paper-2);
   min-width: 0;
 }
@@ -1221,6 +1317,7 @@ img { display: block; max-width: 100%; }
   .story__arrow { grid-column: 6; align-self: start; justify-self: center; margin-top: var(--module); }
   .story__foot  { grid-column: 6; justify-self: center; align-self: end; }
   .story__col   { grid-column: 8 / span 4; }
+  .story__body  { max-width: 34ch; }
 }
 .story__head { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); justify-items: start; align-content: start; }
@@ -1253,7 +1350,11 @@ img { display: block; max-width: 100%; }
 .story__gloss { font-size: var(--text-sm); color: var(--color-ink-2); }
 /* Narrow justified measure — the block reads as a grid cell. */
 .story__body {
-  max-width: 34ch;
+  /* Same reason as .head: this measure is a cell in the 12-column story grid,
+   * which does not exist below 60rem. Held to 286px of a 350px column it ran
+   * 35 characters a line over 5 and 6 lines — under the 45-character floor
+   * where a reader starts losing the line they are on. */
+  max-width: none;
   /* --text-base, not --text-sm: this is the site's bio, and 12px is the label
    * size. Long-form copy starts near the browser default, not at the floor. */
   font-size: var(--text-base);
@@ -1375,8 +1476,17 @@ img { display: block; max-width: 100%; }
 .rail__no { color: var(--color-ink); font-weight: 700; }
 
 /* section heads — stacked single column, never tag-left/head-right */
+/* 34ch is a grid cell's worth of text, and below 60rem there is no grid.
+ *
+ * The cap was unconditional, so on a 390px phone the section head was held to
+ * 286px inside a 350px column — 64px of dead space to its right, and the
+ * heading wrapping a line earlier than it needed to. The 12-column
+ * composition starts at 60rem; so does the cap. */
 .head { display: grid;
-  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); max-width: 34ch; }
+  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
+@media (min-width: 60rem) {
+  .head { max-width: 34ch; }
+}
 .head__title {
   /* Clamped, because .page__title is clamped too: a flat 2.5rem here rendered
    * the h2 larger than the h1 on every viewport under 800px. */
@@ -1416,24 +1526,36 @@ img { display: block; max-width: 100%; }
 }
 /* At two up the title and year stop fitting on one line together. */
 .albums .album__meta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); }
-.albums .album__title { font-size: var(--text-base); }
-@media (min-width: 60rem) {
-  .albums .album__title { font-size: var(--text-md); }
-}
+/* The gallery name is the content of this page, and it was set at body size.
+ *
+ * Measured at 390: h1 36px, then .album__title 15px and .album__sub 15px —
+ * the name and its blurb identical, and both the same size as running text,
+ * so the page had a 36px heading and then one flat plane. --text-md for the
+ * name at every width, and the blurb drops to the metadata step under it.
+ * 18 / 15 / 12 is three levels where there were one and a half. */
+.albums .album__title { font-size: var(--text-md); }
 
 .album { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0; }
 .album__media {
   display: block;
-  /* One column on a phone means no neighbour to line up with, so the tile can
-   * simply be the shape of its cover — --tile-ratio carries the row's own
-   * width/height and object-fit has nothing to trim. A 4/3 tile was throwing
-   * away 58% of a 0.56 cover, and a fixed 3/4 still lost 25%.
+  /* The tile keeps its cover's shape, but never goes landscape.
    *
-   * From 40rem the tiles sit two and three across, where a ragged row of
-   * arbitrary heights costs more than a considered crop, so the alternating
-   * landscape rhythm comes back. */
-  aspect-ratio: var(--tile-ratio, 3 / 4);
+   * --tile-ratio carries the row's own width/height so object-fit has nothing
+   * to trim: a 4/3 tile threw away 58% of a 0.56 cover, and a fixed 3/4 still
+   * lost 25%. That reasoning holds. What no longer held was the sentence that
+   * used to open this comment — "one column on a phone means no neighbour to
+   * line up with". .albums has been two up from the start for a while now, so
+   * every phone row has a neighbour, and an uncapped ratio is exactly the
+   * "ragged row of arbitrary heights" the note below calls too expensive.
+   *
+   * Measured at 390, four tiles in a 167px column: 251, 251, 223 and 111px.
+   * The 111 is a 1.50 landscape cover, and a 111px photograph beside a 251px
+   * one reads as debris rather than as a grid. Capping at 1 means no tile is
+   * ever wider than it is tall; min() only lowers a landscape number, so
+   * every vertical cover is untouched and nothing that was uncropped starts
+   * cropping. Measured: 111px -> 167px. */
+  aspect-ratio: min(var(--tile-ratio, 0.75), 1);
   background: var(--color-paper-2);
   overflow: hidden;
 }
@@ -1459,7 +1581,10 @@ img { display: block; max-width: 100%; }
   text-transform: uppercase;
 }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
-.album__sub { font-size: var(--text-base); color: var(--color-muted); }
+/* Metadata under the name, not a second body copy — see .albums
+ * .album__title. At 12px the 60-character blurb on the longest card also
+ * stops running to three lines in a 167px column. */
+.album__sub { font-size: var(--text-sm); color: var(--color-muted); }
 
 .lock {
   display: inline-flex;
@@ -1498,8 +1623,13 @@ img { display: block; max-width: 100%; }
   gap: var(--space-lg) var(--space-md);
 }
 .strip__item:first-child { grid-column: 1 / -1; }
-/* At half width the ledger under a plate has no room for two halves. */
-.strip__item:not(:first-child) .strip__cap { font-size: 0.625rem; }
+/* At half width the ledger under a plate has no room for two halves.
+ *
+ * --text-xs, not the 0.625rem this was: 10px was the smallest type anywhere on
+ * the site, it was the only step on any route that did not come from the
+ * scale, and it sat below --text-xs, which is already the floor at 11px. One
+ * px of width is not worth a caption nobody can read. */
+.strip__item:not(:first-child) .strip__cap { font-size: var(--text-xs); }
 .strip__item:not(:first-child) .strip__cap > span:last-child { margin-inline-start: 0; }
 .strip__item:not(:first-child) .strip__no { font-size: var(--text-base); }
 /* align-content: start, or a row's spare height is dealt out between the
@@ -1863,7 +1993,16 @@ img { display: block; max-width: 100%; }
   font-family: var(--font-mono); font-size: var(--text-xs);
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
 }
-.foot__link { white-space: nowrap; border-bottom: var(--rule-hair) solid transparent; }
+/* inline-block with block padding, because an 11px footer link is an 18px
+ * target: under the 24px floor, and the two of them sit 8px apart. The padding
+ * takes it to 24px and drops the hover underline 3px clear of the baseline,
+ * which is where an underline belongs anyway. */
+.foot__link {
+  display: inline-block;
+  padding-block: 0.2rem;
+  white-space: nowrap;
+  border-bottom: var(--rule-hair) solid transparent;
+}
 @media (hover: hover) and (pointer: fine) {
   .foot__link:hover { color: var(--color-ink); border-bottom-color: var(--color-accent); }
 }
@@ -2075,4 +2214,24 @@ img { display: block; max-width: 100%; }
 .prog {
   font-family: var(--font-mono); font-size: var(--text-xs);
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
+}
+
+/* Capitals, tracked out rather than in — see --tracking-caps in tokens.css.
+ * Every rule below sets text-transform: uppercase, and every one of them was
+ * inheriting a negative step drawn for lowercase display type. */
+.foot__wordmark,
+.page__title,
+.page__title em,
+.head__title,
+.foot__statement,
+.foot__statement em,
+.mast__name,
+.mast__name em,
+/* Higher specificity than the flat .head__title below it, and it re-declares
+ * letter-spacing to reset the size — so it has to be named here too. */
+.index-sticky .head__title,
+.reel__name,
+.elsewhere__name,
+.album__title {
+  letter-spacing: var(--tracking-caps);
 }

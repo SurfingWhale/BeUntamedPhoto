@@ -109,6 +109,25 @@ return `[]` for one build and then put them back — never commit that.
   sticky element takes `top: max(var(--mast-h, 0px), env(safe-area-inset-top, 0px))`,
   not `--mast-h` alone. The masthead publishes `--mast-h: 0px` while retracted.
 
+- **A `var()` resolves where the declaration lives, not where it is used.**
+  `next/font` puts `--font-syne` on whatever element carries its generated
+  class, and `tokens.css` builds `--font-display: var(--font-syne), ...` on
+  `:root`. With the class on `<body>` the variable was undefined at `:root`,
+  `--font-display` computed to the guaranteed-invalid value, and every
+  descendant inherited that invalidity — so the whole site rendered in
+  `-apple-system` for months while three woff2 files were preloaded and used
+  by nothing. The font classes belong on `<html>`. Nothing catches this but
+  reading `getComputedStyle` back: the build was green, the CSS was valid, and
+  `document.fonts` reporting 47 faces `unloaded` was the only tell.
+
+- **Never floor a height on a box whose width is shrink-to-fit.** With
+  `aspect-ratio` set, a `min-height` makes the *width* derive from the new
+  height. A five-row floor on `.fold-photo--tall` produced a 731px frame
+  inside a 390px viewport, hidden by `overflow-x: clip`. Cap the ratio
+  instead. Three separate grid blowouts in `globals.css` now trace to this
+  family, and all three were invisible until something measured rendered
+  boxes.
+
 - **Reserve every image box, and know why the attributes alone will not.**
   `width`/`height` on an `<img>` are only *presentational hints*: any author
   `width` or `height` declaration beats them. `.lane__frame img` carried

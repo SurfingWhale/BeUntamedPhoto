@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
 
 import { Masthead } from "@/components/masthead";
 import { Fab } from "@/components/fab";
@@ -10,31 +9,21 @@ import { ServiceWorker } from "@/components/pwa";
 import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-/* Only the weights the stylesheet actually asks for. Traced rule by rule,
- * including the ones that inherit their family: .mark--bold and .rail__no set
- * 700 without naming a family and land on Hanken and JetBrains respectively.
- * A weight nothing uses is dead bytes; dropping one something uses is worse,
- * because the browser then synthesises a fake bold. */
-const syne = Syne({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "700", "800"],
-  variable: "--font-syne",
-});
-
-const hanken = Hanken_Grotesk({
-  subsets: ["latin"],
-  weight: ["300", "400", "600", "700"],
-  display: "swap",
-  variable: "--font-hanken",
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-  variable: "--font-jetbrains",
-});
+/* No webfonts.
+ *
+ * tokens.css named Syne, Hanken Grotesk and JetBrains Mono, and next/font
+ * loaded all three — but the variables were declared on <body> while the
+ * semantic families were built on :root, so they never once applied and the
+ * site rendered in the system stack for its whole life. Fixing the variable
+ * scope made them appear, and the owner's answer was immediate: the system
+ * face was what he wanted. His call, and it is also the cheaper one — three
+ * variable families were 99KB on the wire, measured, and they were the single
+ * largest non-image item on every page. Native faces are already on the
+ * device, so there is no download, no swap and no layout shift.
+ *
+ * The families now live entirely in tokens.css. Putting a webfont back means
+ * adding the loader here and pointing --font-display/--font-body/--font-mono
+ * at it, with the class on <html> and not on <body>. */
 
 const DESCRIPTION =
   "Graduation, brand, sport, food and event photography. Commissions open across Jakarta and beyond.";
@@ -92,7 +81,7 @@ export default function RootLayout({
           <style>{`[style*="opacity:0"]{opacity:1!important;transform:none!important}`}</style>
         </noscript>
       </head>
-      <body className={`${syne.variable} ${hanken.variable} ${jetbrains.variable}`}>
+      <body>
         <a className="u-skip" href="#main">
           Skip to content
         </a>

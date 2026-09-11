@@ -1,6 +1,6 @@
 # PRD — multi-genre commissions, content composition, and page weight
 
-**Status:** open · audited 2026-09-04 · **no code written yet**
+**Status:** phases 1–5 shipped 2026-09-04 (`8e16594`, `d699fa0`, `d993277`, `9f98597`, `4774ae1`) · P2 backfill is an owner action in the darkroom, not code
 **Companion:** `docs/PRD-mobile-and-identity.md` (shipped, `ea73a48`)
 
 Read this first if a session was cut off. Section 7 is the resume point.
