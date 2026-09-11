@@ -150,10 +150,8 @@ export default async function HomePage() {
       </section>
 
       <div className="rail">
-        <span>
-          <span className="rail__no">01 →</span> The index
-        </span>
-        <span>[choose by lane]</span>
+        <span className="rail__mark" aria-hidden="true">{"\u2739"}</span>
+        <span>The index</span>
       </div>
 
       {/* ---- project index · counter, category chips, numbered rows -------- */}
@@ -162,10 +160,8 @@ export default async function HomePage() {
       </section>
 
       <div className="rail">
-        <span>
-          <span className="rail__no">02 →</span> Lanes
-        </span>
-        <span>[food · sport · everything else]</span>
+        <span className="rail__mark" aria-hidden="true">{"\u2739"}</span>
+        <span>Three sites, one practice</span>
       </div>
 
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}

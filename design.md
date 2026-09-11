@@ -189,9 +189,9 @@ images. They are **superseded** by the author's actual Stitch export
 
 | Axis | Now in force |
 | --- | --- |
-| Display | **Syne** 600/700/800, tracking −0.03 to −0.05em, uppercase |
+| Display | **Syne** 600/700/800, tracking −0.03 to −0.05em — **sentence case, not uppercase; see § 3.7** |
 | Body | **Hanken Grotesk** 300–700 |
-| Metadata | **JetBrains Mono** — all indices, coordinates, camera logs, wrapped in `[brackets]` |
+| Metadata | ~~**JetBrains Mono**~~ — **struck. There is no monospace in the reference; see § 3.7** |
 | Canvas | `#FBFBF9` surface · `#F4F4F2` alt · `#FFFFFF` lowest |
 | Slab | `#051C14` forest-deep · `#0B2D20` container |
 | Signal | `#C4F23E` acid lime (`#D4F843` alt), `#4F6600` where lime needs contrast on white |
@@ -225,12 +225,15 @@ design. Catalogued so they can be reused rather than sprinkled.
 
 ### Colour balance — the rule that governs everything
 
-**~85% white. Green is never a section.** In the reference, green appears in
+**Superseded by § 3.7 — read that instead.** This paragraph described the
+*other* reference. Against the Nomvnt one, lime is a surface used repeatedly
+and green carries the whole footer, so the `~3–5%` ration and "green is never
+a section" do not hold. What survives is the shape: lime is a deliberate
+block, never a wash.
+
+~~**~85% white. Green is never a section.** In the reference, green appears in
 exactly three places: the photograph itself, four small swatch squares, and
-one small filled `14.8` tag. Nothing else. Full-bleed green slabs read as
-heavy and cheap against this — they were removed on 2026-09-03 for that
-reason. The forest tone survives only as: photographic content, a small
-filled tag, and hairlines.
+one small filled `14.8` tag. Nothing else.~~
 
 ### The marks
 
@@ -259,6 +262,134 @@ These are not typos — they are the reference's voice:
 - `archive by untamed` — letter-spaced lowercase for attribution
 - Numerals (`2K25`, `14`, `08`, `14.8`) are used as **graphic objects**, set
   large and bare, not as data inside sentences
+
+## 3.7 · The Nomvnt reference, read directly — 2026-09-11
+
+**This section supersedes § 1's weighting, § 3.5's `uppercase`, § 3.6's accent
+budget, § 10's photography rule and § 11's section rhythm.** Where it disagrees
+with anything above, this wins, and the reason is simple: everything above was
+written from a *description* of the reference. This was written with the image
+open.
+
+The owner's verdict on what had been built from the paraphrase was
+*"beda banget ekspektasi gw sama realita"*, and then, asked directly whether
+§ 1's division was right: **Nomvnt is the backbone.** Corbusier supplies the
+restraint applied to it — not the skeleton. That is the reversal.
+
+### What the page actually is, top to bottom
+
+Observed, in order. This is structure, not decoration:
+
+1. **Hero — a full-bleed photograph with the wordmark set on it.** Tightly
+   cropped on a figure. The logotype sits top-left, large, in lime, *over* the
+   image. A small caption card floats bottom-right on the photograph. A row of
+   four small square thumbnails sits at the foot of it, as an image switcher.
+2. **A full-bleed lime ticker band**, black text, tracked, repeating.
+3. **A statement section on white.** A tiny label top-left, then one large
+   sentence-case paragraph of about four lines set to a wide measure, then a
+   smaller, narrower, grey paragraph under it.
+4. **Two collection sections.** Each is: tiny label → large two-line heading →
+   an *asymmetric* card cluster. One is a pair of cards; the other is one large
+   card beside a cluster of three smaller. A small outlined `Shop All` sits
+   top-right of the second. `( 24 Products )` and `←  →` sit bottom-right of
+   the first.
+5. **A category filter over a full-bleed dark photograph.** Tiny label, then
+   the categories as *text separated by thin vertical rules* — not pills — with
+   the active one in lime, wrapping across two lines.
+6. **Testimonials.** Tiny label → heading → a lime card carrying a photograph
+   and a name/role, beside the quote set as ordinary body text, with `←  →`
+   under it.
+7. **Articles.** A smaller heading with `←  →` top-right, then two cards:
+   photograph, a small filled tag chip, a bold sentence-case title, then a tiny
+   grey meta line.
+8. **Footer — a deep green slab**, with the wordmark and a one-line statement
+   left, four columns of links right, and then **an enormous lime wordmark
+   filling the width and cropped by the bottom edge.**
+
+### Type — the correction that matters most
+
+**Headings are sentence case.** `Must-Have Outerwear`, `The Winter Collection
+Drop`, `Heard from our costumers`, `Popular Article`. Not one heading on that
+page is set in capitals. § 3.5's table says `uppercase` and that is simply
+wrong; it is why the built site reads as shouted rather than edited.
+
+- **Headings:** bold (~600–700), tight tracking, sentence case, left-aligned,
+  set in **two lines with the second line indented to the right.** That indent
+  is a signature of the reference and costs nothing to reproduce.
+- **Body:** regular weight, near-black for primary and grey for secondary.
+- **Capitals** appear only in the ticker and in tiny labels — never in a
+  heading, never in a card title.
+- **There is no monospace anywhere on that page.** Prices, the countdown
+  `10:56:00`, `( 24 Products )`, product meta — all the neutral sans. Any
+  recommendation to give the metadata role a real monospace is a step *away*
+  from this reference, and one was made on 2026-09-11 and withdrawn the same
+  day.
+- Two faces, not three: a **distinct display face for the logotype** (wide,
+  geometric, unmistakably its own) and **one neutral grotesque** for
+  everything else.
+
+### Section labels are quiet
+
+A small glyph and two or three words, grey, sentence case, top-left:
+`⊹ About Us`, `⊹ Featured Collection`, `⊹ Seasonal Series`, `⊹ Testimonials`.
+
+That is all. § 11's *"mono two-digit numeral + tracked-uppercase label"* built
+a full-width technical rail with an arrow and a bracketed phrase at the far
+end, which is louder than the heading it introduces. The label names the
+section and gets out of the way.
+
+### Colour — lime is a surface, not a 5% ration
+
+§ 3.6 caps lime at `~3–5%, never flooded` and says *"green is never a
+section"*. The reference uses lime as **a background for content, repeatedly**:
+the logotype over the hero, the whole ticker band, **a block behind a product
+photograph twice**, the active category, the article tags, and the giant
+cropped footer wordmark. Deep green carries the entire footer slab and one
+card.
+
+Rough share of that page: white around two thirds, green around a sixth, lime
+under a tenth. So the built site is if anything **too timid** with lime, and
+the `≤5%` discipline in § 11 should be struck. What survives is the *shape* of
+the restraint: lime is a **deliberate block**, never a wash or a gradient, and
+it always has black or deep-green type on it.
+
+### Photographs carry sections, with type on them
+
+§ 10 bans *"background texture of any kind"*, which is right about generated
+texture and was read as "never set anything over a photograph". The reference
+does exactly that for its two strongest moments — the hero wordmark, and the
+category filter over a dark photograph. A photograph is not texture. Generated
+CSS art is.
+
+### No drawn lattice. Anywhere.
+
+There are no ruler lines in the reference — not in the hero, not behind either
+card grid, not in the testimonial or article sections. § 3.5 records the drawn
+lattice as an author-requested correction, but it was requested against a
+description. § 1 already says the *Corbusier* ruler lines were *"a presentation
+aid … NOT a texture to reproduce"*. Neither reference supports it.
+
+### Translating it, because this is not a shop
+
+The reference sells garments; this archive shows photographs. The motifs
+carry, the commerce does not:
+
+| Reference | Here |
+| --- | --- |
+| product card | gallery card — the cover is the product |
+| price, strikethrough | year · place |
+| `( 24 Products )` | `( 7 galleries )` |
+| `Shop All` | `Open the index` |
+| category chips | the genre chips that already exist |
+| sale countdown ticker | the real ticker content — counts and lanes |
+| testimonial | the guestbook |
+| article cards | not adopted; there is no blog |
+
+Nothing invented: no fake campaigns, gear logs or client lists. § 3.5's
+existing warning about the Stitch export applies here too — the system
+travels, the fiction does not.
+
+---
 
 ## 4 · Theme — superseded, kept for provenance
 
@@ -344,11 +475,15 @@ motion flourish the system allows itself.
 ## 10 · Per-page allowances
 
 - **No page gets a decorative enrichment layer** — no CSS-art grid lines,
-  no generated illustration, no background texture of any kind. Photography
+  no generated illustration, no *generated* background texture. Photography
   is the imagery; negative space is the enrichment. This applies to
   marketing pages too — § 1 already flagged that reproducing the Corbusier
   reference's visible ruler lines would be copying its presentation layer,
   not its actual DNA.
+  **Amended by § 3.7:** a photograph is not texture. The reference sets its
+  logotype over a full-bleed photograph and its category filter over another,
+  and those are its two strongest moments. Type over a photograph is in;
+  generated CSS art is still out.
 - **Content pages** (`/work`, `/about`, `/notes`) — typography + the
   photographs only. The Specimen macrostructure's numbered-plate rhythm,
   at low density, is the design.
@@ -365,13 +500,18 @@ motion flourish the system allows itself.
   already generous; the fix for a cramped page is fewer things, not bigger
   gaps around the same amount of stuff.
 - The "UNTAMED" wordmark (Archivo Expanded 700, +0.02em tracking).
-- The lime accent and its ≤5%-of-viewport footprint discipline.
+- Lime as a deliberate block, never a wash or a gradient, always carrying
+  black or deep-green type. (The former `≤5%-of-viewport` ration is struck —
+  see § 3.7.)
 - Archivo (display) + IBM Plex Sans (body) + JetBrains Mono (numerals only).
 - CTA voice: rectangular, `--radius-none`, the three-tier button/link system
   in § 9.
-- Section heading rhythm: mono two-digit numeral + tracked-uppercase label +
-  Archivo Black heading, stacked vertically (never the tag-left/heading-
-  right two-column pattern — that reads as a templated AI tell).
+- Section heading rhythm, **corrected by § 3.7**: a small glyph and two or
+  three words, grey, sentence case, top-left — then the heading under it in
+  **sentence case**, bold, tight, and broken over two lines with the second
+  indented. Stacked, never the tag-left/heading-right two-column pattern,
+  which still reads as a templated AI tell. The mono numeral and the bracketed
+  phrase at the far end are struck: they were louder than the heading.
 
 ## 12 · What pages MAY differ on
 

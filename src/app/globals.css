@@ -617,8 +617,9 @@ img { display: block; max-width: 100%; }
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  /* Sentence case, like the reference's category row — "Jackets", "Knitwear",
+   * "Trousers", with the active one in lime. See design.md § 3.7. */
   cursor: pointer;
   white-space: nowrap;
   transition: background-color var(--dur-micro) var(--ease-out),
@@ -1001,11 +1002,10 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xs);
 }
+/* "( 7 galleries )" — sentence case, like the reference's "( 24 Products )". */
 .index-count {
-  font-family: var(--font-mono);
   font-size: var(--text-sm);
-  letter-spacing: var(--tracking-code);
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--color-muted);
 }
 .chips {
@@ -1203,16 +1203,15 @@ img { display: block; max-width: 100%; }
 .reel__name {
   font-family: var(--font-display);
   font-size: clamp(1.125rem, 4.4vw, 1.5rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: var(--tracking-display);
-  line-height: 1.02;
-  text-transform: uppercase;
+  line-height: 1.06;
 }
+/* Small, grey, sentence case — the reference's "Classic, Oversized Fit", not a
+ * tracked-capitals rail. */
 .reel__meta {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--color-muted);
   text-wrap: pretty;
 }
@@ -1455,25 +1454,31 @@ img { display: block; max-width: 100%; }
 }
 
 /* A section divider rail — index number, title, right-hand metadata. */
+/* A section label, and nothing more.
+ *
+ * design.md § 3.7: in the reference this is a small glyph and two or three
+ * words, grey, sentence case, top-left — `⊹ Featured Collection`. What was
+ * here instead was a full-width rail with a mono numeral, an arrow, capitals,
+ * a hairline across the page and a bracketed phrase at the far right, which is
+ * louder than the heading it introduces and is the pattern § 11 itself calls a
+ * templated tell. The numeral, the capitals, the rule and the right-hand
+ * bracket are gone; the label names the section and gets out of the way. */
 .rail {
   max-width: var(--page-max);
   margin-inline: auto;
   /* width, or the auto margins below absorb the free space and shrink-wrap
    * this box instead of stretching it — see .page, a grid parent. */
   width: 100%;
-  padding: var(--space-sm) var(--page-gutter);
-  border-top: var(--rule-hair) solid var(--color-rule);
+  padding: var(--space-lg) var(--page-gutter) var(--space-2xs);
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-xs) var(--space-lg);
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  letter-spacing: var(--tracking-code);
-  text-transform: uppercase;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
   color: var(--color-muted);
 }
-.rail__no { color: var(--color-ink); font-weight: 700; }
+/* The glyph, not a numeral. Small, and it sits on the label's baseline. */
+.rail__mark { color: var(--color-accent-ink); font-size: 0.75em; }
 
 /* section heads — stacked single column, never tag-left/head-right */
 /* 34ch is a grid cell's worth of text, and below 60rem there is no grid.
@@ -1487,15 +1492,38 @@ img { display: block; max-width: 100%; }
 @media (min-width: 60rem) {
   .head { max-width: 34ch; }
 }
+/* Sentence case, not capitals.
+ *
+ * design.md § 3.7, written with the reference open: not one heading on that
+ * page is set in capitals — "Must-Have Outerwear", "The Winter Collection
+ * Drop", "Heard from our costumers". The old § 3.5 table said `uppercase` and
+ * it was a mistake in a paraphrase, applied site-wide, and it is most of why
+ * the owner said the built site was "beda banget" from what he sent. Capitals
+ * survive only where the reference keeps them: the ticker and the tiny labels.
+ */
 .head__title {
   /* Clamped, because .page__title is clamped too: a flat 2.5rem here rendered
    * the h2 larger than the h1 on every viewport under 800px. */
   font-size: clamp(1.75rem, 4.2vw, var(--text-2xl));
   font-weight: 700;
   letter-spacing: var(--tracking-display);
-  text-transform: uppercase;
+  text-wrap: balance;
 }
 .head__sub { color: var(--color-muted); font-size: var(--text-base); }
+/* The second line steps in — the reference's heading signature.
+ *
+ * "Must-Have / ‎ Outerwear", "The Winter / ‎ Collection Drop": every two-line
+ * heading on that page sets its second line indented to the right. A negative
+ * text-indent against matching padding does it with no markup and no guessed
+ * break point, and it is invisible on a heading that fits one line, because
+ * then there is no second line to step.
+ */
+.head__title,
+.page__title {
+  padding-inline-start: 1.6em;
+  text-indent: -1.6em;
+}
+
 
 /* --------------------------------------------------------- album index */
 /* Two up from the start.
@@ -1578,7 +1606,6 @@ img { display: block; max-width: 100%; }
   font-size: var(--text-md);
   font-weight: 700;
   letter-spacing: var(--tracking-heading);
-  text-transform: uppercase;
 }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
 /* Metadata under the name, not a second body copy — see .albums
@@ -1767,7 +1794,6 @@ img { display: block; max-width: 100%; }
 }
 .elsewhere__name {
   font-family: var(--font-display);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-heading);
   font-size: var(--text-lg);
   font-weight: 700;
@@ -2036,10 +2062,10 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
 .page__title {
   font-size: var(--text-display-s);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: var(--tracking-hero);
-  text-transform: uppercase;
-  max-width: 18ch;
+  text-wrap: balance;
+  max-width: 20ch;
 }
 .page__title em {
   font-style: normal;
@@ -2118,7 +2144,6 @@ img { display: block; max-width: 100%; }
   font-size: var(--text-lg);
   font-weight: 700;
   letter-spacing: var(--tracking-heading);
-  text-transform: uppercase;
 }
 .row2 { display: grid; gap: var(--space-md); }
 @media (min-width: 34rem) { .row2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
