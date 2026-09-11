@@ -205,12 +205,19 @@ marks above: they are the restraint idea, and they are legible.
 
 ## 5 · Typography
 
-Two voices, not three: a distinct display face for the logotype, and one
-neutral grotesque for everything else. **There is no monospace in the
-reference** — prices, counters and meta are all the neutral sans — so the
-metadata role does not get one. The site currently runs the system stack for
-all of it, which is the owner's call and costs nothing; the display role is the
-one that would justify a webfont.
+Two voices, not three. **Syne 800** carries the display role — the wordmark
+and every heading — self-hosted as a 10,736-byte subset of the TTF already
+vendored for the share card. Everything else is the system stack, which *is* a
+neutral grotesque on every platform and costs nothing. **There is no monospace
+in the reference** — prices, counters and meta are all the neutral sans — so
+`--font-mono` points at that same stack deliberately, and the 33 label rules
+that read from it stay in the register the reference uses.
+
+Three families were once named and **none of them ever applied**, because a
+`var()` resolves where its declaration lives and the loader's class was on
+`<body>` while the tokens were built on `:root`. The class belongs on `<html>`.
+`npm run measure` asserts the *result* rather than the intent: if the page ever
+draws in one family again, it fails.
 
 | Role | Rule |
 | --- | --- |
@@ -223,6 +230,17 @@ one that would justify a webfont.
 **Small type against generous space.** Measured at 1440 as a share of viewport
 width, the display sizes were nearly double the reference's before they were
 corrected; the labels were already right. The scale lives in `tokens.css`.
+
+**A `ch` cap belongs on the element whose own font it constrains.** Syne is
+**52.8% wider than the system sans at the same point size**, measured, so the
+moment it landed every `ch` cap had to be re-read. The ones on the display
+elements themselves — `.hero__line`, `.page__title`, `.foot__statement` — are
+correct and self-correct for any face. The one on `.head` was not: that box
+holds a display heading *and* a body-face sub, so its `ch` resolved in the body
+face and then constrained a heading in a different one, putting a 24-character
+section heading on three lines while the box stayed 324px. A cap that exists
+for layout reasons is now in layout units (`--module`), which cannot drift when
+a face changes.
 `--text-base` and `--text-md` are deliberately held *above* where the reference
 would put them rather than following it all the way down — that is reading copy
 on a phone, and this is an archive read on phones. Everything larger came down.
@@ -432,3 +450,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-11 | The hero built: full-bleed photograph, statement in white, lime on one word. Scrim alphas measured against a white frame. |
 | 2026-09-11 | Drawn lattice removed — measured at 1.08–1.16:1 against the paper, and in neither reference. Four tokens went dead with it. |
 | 2026-09-11 | The checks became `npm run measure`: seven static gates and a browser half, each gate proved by reintroducing the bug it targets. |
+| 2026-09-11 | Syne 800 given to the display role — one 10.7KB subset, self-hosted, class on `<html>`. Verified by reading `getComputedStyle` and `document.fonts` back, and by reproducing the `<body>` bug to prove the test was sensitive. `.head`'s `ch` cap moved to modules. |

@@ -59,13 +59,14 @@ const PAGES = ["/", "/work", "/about", "/elsewhere", "/notes"];
  * preloaded and used by nothing. Only asking the page what it was actually
  * drawing in would have caught it, and nothing asked.
  *
- * It is 1 because the site runs the system stack deliberately (design.md § 5)
- * — which is a real design decision, not an accident, and the difference
- * between those two is exactly what this number records. Raise it to 2 in the
- * same commit that adds the display webfont, and this gate will tell you at
- * once if the class landed on the wrong element again.
+ * It is 2: Syne 800 for the display role, the system stack for body and
+ * metadata. Both are deliberate — design.md § 5 wants body on a neutral
+ * grotesque and the system stack is one — and the difference between a
+ * deliberate choice and an accident is exactly what this number records. If
+ * it ever reads 1 again, the font class has come off <html> and the whole
+ * display role has silently fallen back.
  */
-const EXPECTED_FAMILIES = 1;
+const EXPECTED_FAMILIES = 2;
 
 let failures = 0;
 let skipped = 0;

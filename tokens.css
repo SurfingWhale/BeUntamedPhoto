@@ -2,37 +2,38 @@
  * theme: Swiss Neo-Grotesque Studio — ported from the Stitch export's
  * DESIGN.md, with two corrections the author asked for: more negative space,
  * and the grid drawn visibly (hairline columns + `+` crosshairs).
- * display: Syne · body: Hanken Grotesk · label/metadata: JetBrains Mono
+ * display: Syne 800, subset and self-hosted · body and metadata: system sans
  * paper #FBFBF9 · slab #051C14 · signal #C4F23E · hairline #E5E5E0
  * shapes: 0px everywhere; pills only for filter chips
  */
 :root {
   /* ---- type ------------------------------------------------------ */
-  /* The system face, which is what this site has always actually rendered.
+  /* Two voices: one face for the display role, the system stack for the rest.
    *
-   * These three named Syne, Hanken Grotesk and JetBrains Mono through
-   * next/font variables, and none of them ever applied — the variables were
-   * defined on <body> while these declarations sit on :root, so every one
-   * computed to the guaranteed-invalid value and font-family fell through to
-   * the stack below. The whole site has been in the system face since it was
-   * built. When that was fixed and the three webfonts finally appeared, the
-   * owner's answer was immediate: the system face was the one he wanted.
+   * --font-display once named Syne here and it never applied, for the whole
+   * life of the site. next/font put its variable on <body> while these
+   * declarations sit on :root, and a custom property resolves where its
+   * declaration lives, not where it is used — so --font-display computed to
+   * the guaranteed-invalid value and every descendant inherited that. The
+   * build was green, the CSS was valid, three woff2 files were preloaded and
+   * used by nothing, and `document.fonts` reporting 47 faces `unloaded` was
+   * the only tell. The loader's class is on <html> now. `npm run measure`
+   * asserts the result rather than the intent: EXPECTED_FAMILIES is 2.
    *
-   * So it is the system face on purpose now, rather than by accident. This is
-   * the exact stack that was rendering, so nothing moves. It also costs
-   * nothing: three variable families were 99KB on the wire and the largest
-   * non-image item on every page, and a face already on the device has no
-   * download, no swap and no layout shift.
+   * The fallback after var(--font-syne) is not decoration. Until the woff2
+   * arrives — and on any engine where it fails — the display role has to land
+   * on a real face, and `swap` means that first paint definitely happens.
    *
-   * --font-mono is the same sans deliberately, not an oversight. The 11px
-   * uppercase label rails have always drawn in this face, and switching them
-   * to a real monospace now would change a page the owner just said was
-   * right. `ui-monospace, SFMono-Regular, Menlo, monospace` is there for
-   * free whenever he wants those rails set properly. */
+   * Body and metadata stay on the system stack deliberately. design.md § 5
+   * asks body to be a neutral grotesque, and the system stack *is* one on
+   * every platform, for zero bytes. There is no monospace in the reference at
+   * all — prices, counters and meta are all the neutral sans — so --font-mono
+   * pointing at the same stack is the design, not an oversight. It keeps the
+   * 33 label rules that read from it in the register the reference uses. */
   --system-sans: -apple-system, "system-ui", "Segoe UI", Roboto,
     "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-display: var(--system-sans);
+  --font-display: var(--font-syne), var(--system-sans);
   --font-body:    var(--system-sans);
   --font-mono:    var(--system-sans);
 
@@ -77,7 +78,17 @@
    * than following the reference all the way down, because that is reading
    * copy on a phone and this is not a desktop fashion site. */
   --text-display-s: clamp(1.625rem, 2.6vw, 2.25rem);
-  --text-display:   clamp(3rem, 8.5vw, 7rem);   /* 112px · headline-hero */
+  /* The hero statement, and its only caller.
+   *
+   * The floor came down from 3rem when Syne landed. Syne is 52.8% wider than
+   * the system sans at the same point size, measured, and at 48px "Frames, not
+   * feeds." set on *three* lines inside a 390px phone — a three-word statement
+   * broken three ways. Measured by size at 360 and 390: 44px and up gives
+   * three lines, 42px is the largest that gives two, and 2.5rem leaves the
+   * longest line at 296 of 350 available px so the copy can change without
+   * breaking the shape. A face change is exactly when a clamp floor has to be
+   * re-derived; nothing else reads this token. */
+  --text-display:   clamp(2.5rem, 8.5vw, 7rem);  /* 112px · headline-hero */
 
   /* ---- space — Stitch's rhythm, opened up one step for air -------- */
   --space-3xs: 0.125rem;

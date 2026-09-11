@@ -1574,16 +1574,32 @@ img { display: block; max-width: 100%; }
 .rail__mark { color: var(--color-accent-deep); font-size: 0.75em; }
 
 /* section heads — stacked single column, never tag-left/head-right */
-/* 34ch is a grid cell's worth of text, and below 60rem there is no grid.
+/* A grid cell's worth of text, and below 60rem there is no grid.
  *
  * The cap was unconditional, so on a 390px phone the section head was held to
  * 286px inside a 350px column — 64px of dead space to its right, and the
  * heading wrapping a line earlier than it needed to. The 12-column
- * composition starts at 60rem; so does the cap. */
+ * composition starts at 60rem; so does the cap.
+ *
+ * Three modules, not 34ch. This box holds a display-face heading *and* a
+ * body-face sub, so a ch cap resolves in whichever face the container itself
+ * inherits — the body one — and then constrains a heading set in a different
+ * face. That was invisible while both faces were the same stack. Syne is 52.8%
+ * wider than the system sans at the same size, measured, and the 34ch cap
+ * immediately put "Three sites, one practice" on three lines at 1440 while the
+ * box stayed 324px because the cap never knew the heading had changed face.
+ *
+ * A cap that exists for layout reasons belongs in layout units. --module is
+ * the unit the rest of the composition is measured in, three of them is what
+ * "a grid cell's worth" meant, and it cannot drift when a face changes.
+ *
+ * A ch cap on the element whose own font it constrains is still right, and
+ * self-corrects for any face — .hero__line, .page__title and .foot__statement
+ * all keep theirs. */
 .head { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
 @media (min-width: 60rem) {
-  .head { max-width: 34ch; }
+  .head { max-width: calc(var(--module) * 3); }
 }
 /* Sentence case, not capitals.
  *
