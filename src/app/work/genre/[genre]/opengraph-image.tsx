@@ -14,7 +14,9 @@ export function generateStaticParams() {
   return genres.map((g) => ({ genre: g.id }));
 }
 
-const syne = await readFile(join(process.cwd(), "assets/Syne-ExtraBold.ttf"));
+const display = await readFile(
+  join(process.cwd(), "assets/Archivo-ExpandedExtraBold.ttf"),
+);
 const mono = await readFile(join(process.cwd(), "assets/JetBrainsMono-Regular.ttf"));
 
 const SLAB = "#051C14";
@@ -81,7 +83,7 @@ export default async function Image({ params }: { params: Promise<{ genre: strin
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontFamily: "Syne",
+              fontFamily: "Archivo",
               fontSize: 46,
               color: LIME,
             }}
@@ -93,8 +95,8 @@ export default async function Image({ params }: { params: Promise<{ genre: strin
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div
             style={{
-              fontFamily: "Syne",
-              /* GRADUATION is ten characters of Syne 800 across 1056px of
+              fontFamily: "Archivo",
+              /* GRADUATION is ten characters of Archivo 800 expanded across 1056px of
                * usable width; 104 put the final N on the edge. */
               fontSize: label.length > 8 ? 92 : 132,
               lineHeight: 1,
@@ -140,7 +142,7 @@ export default async function Image({ params }: { params: Promise<{ genre: strin
     {
       ...size,
       fonts: [
-        { name: "Syne", data: syne, weight: 800, style: "normal" },
+        { name: "Archivo", data: display, weight: 800, style: "normal" },
         { name: "JetBrains Mono", data: mono, weight: 400, style: "normal" },
       ],
     },

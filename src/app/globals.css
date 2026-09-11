@@ -317,8 +317,11 @@ img { display: block; max-width: 100%; }
   /* 12px, not 28px, and it is no longer enough to hold one row.
    *
    * That was measured before the typefaces were ever applied — see the
-   * font-variable fix in layout.tsx. Set in Syne Extrabold the wordmark is
-   * far wider than it was in the system grotesque the number came from.
+   * font-variable fix in layout.tsx. Set in the display face the wordmark is
+   * far wider than it was in the system grotesque the number came from, and
+   * how much wider depends on which face that is: Syne ran 52.8% wider than
+   * the system sans, Archivo Expanded 15.6%. The conclusion holds under both
+   * and should not be re-pinned to a number that changes with the face.
    * Measured now at 390: .mast__id 257px + this 12px gap + .mast__aside
    * 170px = 439px against 350px of content width, so the bar wraps and the
    * masthead stands 145px — 17% of an 844px screen, though it retracts on
@@ -1572,10 +1575,11 @@ img { display: block; max-width: 100%; }
  * Three modules, not 34ch. This box holds a display-face heading *and* a
  * body-face sub, so a ch cap resolves in whichever face the container itself
  * inherits — the body one — and then constrains a heading set in a different
- * face. That was invisible while both faces were the same stack. Syne is 52.8%
- * wider than the system sans at the same size, measured, and the 34ch cap
- * immediately put "Three sites, one practice" on three lines at 1440 while the
- * box stayed 324px because the cap never knew the heading had changed face.
+ * face. That was invisible while both faces were the same stack. The display
+ * face runs wider than the system sans at the same size — Syne by 52.8%,
+ * Archivo Expanded by 15.6%, measured — and the 34ch cap immediately put
+ * "Three sites, one practice" on three lines at 1440 while the box stayed
+ * 324px, because the cap never knew the heading had changed face.
  *
  * A cap that exists for layout reasons belongs in layout units. --module is
  * the unit the rest of the composition is measured in, three of them is what

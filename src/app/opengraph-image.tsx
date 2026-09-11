@@ -10,7 +10,9 @@ export const contentType = "image/png";
 
 /* Satori cannot read the WOFF2 that next/font downloads, so the TTFs are
  * vendored under assets/. See assets/README.md. */
-const syne = await readFile(join(process.cwd(), "assets/Syne-ExtraBold.ttf"));
+const display = await readFile(
+  join(process.cwd(), "assets/Archivo-ExpandedExtraBold.ttf"),
+);
 const mono = await readFile(
   join(process.cwd(), "assets/JetBrainsMono-Regular.ttf"),
 );
@@ -78,7 +80,7 @@ export default function Image() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontFamily: "Syne",
+              fontFamily: "Archivo",
               fontSize: 46,
               color: LIME,
             }}
@@ -90,8 +92,8 @@ export default function Image() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div
             style={{
-              fontFamily: "Syne",
-              /* 7 characters of Syne 800 across 1056px of usable width — 158
+              fontFamily: "Archivo",
+              /* 7 characters of Archivo 800 expanded across 1056px of usable width — 158
                * clipped the D off the right edge. */
               fontSize: 122,
               lineHeight: 1,
@@ -138,7 +140,7 @@ export default function Image() {
     {
       ...size,
       fonts: [
-        { name: "Syne", data: syne, weight: 800, style: "normal" },
+        { name: "Archivo", data: display, weight: 800, style: "normal" },
         { name: "JetBrains Mono", data: mono, weight: 400, style: "normal" },
       ],
     },

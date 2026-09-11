@@ -208,9 +208,17 @@ marks above: they are the restraint idea, and they are legible.
 
 ## 5 · Typography
 
-Two voices, not three. **Syne 800** carries the display role — the wordmark
-and every heading — self-hosted as a 10,736-byte subset of the TTF already
-vendored for the share card. Everything else is the system stack, which *is* a
+Two voices, not three. **Archivo 800, set expanded** carries the display role
+— the wordmark and every heading — self-hosted as a 10.7KB subset of the
+variable font, pinned at `wght 800 / wdth 125`.
+
+It replaced Syne on 2026-09-11, at the owner's call, on sight. Syne was in this
+file because an earlier version of this file put it here, from a
+*reconstruction* of the reference rather than from the reference — the sixth
+thing it got wrong the same way, and the method rule at the top exists for
+exactly this. "A bold expanded grotesque wordmark" is what the reference
+actually shows, which is why the width axis matters; Archivo is also what this
+file's own first version named, before the paraphrase replaced it. Everything else is the system stack, which *is* a
 neutral grotesque on every platform and costs nothing. **There is no monospace
 in the reference** — prices, counters and meta are all the neutral sans — so
 `--font-mono` points at that same stack deliberately, and the 33 label rules
@@ -234,9 +242,12 @@ draws in one family again, it fails.
 width, the display sizes were nearly double the reference's before they were
 corrected; the labels were already right. The scale lives in `tokens.css`.
 
-**A `ch` cap belongs on the element whose own font it constrains.** Syne is
-**52.8% wider than the system sans at the same point size**, measured, so the
-moment it landed every `ch` cap had to be re-read. The ones on the display
+**A `ch` cap belongs on the element whose own font it constrains.** The
+display face runs wider than the system sans at the same point size — Syne by
+**52.8%**, Archivo Expanded by **15.6%** — so the moment either landed every
+`ch` cap had to be re-read. Archivo is **34.8% wider than Syne**, and the caps
+absorbed it without a change: they are font-relative, so they grew with the
+face. The ones on the display
 elements themselves — `.hero__line`, `.page__title`, `.foot__statement` — are
 correct and self-correct for any face. The one on `.head` was not: that box
 holds a display heading *and* a body-face sub, so its `ch` resolved in the body
@@ -468,4 +479,5 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-11 | Drawn lattice removed — measured at 1.08–1.16:1 against the paper, and in neither reference. Four tokens went dead with it. |
 | 2026-09-11 | The checks became `npm run measure`: seven static gates and a browser half, each gate proved by reintroducing the bug it targets. |
 | 2026-09-11 | Syne 800 given to the display role — one 10.7KB subset, self-hosted, class on `<html>`. Verified by reading `getComputedStyle` and `document.fonts` back, and by reproducing the `<body>` bug to prove the test was sensitive. `.head`'s `ch` cap moved to modules. |
+| 2026-09-11 | Syne replaced by Archivo 800 expanded, on the owner's verdict. Same 10.7KB. The clamp floor and every `ch` cap re-derived against the new face rather than assumed; hero holds two lines on phones, one at desktop, fits with 348–530px headroom, no gutter breached, zero overflow. Both share cards moved to the same face. |
 | 2026-09-11 | Dead code cut: `.plot` and its two crosshair tokens, the pre-reel lane rules, `.fold-photo--tall` and `PhotoFold`'s unreachable `size` prop. A § 6 claim about `.band--dark` corrected — it has no callers. Gate 7 added so the next one is caught, not written into the document. |

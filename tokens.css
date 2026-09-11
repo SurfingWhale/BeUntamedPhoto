@@ -2,7 +2,7 @@
  * theme: Swiss Neo-Grotesque Studio — ported from the Stitch export's
  * DESIGN.md, with two corrections the author asked for: more negative space,
  * and the grid drawn visibly (hairline columns + `+` crosshairs).
- * display: Syne 800, subset and self-hosted · body and metadata: system sans
+ * display: Archivo 800 expanded, subset + self-hosted · body/meta: system sans
  * paper #FBFBF9 · slab #051C14 · signal #C4F23E · hairline #E5E5E0
  * shapes: 0px everywhere; pills only for filter chips
  */
@@ -10,8 +10,9 @@
   /* ---- type ------------------------------------------------------ */
   /* Two voices: one face for the display role, the system stack for the rest.
    *
-   * --font-display once named Syne here and it never applied, for the whole
-   * life of the site. next/font put its variable on <body> while these
+   * The display face is Archivo, pinned expanded — it replaced Syne on
+   * 2026-09-11 at the owner's call, on sight. --font-display once named Syne
+   * here and it never applied at all, for the whole life of the site. next/font put its variable on <body> while these
    * declarations sit on :root, and a custom property resolves where its
    * declaration lives, not where it is used — so --font-display computed to
    * the guaranteed-invalid value and every descendant inherited that. The
@@ -20,7 +21,7 @@
    * the only tell. The loader's class is on <html> now. `npm run measure`
    * asserts the result rather than the intent: EXPECTED_FAMILIES is 2.
    *
-   * The fallback after var(--font-syne) is not decoration. Until the woff2
+   * The fallback after var(--font-display-face) is not decoration. Until the woff2
    * arrives — and on any engine where it fails — the display role has to land
    * on a real face, and `swap` means that first paint definitely happens.
    *
@@ -33,7 +34,7 @@
   --system-sans: -apple-system, "system-ui", "Segoe UI", Roboto,
     "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-display: var(--font-syne), var(--system-sans);
+  --font-display: var(--font-display-face), var(--system-sans);
   --font-body:    var(--system-sans);
   --font-mono:    var(--system-sans);
 
@@ -49,8 +50,8 @@
    * both negative. Caps have no ascenders or descenders to interlock, so the
    * designer's sidebearings are already the tightest the letters read at;
    * taking more out closes the counters. .foot__wordmark ran "UNTAMED" at
-   * 208px with -10.4em per pair — the word set 73px, 9%, narrower than Syne
-   * draws it. Lowercase display type still wants the negative steps above;
+   * 208px with -10.4em per pair — the word set 73px, 9%, narrower than the
+   * display face draws it. Lowercase display type still wants the negative steps above;
    * this is only for the runs that are all capitals. */
   --tracking-caps:      0.02em;
 
@@ -80,14 +81,19 @@
   --text-display-s: clamp(1.625rem, 2.6vw, 2.25rem);
   /* The hero statement, and its only caller.
    *
-   * The floor came down from 3rem when Syne landed. Syne is 52.8% wider than
-   * the system sans at the same point size, measured, and at 48px "Frames, not
-   * feeds." set on *three* lines inside a 390px phone — a three-word statement
-   * broken three ways. Measured by size at 360 and 390: 44px and up gives
-   * three lines, 42px is the largest that gives two, and 2.5rem leaves the
-   * longest line at 296 of 350 available px so the copy can change without
-   * breaking the shape. A face change is exactly when a clamp floor has to be
-   * re-derived; nothing else reads this token. */
+   * The floor came down from 3rem when a display webfont first landed, and it
+   * was re-checked when the face changed. At 48px in Syne "Frames, not feeds."
+   * set on *three* lines inside a 390px phone — a three-word statement broken
+   * three ways — and 42px was the largest that gave two.
+   *
+   * Archivo Expanded is 34.8% wider than Syne at the same point size, so the
+   * floor was re-derived rather than assumed: it still holds, because the
+   * `16ch` cap on .hero__line is font-relative and grew with the face. Two
+   * lines at 360, 390, 430 and 768; one at 1440 and above; the frame fits with
+   * 348–530px of headroom and no gutter breached at any width.
+   *
+   * A face change is exactly when a clamp floor has to be re-derived. Nothing
+   * else reads this token. */
   --text-display:   clamp(2.5rem, 8.5vw, 7rem);  /* 112px · headline-hero */
 
   /* ---- space — Stitch's rhythm, opened up one step for air -------- */

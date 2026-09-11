@@ -26,13 +26,25 @@ import "./globals.css";
  * the headings, the thing that actually carries a brand — gets a face of its
  * own, and the reference's wordmark is unmistakably a distinct display face.
  *
- * `next/font/local`, not `next/font/google`: the file is already vendored in
- * the repository under a documented OFL 1.1 licence, and the build stays off
- * the network. One weight, 800, because that is the only one the display role
- * sets. Subset to Google's own `latin` range rather than to a hand-picked
- * glyph list — .reel__name and .album__title are gallery titles the owner
- * types, so the face has to cover ordinary Latin or a heading falls back
- * mid-word. 52,868 bytes as the source TTF, 10,736 as the subset woff2.
+ * **The face is Archivo, set expanded.** It replaced Syne on 2026-09-11, at
+ * the owner's call, on sight. He was right to overrule it, and how it got
+ * there is the point: design.md named Syne, and design.md named Syne from a
+ * *reconstruction* of the reference rather than from the reference itself —
+ * the sixth thing that document got wrong the same way. Archivo is what its
+ * own first version named, before a paraphrase replaced it.
+ *
+ * Archivo carries a width axis, and "a bold expanded grotesque wordmark" is
+ * what the reference actually shows, so this is the variable font **pinned**
+ * at `wght 800 / wdth 125`, then subset. Pinning is what makes it affordable:
+ * with both axes left free the subset is 72.5KB, and the display role never
+ * sets more than one weight at one width. Pinned and subset it is 10.7KB —
+ * within 200 bytes of the Syne it replaces, so the change costs nothing.
+ *
+ * `next/font/local`, not `next/font/google`: the variable source is vendored
+ * under its OFL 1.1 licence and the build stays off the network. Subset to
+ * Google's own `latin` range rather than a hand-picked glyph list, because
+ * .reel__name and .album__title are gallery titles the owner types and the
+ * face has to cover ordinary Latin or a heading falls back mid-word.
  *
  * `adjustFontFallback` is the whole CLS argument, and it is the half of the
  * old revert's reasoning that did not hold: next/font generates a
@@ -40,21 +52,20 @@ import "./globals.css";
  * "no swap and no layout shift" was never an argument against the loader.
  *
  * THE CLASS GOES ON <html>. Not <body>. tokens.css builds --font-display from
- * --font-syne on :root, and a custom property resolves where its declaration
+ * --font-display-face on :root, and a custom property resolves where its
  * lives. On <body> the variable is undefined at :root, --font-display
  * computes to the guaranteed-invalid value, and every descendant inherits
  * that invalidity — which is the bug above, and nothing catches it but
  * reading getComputedStyle back. `npm run measure` now does: EXPECTED_FAMILIES
  * is 2, and it fails the moment this stops applying. */
-const syne = localFont({
-  src: "./fonts/syne-800-latin.woff2",
+const display = localFont({
+  src: "./fonts/archivo-800exp-latin.woff2",
   weight: "800",
   style: "normal",
   display: "swap",
-  variable: "--font-syne",
-  /* Arial is the default and the right one here: the fallback only has to
-     hold the box for one paint, and Syne's metrics are closer to a grotesque
-     than to a serif. */
+  variable: "--font-display-face",
+  /* Arial is the default and the right one here: the fallback only holds the
+     box for one paint, and Archivo is a grotesque. */
   adjustFontFallback: "Arial",
 });
 
@@ -104,7 +115,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={syne.variable} suppressHydrationWarning>
+    <html lang="en" className={display.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         {/* Motion server-renders its initial state as an inline opacity:0, so
