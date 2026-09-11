@@ -42,6 +42,11 @@ and address on every commit, and a public repository publishes the rules
 along with everything else. Making the repository private is the fix for
 both. Rewriting history on an already-public repo is not reliable.
 
+`pending-task.md` tracks this and everything else that needs an account or a
+decision rather than a commit — including the one that matters most right now:
+**Vercel Deployment Protection is on for every URL the site has, and there is
+no custom domain, so a visitor gets a sign-in page instead of the archive.**
+
 ## Checks before committing
 
 ```bash

@@ -1,0 +1,61 @@
+name: measure deploy
+
+# The browser half of `npm run measure`, against the real deployed page.
+#
+# The earlier plan was to build and serve the site inside CI. That does not
+# work and should not be forced to: `next build` runs the archive queries for
+# real, so it needs live credentials, and a fixture mode that returned fake
+# galleries would be a footgun pointed at the public site — CLAUDE.md is
+# explicit that failing the deploy is the cheaper outcome.
+#
+# Measuring the deployment is strictly better anyway. Real data, real
+# credentials, real CDN, and the page a visitor is actually served rather than
+# a local approximation of it.
+on:
+  deployment_status:
+
+jobs:
+  measure:
+    # Only a deployment that actually came up.
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Measure the deployment
+        env:
+          # This project has Vercel Authentication on for every deployment URL
+          # and has no custom domain, so an anonymous request gets a login wall
+          # rather than the page. The secret is Vercel's own answer for
+          # automation: Project Settings > Deployment Protection > Protection
+          # Bypass for Automation, then add it here as a repository secret of
+          # the same name. Without it this job skips with that message rather
+          # than measuring a wall and calling it a pass.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          # ubuntu-latest ships Google Chrome, which the harness finds on its
+          # own; this just removes the guesswork.
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          echo "Measuring ${{ github.event.deployment_status.environment_url }}"
+          npm run measure -- --base "${{ github.event.deployment_status.environment_url }}"
+
+# What this measures, and why each line is here — every one of them is a
+# regression that shipped, and design.md § 12 has the full list:
+#
+#   height drift across a full scroll, which must be 0   (a section grew 575px
+#                                                         under the reader)
+#   how many typefaces the page draws in                 (three were specified
+#                                                         and none applied, for
+#                                                         months)
+#   every sizes slot against the candidate chosen        (one pulled 1500w into
+#                                                         a 167px box)
+#   sticky tops against env(safe-area-inset-top)         (shipped broken twice)
+#   screen count, and display type as a share of vw
+#
+# The static gates run on every push in checks.yml. This job is the half that
+# needs a rendered page, and it is the half that caught most of them.

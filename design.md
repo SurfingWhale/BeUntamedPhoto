@@ -16,6 +16,9 @@ it does carry are **measurements, not specifications** — rendered boxes,
 viewport shares, the drift a bug caused — and they are there to be checked
 against, which is what § 12 is for.
 
+Anything that needs an account or a decision rather than a commit lives in
+`pending-task.md`, so this file can stay a brief.
+
 **One method rule, and it is the reason this file was wrong for weeks.** This
 is a *description* of two reference images. Checking the built site against
 this description will not find a fault that is in the description itself — and

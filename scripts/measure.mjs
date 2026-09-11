@@ -20,6 +20,9 @@
  *   npm run measure                      static gates, plus browser checks
  *                                        against http://localhost:3000
  *   npm run measure -- --base <url>      point the browser checks elsewhere
+ *   npm run measure -- --base <url> --bypass <secret>
+ *                                        ...including a deployment behind
+ *                                        Vercel Deployment Protection
  *   npm run measure -- --static          static gates only
  *
  * Exits non-zero if any gate fails, so it can be the thing CI runs.
@@ -36,6 +39,27 @@ const opt = (name, fallback) => {
 };
 
 const BASE = opt("base", "http://localhost:3000").replace(/\/$/, "");
+
+/**
+ * Vercel Deployment Protection bypass, for measuring a deployment that is not
+ * public.
+ *
+ * This project has Vercel Authentication switched on for every deployment URL
+ * (`all_except_custom_domains`, and there is no custom domain), so an
+ * anonymous request to the deployed site gets a login wall rather than the
+ * page. That is a deliberate setting and not this script's business to change.
+ *
+ * Vercel's own answer for automation is a bypass secret: send it as
+ * `x-vercel-protection-bypass` and the request is served. Generate one in
+ * Project Settings > Deployment Protection, give it to CI as a secret, and the
+ * gates can measure the real deployed page — real data, real credentials, the
+ * page a visitor actually gets — without making anything public.
+ *
+ * Absent, the browser half simply reports that the URL did not answer. It
+ * never silently measures a login wall and calls it a pass.
+ */
+const BYPASS = opt("bypass", process.env.VERCEL_AUTOMATION_BYPASS_SECRET ?? "");
+const BYPASS_HEADERS = BYPASS ? { "x-vercel-protection-bypass": BYPASS } : {};
 const CSS = "src/app/globals.css";
 const TOKENS = "tokens.css";
 
@@ -70,6 +94,9 @@ const EXPECTED_FAMILIES = 2;
 
 let failures = 0;
 let skipped = 0;
+/* reachable() reports a protection wall itself, with the remedy; this stops
+ * the caller adding a second, vaguer line about the site not answering. */
+let skippedForProtection = false;
 
 const read = (p) => readFileSync(p, "utf8");
 const ok = (msg) => console.log(`  \x1b[32mpass\x1b[0m  ${msg}`);
@@ -364,7 +391,17 @@ if (flag("static")) {
 
   const reachable = async () => {
     try {
-      const r = await fetch(BASE, { signal: AbortSignal.timeout(4000) });
+      const r = await fetch(BASE, {
+        headers: BYPASS_HEADERS,
+        signal: AbortSignal.timeout(8000),
+      });
+      if (r.status === 401 || r.status === 403) {
+        skippedForProtection = true;
+        skip(
+          `${BASE} answered ${r.status} — deployment protection. Pass --bypass <secret>, or set VERCEL_AUTOMATION_BYPASS_SECRET`,
+        );
+        return false;
+      }
       return r.ok;
     } catch {
       return false;
@@ -376,7 +413,8 @@ if (flag("static")) {
     if (!exe) {
       skip("no Chromium found — set CHROME_PATH, or `npx playwright install chromium`");
     } else if (!(await reachable())) {
-      skip(`${BASE} is not answering — start the site first (npm run dev), or pass --base`);
+      if (!skippedForProtection)
+        skip(`${BASE} is not answering — start the site first (npm run dev), or pass --base`);
     } else {
       try {
         await browserChecks(chromium, exe);
@@ -397,6 +435,10 @@ async function browserChecks(chromium, executablePath) {
     const page = await browser.newPage({
       viewport: { width: vp.w, height: vp.h },
       deviceScaleFactor: vp.dpr,
+      /* Every request, not just the first: the bypass has to be on the
+       * document, the CSS, the JS and every image, or a protected deployment
+       * renders as a page of 401s and the measurements are of nothing. */
+      extraHTTPHeaders: BYPASS_HEADERS,
     });
 
     for (const path of PAGES) {
