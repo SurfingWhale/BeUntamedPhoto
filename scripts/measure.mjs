@@ -94,9 +94,6 @@ const EXPECTED_FAMILIES = 2;
 
 let failures = 0;
 let skipped = 0;
-/* reachable() reports a protection wall itself, with the remedy; this stops
- * the caller adding a second, vaguer line about the site not answering. */
-let skippedForProtection = false;
 
 const read = (p) => readFileSync(p, "utf8");
 const ok = (msg) => console.log(`  \x1b[32mpass\x1b[0m  ${msg}`);
@@ -389,32 +386,74 @@ if (flag("static")) {
     return guesses.find((p) => existsSync(p));
   };
 
-  const reachable = async () => {
-    try {
-      const r = await fetch(BASE, {
-        headers: BYPASS_HEADERS,
-        signal: AbortSignal.timeout(8000),
-      });
-      if (r.status === 401 || r.status === 403) {
-        skippedForProtection = true;
-        skip(
-          `${BASE} answered ${r.status} — deployment protection. Pass --bypass <secret>, or set VERCEL_AUTOMATION_BYPASS_SECRET`,
-        );
-        return false;
-      }
-      return r.ok;
-    } catch {
+  /**
+   * Is the URL serving *this site*? Not "did it answer" — that is not the same
+   * question, and the difference already cost a CI run.
+   *
+   * The first version of this checked for 401 or 403, reasoning that a
+   * protected deployment refuses the request. Vercel does not refuse it: it
+   * answers **200 with an HTML login page**. So the gates measured the wall and
+   * reported ten failures — "draws in 1 typefaces, expected 2 — GeistSans",
+   * sticky `.fixed` and `.w-full` elements, a `.text-heading-32` heading. All
+   * of that is Vercel's own page, in Vercel's font, using Tailwind utilities
+   * this project does not have. The run went red, which is better than a false
+   * pass, but it went red for a reason that had nothing to do with the site.
+   *
+   * So the precondition is identity, not reachability: the page has to contain
+   * this site's own wordmark, read out of src/lib/site.ts so it cannot drift
+   * from the thing being measured. That one assertion catches the login wall,
+   * a stale --base, a 404, a maintenance page and a parked domain — anything
+   * that is not the site — without knowing a single thing about how Vercel
+   * signals protection.
+   */
+  const servesThisSite = async () => {
+    const byline = read("src/lib/site.ts").match(/byline:\s*"([^"]+)"/)?.[1];
+    if (!byline) {
+      bad("could not read the byline from src/lib/site.ts to identify the site");
       return false;
     }
+    let res;
+    try {
+      res = await fetch(BASE, {
+        headers: BYPASS_HEADERS,
+        redirect: "follow",
+        signal: AbortSignal.timeout(15000),
+      });
+    } catch (err) {
+      skip(`${BASE} did not answer — ${String(err).split("\n")[0]}`);
+      return false;
+    }
+    if (res.status === 401 || res.status === 403) {
+      skip(
+        `${BASE} answered ${res.status} — deployment protection. Pass --bypass <secret>, or set VERCEL_AUTOMATION_BYPASS_SECRET`,
+      );
+      return false;
+    }
+    const html = await res.text().catch(() => "");
+    if (html.includes(byline)) return true;
+
+    /* Name what it actually served, so the next reader is not guessing. */
+    const title = html.match(/<title[^>]*>([^<]{0,80})/i)?.[1]?.trim();
+    const vercelWall =
+      /vercel/i.test(title ?? "") ||
+      /GeistSans|_vercel\/insights|vercel\.com\/sso/i.test(html);
+    skip(
+      vercelWall
+        ? `${BASE} served Vercel's authentication page (HTTP ${res.status}), not the archive — ` +
+            "deployment protection. Pass --bypass <secret>, or set " +
+            "VERCEL_AUTOMATION_BYPASS_SECRET"
+        : `${BASE} answered ${res.status} but the page does not contain "${byline}"` +
+            `${title ? ` — it served "${title}"` : ""}. Wrong --base?`,
+    );
+    return false;
   };
 
   if (chromium) {
     const exe = findBrowser();
     if (!exe) {
       skip("no Chromium found — set CHROME_PATH, or `npx playwright install chromium`");
-    } else if (!(await reachable())) {
-      if (!skippedForProtection)
-        skip(`${BASE} is not answering — start the site first (npm run dev), or pass --base`);
+    } else if (!(await servesThisSite())) {
+      /* servesThisSite() has already said what it found and what to do. */
     } else {
       try {
         await browserChecks(chromium, exe);

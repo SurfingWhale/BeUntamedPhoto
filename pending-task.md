@@ -62,8 +62,22 @@ protection in § 1:
 2. GitHub → repo Settings → Secrets and variables → Actions → new secret named
    `VERCEL_AUTOMATION_BYPASS_SECRET`, paste it.
 
-Until then the job skips with that message. It will not measure a login wall
-and call it a pass — that path is tested.
+Until then the job skips with that message.
+
+**It did not, on the first run, and the failure is instructive.** The harness
+guarded on HTTP 401/403, reasoning that a protected deployment refuses the
+request. Vercel does not refuse it — it answers **200 with a login page** — so
+the gates measured that page and reported ten design failures against Vercel's
+own markup: `GeistSans`, sticky `.fixed` and `.w-full`, a `.text-heading-32`
+heading. Red rather than a false pass, but red for a reason that had nothing to
+do with this site.
+
+The precondition is now identity, not reachability: `/` has to contain this
+site's wordmark, read from `src/lib/site.ts` so it cannot drift. That one
+assertion catches the login wall, a stale `--base`, a 404 and a parked domain,
+without knowing anything about how Vercel signals protection. Tested against a
+server that imitates what Vercel actually returns — which is exactly what the
+first version was not.
 
 This deliberately replaced the idea of building and serving the site inside
 CI. `next build` runs the archive queries for real, so it needs live

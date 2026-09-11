@@ -16,8 +16,11 @@ on:
 
 jobs:
   measure:
-    # Only a deployment that actually came up.
-    if: github.event.deployment_status.state == 'success'
+    # A deployment that came up, and that published a URL to measure — the
+    # event carries an empty environment_url often enough to be worth guarding.
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment_url != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,3 +62,16 @@ jobs:
 #
 # The static gates run on every push in checks.yml. This job is the half that
 # needs a rendered page, and it is the half that caught most of them.
+#
+# The first run of this workflow failed, and how it failed is worth keeping.
+# Without the bypass secret it measured Vercel's authentication page and
+# reported ten design failures against it — "draws in 1 typefaces, expected
+# 2 — GeistSans", sticky `.fixed` and `.w-full` elements, a `.text-heading-32`
+# heading. Every one of those belongs to Vercel's page, not this site.
+#
+# The guard in the harness had checked for HTTP 401 or 403. Vercel does not
+# refuse the request: it answers **200 with a login page**. So the check is now
+# identity rather than reachability — the page must contain this site's own
+# wordmark, read from src/lib/site.ts — and it skips with the remedy instead of
+# measuring whatever happened to answer. Tested against a server that imitates
+# what Vercel actually returns, which is what the first version was not.
