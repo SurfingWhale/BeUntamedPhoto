@@ -64,9 +64,13 @@ export async function AlbumView({
   ]);
   const photos = plates.items;
 
-  /* A page number past the end is a wrong URL, not an empty gallery. Page one
-   * of an empty album is still page one. */
-  if (page > plates.pages && plates.total > 0) notFound();
+  /* A page number past the end is a wrong URL, not an empty gallery.
+   *
+   * No `&& total > 0` guard: `pages` is already floored at 1, so page one of
+   * an empty album is page one and answers, while page two of an empty album
+   * is as wrong an address as page two of a seven-plate one. The old guard
+   * let that second case through. */
+  if (page > plates.pages) notFound();
 
   /* Plate numbers count from the start of the album, not the start of the
    * page — plate 25 is plate 25 whichever page it is read on. */
