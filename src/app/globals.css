@@ -1682,7 +1682,25 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0;
   border: var(--rule-hair) solid var(--color-rule);
   background: var(--color-paper-white);
-  padding-block-end: var(--space-sm); }
+  padding-block-end: var(--space-sm);
+  /* Both of these exist because the box is now visible, and neither mattered
+   * while the card was transparent.
+   *
+   * A grid row stretches every member to the tallest, so a card whose cover is
+   * shorter than its neighbour's used to get the difference distributed
+   * between its own rows — a hole opening between the year and the plate count
+   * while the taller card's text packed tight. As negative space on an
+   * invisible card that read as air. Inside a bordered box it reads as broken.
+   *
+   * align-content: start packs the card's own rows against the top so the
+   * photograph, title and meta stay one block. align-self: start stops the
+   * card stretching at all, so the box ends where its content does and a row
+   * of two boxes is honestly ragged — which is what "a row's height is its
+   * tallest member, and nothing is cropped to make a row tidy" means. The
+   * nth-child rules below deliberately override this with `end` on alternate
+   * cards above 60rem; that offset is the composition, not a side effect. */
+  align-content: start;
+  align-self: start; }
 .album > :not(.album__media) { padding-inline: var(--space-sm); }
 .album__media {
   display: block;
