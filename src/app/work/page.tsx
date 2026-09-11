@@ -83,7 +83,7 @@ export default async function WorkPage() {
                   href={`/work/${album.slug}`}
                   style={
                     cover?.width && cover?.height
-                      ? ({ "--tile-ratio": `${cover.width} / ${cover.height}` } as React.CSSProperties)
+                      ? ({ "--tile-ratio": `${(cover.width / cover.height).toFixed(4)}` } as React.CSSProperties)
                       : undefined
                   }
                 >

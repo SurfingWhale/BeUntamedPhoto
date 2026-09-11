@@ -361,9 +361,19 @@ img { display: block; max-width: 100%; }
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  /* 12px, not 28px: the wordmark plus the account/theme pair measures ~340px
-   * against ~335px of phone content width, and the wider gap was the whole
-   * difference between one row and two. */
+  /* 12px, not 28px, and it is no longer enough to hold one row.
+   *
+   * That was measured before the typefaces were ever applied — see the
+   * font-variable fix in layout.tsx. Set in Syne Extrabold the wordmark is
+   * far wider than it was in the system grotesque the number came from.
+   * Measured now at 390: .mast__id 257px + this 12px gap + .mast__aside
+   * 170px = 439px against 350px of content width, so the bar wraps and the
+   * masthead stands 145px — 17% of an 844px screen, though it retracts on
+   * scroll. Closing that 89px means shrinking the wordmark, dropping the
+   * register glyph or cutting the toggle labels, all of which are the
+   * owner's call and none of which belong in a measurement pass. Left as
+   * two rows deliberately; the gap stays 12px because 28px would wrap the
+   * rail as well. */
   gap: var(--space-sm);
 }
 .mast__rail {
@@ -389,7 +399,10 @@ img { display: block; max-width: 100%; }
   color: var(--color-accent);
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 0.9375rem;
+  /* --text-base, which is the same 0.9375rem this was written as. The literal
+   * was the only font-size in the stylesheet not reading from the scale, so a
+   * change to the scale would have left the register glyph behind. */
+  font-size: var(--text-base);
   line-height: 1;
 }
 .mast__name {
@@ -1480,24 +1493,36 @@ img { display: block; max-width: 100%; }
 }
 /* At two up the title and year stop fitting on one line together. */
 .albums .album__meta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); }
-.albums .album__title { font-size: var(--text-base); }
-@media (min-width: 60rem) {
-  .albums .album__title { font-size: var(--text-md); }
-}
+/* The gallery name is the content of this page, and it was set at body size.
+ *
+ * Measured at 390: h1 36px, then .album__title 15px and .album__sub 15px —
+ * the name and its blurb identical, and both the same size as running text,
+ * so the page had a 36px heading and then one flat plane. --text-md for the
+ * name at every width, and the blurb drops to the metadata step under it.
+ * 18 / 15 / 12 is three levels where there were one and a half. */
+.albums .album__title { font-size: var(--text-md); }
 
 .album { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0; }
 .album__media {
   display: block;
-  /* One column on a phone means no neighbour to line up with, so the tile can
-   * simply be the shape of its cover — --tile-ratio carries the row's own
-   * width/height and object-fit has nothing to trim. A 4/3 tile was throwing
-   * away 58% of a 0.56 cover, and a fixed 3/4 still lost 25%.
+  /* The tile keeps its cover's shape, but never goes landscape.
    *
-   * From 40rem the tiles sit two and three across, where a ragged row of
-   * arbitrary heights costs more than a considered crop, so the alternating
-   * landscape rhythm comes back. */
-  aspect-ratio: var(--tile-ratio, 3 / 4);
+   * --tile-ratio carries the row's own width/height so object-fit has nothing
+   * to trim: a 4/3 tile threw away 58% of a 0.56 cover, and a fixed 3/4 still
+   * lost 25%. That reasoning holds. What no longer held was the sentence that
+   * used to open this comment — "one column on a phone means no neighbour to
+   * line up with". .albums has been two up from the start for a while now, so
+   * every phone row has a neighbour, and an uncapped ratio is exactly the
+   * "ragged row of arbitrary heights" the note below calls too expensive.
+   *
+   * Measured at 390, four tiles in a 167px column: 251, 251, 223 and 111px.
+   * The 111 is a 1.50 landscape cover, and a 111px photograph beside a 251px
+   * one reads as debris rather than as a grid. Capping at 1 means no tile is
+   * ever wider than it is tall; min() only lowers a landscape number, so
+   * every vertical cover is untouched and nothing that was uncropped starts
+   * cropping. Measured: 111px -> 167px. */
+  aspect-ratio: min(var(--tile-ratio, 0.75), 1);
   background: var(--color-paper-2);
   overflow: hidden;
 }
@@ -1523,7 +1548,10 @@ img { display: block; max-width: 100%; }
   text-transform: uppercase;
 }
 .album__year { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
-.album__sub { font-size: var(--text-base); color: var(--color-muted); }
+/* Metadata under the name, not a second body copy — see .albums
+ * .album__title. At 12px the 60-character blurb on the longest card also
+ * stops running to three lines in a 167px column. */
+.album__sub { font-size: var(--text-sm); color: var(--color-muted); }
 
 .lock {
   display: inline-flex;
@@ -1562,8 +1590,13 @@ img { display: block; max-width: 100%; }
   gap: var(--space-lg) var(--space-md);
 }
 .strip__item:first-child { grid-column: 1 / -1; }
-/* At half width the ledger under a plate has no room for two halves. */
-.strip__item:not(:first-child) .strip__cap { font-size: 0.625rem; }
+/* At half width the ledger under a plate has no room for two halves.
+ *
+ * --text-xs, not the 0.625rem this was: 10px was the smallest type anywhere on
+ * the site, it was the only step on any route that did not come from the
+ * scale, and it sat below --text-xs, which is already the floor at 11px. One
+ * px of width is not worth a caption nobody can read. */
+.strip__item:not(:first-child) .strip__cap { font-size: var(--text-xs); }
 .strip__item:not(:first-child) .strip__cap > span:last-child { margin-inline-start: 0; }
 .strip__item:not(:first-child) .strip__no { font-size: var(--text-base); }
 /* align-content: start, or a row's spare height is dealt out between the
