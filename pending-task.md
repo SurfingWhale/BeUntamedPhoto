@@ -27,11 +27,21 @@ deployment itself is healthy: production is `READY`, the pages are prerendered
 (`x-vercel-cache: PRERENDER`, `x-nextjs-stale-time: 300`), and the HTML is
 correct. It is only the door that is shut.
 
-Read directly from the Vercel project API, not inferred. What was *not*
-possible to confirm from here is an anonymous fetch — this sandbox's egress
-proxy blocks `*.vercel.app` outright, so the 403s seen while testing were the
-proxy's own and prove nothing about Vercel. The conclusion rests on the
-setting, which is documented behaviour.
+**Proven, not inferred.** The setting was read from the Vercel project API, and
+then an unrelated client confirmed the effect: the `measure deploy` workflow
+runs on a GitHub runner, which has no Vercel session, and on
+[run 2](https://github.com/SurfingWhale/BeUntamedPhoto/actions/runs/34594146806)
+it reported
+
+```
+skip  https://beuntamed-photo-…-untamed98xs-projects.vercel.app served
+      Vercel's authentication page (HTTP 200), not the archive
+```
+
+That is an ordinary anonymous visitor getting the login page — which is what a
+prospective client gets too. (Note the shape: **HTTP 200 with a login page**,
+not a refusal. An earlier version of that check guarded on 401/403 and
+therefore measured the wall instead of skipping; see § 2.)
 
 **Two ways to unblock, and they are not the same decision:**
 
