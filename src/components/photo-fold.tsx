@@ -8,16 +8,18 @@ import type { PhotoWithUrl } from "@/lib/gallery";
 type Props = {
   photo?: PhotoWithUrl;
   index: number;
-  size?: "tall" | "band";
   priority?: boolean;
   fallbackLabel?: string;
 };
 
-/* Macrostructure 08 — the photograph is the fold; the caption annotates it. */
+/* The photograph is the fold; the caption annotates it.
+ *
+ * There was a `size` prop with a "tall" variant. Its only caller was the home
+ * page's opening plinth, which the hero replaced, so both the prop and
+ * .fold-photo--tall are gone rather than left as an unreachable branch. */
 export function PhotoFold({
   photo,
   index,
-  size = "band",
   priority = false,
   fallbackLabel,
 }: Props) {
@@ -47,7 +49,7 @@ export function PhotoFold({
 
   return (
     <section
-      className={`fold-photo fold-photo--${size}`}
+      className="fold-photo fold-photo--band"
       style={ratio}
       data-shape={shape}
     >

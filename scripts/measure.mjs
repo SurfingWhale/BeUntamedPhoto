@@ -268,7 +268,55 @@ section("Static gates");
     );
 }
 
-/* 7. Every sign-off reads from the byline, and the byline is the brand.
+/* 7. No dead class. A rule nobody can reach is worse than clutter: it keeps
+ *    the tokens it reads looking alive, so the orphan gate above passes while
+ *    a whole chain is unreachable. .plot had seven rules, no markup since the
+ *    lanes became a reel, and it was the only reader of --color-crosshair and
+ *    --color-crosshair-on-dark — which the orphan gate therefore counted as
+ *    accounted for. And design.md gained a sentence claiming .band--dark "is
+ *    the only place a section paints over the page" when nothing had used it
+ *    for weeks, written from reading the CSS instead of checking for callers.
+ *
+ *    Class names are read out of the stylesheet with strings and url() values
+ *    stripped first: the crosshair cursor is a data-URI SVG containing
+ *    "www.w3.org", and a naive scan reports .w3 and .org as dead classes.
+ *
+ *    A class built at runtime (`fold-photo--${size}`) never appears literally,
+ *    so its fragments go in KEPT_UNREFERENCED with the template that builds
+ *    them — as does a primitive design.md documents but no page uses yet. */
+{
+  const KEPT_UNREFERENCED = {
+    "band--dark": "slab primitive design.md § 11 documents; no page uses it since 8418e1b",
+    "fold-photo--band": "built at runtime by photo-fold.tsx as `fold-photo--band`",
+  };
+  const css = read(CSS)
+    /* Comments, quoted strings and url() payloads out first — a data-URI SVG
+     * is full of things that look like class selectors. */
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/url\((?:[^()]|\([^()]*\))*\)/g, " ")
+    .replace(/"[^"]*"|'[^']*'/g, " ");
+  const declared = new Set(
+    [...css.matchAll(/\.(-?[A-Za-z_][\w-]*)/g)].map((m) => m[1]),
+  );
+  const markup = walk("src").filter((f) => /\.tsx?$/.test(f)).map(read).join("\n");
+  const dead = [...declared].filter(
+    (c) => !(c in KEPT_UNREFERENCED) && !new RegExp(`\\b${c.replace(/-/g, "\\-")}\\b`).test(markup),
+  );
+  const stale = Object.keys(KEPT_UNREFERENCED).filter((c) => !declared.has(c));
+  if (dead.length)
+    bad("class styled but never used in any markup", [
+      ...dead.sort(),
+      "delete the rules, or add the class to KEPT_UNREFERENCED with why it stays",
+    ]);
+  else if (stale.length)
+    bad("KEPT_UNREFERENCED names a class that no longer exists", stale);
+  else
+    ok(
+      `all ${declared.size} classes reachable (${Object.keys(KEPT_UNREFERENCED).length} held deliberately)`,
+    );
+}
+
+/* 8. Every sign-off reads from the byline, and the byline is the brand.
  *    CLAUDE.md is the authority on why this matters. */
 {
   const site = read("src/lib/site.ts");

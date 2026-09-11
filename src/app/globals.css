@@ -194,22 +194,6 @@ h1, h2, h3 {
   word-spacing: 1.5em;
 }
 
-/* `+` register marks on a container's own corners */
-.plot { position: relative; }
-.plot::before,
-.plot::after {
-  content: "+";
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  line-height: 1;
-  color: var(--color-crosshair);
-  pointer-events: none;
-}
-.plot::before { top: var(--space-xs); left: var(--space-xs); }
-.plot::after  { bottom: var(--space-xs); right: var(--space-xs); }
-.band--dark .plot::before,
-.band--dark .plot::after { color: var(--color-crosshair-on-dark); }
 p { margin: 0; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
@@ -743,7 +727,6 @@ img { display: block; max-width: 100%; }
  * Whole-module heights return at 60rem, where the fold is one element among
  * several and its top and bottom edges landing on lattice rows is worth more
  * than the last few percent of a frame. */
-.fold-photo--tall,
 .fold-photo--band {
   height: auto;
   aspect-ratio: var(--fold-ratio, 0.75);
@@ -764,9 +747,7 @@ img { display: block; max-width: 100%; }
  *
  * min() only ever lowers a landscape number: a 0.56 plate stays 0.56 and
  * still crops nothing. Measured: 233px -> 437px, 52% of the screen. */
-.fold-photo--tall { aspect-ratio: min(var(--fold-ratio, 0.75), 0.8); }
 @media (min-width: 60rem) {
-  .fold-photo--tall { aspect-ratio: auto; height: calc(var(--row) * 6); }
   .fold-photo--band { aspect-ratio: auto; height: calc(var(--row) * 4); }
 
   /* A vertical plate cannot run full-bleed on a wide screen without losing
@@ -1490,8 +1471,15 @@ img { display: block; max-width: 100%; }
 @media (min-width: 60rem) {
   .band { padding-block: calc(var(--row) * 1.5); }
 }
-/* Slab environment — the one place a section paints over the grid, and it
- * brings its own lime register marks with it. */
+/* Slab environment — a section on deep green instead of canvas.
+ *
+ * NOTHING USES THIS. Its callers went when the lanes became a reel (8418e1b),
+ * and it is kept because design.md § 11 lists a green slab as something a page
+ * may sit on — deleting the only implementation of a documented option is a
+ * design decision, not a cleanup. `npm run measure` knows it is unused and
+ * holds it on a named allowlist rather than letting it rot quietly. The
+ * descendant rules below are what a slab needs to invert; they are correct and
+ * untested, in that order. */
 .band--dark {
   max-width: none;
   background: var(--color-paper-dark);
@@ -1960,20 +1948,8 @@ img { display: block; max-width: 100%; }
  * image on the site, not just these three.
  */
 .lane__what { color: var(--color-ink-2); font-size: var(--text-base); max-width: 46ch; }
-/* The address is metadata, so it is mono and bracketed, per § 3.5. */
-.lane__addr {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-code);
-  color: var(--color-muted);
-  margin-top: var(--space-2xs);
-}
-.lane__mark { color: var(--color-accent-deep); font-weight: 700; }
-
-@media (hover: hover) and (pointer: fine) {
-  .lane:hover .lane__name { color: var(--color-accent-deep); }
-  .lane:hover .lane__addr { color: var(--color-ink-2); }
-}
+/* .lane__addr, .lane__mark, .lane__name and the .lane hover rules went with
+ * the stacked layout above — the reel cards carry .reel__meta instead. */
 
 /* ------------------------------------------------------------- pager */
 /* Sits under a gallery, not over it: page controls are housekeeping, and a

@@ -151,8 +151,6 @@
   --color-rule:         #E5E5E0;  /* hairline */
   --color-rule-2:       #C1C8C2;  /* outline-variant */
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
-  --color-crosshair:    rgba(13, 13, 13, 0.25);
-  --color-crosshair-on-dark: rgba(196, 242, 62, 0.3);
   --module:             120px;   /* 1440 / 12 — one square cell */
   /* The modular unit the layout is measured in: a cell that stays square at
    * every width, not only at the max measure. Nothing draws it — the lattice
@@ -221,7 +219,6 @@
   --color-rule:         rgba(196, 242, 62, 0.18);
   --color-rule-2:       rgba(196, 242, 62, 0.32);
   --color-rule-on-dark: rgba(196, 242, 62, 0.2);
-  --color-crosshair:    rgba(196, 242, 62, 0.3);
   --outline-image:      rgba(255, 255, 255, 0.1);
 
   --color-accent:       #C4F23E;
@@ -251,7 +248,6 @@
     --color-rule:         rgba(196, 242, 62, 0.18);
     --color-rule-2:       rgba(196, 242, 62, 0.32);
     --color-rule-on-dark: rgba(196, 242, 62, 0.2);
-    --color-crosshair:    rgba(196, 242, 62, 0.3);
   --outline-image:      rgba(255, 255, 255, 0.1);
 
     --color-accent:       #C4F23E;

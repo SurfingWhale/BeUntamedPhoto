@@ -279,11 +279,16 @@ Values in `tokens.css`. How they are used:
   is used *more* boldly there than here. The discipline is shape, not area: a
   **deliberate block**, never a wash or a gradient, always carrying black or
   deep-green type on it.
-- **Deep green carries whole surfaces**, through one class: `.band--dark` is
-  the only place a section paints over the page, and it brings its own lime
-  register marks. The primary button and the single filled tag per screen use
-  the same ground. *The footer is canvas with a hairline above it, not a slab —
-  what dominates it is a monumental wordmark at 6% ink.*
+- **Deep green carries the primary button and the single filled tag per
+  screen.** That is all it currently carries. `.band--dark` is the slab
+  primitive and **no page uses it** — its callers went when the lanes became a
+  reel. It is kept because a green slab is a documented option below, not
+  because anything is on one. *The footer is canvas with a hairline above it,
+  not a slab — what dominates it is a monumental wordmark at 6% ink.*
+
+  I wrote the opposite of this two commits ago, from reading the stylesheet
+  instead of checking for callers. `npm run measure` gate 7 exists because of
+  it.
 - Depth is chromatic inversion, hairlines and typographic overlap. **No
   shadows.** `--radius-none` everywhere; the filter chip is the single pill.
 
@@ -374,8 +379,9 @@ this quiet may not want them at all.
 ## 11 · What a page may differ on
 
 - Its skeleton, within its family in § 4.
-- Which surface a section sits on — canvas or a green slab — as long as the
-  alternation reads intentional rather than random.
+- Which surface a section sits on — canvas or a green slab (`.band--dark`) —
+  as long as the alternation reads intentional rather than random. Every
+  section is currently on canvas.
 - The hero treatment, within § 7.
 
 ---
@@ -408,6 +414,7 @@ proved by reintroducing that exact bug and watching it fail:
 | Comment markers balance | a comment closed one line early silently truncated `tokens.css` |
 | `--color-accent-ink` only ever sits on lime | `.rail__mark` was drawn in the dark theme's own background colour |
 | No orphaned tokens | four went dead the day the lattice did |
+| No dead class | `.plot` kept two tokens looking alive with no markup since the lanes became a reel |
 | The byline is the brand | `CLAUDE.md` is the authority; this one prints and is read |
 
 The two allowlists are the point rather than a weakness: a token used outside
@@ -451,3 +458,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-11 | Drawn lattice removed — measured at 1.08–1.16:1 against the paper, and in neither reference. Four tokens went dead with it. |
 | 2026-09-11 | The checks became `npm run measure`: seven static gates and a browser half, each gate proved by reintroducing the bug it targets. |
 | 2026-09-11 | Syne 800 given to the display role — one 10.7KB subset, self-hosted, class on `<html>`. Verified by reading `getComputedStyle` and `document.fonts` back, and by reproducing the `<body>` bug to prove the test was sensitive. `.head`'s `ch` cap moved to modules. |
+| 2026-09-11 | Dead code cut: `.plot` and its two crosshair tokens, the pre-reel lane rules, `.fold-photo--tall` and `PhotoFold`'s unreachable `size` prop. A § 6 claim about `.band--dark` corrected — it has no callers. Gate 7 added so the next one is caught, not written into the document. |
