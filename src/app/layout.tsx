@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
 
 import { Masthead } from "@/components/masthead";
 import { Fab } from "@/components/fab";
@@ -10,31 +9,21 @@ import { ServiceWorker } from "@/components/pwa";
 import { site, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-/* Only the weights the stylesheet actually asks for. Traced rule by rule,
- * including the ones that inherit their family: .mark--bold and .rail__no set
- * 700 without naming a family and land on Hanken and JetBrains respectively.
- * A weight nothing uses is dead bytes; dropping one something uses is worse,
- * because the browser then synthesises a fake bold. */
-const syne = Syne({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "700", "800"],
-  variable: "--font-syne",
-});
-
-const hanken = Hanken_Grotesk({
-  subsets: ["latin"],
-  weight: ["300", "400", "600", "700"],
-  display: "swap",
-  variable: "--font-hanken",
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-  variable: "--font-jetbrains",
-});
+/* No webfonts.
+ *
+ * tokens.css named Syne, Hanken Grotesk and JetBrains Mono, and next/font
+ * loaded all three — but the variables were declared on <body> while the
+ * semantic families were built on :root, so they never once applied and the
+ * site rendered in the system stack for its whole life. Fixing the variable
+ * scope made them appear, and the owner's answer was immediate: the system
+ * face was what he wanted. His call, and it is also the cheaper one — three
+ * variable families were 99KB on the wire, measured, and they were the single
+ * largest non-image item on every page. Native faces are already on the
+ * device, so there is no download, no swap and no layout shift.
+ *
+ * The families now live entirely in tokens.css. Putting a webfont back means
+ * adding the loader here and pointing --font-display/--font-body/--font-mono
+ * at it, with the class on <html> and not on <body>. */
 
 const DESCRIPTION =
   "Graduation, brand, sport, food and event photography. Commissions open across Jakarta and beyond.";
@@ -82,23 +71,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    /* The font classes go on <html>, not <body>.
-     *
-     * next/font puts `--font-syne` and friends on whatever element carries the
-     * generated class. tokens.css builds `--font-display: var(--font-syne),
-     * ...` on `:root`, and a var() is substituted on the element that holds
-     * the *declaration* — so with the classes on <body>, `--font-syne` was
-     * undefined at `:root`, `--font-display` computed to the guaranteed-
-     * invalid value, and every descendant inherited that invalidity. Measured:
-     * every element on every route rendered in `-apple-system`, all 47 faces
-     * reported `unloaded`, and the three preloaded woff2 files were fetched
-     * and then used by nothing. Syne, Hanken Grotesk and JetBrains Mono have
-     * never once appeared on this site. */
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${syne.variable} ${hanken.variable} ${jetbrains.variable}`}
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         {/* Motion server-renders its initial state as an inline opacity:0, so

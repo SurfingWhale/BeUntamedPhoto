@@ -8,9 +8,33 @@
  */
 :root {
   /* ---- type ------------------------------------------------------ */
-  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
-  --font-body:    var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    var(--font-jetbrains), ui-monospace, monospace;
+  /* The system face, which is what this site has always actually rendered.
+   *
+   * These three named Syne, Hanken Grotesk and JetBrains Mono through
+   * next/font variables, and none of them ever applied — the variables were
+   * defined on <body> while these declarations sit on :root, so every one
+   * computed to the guaranteed-invalid value and font-family fell through to
+   * the stack below. The whole site has been in the system face since it was
+   * built. When that was fixed and the three webfonts finally appeared, the
+   * owner's answer was immediate: the system face was the one he wanted.
+   *
+   * So it is the system face on purpose now, rather than by accident. This is
+   * the exact stack that was rendering, so nothing moves. It also costs
+   * nothing: three variable families were 99KB on the wire and the largest
+   * non-image item on every page, and a face already on the device has no
+   * download, no swap and no layout shift.
+   *
+   * --font-mono is the same sans deliberately, not an oversight. The 11px
+   * uppercase label rails have always drawn in this face, and switching them
+   * to a real monospace now would change a page the owner just said was
+   * right. `ui-monospace, SFMono-Regular, Menlo, monospace` is there for
+   * free whenever he wants those rails set properly. */
+  --system-sans: -apple-system, "system-ui", "Segoe UI", Roboto,
+    "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: var(--system-sans);
+  --font-body:    var(--system-sans);
+  --font-mono:    var(--system-sans);
 
   --tracking-hero:     -0.05em;
   --tracking-display:  -0.04em;
