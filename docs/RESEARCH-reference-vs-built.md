@@ -1,5 +1,16 @@
 # Research — the reference against what was built, side by side
 
+> **Status: history, and it did its job.** This is the document that found
+> `design.md` was a paraphrase rather than a description, and all five of its
+> divergences have since been corrected in the code. The decision § 7 said
+> everything turned on — whether Nomvnt or Corbusier is the backbone — was
+> answered by the owner on 2026-09-11: **Nomvnt is the backbone**, and
+> `design.md` § 3 records it. The lattice in § 3 is **removed**.
+>
+> § 8's method note is the part still worth re-reading, and it is now the rule
+> at the top of `design.md`: check fidelity against the images, and if they are
+> not to hand, say so and stop rather than measuring the copy.
+
 **Status:** diagnosis. Nothing here is coded, and one decision in § 6 blocks
 most of it.
 **Raised by the owner:** *"beda banget ya ekspektasi gw sama realita"*, sent

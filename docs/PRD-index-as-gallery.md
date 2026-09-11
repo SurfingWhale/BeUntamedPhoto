@@ -1,5 +1,12 @@
 # PRD — the index reads as a directory, and the home page prints it twice
 
+> **Status: delivered.** The index is a reel, the duplicated index is gone, and
+> the fold counts in here were the before. § 6's lattice question is
+> **answered**: removed on 2026-09-11, after measuring its hairlines at
+> 1.08–1.16:1 against the paper — invisible — and confirming neither reference
+> has one. `design.md` § 4 has the current rules and `npm run measure` has the
+> numbers.
+
 **Status:** phases 0–2 shipped (`763d821`, `85919e4`, `1bf5b7e`)
 **Scope:** the index on `/` and `/work`, the plate strip on `/work/[slug]`, and
 the sticky/safe-area and layout-shift defects found while measuring them

@@ -296,7 +296,13 @@ if (flag("static")) {
   }
 
   const findBrowser = () => {
-    if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+    /* Checked for existence, not trusted: a CHROME_PATH pointing at nothing
+     * would otherwise reach chromium.launch() and throw, and a measurement
+     * harness that crashes the build when a browser is missing is worse than
+     * one that says so and skips. */
+    if (process.env.CHROME_PATH) {
+      return existsSync(process.env.CHROME_PATH) ? process.env.CHROME_PATH : undefined;
+    }
     const guesses = [
       "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
       "/usr/bin/chromium",
@@ -324,7 +330,13 @@ if (flag("static")) {
     } else if (!(await reachable())) {
       skip(`${BASE} is not answering — start the site first (npm run dev), or pass --base`);
     } else {
-      await browserChecks(chromium, exe);
+      try {
+        await browserChecks(chromium, exe);
+      } catch (err) {
+        /* A gate that fails is a finding; a harness that throws is not. Report
+         * it as a failure with the reason rather than as a stack trace. */
+        bad("the browser checks could not run", [String(err).split("\n")[0]]);
+      }
     }
   }
 }

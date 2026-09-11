@@ -1,5 +1,17 @@
 # Research — holding the speed, and why the site does not look like the reference
 
+> **Status: history, not current advice.** Kept because the measurements and
+> the reasoning are worth reading; superseded in three places. § 3.1 wanted a
+> real monospace for the metadata role — **withdrawn**: the reference has no
+> monospace anywhere, and `RESEARCH-reference-vs-built.md` § 6 explains why.
+> § 3.2 wanted one subset display family — **done**: Syne 800, a 10.7KB subset,
+> in `src/app/layout.tsx`. § 4 asked for the reference images — **they were
+> sent**, and everything that followed from them is in `design.md`. § 5's
+> harness — **built**, as `npm run measure`. The lattice question in § 1 is
+> **answered**: removed, and measured at 1.08–1.16:1 against the paper.
+>
+> `design.md` is the current document. Read that first.
+
 **Status:** research and a recommendation. Nothing here is coded.
 **Raised by the owner:** *"deep research soal speed maintain sama better design,
 sumpah ini ga kaya bayangan design yang gw kirim"* — the site does not look
