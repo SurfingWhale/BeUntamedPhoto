@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 import { PhotoFold } from "@/components/photo-fold";
 import { getFeatured } from "@/lib/gallery";
-import { elsewhere, site } from "@/lib/site";
+import { elsewhere, genres, site } from "@/lib/site";
 
 /**
  * Prerendered and revalidated, not rendered per request.
@@ -19,6 +19,20 @@ export const metadata: Metadata = {
   title: "About",
   description: `${site.byline} — graduation, brand, sport, food and event photography. Commissions open.`,
 };
+
+/* The commissions line is built from `genres`, not written out.
+ *
+ * It read "Open for food, sport and event work." while site.tagline, the
+ * genre list itself and this page's own body copy three paragraphs above all
+ * named five — so the section that actually asks for work under-sold it by
+ * two, and graduation, which every other surface lists first, was missing
+ * entirely. site.ts already says that list is "read by the album form, the
+ * server-side validator, the index filter and the about page"; this page was
+ * the one that had stopped reading it. Now it cannot drift again. */
+const commissionLine = (() => {
+  const names = genres.map((g) => g.label.toLowerCase());
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+})();
 
 export default async function AboutPage() {
   const featured = await getFeatured(2);
@@ -88,9 +102,7 @@ export default async function AboutPage() {
       <section className="fold-text fold-text--tight">
         <div className="head">
           <h2 className="head__title">Commissions</h2>
-          <p className="head__sub">
-            Open for food, sport and event work.
-          </p>
+          <p className="head__sub">Open for {commissionLine} work.</p>
         </div>
         <p className="fold-text__body">
           Send the date, the location, and roughly what the pictures are for —
