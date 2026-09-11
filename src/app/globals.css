@@ -1609,7 +1609,15 @@ img { display: block; max-width: 100%; }
   color: var(--color-muted);
 }
 /* The glyph, not a numeral. Small, and it sits on the label's baseline. */
-.rail__mark { color: var(--color-accent-ink); font-size: 0.75em; }
+/* --color-accent-deep, not --color-accent-ink. "Ink" means text *on* lime,
+ * and every other use of it in this file pairs it with a lime ground; this
+ * mark sits on canvas. In light that token is near-black and looked fine by
+ * accident. In dark it is #051C14 — the page's own background — so the glyph
+ * was painted in the background colour and vanished. --color-accent-deep is
+ * the accent that survives on a canvas, in both themes, which is why link
+ * hover uses it too. Caught by screenshotting the dark scheme, not by any
+ * check: the CSS was valid and both gates passed. */
+.rail__mark { color: var(--color-accent-deep); font-size: 0.75em; }
 
 /* section heads — stacked single column, never tag-left/head-right */
 /* 34ch is a grid cell's worth of text, and below 60rem there is no grid.
