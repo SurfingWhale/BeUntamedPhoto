@@ -135,6 +135,25 @@ production pages, not the source — the byline appears throughout, the only
 address on the page is the archive's own, the only outbound links are the two
 photography lanes, and the guestbook renders no stored names.
 
+**The tree was not clean, and that is new information.** On 2026-09-11 a sweep
+found a **full legal name** in `.hallmark/log.json` and a stored personal name
+in `docs/PRD-index-as-gallery.md` — in the paragraph of the document whose
+subject is that a personal name must not be published. Neither ever reached a
+rendered page, so no visitor saw them; both were in a public repository for
+weeks, and both are now out of the working tree.
+
+They are still in git history. That moves this item from housekeeping to the
+reason it was written: **making the repository private is the fix, and it is
+the only one.** Rewriting history on an already-public repository is not
+reliable.
+
+`npm run measure` gate 8 now checks for this continuously, reading the term
+list from `.privacy-terms` — outside the repository, because the terms cannot
+be committed without publishing them. **It is UNARMED until that file exists**,
+and it says so on every run rather than passing quietly. Creating it is a
+two-minute job and the only thing standing between this class of leak and an
+automatic check.
+
 ---
 
 ## 5. Optional, cosmetic, one person

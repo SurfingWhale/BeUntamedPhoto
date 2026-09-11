@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# The terms the owner keeps off the site. Read by `npm run measure`,
+# deliberately never committed — CLAUDE.md says why.
+.privacy-terms

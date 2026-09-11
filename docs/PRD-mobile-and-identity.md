@@ -3,6 +3,29 @@
 **Status:** shipped 2026-09-04 in `ea73a48` — all criteria verified in a browser
 **Scope:** `/` on phone widths, plus the outbound links in `src/lib/site.ts`
 
+> **Closed, and its § 6 process note outlived it.**
+>
+> "Nothing is called done until it is measured in a browser again" is now a
+> committed script rather than an instruction somebody has to remember:
+> `npm run measure`, eight static gates plus a browser half, indexed in
+> `design.md` § 12. Every gate exists because the thing it checks shipped
+> broken, and each was proved by reintroducing that bug. Its ancestry is this
+> document.
+>
+> Two of this PRD's concerns are now permanently asserted. The image-box trap
+> of § 2.1 and § 2.2 is the `sizes`-slot check and the height-drift check —
+> drift must be 0. The off-brand-link problem of § 2.3 is a static gate on the
+> byline, and it was re-verified on the **live production HTML** on 2026-09-11:
+> the only address on the page is the archive's own and the only outbound links
+> are the two photography lanes.
+>
+> One caution this document earned the hard way, and which was earned again
+> since: a measuring instrument needs calibrating before its readings mean
+> anything. A fixture missing Tailwind's preflight reported the hero
+> overflowing its gutters and nearly got correct CSS "fixed"; a test double
+> returning 401 confirmed a Vercel behaviour that does not exist and let CI
+> measure a login page. Both are in `CLAUDE.md` now.
+
 ---
 
 ## 1. Why this exists

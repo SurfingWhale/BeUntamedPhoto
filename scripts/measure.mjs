@@ -340,7 +340,86 @@ section("Static gates");
     );
 }
 
-/* 8. Every sign-off reads from the byline, and the byline is the brand.
+/* 8. Nothing the owner has asked to keep off the site appears in the tree.
+ *
+ *    This is the one rule in CLAUDE.md with no automated check, and the reason
+ *    is structural: the terms cannot be committed, because the repository is
+ *    public and writing them down here would publish them. That gap is not
+ *    theoretical. On 2026-09-11 a full legal name was found in
+ *    `.hallmark/log.json` and a stored personal name in
+ *    `docs/PRD-index-as-gallery.md` — in the paragraph of the document whose
+ *    entire subject is that a personal name must not be published. Both had
+ *    been in a public repository for weeks.
+ *
+ *    So the list lives outside the repository. Put one term per line in
+ *    `.privacy-terms`, which .gitignore excludes. Blank lines and `#` comments
+ *    are ignored; matching is case-insensitive and substring, because the
+ *    failure modes are "Muhammad X" in a brief and "X" in a screenshot
+ *    transcription, not a neat word boundary.
+ *
+ *    Absent, this gate reports itself UNARMED rather than passing quietly. A
+ *    check nobody can see is off is worse than no check.
+ */
+{
+  const FILE = ".privacy-terms";
+  if (!existsSync(FILE)) {
+    skip(
+      `${FILE} not present — the no-person / no-other-career check is UNARMED. ` +
+        "One term per line, git-ignored; see CLAUDE.md",
+    );
+  } else {
+    const terms = read(FILE)
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith("#"));
+    if (!terms.length) {
+      skip(`${FILE} is empty — the no-person check is UNARMED`);
+    } else {
+      /* Everything that ships or is published: source, docs, config, the
+       * stylesheets. Not node_modules, not .next, not the term file itself. */
+      const files = [
+        ...walk("src"),
+        ...walk("docs"),
+        ...(existsSync(".hallmark") ? walk(".hallmark") : []),
+        "CLAUDE.md",
+        "AGENTS.md",
+        "README.md",
+        "design.md",
+        "pending-task.md",
+        "tokens.css",
+        "package.json",
+      ].filter((f) => existsSync(f) && f !== FILE);
+
+      const hits = [];
+      for (const f of files) {
+        let text;
+        try {
+          text = read(f);
+        } catch {
+          continue; /* binary, e.g. the woff2 */
+        }
+        const lower = text.toLowerCase();
+        for (const t of terms) {
+          if (lower.includes(t.toLowerCase())) {
+            /* Report the file and line, never the term — this output can end
+             * up in a public CI log. */
+            const line =
+              text.split("\n").findIndex((l) => l.toLowerCase().includes(t.toLowerCase())) + 1;
+            hits.push(`${f}:${line} contains a term from ${FILE}`);
+          }
+        }
+      }
+      if (hits.length)
+        bad("a term the owner keeps off the site is in the tree", [
+          ...[...new Set(hits)],
+          "remove it from the working tree; git history needs the repository made private",
+        ]);
+      else ok(`no term from ${FILE} appears in the tree (${terms.length} checked)`);
+    }
+  }
+}
+
+/* 9. Every sign-off reads from the byline, and the byline is the brand.
  *    CLAUDE.md is the authority on why this matters. */
 {
   const site = read("src/lib/site.ts");

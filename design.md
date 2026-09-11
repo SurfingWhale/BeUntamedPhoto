@@ -418,11 +418,18 @@ proved by reintroducing that exact bug and watching it fail:
 | `--color-accent-ink` only ever sits on lime | `.rail__mark` was drawn in the dark theme's own background colour |
 | No orphaned tokens | four went dead the day the lattice did |
 | No dead class | `.plot` kept two tokens looking alive with no markup since the lanes became a reel |
+| No kept-off term in the tree | a full legal name sat in `.hallmark/log.json`, and a personal name in the very PRD about not publishing one |
 | The byline is the brand | `CLAUDE.md` is the authority; this one prints and is read |
 
 The two allowlists are the point rather than a weakness: a token used outside
 its role, or one that has gone dead, has to be named in the script with a
 reason. That makes it a decision instead of an accident.
+
+The kept-off-term gate is the one that reads a file **outside** the repository
+— `.privacy-terms`, one term per line, git-ignored — because the terms cannot
+be committed without publishing them, which is the whole point of the rule.
+It prints `file:line` and never the term, since a CI log is public as well.
+With no such file it reports itself UNARMED, not clean.
 
 The browser half measures, at 390×844 dpr3 and 1440×900, on every public page:
 

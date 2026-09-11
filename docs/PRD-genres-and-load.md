@@ -3,6 +3,24 @@
 **Status:** phases 1–5 shipped 2026-09-04 (`8e16594`, `d699fa0`, `d993277`, `9f98597`, `4774ae1`) · P2 backfill is an owner action in the darkroom, not code
 **Companion:** `docs/PRD-mobile-and-identity.md` (shipped, `ea73a48`)
 
+> **Re-checked 2026-09-11, against the code and the live production HTML.**
+> § 8's criteria were written to be run in a browser, and **four of the seven
+> are now asserted automatically** — `npm run measure`, which grew out of
+> `docs/PRD-mobile-and-identity.md` § 6's process note. Status per criterion:
+>
+> | # | Criterion | Now |
+> | --- | --- | --- |
+> | 1 | image transfer on `/` under 400 KB at 375px | **not re-measured.** Needs a browser against the deployed page, which is behind a login wall — `pending-task.md` § 1 |
+> | 2 | no `<img>` over 2× its rendered width | **automated.** `npm run measure` reports every `sizes` slot against the candidate chosen, and fails past 1.6× |
+> | 3 | `/work` offers a genre filter | **met.** `/work/genre/[genre]` exists and `/work` renders the chips; four chips on `/` too |
+> | 4 | `grep -ri "unsorted\|leftover\|the middle" src/` returns nothing | **met — and the criterion itself is buggy.** As written it matches "the **middle**ware" in `src/lib/supabase/server.ts`. With word boundaries (`\bthe middle\b`) it returns nothing, which is what it meant |
+> | 5 | three files can be reordered and captioned before upload | **met in code** (`album-admin.tsx`: `plates__move`, `plates__row`, per-row caption, reorder). The published-order behaviour is unverified — it needs an owner session |
+> | 6 | every contrast pair still passes | **partly automated.** The colour gate catches literals; contrast over a *photograph* has to be measured on composited pixels, which the hero work did and recorded in `tokens.css` |
+> | 7 | the pages are screenshotted at 375px and looked at | **done**, repeatedly, and it is how the card-box hole on `/work` was found |
+>
+> § 7's phase 6 (W6, W7, L5, P3 — polish) was never formally closed and is not
+> tracked here any more. What is actually open lives in `pending-task.md`.
+
 Read this first if a session was cut off. Section 7 is the resume point.
 
 ---

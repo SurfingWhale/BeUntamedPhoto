@@ -1,11 +1,38 @@
 # PRD — the index reads as a directory, and the home page prints it twice
 
-> **Status: delivered.** The index is a reel, the duplicated index is gone, and
-> the fold counts in here were the before. § 6's lattice question is
-> **answered**: removed on 2026-09-11, after measuring its hairlines at
-> 1.08–1.16:1 against the paper — invisible — and confirming neither reference
-> has one. `design.md` § 4 has the current rules and `npm run measure` has the
-> numbers.
+> **Status: delivered, and `/` has since been restructured around it.**
+>
+> The index is a reel, the duplicated index is gone, and every fold count in
+> here is a *before* figure. § 6's lattice question is **answered**: removed on
+> 2026-09-11, after measuring its hairlines at 1.08–1.16:1 against the paper —
+> invisible — and confirming neither reference has one.
+>
+> **The page this PRD describes no longer opens the way it describes.** Read
+> from the live production HTML on 2026-09-11, `/` is now:
+>
+> ```
+> hero → ticker → opening zone → statement → label + gallery reel
+>      → label + lanes reel → closing plate
+> ```
+>
+> The hero is new: a full-bleed photograph with the statement set on it in
+> white, lime on one word. The typographic opening zone this PRD shortened is
+> now an interstitial *below* the ticker rather than the front door, and the
+> plinth that used to hold the first photograph is gone rather than repeating
+> the hero's plate a screen later.
+>
+> Live control inventory inside `<main>`: 10 reel cards (7 galleries + 3
+> lanes), 4 genre chips, 5 buttons, 1 mailto, 8 links to `/work*`, 2 outbound
+> lane links.
+>
+> **The fold counts have not been re-measured since the hero landed**, and this
+> is why: the browser half of `npm run measure` needs a rendered page, and the
+> deployed page is behind a login wall (`pending-task.md` § 1). The fixture
+> measurements taken during the hero work are not page measurements and are
+> deliberately not written in here as if they were.
+>
+> `design.md` § 4 has the current rules; `npm run measure` is the standing
+> assertion of them.
 
 **Status:** phases 0–2 shipped (`763d821`, `85919e4`, `1bf5b7e`)
 **Scope:** the index on `/` and `/work`, the plate strip on `/work/[slug]`, and
@@ -500,7 +527,15 @@ select n.id, n.album_id, n.body, n.created_at, n.user_id, p.display_name
 `/notes` plus every gallery guestbook is public and now **prerendered and
 cached for five minutes**. `profiles.display_name` defaults to the email
 local-part (`schema.sql:25`), and the masthead in the owner's own screenshot
-reads **`FAUZY`** — so that is the value currently stored.
+showed a personal name there — so that is the value that was stored.
+
+> **The stored value is deliberately not written down here.** It was, in this
+> paragraph, until 2026-09-11: a document whose entire subject is that a
+> personal name must not be published, publishing it, in a public repository.
+> `CLAUDE.md` says the terms are the owner's to hand over and are never to be
+> committed. Removing it from the working tree does not remove it from git
+> history, which is the same argument for making the repository private —
+> `pending-task.md` § 4.
 
 **Therefore: the moment the owner leaves a note on their own guestbook, a
 personal name is published to every visitor and held in a shared cache.**

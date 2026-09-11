@@ -5,6 +5,40 @@ opened, every control in `<main>` and the chrome enumerated, and the redirects
 followed. Owner-only screens are read from code, because signing in as the
 owner is not possible from here — those rows are marked **(from code)**.
 
+> **§ 3's inventory for `/` is out of date. Re-read 2026-09-11 from the live
+> production HTML.**
+>
+> The actor and state model in § 1, the route map in § 2, the owner flow in § 4
+> and the write/invalidation table all still hold — none of them changed. What
+> changed is the shape of `/`, which was restructured twice since this audit:
+> the duplicated index was deleted and the remaining one became a horizontally
+> snap-scrolled reel, and then a hero was added at the top.
+>
+> `/` now draws, in order:
+>
+> ```
+> hero → ticker → opening zone → statement → label + gallery reel
+>      → label + lanes reel → closing plate
+> ```
+>
+> Controls inside `<main>`, counted on the live page: **10 reel cards** (7
+> galleries + 3 lanes), **4 genre chips**, **5 buttons**, 1 mailto, 8 links to
+> `/work*`, 2 outbound lane links. The row below describing "6 album tiles,
+> `Open the full index`, 4 genre chips, 6 index rows" describes a page that no
+> longer exists — `Open the full index` is gone with the duplicate, and the six
+> tiles and six rows are one reel.
+>
+> One thing worth adding to § 1 rather than correcting: the cached read path is
+> no longer something only a signed-out visitor gets. `/`, `/about`, `/work`,
+> `/work/genre/*`, `/elsewhere` and `/notes` are prerendered for everyone —
+> confirmed live by `x-vercel-cache: PRERENDER` and `x-nextjs-stale-time: 300` —
+> and the viewer is asked from the browser instead. A held-back gallery has its
+> own dynamic route at `/work/[slug]/open` for exactly that reason.
+>
+> **And one thing this audit could not have seen:** every route listed below is
+> currently behind a Vercel login wall, on all three of the site's hostnames.
+> A visitor gets a sign-in page, not the archive. `pending-task.md` § 1.
+
 Purpose: give the next session the state model and the known gaps without
 re-deriving them.
 

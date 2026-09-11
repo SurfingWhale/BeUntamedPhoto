@@ -22,6 +22,20 @@ off the site — writing the terms down here would publish them. The specific
 words to grep for are the owner's to hand over; ask rather than guess, and
 never commit the list.
 
+**There is now a place to put them that is not the repository.** One term per
+line in `.privacy-terms`, which `.gitignore` excludes and `npm run measure`
+reads: gate 8 greps the whole shipping tree and reports `file:line` **without
+ever printing the term**, because a CI log is public too. Absent, the gate
+reports itself **UNARMED** rather than passing quietly.
+
+It was written because the gap was not theoretical. On 2026-09-11 a **full
+legal name** was found in `.hallmark/log.json`, and a stored personal name in
+`docs/PRD-index-as-gallery.md` — in the paragraph of the document whose entire
+subject is that a personal name must not be published. Both had been in a
+public repository for weeks, and both are now out of the working tree. Neither
+is out of git history, which is the argument for making the repository private
+rather than a substitute for it.
+
 What can be checked here, and should be before any copy lands:
 
 ```bash
