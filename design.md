@@ -1,712 +1,379 @@
 # Design — UNTAMED
 
-A locked design system for this app. Every page redesign reads this file before
-emitting code. Do not regenerate per page — extend or amend this file when the
-system needs to grow.
+The layout and composition guideline for this site. **Everything in this file
+is current.** Nothing in it is superseded by anything else in it, and no rule
+points at another section to find out whether it still applies. That was the
+state this file had reached — eight sections deep in corrections, three of them
+labelled "superseded", a `§ 15` still claiming the system had not been applied
+yet — and it was unusable as a guideline. It was rewritten on 2026-09-11. The
+short record of what changed and why is in § 13; the full superseded text is in
+git history, which is where archaeology belongs.
 
-**Status:** applied to shared chrome + `/`.
+**Values live in `tokens.css`, not here.** Colours, sizes, spacing and easings
+are *named* below and *defined* there, so the two cannot drift apart. This file
+carries no colour value at all and no size that `tokens.css` owns. The figures
+it does carry are **measurements, not specifications** — rendered boxes,
+viewport shares, the drift a bug caused — and they are there to be checked
+against, which is what § 12 is for.
 
-- **Done:** `tokens.css`, `globals.css`, `layout.tsx`, `footer.tsx` carry the
-  system (near-white/forest-green · Archivo grotesque · lime accent · Ft5
-  statement footer) — global, so every route inherits colour + type.
-- **Done:** `/` rebuilt to the Portfolio Grid low-density shape in § 3 —
-  H6 hero fold → intro → three asymmetric tiles (spans 7 / 4 / 6, one
-  deliberately short of the edge) → forest-green band carrying the lane
-  index → closing fold. Five blocks, down from seven.
-- **Correction (2026-09-03):** the first pass on `/` only recoloured the old
-  Photographic macrostructure and was reported as "tuned" — it wasn't. The
-  green paper-band motif (§ 1) was missing entirely, and no restructuring had
-  happened. Fixed in the pass above. Lesson for future runs: a rebrand that
-  only swaps tokens is a reskin, and this file's § 3 is not satisfied by one.
-- **Not done:** `/work`, `/about`, `/notes` still run their old structure
-  (their JSX is untouched) wearing the new colours. The Specimen pass on
-  those — numbered plates, staggered spans — is the next step.
+**One method rule, and it is the reason this file was wrong for weeks.** This
+is a *description* of two reference images. Checking the built site against
+this description will not find a fault that is in the description itself — and
+four documents' worth of decisions were made that way while the references sat
+unseen. So: check design fidelity against the reference images. If they are not
+to hand, say so plainly and stop, rather than measuring the paraphrase and
+reporting a pass.
 
 ---
 
-## 0 · Brand context — why this exists
+## 1 · What this site is
 
-UNTAMED (this site, `beuntamed-photo.vercel.app`) is the master photography
-archive. It is the hub that ties together three shooting lanes
-that don't share one visual identity today:
+UNTAMED is the master photography archive and the hub for three shooting lanes
+that do not otherwise share an identity:
 
-| Lane | Where it lives | Genre |
+| Lane | Lives at | Genre |
 | --- | --- | --- |
-| **Food** | `visufavor.vercel.app` (separate brand, VisuFavor) | Food photography |
-| **Sport** | `untmd-sports.vercel.app` (separate brand, UNTMD Sports) | Sport photography |
-| **Everything else** | Native to UNTAMED — `/work` on this site | Events and any documentation work that isn't Food or Sport. Deliberately not locked to a fixed third category — it's the flexible lane. |
+| Food | `visufavor.vercel.app` | Food |
+| Sport | `untmd-sports.vercel.app` | Sport |
+| Everything else | here, `/work` | Events, graduations, brand, documentation |
 
-`/elsewhere` already exists as the cross-link page between the three. The
-goal of this redesign is a shared visual language — Swiss grid + grotesque
-type + one anchored colour system — so that landing on UNTAMED, then
-clicking through to VisuFavor or UNTMD Sports, reads as **one photographer's
-system with three lanes**, not three unrelated sites. UNTAMED is the
-identity; Food/Sport/Events are the lanes.
-
-This file is also the answer to "why does the site look like this" — read
-§ 1 before touching any token.
+Landing on UNTAMED and clicking through to either satellite should read as
+**one photographer's system with three lanes**, not three unrelated sites.
+`/elsewhere` is the cross-link page.
 
 ---
 
-## 0.5 · Content rules (binding — read before writing any copy)
+## 2 · Content rules — binding
 
-These govern every page, every meta description, every alt text. They are not
-style preferences; breaking one is a content bug.
+`CLAUDE.md` is the authority on these and is what a working session actually
+reads. In short, and unconditional:
 
-1. **This site is the creative practice only.** No other career, trade,
-   industry or employer appears anywhere on it — no "by trade", no "two
-   disciplines", no "the other half of the practice". A visiting client sees
-   a photographer, full stop: a split identity reads as a hobbyist who does
-   this on weekends, which is the opposite of the goal in rule 3. This
-   document is public, so it does not name what is being kept off; the terms
-   to check for are the owner's to hand over.
-2. **Public contact is `untamed98x@gmail.com`.** That address, and only that
-   address, goes in the footer, the about page, metadata, and any mailto.
-   Do not surface any personal address.
-2b. **The byline is the brand, never a legal name.** `site.byline` reads
-   "UNTAMED" and every sign-off reads from it. Rule 1 keeps the other career
-   off the site; this one keeps the person off it, and a check for one will
-   not catch the other. The name had already reached `site.owner`, the
-   site-wide description in `layout.tsx`, the manifest, a form placeholder
-   and the README — see CLAUDE.md before committing copy.
-3. **The aim is client trust.** Every copy decision is judged against "does
-   this make a prospective client more confident hiring him?" In practice:
-   - Specific beats clever. What was shot, for whom, where, when.
-   - **No invented credentials.** No fake client names, no fabricated
-     campaign counts, no gear he doesn't own, no awards. An unproven claim
-     that gets checked destroys more trust than a modest true one builds.
-   - A clear, obvious way to make contact on every page.
-   - No copy lifted from reference designs — see § 3.6 note on provenance.
-
-## 1 · Design DNA analysis — where the system comes from
-
-Two references were supplied. Per Hallmark's one-backbone rule, they don't
-blend evenly — one supplies the *structure*, the other supplies the *colour*.
-
-### Backbone: the Le Corbusier grid study (structure + type)
-
-A Swiss-grid editorial layout: exposed grid ruler lines left visible as a
-deliberate texture, a huge black grotesque headline cropped by the frame
-edge, three numbered picture rows (`Picture 01 / 02 / 03`) staggered on a
-diagonal cascade with small caption labels to the left and bold black
-captions to the right of each image, closing in a wide black paragraph with
-selective grey-toned emphasis words. Pure black-on-white, no chromatic
-accent, single grotesque family used for both display and body — restraint
-*is* the design.
-
-Extracted DNA:
-
-- **Macrostructure:** closest to **Specimen** — numbered left-margin labels,
-  asymmetric image spans, hairline rules, generous whitespace, typographic
-  (not boxed) CTAs.
-- **Type pairing:** single-family grotesque, display and body both sans —
-  not a serif/sans pair. Heavy weight for headline, regular for caption/body.
-- **The grid is structural, not decorative.** The reference's visible ruler
-  lines are a presentation aid showing the underlying column grid — they are
-  NOT a texture to reproduce. What actually carries over is the *effect* of
-  that grid discipline: three images, generous gaps, nothing else on the
-  page. Rendering the ruler lines as background CSS art would be copying the
-  wrong layer — it'd add visual noise the source deliberately doesn't have.
-- **Density/asymmetry — the load-bearing quality of this reference.**
-  Generous, left-biased, diagonal cascade between images. Only three images
-  and one paragraph occupy the entire page. This is the single most
-  important thing to carry forward: **few elements, huge negative space**,
-  not a packed grid of many things.
-- **Anti-patterns to skip:** none — the reference is clean, no bouncy
-  hovers or invented chrome to avoid.
-
-### Colour + secondary motifs: Nomvnt (streetwear e-commerce)
-
-Supplies the **colour anchor only**, plus a short list of structural motifs
-explicitly worth borrowing:
-
-- **Paper bands:** alternates near-white sections with deep forest-green
-  sections down the page — not a single background, a rhythm.
-- **Accent:** a bright chartreuse/lime green on the wordmark and CTAs, small
-  footprint (~3–5%), never flooded.
-- **Type:** bold expanded grotesque wordmark ("Nomvnt®") for the logotype,
-  neutral grotesque for body, tiny tracked-uppercase grotesque for
-  micro-labels (marquee ticker, sale tags).
-- **Motifs worth keeping:** a marquee ticker bar, a category filter row with
-  an underlined active tab, and — the strongest one — an oversized closing
-  wordmark filling the footer as a final brand statement.
-- **Motifs NOT kept:** the ticker's sale-countdown content (irrelevant, this
-  isn't e-commerce), the carousel-heavy product grid (UNTAMED's "product" is
-  a photograph, not SKUs — F6 Product-card-grid is not being adopted).
-
-Net: Corbusier is the skeleton and the type voice. Nomvnt is the palette and
-three specific components (paper-band rhythm, tab filter, statement footer).
-Theme route is **custom** (the brief names a specific brand-colour anchor —
-Nomvnt's green/lime — which is exactly the signal that routes away from the
-catalog per Hallmark's theme dispatch).
+1. **The site is the creative practice and nothing else.** No other career,
+   trade, industry or employer appears anywhere — copy, metadata, alt text,
+   placeholders, shipped comments.
+2. **No person.** The byline is `site.byline` and every sign-off reads from it.
+   `site.email` is the archive's own address. No legal name, no personal
+   address, no link to anything that is not photography.
+3. **Nothing invented.** No fake clients, campaign counts, gear or awards. An
+   unproven claim that gets checked destroys more trust than a modest true one
+   builds. This applies to reference material too: the motifs travel, the
+   fiction does not.
+4. **Specific beats clever.** What was shot, for whom, where, when.
 
 ---
 
-## 2 · Genre
+## 3 · The references, and which one is the backbone
 
-**Editorial.** Unchanged from the current system — a photography archive
-with a foundry-adjacent, restrained voice is editorial's canonical case.
-Swiss/grotesque is a type-and-grid decision within editorial, not a genre
-change.
+Two images were supplied.
 
-## 3 · Macrostructure family
+**Nomvnt — a streetwear shop — is the backbone.** Confirmed by the owner on
+2026-09-11, reversing what this file used to say. It supplies the *page
+structure*, not just a palette: a photographic hero with type set on it, a
+ticker, large sentence-case statements, label-then-heading sections,
+asymmetric card clusters, a photo-backed filter, and a statement footer.
 
-Three page-type families, each pulling from the DNA above:
+**The Corbusier grid study is the restraint applied to it.** What carries over
+is the discipline, not the drawing: few elements per fold, generous gaps,
+numbered plate labels, hairlines rather than boxes, typographic CTAs. Its
+visible ruler lines are a presentation aid and **are not reproduced** — neither
+reference has a drawn lattice anywhere.
 
-- **Marketing / hub pages** (`/`, `/elsewhere`) — **Portfolio Grid, low
-  density.** The work is the product; `/elsewhere` becomes a three-lane
-  index (Food / Sport / Events) rather than a plain link list — but "grid"
-  here means 3–4 large asymmetric tiles with huge gaps between them, not a
-  packed masonry of thumbnails. One dominant image per fold, matching the
-  Corbusier reference's three-images-and-nothing-else composition. Opens
-  with an **H6 Photographic fold** hero (full-bleed photograph, caption
-  lower-left) before the sparse grid starts — carried over from the current
-  site's photography-first instinct, just re-typeset.
-- **Content / gallery pages** (`/work`, `/work/[slug]`, `/about`, `/notes`)
-  — **Specimen**. Gallery plates get numbered labels (`Plate 01`, `Plate 02`
-  …) exactly echoing the Corbusier reference's "Picture 01/02/03" — this is
-  the most direct, literal DNA transfer in the whole system. Staggered,
-  asymmetric image placement, one or two plates visible per fold, not a
-  uniform grid.
-- **App / utility pages** (`/enter`, `/account`, `/darkroom`) — typography
-  only, no macrostructure enrichment. These pages are for doing a task
-  (sign in, upload a plate); Swiss restraint here means *get out of the
-  way*, not decorate.
-
-This differs from the current system's single macrostructure (Photographic
-everywhere) on purpose — the diversification rule requires a different pick
-from the last Hallmark run (`Photographic`, 2026-08-23), and a photography
-archive with three page *kinds* genuinely benefits from three shapes.
-Density stays constant across all three families though: **few elements per
-fold, generous gaps between them.** That's the one rule this whole system
-must not compromise on — see § 11.
-
-## 3.5 · Superseded by the Stitch system (2026-09-03)
-
-The palette and type in § 4–5 below were my reconstruction from the reference
-images. They are **superseded** by the author's actual Stitch export
-("Swiss Neo-Grotesque Studio"), which is now what `tokens.css` implements:
-
-| Axis | Now in force |
-| --- | --- |
-| Display | **Syne** 600/700/800, tracking −0.03 to −0.05em — **sentence case, not uppercase; see § 3.7** |
-| Body | **Hanken Grotesk** 300–700 |
-| Metadata | ~~**JetBrains Mono**~~ — **struck. There is no monospace in the reference; see § 3.7** |
-| Canvas | `#FBFBF9` surface · `#F4F4F2` alt · `#FFFFFF` lowest |
-| Slab | `#051C14` forest-deep · `#0B2D20` container |
-| Signal | `#C4F23E` acid lime (`#D4F843` alt), `#4F6600` where lime needs contrast on white |
-| Structure | `#E5E5E0` hairline · `rgba(13,13,13,0.25)` crosshair |
-| Shape | `0px` everywhere. Pills **only** for filter chips |
-| Elevation | No shadows. Depth = chromatic inversion + hairlines + typographic overlap |
-
-**Two corrections the author asked for on top of the Stitch export:**
-
-1. **More negative space.** Space scale opened one step (`--space-3xl` 7.5rem,
-   new `--space-4xl` 11rem); sections use `4xl` block padding.
-2. **The grid is drawn.** Stitch only marked four `+` glyphs at the viewport
-   edges. The real thing — what every reference image shows — is a fixed
-   hairline column lattice inside the 1440px measure with `+` register marks.
-   Implemented as `<GridLines />` in the root layout plus a `.plot` utility
-   that puts `+` marks on any container's corners. Canvas sections stay
-   transparent so the lattice reads through them; only slab sections occlude
-   it, and they carry lime crosshairs instead.
-
-**Not carried over from the Stitch HTML:** all of its content. That export
-invents Michelin campaigns, Hasselblad/Sony gear logs, Adidas commissions,
-Tokyo/Paris/Jakarta representation desks, "128 plates", and AI-generated
-photographs. Putting any of it on a live portfolio would be publishing false
-claims about a real practice. The system travels; the fiction does not. Real
-copy and real galleries come from Supabase as before.
-
-## 3.6 · The symbol system (studied from the reference layout)
-
-The reference is not "a layout with some icons on it" — the marks *are* the
-design. Catalogued so they can be reused rather than sprinkled.
-
-### Colour balance — the rule that governs everything
-
-**Superseded by § 3.7 — read that instead.** This paragraph described the
-*other* reference. Against the Nomvnt one, lime is a surface used repeatedly
-and green carries the whole footer, so the `~3–5%` ration and "green is never
-a section" do not hold. What survives is the shape: lime is a deliberate
-block, never a wash.
-
-~~**~85% white. Green is never a section.** In the reference, green appears in
-exactly three places: the photograph itself, four small swatch squares, and
-one small filled `14.8` tag. Nothing else.~~
-
-### The marks
-
-| Mark | Placement rule | Weight |
-| --- | --- | --- |
-| `←` | alone in an empty region, baseline-aligned to a nearby numeral | thin, large |
-| `↗` | centre column, level with the headline's second line | bold |
-| `⌐` | top-right corner of a text block, outside its measure | thin |
-| `∟` | bottom-left corner of a block, marking its foot | thin |
-| swatch row | stepped diagonal, never a neat 2×2; colours sampled from the adjacent photograph | — |
-| filled tag | one per screen maximum; the only solid colour fill | small |
-| ghost numerals | giant, ~2% contrast, behind a text column, cropped by the page edge | 800 weight |
-
-Marks sit **in margins and empty cells**, never inside a text block. They
-mark positions on the lattice; they do not decorate content.
-
-### Character-level conventions
-
-These are not typos — they are the reference's voice:
-
-- `heals .` — a space before terminal punctuation in display type
-- `camera : Samsung A10s` — spaces around a metadata colon
-- `.COLOR PICTURE` — a leading period on a label
-- `NATURE'S    ATMOSPHERE` — exaggerated word gaps, words landing on separate
-  grid columns rather than sharing a normal space
-- `archive by untamed` — letter-spaced lowercase for attribution
-- Numerals (`2K25`, `14`, `08`, `14.8`) are used as **graphic objects**, set
-  large and bare, not as data inside sentences
-
-## 3.7 · The Nomvnt reference, read directly — 2026-09-11
-
-**This section supersedes § 1's weighting, § 3.5's `uppercase`, § 3.6's accent
-budget, § 10's photography rule and § 11's section rhythm.** Where it disagrees
-with anything above, this wins, and the reason is simple: everything above was
-written from a *description* of the reference. This was written with the image
-open.
-
-The owner's verdict on what had been built from the paraphrase was
-*"beda banget ekspektasi gw sama realita"*, and then, asked directly whether
-§ 1's division was right: **Nomvnt is the backbone.** Corbusier supplies the
-restraint applied to it — not the skeleton. That is the reversal.
-
-### What the page actually is, top to bottom
-
-Observed, in order. This is structure, not decoration:
-
-1. **Hero — a full-bleed photograph with the wordmark set on it.** Tightly
-   cropped on a figure. The logotype sits top-left, large, in lime, *over* the
-   image. A small caption card floats bottom-right on the photograph. A row of
-   four small square thumbnails sits at the foot of it, as an image switcher.
-2. **A full-bleed lime ticker band**, black text, tracked, repeating.
-3. **A statement section on white.** A tiny label top-left, then one large
-   sentence-case paragraph of about four lines set to a wide measure, then a
-   smaller, narrower, grey paragraph under it.
-4. **Two collection sections.** Each is: tiny label → large two-line heading →
-   an *asymmetric* card cluster. One is a pair of cards; the other is one large
-   card beside a cluster of three smaller. A small outlined `Shop All` sits
-   top-right of the second. `( 24 Products )` and `←  →` sit bottom-right of
-   the first.
-5. **A category filter over a full-bleed dark photograph.** Tiny label, then
-   the categories as *text separated by thin vertical rules* — not pills — with
-   the active one in lime, wrapping across two lines.
-6. **Testimonials.** Tiny label → heading → a lime card carrying a photograph
-   and a name/role, beside the quote set as ordinary body text, with `←  →`
-   under it.
-7. **Articles.** A smaller heading with `←  →` top-right, then two cards:
-   photograph, a small filled tag chip, a bold sentence-case title, then a tiny
-   grey meta line.
-8. **Footer — a deep green slab**, with the wordmark and a one-line statement
-   left, four columns of links right, and then **an enormous lime wordmark
-   filling the width and cropped by the bottom edge.**
-
-### Type — the correction that matters most
-
-**Headings are sentence case.** `Must-Have Outerwear`, `The Winter Collection
-Drop`, `Heard from our costumers`, `Popular Article`. Not one heading on that
-page is set in capitals. § 3.5's table says `uppercase` and that is simply
-wrong; it is why the built site reads as shouted rather than edited.
-
-- **Headings:** bold (~600–700), tight tracking, sentence case, left-aligned,
-  set in **two lines with the second line indented to the right.** That indent
-  is a signature of the reference and costs nothing to reproduce.
-- **Body:** regular weight, near-black for primary and grey for secondary.
-- **Capitals** appear only in the ticker and in tiny labels — never in a
-  heading, never in a card title.
-- **There is no monospace anywhere on that page.** Prices, the countdown
-  `10:56:00`, `( 24 Products )`, product meta — all the neutral sans. Any
-  recommendation to give the metadata role a real monospace is a step *away*
-  from this reference, and one was made on 2026-09-11 and withdrawn the same
-  day.
-- Two faces, not three: a **distinct display face for the logotype** (wide,
-  geometric, unmistakably its own) and **one neutral grotesque** for
-  everything else.
-
-### Section labels are quiet
-
-A small glyph and two or three words, grey, sentence case, top-left:
-`⊹ About Us`, `⊹ Featured Collection`, `⊹ Seasonal Series`, `⊹ Testimonials`.
-
-That is all. § 11's *"mono two-digit numeral + tracked-uppercase label"* built
-a full-width technical rail with an arrow and a bracketed phrase at the far
-end, which is louder than the heading it introduces. The label names the
-section and gets out of the way.
-
-### Colour — lime is a surface, not a 5% ration
-
-§ 3.6 caps lime at `~3–5%, never flooded` and says *"green is never a
-section"*. The reference uses lime as **a background for content, repeatedly**:
-the logotype over the hero, the whole ticker band, **a block behind a product
-photograph twice**, the active category, the article tags, and the giant
-cropped footer wordmark. Deep green carries the entire footer slab and one
-card.
-
-Rough share of that page: white around two thirds, green around a sixth, lime
-under a tenth. So the built site is if anything **too timid** with lime, and
-the `≤5%` discipline in § 11 should be struck. What survives is the *shape* of
-the restraint: lime is a **deliberate block**, never a wash or a gradient, and
-it always has black or deep-green type on it.
-
-### Photographs carry sections, with type on them
-
-§ 10 bans *"background texture of any kind"*, which is right about generated
-texture and was read as "never set anything over a photograph". The reference
-does exactly that for its two strongest moments — the hero wordmark, and the
-category filter over a dark photograph. A photograph is not texture. Generated
-CSS art is.
-
-### No drawn lattice. Anywhere.
-
-There are no ruler lines in the reference — not in the hero, not behind either
-card grid, not in the testimonial or article sections. § 3.5 records the drawn
-lattice as an author-requested correction, but it was requested against a
-description. § 1 already says the *Corbusier* ruler lines were *"a presentation
-aid … NOT a texture to reproduce"*. Neither reference supports it.
-
-### Translating it, because this is not a shop
-
-The reference sells garments; this archive shows photographs. The motifs
-carry, the commerce does not:
-
-| Reference | Here |
-| --- | --- |
-| product card | gallery card — the cover is the product |
-| price, strikethrough | year · place |
-| `( 24 Products )` | `( 7 galleries )` |
-| `Shop All` | `Open the index` |
-| category chips | the genre chips that already exist |
-| sale countdown ticker | the real ticker content — counts and lanes |
-| testimonial | the guestbook |
-| article cards | not adopted; there is no blog |
-
-Nothing invented: no fake campaigns, gear logs or client lists. § 3.5's
-existing warning about the Stitch export applies here too — the system
-travels, the fiction does not.
-
----
-
-## 3.8 · The owner's own read of the reference — 2026-09-11
-
-Recorded in his words, because it is a sharper design read than anything § 1
-to § 3.6 managed from the same two images, and because the last thing this
-brief should lose again is the owner's actual eye:
+The owner's own read of the reference, kept verbatim because it is sharper than
+anything this file managed from the same images:
 
 > *"dia make spacing yang enak terus typography yang kecil banget dengan border
 > yang sesuai ada hero dengan font putih terus ada permainan color juga di
 > salah satu katanya, itu yang gadipunya ai"*
 
-Five qualities, and one verdict. Taken one at a time, with what was found when
-each was checked:
-
-**1 · Comfortable spacing.** Not merely "a lot" — *pleasant*. Section block
-padding measured 120px at 1440 and 52px at 390, which is already in the right
-register. This one was already right and is the reason the type correction
-below works rather than leaving the page looking empty.
-
-**2 · Very small typography.** Measured, and he was right, and the interesting
-part is *which* type. At 1440px, as a share of viewport width:
-
-| role | ours, before | reference (est.) | ratio |
-| --- | --- | --- | --- |
-| page title | **4.44%** | ~2.4% | **1.85×** |
-| body | **1.25%** | ~0.85% | **1.47×** |
-| card title | 1.25% | ~1.0% | 1.25× |
-| card meta | 0.83% | ~0.70% | 1.19× |
-| chip / nav | 0.83% | ~0.70% | 1.19× |
-
-The *labels* were already about right. It was the **display** sizes that were
-out, by nearly double. Corrected: `--text-display-s` to
-`clamp(1.625rem, 2.6vw, 2.25rem)` — 36px at 1440, 2.50% against the
-reference's ~2.4% — `--text-2xl` 40 → 32px, `--text-lg` 24 → 20px, `--text-md`
-18 → 16px. The reference figures are eyeballed off a screenshot and carry maybe
-±20%; ours are measured.
-
-`--text-base` stays 15px and `--text-md` stops at 16px rather than following
-the reference all the way down. That is reading copy on a phone, and this is a
-photography archive read on phones, not a desktop fashion site. Small type is
-the look; unreadable type is not, and that trade is stated rather than silently
-taken.
-
-**3 · Borders that fit.** Not yet done, and the gap is real: in the reference
-every product card sits in a subtle bordered or filled box. `.album` and
-`.reel__card` here float on the page with no container at all — only the
-photograph carries a hairline outline. This is the next thing to try.
-
-**4 · A hero with white type.** **The largest structural gap on the site.** The
-reference opens on a full-bleed photograph with the logotype set over it in
-light type, a caption card floating on it, and a thumbnail strip at its foot.
-This site opens on roughly 330px of masthead and nav before any photograph
-appears. § 3.7 records the structure; nothing has been built toward it.
-
-**5 · Colour played on one word.** Already in the build, and worth saying so:
-`.page__title em` gives one word a lime ground — `Work, `*`indexed`*`.` — and
-the wordmark carries a lime `E`. His instinct and the code already agree here.
-The discipline to keep is *one* word, once per page.
-
-**"itu yang gadipunya ai."** The honest reading of that, against this session's
-record: what was missing was not taste in the abstract. It was that four
-documents' worth of decisions were measured against `design.md` — a paraphrase
-— while the references sat unseen. The five divergences in § 3.7 and the 1.85×
-in the table above were all invisible until the image was on screen. The
-correction is procedural, and it is in § 8 of
-`docs/RESEARCH-reference-vs-built.md`: check design fidelity against the
-images, or say plainly that you cannot.
+Comfortable spacing · very small type · borders that fit · a hero with light
+type on a photograph · colour played on one word. Those five are the brief.
 
 ---
 
-## 4 · Theme — superseded, kept for provenance
+## 4 · Layout and composition
 
-Paper alternates light and dark-green, per the Nomvnt rhythm. Accent is the
-lime. Ink stays near-black/near-white — **not cream** (near-white paper and
-near-white on-dark ink both sit at negligible chroma on purpose).
+### The density rule, which outranks everything else here
 
-```text
---color-paper        oklch(98.5% 0.001 90)   near-white, not ivory
---color-paper-2       oklch(96%   0.002 90)   secondary light surface
---color-paper-dark    oklch(24%   0.045 155)  deep forest green (Nomvnt band)
---color-paper-dark-2  oklch(29%   0.045 155)  secondary dark surface
---color-ink           oklch(15%   0.010 155)  near-black, faint green undertone
---color-ink-2         oklch(38%   0.010 155)  muted body text
---color-ink-on-dark    oklch(96%  0.010 90)   near-white text on green bands
---color-rule          oklch(88%   0.005 155)  hairline on light
---color-rule-on-dark  oklch(40%   0.050 155)  hairline on dark green
---color-accent        oklch(88%   0.230 120)  lime / chartreuse (Nomvnt anchor)
---color-accent-ink    oklch(20%   0.050 120)  near-black text on lime fills
---color-focus         oklch(70%   0.190 120)  deeper lime, focus rings
---color-error         oklch(52%   0.190 27)
---color-ok            oklch(48%   0.100 150)
-```
+**Few elements per fold, generous space between them.** If a section feels
+full, cut an element — do not add a bigger gap around the same amount of stuff.
+This is the one rule that must not be traded away for any other in this file.
 
-Accent discipline: lime never exceeds ~5% of any viewport — CTA fills,
-active tab underline, focus rings, the plate-number digits. It does not
-become a background flood; that would read as the e-commerce site it was
-borrowed from, not a photography archive.
+### The measure
+
+- Photographs run **full-bleed**. Everything else is held to `--page-max`.
+- Side gutters are `--page-gutter` at every width.
+- Reading copy is held to `--measure`.
+- Section block padding comes from the `--space-2xl … --space-4xl` steps. At
+  1440 that measures ~120px and at 390 ~52px, and that rhythm is already
+  right — it is what makes small type read as composed rather than sparse.
+
+### Section rhythm — the same three parts every time
+
+1. A **quiet label**: one small glyph, then two or three words, grey, sentence
+   case, top-left. Nothing else on the line.
+2. The **heading** beneath it: sentence case, bold, tightly tracked,
+   left-aligned.
+3. The **content**.
+
+Stacked, in that order. Never a label on the left with something bracketed at
+the far right of the same row — that shape reads as templated, and it is what
+was there before.
+
+### A choice set scrolls sideways; content scrolls down
+
+The load-bearing layout decision on this site.
+
+- **A set you pick *between*** — the galleries, the three lanes — is a
+  **reel**: one horizontally snap-scrolled row, card ~78% of the scroller so
+  the next one peeks. Compositor-driven, no JavaScript needed for the
+  scrolling, and it degrades to a plain scroller. Position dots come from
+  `::scroll-marker` behind `@supports`, additive only.
+- **What you came to look *at*** — the plates inside one gallery — is
+  **vertical**. Horizontal breaks the reading direction.
+- `/work` is the exception that proves the rule: it is the survey page, so it
+  is a vertical grid, two columns from the smallest width.
+
+### Cards
+
+- Two columns on a phone, asymmetric spans on the twelve-column field above
+  60rem. A tile keeps its cover's own proportions — **nothing is cropped to
+  make a row tidy**, and a row's height is its tallest member.
+- Every card wants **a border that fits**: in the reference each one sits in a
+  subtle bordered or filled box. *Not yet built — `.album` and `.reel__card`
+  still float with only the photograph outlined.*
+
+### Page skeletons
+
+- **`/` (hub)** — opening zone · ticker · full-bleed plate · statement ·
+  label + gallery reel · label + lanes reel · closing plate. The gallery reel
+  carries a sticky head above it — a count and the genre chips — which is the
+  only sticky thing on the page besides the masthead, and therefore the only
+  other place § 10's safe-area rule bites.
+  *The reference opens on a full-bleed photograph with the logotype set over
+  it in light type. This page opens on ~330px of masthead first. Not yet
+  built, and it is the largest remaining structural gap.*
+- **`/work`, `/work/[slug]`, `/about`, `/notes`** — typography and the
+  photographs, nothing else. Plates carry numbered labels.
+- **`/enter`, `/account`, `/darkroom`** — function only. No enrichment of any
+  kind; get out of the way.
+
+### The marks
+
+The Corbusier restraint layer. `←` alone in an empty region · `↗` bold, level
+with a headline's second line · `⌐` at a text block's top-right, outside its
+measure · `∟` at its foot · a stepped swatch row, never a neat grid · one
+filled tag per screen · `.ghost` numerals, set huge and cropped by the edge at
+4% ink, sitting behind a column on `z-index: -1`.
+
+Marks sit **in margins and empty cells**, never inside a text block. They mark
+positions; they do not decorate content.
+
+`↗` is the one to watch: it has an emoji presentation, so a phone can draw it
+as a blue tile. Any `↗` that reaches shipped copy needs `U+FE0E` after it to
+force the text glyph. `←` and `→` have no emoji form and need nothing — there
+are ten of them in the pages now and they are fine. The only `↗` in the tree
+is inside a CSS comment.
+
+### The drawn lattice — the one open question
+
+`<GridLines />` draws a hairline column lattice site-wide. **Neither reference
+has one**, and the Corbusier study's ruler lines are explicitly a presentation
+aid. It survives only because the owner asked for it against an earlier,
+wrong description of the references. It has not been removed on that basis
+alone. **Ask before touching it.**
+
+---
 
 ## 5 · Typography
 
-- **Display:** Archivo — Black 900 for headlines, Expanded width + 700 for
-  the "UNTAMED" wordmark specifically (the one place tracking goes positive,
-  echoing Nomvnt's expanded logotype). Free, real Swiss-grotesque energy,
-  replaces the current Fraunces serif — this is the one deliberate override
-  of the existing font stack, because "swiss + grotesque" is incompatible
-  with a serif display by definition.
-- **Body:** IBM Plex Sans — **unchanged from the current system.** Already a
-  neutral grotesque; no reason to replace what already fits the brief.
-- **Numeral / label:** JetBrains Mono — **unchanged.** Used narrowly for
-  plate numbers (`01`, `02`) and dates/metadata, tabular-figure alignment.
-  Text labels/eyebrows (not numerals) use tracked-uppercase Plex Sans
-  instead of mono, matching both references' label treatment.
-- **Display tracking:** −0.02em at display sizes (tight, grotesque
-  convention) except the wordmark itself at +0.02em (expanded, logotype
-  read).
-- **Type scale anchor:** `--text-display: clamp(2.5rem, 4.4vw + 1rem, 5rem)`
-  — reuse the existing scale unchanged; only the face changes, not the
-  rhythm.
+Two voices, not three: a distinct display face for the logotype, and one
+neutral grotesque for everything else. **There is no monospace in the
+reference** — prices, counters and meta are all the neutral sans — so the
+metadata role does not get one. The site currently runs the system stack for
+all of it, which is the owner's call and costs nothing; the display role is the
+one that would justify a webfont.
 
-## 6 · Spacing
+| Role | Rule |
+| --- | --- |
+| Logotype | its own face, wide and geometric, tracking positive |
+| Headings | **sentence case**, bold, tight tracking, left-aligned |
+| Body | regular; near-black primary, grey secondary |
+| Labels / meta | small, grey, sentence case |
+| Capitals | the wordmark, the ticker, tiny labels and control text. **Never a heading and never a card title** — that is the line § 12 gates |
 
-Unchanged — reuse the existing 4pt scale in the current `tokens.css`
-(`--space-3xs` … `--space-4xl`, `--page-gutter`, `--measure`). No brief
-signal calls for a new spacing system; changing it would be scope creep.
+**Small type against generous space.** Measured at 1440 as a share of viewport
+width, the display sizes were nearly double the reference's before they were
+corrected; the labels were already right. The scale lives in `tokens.css`.
+`--text-base` and `--text-md` are deliberately held *above* where the reference
+would put them rather than following it all the way down — that is reading copy
+on a phone, and this is an archive read on phones. Everything larger came down.
 
-## 7 · Motion
+**Two signatures worth keeping:**
 
-Unchanged easings and durations (`--ease-out/in/in-out`, `--dur-micro/short/
-long`). Explicit principle for this rebrand: **restraint is the design.**
-Fade-only reveals, ≤220ms, no bounce/overshoot, no hover-scale on
-photographs (the current AI-slop tell this brief should never reintroduce).
-Link hover is a 1px lime underline sweep, not a colour change — the one
-motion flourish the system allows itself.
+- A two-line heading **steps its second line in.** A negative `text-indent`
+  against matching padding does it with no markup and no guessed break point,
+  and it is invisible on a heading that fits one line.
+- **Colour played on one word.** One word of a heading takes a lime ground —
+  `Work, `*`indexed`*`.` — and the wordmark carries a lime letter. One word,
+  once per page.
 
-## 8 · Microinteractions stance
-
-- Silent success (a saved plate just... saves; no celebratory toast).
-- Hover delay 800ms / focus delay 0ms on any tooltip.
-- Focus ring: lime (`--color-focus`) at ≥3:1, appears instantly, never
-  animated in.
-
-## 9 · CTA voice
-
-- **Primary:** filled lime, `--color-accent-ink` text, `--radius-none` —
-  sharp rectangular edge (the existing token already defines
-  `--radius-none: 0`; this rebrand leans into it instead of introducing
-  rounding).
-- **Secondary:** 1px ink outline, transparent fill, `--radius-none`.
-- **Tertiary / inline:** typographic link — word + arrow + 1px underline,
-  no box. This is the Corbusier reference's CTA voice directly.
-
-## 10 · Per-page allowances
-
-- **No page gets a decorative enrichment layer** — no CSS-art grid lines,
-  no generated illustration, no *generated* background texture. Photography
-  is the imagery; negative space is the enrichment. This applies to
-  marketing pages too — § 1 already flagged that reproducing the Corbusier
-  reference's visible ruler lines would be copying its presentation layer,
-  not its actual DNA.
-  **Amended by § 3.7:** a photograph is not texture. The reference sets its
-  logotype over a full-bleed photograph and its category filter over another,
-  and those are its two strongest moments. Type over a photograph is in;
-  generated CSS art is still out.
-- **Content pages** (`/work`, `/about`, `/notes`) — typography + the
-  photographs only. The Specimen macrostructure's numbered-plate rhythm,
-  at low density, is the design.
-- **App pages** (`/enter`, `/account`, `/darkroom`) MUST NOT use
-  enrichment — function carries the page, unchanged principle from before.
-
-## 11 · What pages MUST share
-
-- **Generous negative space. Few elements per fold.** This is the system's
-  central discipline, carried directly from the Corbusier reference (§ 1)
-  — a fold with one large image and short copy beats a fold with four
-  medium images every time. If a section feels "full," cut an element
-  before adding more whitespace tokens — `--space-3xl`/`--space-4xl` are
-  already generous; the fix for a cramped page is fewer things, not bigger
-  gaps around the same amount of stuff.
-- The "UNTAMED" wordmark (Archivo Expanded 700, +0.02em tracking).
-- Lime as a deliberate block, never a wash or a gradient, always carrying
-  black or deep-green type. (The former `≤5%-of-viewport` ration is struck —
-  see § 3.7.)
-- Archivo (display) + IBM Plex Sans (body) + JetBrains Mono (numerals only).
-- CTA voice: rectangular, `--radius-none`, the three-tier button/link system
-  in § 9.
-- Section heading rhythm, **corrected by § 3.7**: a small glyph and two or
-  three words, grey, sentence case, top-left — then the heading under it in
-  **sentence case**, bold, tight, and broken over two lines with the second
-  indented. Stacked, never the tag-left/heading-right two-column pattern,
-  which still reads as a templated AI tell. The mono numeral and the bracketed
-  phrase at the far end are struck: they were louder than the heading.
-
-## 12 · What pages MAY differ on
-
-- Macrostructure within their family (§ 3) — e.g. `/about` could run Long
-  Document instead of Specimen if the prose genuinely wants continuous
-  paragraphs; it still uses the system's type, colour, and CTA voice.
-- Hero archetype, within the family's allowance.
-- Paper band choice per section — light or dark-green — as long as the
-  alternation reads intentional, not random (Nomvnt's own rhythm: roughly
-  every 2nd–3rd section flips).
-
-## 13 · Nav and footer
-
-- **Nav — N6 Newspaper masthead (kept from the current system, retyped).**
-  Large centred "UNTAMED" wordmark, thin mono meta line above/below (date,
-  or plate count), double hairline rule beneath. Same archetype as today;
-  only the type voice changes from serif small-caps to grotesque.
-- **Footer — Ft5 Statement (changed from the current Ft6 Letter close).**
-  One large closing line in Archivo Black — e.g. *"UNTAMED. Shot on
-  purpose."* — with the wordmark beneath in muted small type. This is a
-  deliberate deviation from editorial's catalog default footers (Ft1/Ft2/
-  Ft4/Ft6/Ft7); it's justified because it's a direct, named motif from the
-  Nomvnt study (§ 1) that the brief explicitly asked to keep, and design.md
-  is allowed to override catalog routing once a studied DNA is locked in.
-
-## 14 · Exports
-
-### tokens.css (proposed — not yet applied to the live file)
-
-**These values mirror the live `tokens.css`.** If they ever disagree,
-`tokens.css` is the truth and this block is stale — regenerate it.
-
-```css
-:root {
-  --color-paper:        #FBFBF9;  /* canvas — never pure-white glare */
-  --color-paper-2:      #F4F4F2;
-  --color-paper-3:      #F0EDEC;
-  --color-paper-white:  #FDFDFB;
-  --color-paper-dark:   #051C14;  /* forest slab */
-  --color-paper-dark-2: #0B2D20;
-
-  --color-ink:          #0D0F0E;
-  --color-ink-2:        #414844;
-  --color-muted:        #6E7472;
-  --color-ink-on-dark:  #FFFFFF;
-
-  --color-rule:         #E5E5E0;
-  --color-rule-2:       #C1C8C2;
-  --color-grid:         rgba(13, 13, 13, 0.07);
-  --color-grid-laser:   rgba(107, 150, 0, 0.34);
-  --color-crosshair:    rgba(13, 13, 13, 0.25);
-  --outline-image:      rgba(0, 0, 0, 0.1);
-
-  --color-accent:       #C4F23E;  /* signal layer */
-  --color-accent-2:     #D4F843;
-  --color-accent-ink:   #0D0D0D;  /* text on lime */
-  --color-accent-deep:  #4F6600;  /* lime that survives as text on canvas */
-  --color-focus:        #4F6600;
-  --color-error:        #BA1A1A;
-
-  --font-display: var(--font-syne),      ui-sans-serif, system-ui, sans-serif;
-  --font-body:    var(--font-hanken),    ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    var(--font-jetbrains), ui-monospace, monospace;
-
-  --tracking-hero: -0.05em;  --tracking-display: -0.04em;
-  --tracking-heading: -0.03em;
-  --tracking-label: 0.08em;  --tracking-code: 0.04em;
-
-  --module: 120px;           /* 1440 / 12 — one square lattice cell */
-  --radius-none: 0;
-  --radius-pill: 9999px;     /* filter chips only */
-}
-```
-
-### Tailwind v4 `@theme`
-
-```css
-@theme {
-  --color-paper:      oklch(98.5% 0.001 90);
-  --color-paper-dark: oklch(24% 0.045 155);
-  --color-ink:        oklch(15% 0.010 155);
-  --color-accent:     oklch(88% 0.230 120);
-  --font-display:     "Archivo", sans-serif;
-  --font-body:        "IBM Plex Sans", sans-serif;
-}
-```
-
-### DTCG `tokens.json`
-
-```json
-{
-  "color": {
-    "paper":       { "$value": "oklch(98.5% 0.001 90)", "$type": "color" },
-    "paper-dark":  { "$value": "oklch(24% 0.045 155)",  "$type": "color" },
-    "ink":         { "$value": "oklch(15% 0.010 155)",  "$type": "color" },
-    "accent":      { "$value": "oklch(88% 0.230 120)",  "$type": "color" }
-  },
-  "font": {
-    "display": { "$value": "Archivo",      "$type": "fontFamily" },
-    "body":    { "$value": "IBM Plex Sans","$type": "fontFamily" }
-  }
-}
-```
-
-### shadcn/ui CSS variables
-
-```css
-:root {
-  --background:          98.5% 0.001 90;
-  --foreground:           15% 0.010 155;
-  --primary:              88% 0.230 120;
-  --primary-foreground:   20% 0.050 120;
-  --muted:                88% 0.005 155;
-  --border:               88% 0.005 155;
-  --ring:                 70% 0.190 120;
-  --radius:               0px;
-}
-```
+Character-level conventions, which are the reference's voice and not typos:
+`heals .` (a space before terminal punctuation in display type) · `camera :
+Samsung A10s` · `.COLOUR PICTURE` · exaggerated word gaps so words land on
+separate columns · numerals used as graphic objects, set large and bare.
 
 ---
 
-## 15 · Next step
+## 6 · Colour
 
-This file is the proposed system. It has **not** been applied yet — live
-`tokens.css` and every page under `src/app/` still run the current Atelier
-system. Applying it means, page by page: swap the display font import,
-rewrite `tokens.css` with the palette in § 14, and redesign each route per
-its macrostructure family in § 3. Say which to start with — likely `/` (the
-hub) first, since it's the page most of the DNA in § 1 was extracted for.
+Values in `tokens.css`. How they are used:
+
+- **White carries the page** — roughly two thirds of it.
+- **Lime is a surface, not a ration.** In the reference it is the logotype over
+  the hero, the whole ticker band, a block behind a photograph twice, the
+  active filter, article tags, and a giant cropped wordmark in the footer. It
+  is used *more* boldly there than here. The discipline is shape, not area: a
+  **deliberate block**, never a wash or a gradient, always carrying black or
+  deep-green type on it.
+- **Deep green carries whole surfaces**, through one class: `.band--dark` is
+  the only place a section paints over the page, and it brings its own lime
+  register marks. The primary button and the single filled tag per screen use
+  the same ground. *The footer is canvas with a hairline above it, not a slab —
+  what dominates it is a monumental wordmark at 6% ink.*
+- Depth is chromatic inversion, hairlines and typographic overlap. **No
+  shadows.** `--radius-none` everywhere; the filter chip is the single pill.
+
+---
+
+## 7 · Photographs
+
+- Full-bleed, and they are the imagery — negative space is the enrichment.
+- **Type over a photograph is in.** The reference's two strongest moments are
+  its hero logotype and its photo-backed filter row. What stays out is
+  *generated* texture: CSS art, illustration, gradients, pattern.
+- **Never cropped to fit a layout.** Boxes take the photograph's own
+  proportions, or the photograph is contained and letterboxed.
+- **Every image box is reserved before the bytes land.** `width`/`height`
+  attributes are only presentational hints and lose to any author `width` or
+  `height` declaration — see `CLAUDE.md`, where this cost a 575px jump.
+
+---
+
+## 8 · Motion and microinteractions
+
+**In force.**
+
+- **No bounce, no overshoot, and no hover-scale on a photograph.** The last one
+  is the AI tell this brief must never reintroduce.
+- Link hover moves the text to `--color-accent-deep` and the underline to full
+  `--color-accent`. Deep, not raw lime, because raw lime as text on canvas
+  fails contrast — the underline carries the full strength instead. Under
+  `(hover: hover) and (pointer: fine)` only.
+- Focus ring is lime, 2px, offset, and **instant** — never animated in. It
+  darkens to `--color-focus`'s light-theme value so it clears contrast on
+  canvas.
+- Silent success — a saved plate just saves. No celebratory toast.
+- **Every animation has a `prefers-reduced-motion` branch.** There are eight,
+  and the three running animations — the loading shimmer, the button spinner,
+  the ticker — each stop dead rather than slow down.
+
+**Not built, and this file should not pretend otherwise.** There are no
+fade-in-on-scroll reveals, no scroll-driven `animation-timeline: view()`, and
+no tooltips anywhere. If reveals are added, `view()` is the way to do them
+because it costs no frame time — but nothing is waiting on them, and a page
+this quiet may not want them at all.
+
+---
+
+## 9 · Controls
+
+- **Primary** — a dark ground carrying lime text, square, and it **inverts on
+  hover**: the ground goes lime and the text goes to `--color-accent-ink`. The
+  chromatic inversion is the depth cue, which is why there are no shadows.
+- **Secondary** — a `--rule-hair` outline, transparent fill, square.
+- **Tertiary** — a typographic link: word, arrow, `--rule-hair` underline, no
+  box.
+- **Filter chips** — the one pill in the system, and the only `--radius-pill`
+  in it. Sentence case, active one filled lime.
+- Every control clears a 44px touch target, and small ones buy it with an
+  `inset` pseudo-element rather than by growing.
+
+---
+
+## 10 · What every page shares
+
+- The density rule in § 4.
+- The wordmark, and the lime letter in it.
+- Two type voices, sentence-case headings, capitals only in the ticker and
+  tiny labels.
+- The three-tier control voice in § 9.
+- The section rhythm in § 4 — label, then heading, stacked.
+- Square corners, hairlines, no shadows.
+- **Safe-area insets.** Installed, the app is standalone with
+  `viewport-fit: cover`. Anything pinned to an edge needs its
+  `env(safe-area-inset-*)`; a sticky element takes
+  `max(var(--mast-h, 0px), env(safe-area-inset-top, 0px))`. This has shipped
+  broken twice.
+
+## 11 · What a page may differ on
+
+- Its skeleton, within its family in § 4.
+- Which surface a section sits on — canvas or a green slab — as long as the
+  alternation reads intentional rather than random.
+- The hero treatment, within § 7.
+
+---
+
+## 12 · Checks
+
+Rules that are not asserted anywhere are a document, not a system. These are
+the ones that have each already cost a visible regression:
+
+Each one is a **gate: it prints nothing when the site is correct.** That is the
+whole point, and the first draft of this section failed it — its uppercase
+check returned 27 defensible hits and its literal-value check 119, so neither
+could say pass or fail. A check you have to read by eye is a reminder, not a
+check.
+
+```bash
+# No heading or card title in capitals. Rule blocks are joined first, because
+# these declarations are spread over several lines.
+# Found .foot__statement, which had outlived the de-shouting pass.
+tr '\n' ' ' < src/app/globals.css | tr '}' '\n' \
+  | grep -E "(h[1-3]|__title|__statement|reel__name|elsewhere__name|\.chip)[^{]*\{[^{]*uppercase"
+
+# No literal colour in anything that paints. Narrowed to the painting
+# properties, because px literals are legitimate — hairlines, hit targets,
+# mask stops — and a check that flags them flags 119 lines and gates nothing.
+tr '\n' ' ' < src/app/globals.css | tr ';' '\n' \
+  | grep -E "(^|[ {])(color|background|background-color|border(-[a-z]+)?-color|fill|stroke|outline-color)[[:space:]]*:" \
+  | grep -vE "var\(--|currentColor|transparent|inherit|none"
+
+# Every sign-off reads from the byline. This one prints, and is read: the
+# byline must be what src/lib/site.ts defines and what src/ signs off with.
+grep -rn "site\.byline" src/ && grep -n "byline:" src/lib/site.ts
+```
+
+In a browser, at 390×844 and 1440, because four of the five regressions this
+month were invisible to anything that did not measure rendered boxes:
+
+- how many distinct font families the page draws in;
+- display type as a share of viewport width, against § 5;
+- scroll height per page, and **height drift across a full scroll — must be 0**;
+- the rendered box of every `sizes` slot against the candidate the browser
+  actually picks;
+- the computed `top` of every sticky element against `env(safe-area-inset-top)`.
+
+---
+
+## 13 · What changed, and when
+
+Short, so it stays out of the way. Full text in git history.
+
+| Date | Change |
+| --- | --- |
+| 2026-08 | First version: Corbusier as backbone, Nomvnt as palette only. Archivo + IBM Plex named as the type. |
+| 2026-09-03 | Stitch export supersedes the reconstructed palette and type. Syne / Hanken Grotesk / JetBrains Mono named. Full-bleed green slabs removed. Drawn lattice added at the owner's request. |
+| 2026-09-10 | Webfonts found never to have applied — a `var()` resolving on `<body>` while the families were built on `:root`. The owner chose the system stack once he saw them. |
+| 2026-09-11 | Reference images seen directly for the first time. Nomvnt confirmed as the backbone. Five divergences corrected: headings to sentence case, labels quieted, lime freed from a 5% ration, type over photographs allowed, lattice left standing but unsupported by either reference. Display type scale brought down ~1.85× to match. |
+| 2026-09-11 | This file rewritten as one current document. Its checks rewritten as gates; the first two found `.foot__statement` still uppercase and `h1–h3` still on an all-caps leading floor. |

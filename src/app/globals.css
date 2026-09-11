@@ -75,7 +75,11 @@ h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: var(--tracking-display);
-  line-height: 1.0;
+  /* 1.0 was a floor for all-caps display, where there are no descenders to
+   * clear. Headings are sentence case now (design.md § 5), so a two-line
+   * heading collided its descenders with the next line's cap-tops. 1.08 is
+   * still tight display leading and clears them. */
+  line-height: 1.08;
   overflow-wrap: anywhere;
   min-width: 0;
   margin: 0;
@@ -1979,13 +1983,16 @@ img { display: block; max-width: 100%; }
   overflow: clip;
 }
 .foot > * { max-width: var(--page-max); margin-inline: auto; width: 100%; }
+/* Sentence case, like every other heading. The uppercase here outlived the
+ * de-shouting pass and was the last one left; see design.md § 12, which
+ * now gates it. The source copy was already sentence case — only the CSS
+ * was shouting — so nothing in footer.tsx changed. */
 .foot__statement {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.5rem, 3.5vw, 2.5rem);
-  line-height: 1.04;
+  line-height: 1.08;
   letter-spacing: var(--tracking-display);
-  text-transform: uppercase;
   max-width: 22ch;
 }
 .foot__statement em {
