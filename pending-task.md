@@ -99,7 +99,60 @@ The static gates need none of this and already run on every push.
 
 ---
 
-## 3. Gallery titles are inconsistently cased, and only data can fix it
+## 3. Two of the five genres have no work on this site
+
+Counted off the live pages: **7 galleries — Graduation 2, Brand 2, Event 3.
+Food 0. Sport 0.** The tagline, the ticker, `site.genres` and `/about`'s
+commissions line all name five.
+
+The work itself is not missing, it is on the satellites, and `/work/genre/food`
+and `/work/genre/sport` now hand a visitor over to VisuFavor and UNTMD Sports
+instead of dead-ending on "Nothing filed here yet". That stops the bleeding; it
+does not fix the shape.
+
+**The shape is the decision, and it is the owner's.** Three ways, and they are
+genuinely different businesses:
+
+- **File food and sport sets here too.** The archive becomes the one place
+  that holds everything, and the satellites become deeper cuts rather than the
+  only proof. Costs uploading work that already exists.
+- **Stop selling five genres from this site.** If food and sport live
+  elsewhere on purpose, then the tagline, the ticker and the commissions line
+  should say three and point at two, rather than claim five and hold three.
+  Costs nothing but honesty.
+- **Leave it.** Defensible only if the satellites are what get sent to food and
+  sport clients, and this site is never the first thing they see.
+
+Doing none of the three is the only option that is actively wrong, because the
+site currently promises five and shows three.
+
+## 4. The galleries that exist do not say what the job was
+
+A visitor cannot tell what they are looking at. Live subtitles, verbatim:
+
+| Gallery | What it says | What a client needs |
+| --- | --- | --- |
+| Summer In Bloom | `Strobist, PrimeLens And Summer` | who it was for, what it produced |
+| DARA BERSEMI | `Wellness & Yoga` | closer, but the title is internal |
+| Sales HeadShot | `Sales Headshot Photography` | restates the title |
+| Cindy's Graduation | `Graduation` | restates the genre |
+| Hello There... | `unfiled` | — |
+| Nuna Graduation | `Graduation` | restates the genre |
+
+Three of the six restate their own title or genre, one is a camera-technique
+note, one is literally `unfiled`. `design.md` § 2 asks for "what was shot, for
+whom, where, when" — specific beats clever — and none of these do that.
+
+No gate can catch it: the fields are filled, the CSS is right, and the content
+is in the database. It is a writing job in the darkroom, one line per gallery,
+and it is probably worth more per minute spent than anything left in the code.
+
+Also: everything is filed under **Event**, including "Summer In Bloom" and
+"DARA BERSEMI", which look like portrait and wellness work. So the genre
+filter — the one tool a client has for finding relevant work — is pointing at
+the wrong sets.
+
+## 5. Gallery titles are inconsistently cased, and only data can fix it
 
 Sentence case is the rule (`design.md` § 5) and the stylesheet no longer
 forces anything — so a title renders exactly as it was typed. Live right now,
@@ -119,7 +172,7 @@ reintroduces exactly the shouting the de-shouting pass removed.
 
 ---
 
-## 4. The repository is public, and the commit history is not anonymous
+## 6. The repository is public, and the commit history is not anonymous
 
 `CLAUDE.md` records this and it has not moved. Every commit carries author
 identity, and a public repository publishes the working rules along with the
@@ -156,7 +209,7 @@ automatic check.
 
 ---
 
-## 5. Optional, cosmetic, one person
+## 7. Optional, cosmetic, one person
 
 `supabase/byline-on-owner-notes.sql` sets the owner profile's display name to
 the byline. The leak it was written for is closed in code, so nothing depends
