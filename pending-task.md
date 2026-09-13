@@ -5,7 +5,7 @@ is not a wishlist: each item is blocked, and says exactly what unblocks it.
 Nothing here is a substitute for `design.md`, which is the current brief, or
 for `npm run measure`, which asserts it.
 
-Last reviewed: 2026-09-14.
+Last reviewed: 2026-09-14 (second pass).
 
 ---
 
@@ -210,6 +210,48 @@ the byline. The leak it was written for is closed in code, so nothing depends
 on running it. The only remaining effect is that the masthead greets a
 signed-in owner by their stored name, which nobody else ever sees. The file
 says all of this at the top.
+
+---
+
+## 9. The front page still needs a plate chosen for each of its four slots
+
+**Code done, one SQL statement outstanding.** `/` renders four photographic
+positions — hero, index band, lane banner, closing fold — and until the
+migration is run they are filled by whatever the archive returns: covers first,
+then newest first. The front page is a by-product of upload order.
+
+**What unblocks it:** run `supabase/add-featured-rank.sql` once against the
+project. Then every plate row in `/darkroom/<slug>` carries a select naming the
+four slots, and choosing one takes effect on the next render.
+
+Nothing breaks meanwhile, and that is checked rather than hoped: the read falls
+back to the previous ordering on a missing column, the write answers with the
+filename to run, and `next build` — which executes the featured query against
+the live project for real — passes today with the column absent.
+
+`docs/UI-UX Flow Be Untamed.md` § 5b has the flow, the states and the ordering
+trap.
+
+---
+
+## 10. The reference layout is four sections short
+
+Both references are now in hand and read against the built page, section by
+section, in `docs/PRD-the-reference-layout.md`. Four things are missing, and
+none of them is blocked on an account or a decision — they are simply not built
+yet:
+
+| | what | why it matters |
+| --- | --- | --- |
+| § 3.1 | one section-heading rhythm — eyebrow, two-line heading with the second line indented | three different openings on one page is most of why it does not read like the reference |
+| § 3.3 | four gallery thumbnails along the foot of the hero | the reference's own move, and the cheapest fix for one photograph in the first screen |
+| § 3.2 | one lime surface block | the reference stands photographs on lime four times; this page uses it as a hairline |
+| § 3.5 | the marks aligned to `--row` | they were placed before the lattice came back, so they sit near cells rather than on them |
+
+Ordered, with acceptance criteria, in that PRD. Listed here because this file
+is what gets read first, and because § 3.4 — the home index staying a reel
+rather than becoming a grid — is a **decision already taken** and recorded, so
+nobody re-opens it by accident.
 
 ---
 
