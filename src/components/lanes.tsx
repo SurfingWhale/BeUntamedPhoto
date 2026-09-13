@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { SIZES } from "@/lib/images";
+import { LANE_MAX_WIDTH, SIZES, trimSrcSet } from "@/lib/images";
 import { elsewhere } from "@/lib/site";
 
 type Props = {
@@ -67,8 +67,11 @@ export function Lanes({ archiveBanner }: Props) {
       addr: "this site",
       mark: "\u2192",
       banner: archiveBanner?.url ?? null,
-      // Already resized on the way out of storage, so it brings its own.
-      bannerSet: archiveBanner?.srcSet ?? null,
+      /* Already resized on the way out of storage, so it brings its own —
+       * trimmed to what this frame can actually use. See trimSrcSet: a lazy
+       * frame in a reel picks its candidate mid-scroll, and it was taking a
+       * 1500w file for a 271px box. */
+      bannerSet: trimSrcSet(archiveBanner?.srcSet ?? null, LANE_MAX_WIDTH) ?? null,
       // The archive frame's ratio changes with whichever plate is showing, so
       // it is the one lane that has to fall back to the box.
       bannerSizes: SIZES.lane,

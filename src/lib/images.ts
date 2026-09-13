@@ -87,6 +87,40 @@ export function publicSrcSet(
 }
 
 /**
+ * Drop every candidate above `maxWidth` from an already-built srcset.
+ *
+ * A `sizes` declaration is a promise about layout, and the browser keeps it —
+ * but only at the moment it decides to load. A lazy frame inside a horizontal
+ * reel is decided mid-scroll, and the gates caught the archive lane taking a
+ * 1500w candidate for a 271px box and a 2000w for a 414px one, where the same
+ * slot in an isolated run settles on 1080w. Chasing that with a tighter
+ * `sizes` is chasing the symptom: the declaration is already correct.
+ *
+ * A ceiling cannot be mistimed. The lane frame is 218px wide at 320 and 416px
+ * at 1440 and never larger — measured, and the box is fixed by
+ * `.reel__frame`'s own height — so 1080w covers a 416px box at 2x and a 304px
+ * box at 3x, which is every real device. Anything above it was unusable
+ * however the pick was timed.
+ */
+export function trimSrcSet(srcSet: string | null, maxWidth: number): string | undefined {
+  if (!srcSet) return undefined;
+  const kept = srcSet
+    .split(",")
+    .map((c) => c.trim())
+    .filter((c) => {
+      const w = Number.parseInt(c.split(/\s+/).pop()?.replace("w", "") ?? "", 10);
+      return Number.isFinite(w) && w <= maxWidth;
+    });
+  /* Never return nothing: a photograph smaller than the cap has every
+   * candidate filtered out, and an empty srcset makes the browser fall back to
+   * `src`, which is the largest thing we have. */
+  return kept.length ? kept.join(", ") : srcSet;
+}
+
+/** The widest a .reel__frame ever renders, so nothing above it is offered. */
+export const LANE_MAX_WIDTH = 1080;
+
+/**
  * `sizes` per slot, so the browser picks from the srcset before layout.
  * These mirror the breakpoints in globals.css — change them together.
  */
