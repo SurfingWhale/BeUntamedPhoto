@@ -108,9 +108,15 @@ export default async function WorkPage() {
                   </h2>
                   <span className="album__year u-tabular">{album.year ?? "—"}</span>
                 </div>
-                <p className="album__sub">
-                  {album.subtitle ?? album.place ?? "unfiled"}
-                </p>
+                {/* No subtitle renders nothing. It used to fall through to
+                    the literal "unfiled" — internal filing language, printed
+                    on the card a prospective client reads, and measured live
+                    on "Hello There...", whose subtitle and place are both
+                    null. A blank line is honest; that word is worse than
+                    blank. See docs/PRD-the-archive-in-its-own-words.md § 3.1. */}
+                {(album.subtitle ?? album.place) && (
+                  <p className="album__sub">{album.subtitle ?? album.place}</p>
+                )}
                 {album.visibility === "members" && (
                   <span className="lock">◆ signed-in only</span>
                 )}

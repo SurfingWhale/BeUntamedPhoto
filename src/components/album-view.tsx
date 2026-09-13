@@ -161,7 +161,7 @@ export async function AlbumView({
                 <span>
                   {[photo.place, formatDate(photo.taken_on)]
                     .filter(Boolean)
-                    .join(" · ") || "unfiled"}
+                    .join(" · ") || "\u2014"}
                 </span>
               </figcaption>
             </Reveal>

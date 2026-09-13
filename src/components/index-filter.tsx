@@ -132,7 +132,7 @@ export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
               </span>
               <span className="reel__name">{album.title}</span>
               <span className="reel__meta">
-                {genreLabel(album.genre)} · {album.place ?? "unfiled"} ·{" "}
+                {genreLabel(album.genre)} · {album.place ?? "\u2014"} ·{" "}
                 {album.year ?? "\u2014"} {"\u2197\uFE0E"}
               </span>
             </Link>

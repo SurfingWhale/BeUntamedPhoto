@@ -161,7 +161,9 @@ export default async function GenrePage({ params }: Params) {
                   </h2>
                   <span className="album__year u-tabular">{album.year ?? "—"}</span>
                 </div>
-                <p className="album__sub">{album.subtitle ?? album.place ?? "unfiled"}</p>
+                {(album.subtitle ?? album.place) && (
+                  <p className="album__sub">{album.subtitle ?? album.place}</p>
+                )}
                 {album.visibility === "members" && (
                   <SignedOut>
                     <span className="lock">◆ signed-in only</span>

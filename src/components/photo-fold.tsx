@@ -78,7 +78,7 @@ export function PhotoFold({
             Plate {no}
             {photo!.caption ? ` · ${photo!.caption}` : ""}
           </span>
-          <span>{photo!.place ?? "unfiled"}</span>
+          <span>{photo!.place ?? "\u2014"}</span>
         </p>
       )}
     </section>
