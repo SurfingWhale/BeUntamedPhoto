@@ -5,89 +5,71 @@ is not a wishlist: each item is blocked, and says exactly what unblocks it.
 Nothing here is a substitute for `design.md`, which is the current brief, or
 for `npm run measure`, which asserts it.
 
-Last reviewed: 2026-09-11.
+Last reviewed: 2026-09-13.
 
 ---
 
-## 1. The site is behind a login wall on every URL it has
+## 1. The site is public. What is still missing is a domain of its own
 
-**This is the one that matters.** Vercel Deployment Protection is on for the
-project with `deploymentType: all_except_custom_domains`, and the project has
-no custom domain — its three hostnames are all `*.vercel.app`:
-
-```
-beuntamed-photo.vercel.app
-beuntamed-photo-untamed98xs-projects.vercel.app
-beuntamed-photo-git-main-untamed98xs-projects.vercel.app
-```
-
-So every one of them is covered. **Anyone the link is sent to gets a Vercel
-sign-in page instead of the archive** — a prospective client included. The
-deployment itself is healthy: production is `READY`, the pages are prerendered
-(`x-vercel-cache: PRERENDER`, `x-nextjs-stale-time: 300`), and the HTML is
-correct. It is only the door that is shut.
-
-**Proven, not inferred.** The setting was read from the Vercel project API, and
-then an unrelated client confirmed the effect: the `measure deploy` workflow
-runs on a GitHub runner, which has no Vercel session, and on
-[run 2](https://github.com/SurfingWhale/BeUntamedPhoto/actions/runs/34594146806)
-it reported
+**Corrected on 2026-09-13, and the previous version of this section was
+wrong in the way that mattered.** It said a visitor gets a Vercel sign-in page
+instead of the archive. They do not. Measured anonymously, no cookies:
 
 ```
-skip  https://beuntamed-photo-…-untamed98xs-projects.vercel.app served
-      Vercel's authentication page (HTTP 200), not the archive
+beuntamed-photo.vercel.app                        200   69,646B   the archive
+beuntamed-photo-untamed98xs-projects…             302   → vercel.com/sso
+beuntamed-photo-git-main-untamed98xs-projects…    302   → vercel.com/sso
 ```
 
-That is an ordinary anonymous visitor getting the login page — which is what a
-prospective client gets too. (Note the shape: **HTTP 200 with a login page**,
-not a refusal. An earlier version of that check guarded on 401/403 and
-therefore measured the wall instead of skipping; see § 2.)
+`/work`, `/about`, `/work/in-bloom` and `/work/genre/food` all answer 200 with
+real gallery content on that first host — the HTML carries "Summer In Bloom",
+"DARA BERSEMI", "Nuna", "Lumos". **A link sent on WhatsApp opens.**
 
-**Two ways to unblock, and they are not the same decision:**
+What was true is that *deployment* URLs are protected, and the deploy gate was
+pointed at one of those rather than at the production alias — which is why CI
+reported a login wall on every run and this file believed it. That is fixed:
+`measure-deploy.yml` measures `beuntamed-photo.vercel.app` for production
+deployments.
 
-- **Attach a custom domain.** The protection setting already excludes custom
-  domains, so the archive becomes public there and every deployment URL stays
-  shut. This is the better answer if the site is meant to be found: it also
-  fixes the `og:` tags and the canonical link, which currently point at
-  `beuntamed-photo.vercel.app` and would keep pointing there in every shared
-  card. Set `NEXT_PUBLIC_SITE_URL` once it is attached — `src/lib/site.ts`
-  says so at the top.
-- **Turn the protection off.** One switch in Project Settings → Deployment
-  Protection. Makes the `.vercel.app` URLs public immediately.
+**What is still open, and it is a smaller thing than it looked:**
 
-Either is the owner's to make, because both change who can see the site. Ask
-before touching it.
+- **A custom domain.** Not required for anyone to see the site. It is worth
+  having because `og:` tags and the canonical link resolve to
+  `beuntamed-photo.vercel.app` and will keep pointing there in every shared
+  card. Attach one, then set `NEXT_PUBLIC_SITE_URL` — `src/lib/site.ts` says
+  so at the top — and `PROD_BASE` in `.github/workflows/measure-deploy.yml`
+  at the same time.
+
+Either way, nobody is locked out today. Verify before acting on this section:
+`curl -s -o /dev/null -w '%{http_code}' https://beuntamed-photo.vercel.app/`
 
 ---
 
-## 2. The browser half of `npm run measure` has no secret yet
+## 2. The browser gates run now. A secret would extend them to previews
 
-Wired and waiting, not missing. `.github/workflows/measure-deploy.yml` runs
-the browser gates against each successful deployment — real data, real
-credentials, the page a visitor is served. It needs one secret to get past the
-protection in § 1:
+**No longer blocking.** The browser half measures the public production alias
+on every production deployment, so it needs no secret to run at all. Proven by
+running the same gates against `https://beuntamed-photo.vercel.app` by hand:
+they load the live pages, report screen counts, drift and every `sizes` slot,
+and they fail on real findings rather than on Vercel's markup.
+
+A secret is still worth adding, for one narrower reason: **preview**
+deployments remain protected, so the gates skip on pull requests.
 
 1. Vercel → Project Settings → Deployment Protection → **Protection Bypass for
    Automation** → generate.
 2. GitHub → repo Settings → Secrets and variables → Actions → new secret named
    `VERCEL_AUTOMATION_BYPASS_SECRET`, paste it.
 
-Until then the job skips with that message.
-
-**It did not, on the first run, and the failure is instructive.** The harness
-guarded on HTTP 401/403, reasoning that a protected deployment refuses the
-request. Vercel does not refuse it — it answers **200 with a login page** — so
-the gates measured that page and reported ten design failures against Vercel's
-own markup: `GeistSans`, sticky `.fixed` and `.w-full`, a `.text-heading-32`
-heading. Red rather than a false pass, but red for a reason that had nothing to
-do with this site.
+**The original failure is still worth keeping.** The harness guarded on HTTP
+401/403, reasoning that a protected deployment refuses the request. Vercel does
+not refuse it — it answers **200 with a login page** — so the gates measured
+that page and reported ten design failures against Vercel's own markup:
+`GeistSans`, sticky `.fixed` and `.w-full`, a `.text-heading-32` heading.
 
 The precondition is now identity, not reachability: `/` has to contain this
 site's wordmark, read from `src/lib/site.ts` so it cannot drift. That one
-assertion catches the login wall, a stale `--base`, a 404 and a parked domain,
-without knowing anything about how Vercel signals protection. Tested against a
-server that imitates what Vercel actually returns — which is exactly what the
-first version was not.
+assertion catches the login wall, a stale `--base`, a 404 and a parked domain.
 
 This deliberately replaced the idea of building and serving the site inside
 CI. `next build` runs the archive queries for real, so it needs live
@@ -219,6 +201,44 @@ says all of this at the top.
 
 ---
 
+## 8. Some stored plates are smaller than the size recorded for them
+
+Found on 2026-09-13 by the browser gates, and it is a data fault that no
+amount of CSS can answer.
+
+`publicSrcSet` caps its candidate ladder at the photograph's own width, so a
+1000px plate should never be offered at 2880w. Two images are being offered
+the full ladder anyway, which means the width stored in `photos` is larger
+than the file actually in the bucket. Supabase's render endpoint is honest
+about it — `resize=contain` will not upscale, so it returns the source size and
+ignores the width asked for:
+
+| where | asked for | got back | box it fills | at |
+| --- | --- | --- | --- | --- |
+| the archive lane frame, `/elsewhere` | `?width=1500` | `naturalWidth` **304** | 271px | 390 dpr3 |
+| the archive lane frame, `/elsewhere` | `?width=2000` | `naturalWidth` **304** | 414px | 1440 dpr2 |
+| the second fold plate, `/` | `?width=2880` | `naturalWidth` **1000** | 560px | 1440 dpr2 |
+
+The bytes are not the problem — a 304px file is small. **The sharpness is.** A
+271px box on a 3x phone wants 813px of image and is being handed 304, so that
+frame is upscaled about 2.7x and will look soft on exactly the device most
+visitors use. The gate reports it as a `sizes` failure because that is the
+shape it takes from the outside; the declaration is right and the file is
+wrong.
+
+**What unblocks it:** re-upload those plates at full size through the
+darkroom, which records the real dimensions as it encodes. The darkroom's
+"Stored file sizes" panel is the place to find the others — this was two
+images out of the ones the five public routes happen to show, and nothing has
+audited the whole table.
+
+Worth a gate afterwards: `naturalWidth` at least the box times DPR, on every
+image the browser actually loaded. It would have caught this the day it
+happened, and it is a few lines next to the `sizes` check that already walks
+every slot.
+
+---
+
 ## What is *not* pending
 
 So this file does not become the thing it is warning about:
@@ -231,5 +251,8 @@ So this file does not become the thing it is warning about:
   them rather than against a paraphrase.
 - The measurement harness is **built**, with every gate proved by
   reintroducing the bug it targets.
+- The login wall is **not a thing** — see § 1. The production alias is public
+  and always was; the deploy gate was pointed at a protected deployment URL,
+  and this file believed its own CI.
 
 `design.md` § 13 has the dated record.
