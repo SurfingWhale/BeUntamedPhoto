@@ -184,6 +184,18 @@ return `[]` for one build and then put them back — never commit that.
   is also when every `clamp` floor has to be re-derived: `--text-display`'s
   3rem put a three-word hero on three lines at 390px.
 
+- **`naturalWidth` is not the file's width on a `srcset` image.** A candidate
+  chosen by `w` descriptor carries a *current pixel density*, and
+  `naturalWidth` returns the intrinsic width divided by it — so it reports
+  approximately the slot's CSS width no matter which file is behind it. Read
+  literally it says every image is exactly as big as its box, which looks like
+  a renderer refusing to upscale: a URL asking `?width=1500` reporting 304 was
+  written up as "the stored files are smaller than their recorded dimensions"
+  and published before it was checked. To get the real dimensions, decode the
+  URL in a bare `<img>` with no `srcset` — done that way every file came back
+  exactly the size it was asked for. Same lesson as the fixture below: suspect
+  the instrument.
+
 - **A fixture is a measuring instrument, and it needs calibrating.** A gutter
   measurement reported the hero and the credit overflowing and nearly got
   correct CSS "fixed". The fixture was missing Tailwind's preflight, so

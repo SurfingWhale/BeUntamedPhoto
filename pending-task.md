@@ -201,41 +201,53 @@ says all of this at the top.
 
 ---
 
-## 8. Some stored plates are smaller than the size recorded for them
+## 8. Two slots still over-ask, and the cause is *when* the choice is made
 
-Found on 2026-09-13 by the browser gates, and it is a data fault that no
-amount of CSS can answer.
+**This section previously said the stored files were smaller than the width
+recorded for them. That was wrong, and it was wrong for an interesting
+reason** — kept here because the trap is reusable.
 
-`publicSrcSet` caps its candidate ladder at the photograph's own width, so a
-1000px plate should never be offered at 2880w. Two images are being offered
-the full ladder anyway, which means the width stored in `photos` is larger
-than the file actually in the bucket. Supabase's render endpoint is honest
-about it — `resize=contain` will not upscale, so it returns the source size and
-ignores the width asked for:
+The evidence looked conclusive: a URL asking `?width=1500` produced an image
+reporting `naturalWidth` 304, and `?width=2880` produced 1000. It reads as a
+renderer refusing to upscale a small source.
 
-| where | asked for | got back | box it fills | at |
-| --- | --- | --- | --- | --- |
-| the archive lane frame, `/elsewhere` | `?width=1500` | `naturalWidth` **304** | 271px | 390 dpr3 |
-| the archive lane frame, `/elsewhere` | `?width=2000` | `naturalWidth` **304** | 414px | 1440 dpr2 |
-| the second fold plate, `/` | `?width=2880` | `naturalWidth` **1000** | 560px | 1440 dpr2 |
+`naturalWidth` does not mean that on a `srcset` image. When a candidate is
+chosen by `w` descriptor the image gets a *current pixel density*, and
+`naturalWidth` returns the intrinsic width **divided by** it — so it reports
+roughly the CSS width of the slot, whatever file is behind it. Every reading
+was the `sizes` declaration echoed back.
 
-The bytes are not the problem — a 304px file is small. **The sharpness is.** A
-271px box on a 3x phone wants 813px of image and is being handed 304, so that
-frame is upscaled about 2.7x and will look soft on exactly the device most
-visitors use. The gate reports it as a `sizes` failure because that is the
-shape it takes from the outside; the declaration is right and the file is
-wrong.
+Fetched properly — each render URL decoded in a bare `<img>` with no `srcset`,
+so nothing is density-corrected — every file is exactly the size it was asked
+for:
 
-**What unblocks it:** re-upload those plates at full size through the
-darkroom, which records the real dimensions as it encodes. The darkroom's
-"Stored file sizes" panel is the place to find the others — this was two
-images out of the ones the five public routes happen to show, and nothing has
-audited the whole table.
+```
+asked 1500  ->  1500x2250   349 KB     asked 1080  ->  1080x720     16 KB
+asked 1080  ->  1080x1620    78 KB     asked 1500  ->  1500x2250   282 KB
+asked 2000  ->  2000x1333   123 KB     asked 1500  ->  1500x2250   349 KB
+```
 
-Worth a gate afterwards: `naturalWidth` at least the box times DPR, on every
-image the browser actually loaded. It would have caught this the day it
-happened, and it is a few lines next to the `sizes` check that already walks
-every slot.
+Nothing to re-upload. **The bucket is fine.**
+
+**What is left is real, and smaller.** The two `/elsewhere` gate failures are a
+genuine over-ask — the browser really does request 1500w and 2000w for a 271px
+and a 414px box, and those are 349KB files. But the declaration is not at
+fault: `SIZES.lane` says `304px` at phone widths, which wants 912 device px
+and should land on 1080w. It does land on 1080w in an isolated run.
+
+The difference is **when the choice happens**. Those frames are `loading="lazy"`
+inside a horizontal reel, so the candidate is picked at the moment loading
+starts, and the harness reaches that moment in the middle of scrolling the
+page end to end for the drift check. Scroll the reel first and it picks 1080w;
+let the gate drive and it picks 1500w.
+
+**What unblocks it:** decide which moment is the honest one. Either the reel
+frames stop being lazy — they are three images on a page that is 1.8 screens
+long — or the gate records a slot only once the page has settled, which is a
+weaker check. The first is a code change and needs no account or decision, so
+it is the better answer; it is here rather than done because it wants a
+measurement of what eager frames cost that page, and the last time eager reel
+frames were measured they were leaking 113KB into routes that render no reel.
 
 ---
 
