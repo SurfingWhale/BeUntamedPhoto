@@ -116,12 +116,43 @@ export const SIZES = {
   /** .fold-photo — genuinely full-bleed, no gutters. */
   fold: "100vw",
   /**
+   * .fold-photo[data-shape="portrait"] above 60rem, where a vertical plate
+   * stops bleeding and stands as a centred column instead — see globals.css.
+   * The frame is seven rows tall with its width derived from the plate's own
+   * ratio, so a 2:3 plate renders 560px wide inside a 1440px viewport while
+   * `fold` was still declaring 100vw: it pulled the 2880w candidate for a
+   * 560px box, 2.57x the pixels it can show. 700px covers the range of ratios
+   * the archive files and lands on 1500w.
+   */
+  foldPortrait: "(min-width: 60rem) 700px, 100vw",
+  /**
    * .album__media on /work and the genre pages. Two columns from the smallest
    * width since the /work grid changed; the measured box is 43-44% of the
    * viewport up to 60rem and 53% on the twelve-column field above it.
    * This said `100vw` after that change and pulled 1500w for a 167px box.
    */
   tile: "(min-width: 60rem) 54vw, 45vw",
+  /**
+   * .album__media, per card, because the twelve-column field gives cards three
+   * different widths and one declaration cannot describe all three.
+   *
+   * The grid spans 7, 5, 5, 7, 6, 6 and repeats, so a card is 771, 537, 537,
+   * 771, 654 or 654px at 1440 — measured, not derived. `tile` above declares
+   * 54vw for every one of them, which is right for a span of 7 and 45% too
+   * wide for a span of 5: 777 CSS px x2 DPR asks for 1554, and the ladder has
+   * no candidate between 1500 and 2000, so a 537px card pulled a 2000w file.
+   * 1.86x the pixels it can show, on the survey page a client is sent a link
+   * to. Reproduced on localhost and against the live deployment.
+   *
+   *   span 5   537px  needs 1074   37vw -> 1066 -> picks 1080   (was 2000)
+   *   span 6   654px  needs 1308   46vw -> 1325 -> picks 1500   (was 2000)
+   *   span 7   771px  needs 1543   54vw -> 1554 -> picks 2000   (unchanged)
+   *
+   * Below 60rem the grid is two up at every width, so all three collapse to
+   * the same 45vw `tile` already declares.
+   */
+  tileSpan5: "(min-width: 60rem) 37vw, 45vw",
+  tileSpan6: "(min-width: 60rem) 46vw, 45vw",
   /** .strip__frame, the opening plate — full width less the page gutters,
    * which measures 90-92%, not the 100vw it used to claim. */
   plate: "(min-width: 60rem) 48vw, 91vw",
@@ -141,3 +172,18 @@ export const SIZES = {
    */
   cover: "(min-width: 60rem) 22rem, (min-width: 48rem) 38vw, 62vw",
 } as const;
+
+/**
+ * The `sizes` for the card at index `i` of the /work grid.
+ *
+ * The span pattern in globals.css is 7, 5, 5, 7, 6, 6 on
+ * .album:nth-child(6n+k) above 60rem. Change one and change the other — they
+ * describe the same boxes, and a `sizes` that disagrees with its grid is not
+ * a rounding error, it is the next candidate up.
+ */
+export function tileSizes(i: number): string {
+  const span = [7, 5, 5, 7, 6, 6][i % 6];
+  if (span === 5) return SIZES.tileSpan5;
+  if (span === 6) return SIZES.tileSpan6;
+  return SIZES.tile;
+}

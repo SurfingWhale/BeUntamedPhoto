@@ -32,20 +32,36 @@ jobs:
 
       - name: Measure the deployment
         env:
-          # This project has Vercel Authentication on for every deployment URL
-          # and has no custom domain, so an anonymous request gets a login wall
-          # rather than the page. The secret is Vercel's own answer for
-          # automation: Project Settings > Deployment Protection > Protection
-          # Bypass for Automation, then add it here as a repository secret of
-          # the same name. Without it this job skips with that message rather
-          # than measuring a wall and calling it a pass.
+          # Preview deployments are still behind Vercel Authentication, and the
+          # secret is Vercel's own answer for automation: Project Settings >
+          # Deployment Protection > Protection Bypass for Automation, then add
+          # it here as a repository secret of the same name. Production does
+          # not need it — see PROD_BASE below. Without it a preview run skips
+          # with that message rather than measuring a wall and calling it a
+          # pass.
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          # The public production alias, which is the page a client following a
+          # shared link is actually served. Every deployment_status event
+          # carries the immutable per-deployment URL instead
+          # (beuntamed-photo-<hash>-...vercel.app), and those are protected, so
+          # this job skipped on every production deploy while the site itself
+          # was public the whole time. Measured 2026-09-13: this host answers
+          # 200 with the archive anonymously on /, /work, /about, an album and
+          # a genre page; the two project-scoped hosts 302 to vercel.com/sso.
+          #
+          # Change this when a custom domain is attached, at the same time as
+          # NEXT_PUBLIC_SITE_URL — see pending-task.md § 1 and src/lib/site.ts.
+          PROD_BASE: https://beuntamed-photo.vercel.app
           # ubuntu-latest ships Google Chrome, which the harness finds on its
           # own; this just removes the guesswork.
           CHROME_PATH: /usr/bin/google-chrome
         run: |
-          echo "Measuring ${{ github.event.deployment_status.environment_url }}"
-          npm run measure -- --base "${{ github.event.deployment_status.environment_url }}"
+          BASE="${{ github.event.deployment_status.environment_url }}"
+          if [ "${{ github.event.deployment_status.environment }}" = "Production" ]; then
+            BASE="$PROD_BASE"
+          fi
+          echo "Measuring $BASE"
+          npm run measure -- --base "$BASE"
 
 # What this measures, and why each line is here — every one of them is a
 # regression that shipped, and design.md § 12 has the full list:

@@ -674,6 +674,21 @@ async function browserChecks(chromium, executablePath) {
           for (const img of document.querySelectorAll("img[sizes]")) {
             const r = img.getBoundingClientRect();
             if (!r.width) continue;
+            /* Only a settled image has finished choosing.
+             *
+             * This pass runs after the page has been scrolled end to end for
+             * the drift check, which is exactly when the lazy frames in a reel
+             * begin loading — so currentSrc could be read mid-flight. That
+             * produced two failures on /elsewhere that no independent run
+             * could reproduce: a 1500w pick at 390 and a 2000w pick at 1440,
+             * where the same slot under the same viewport, DPR and scroll
+             * state settles on 1080w. One of the flagged candidates does not
+             * exist in that image's ladder at all, which is the tell that the
+             * reading, not the page, was wrong.
+             *
+             * CLAUDE.md: when a measurement disagrees with the code, suspect
+             * the instrument first. */
+            if (!img.complete || !img.naturalWidth) continue;
             slots.push({
               sizes: img.getAttribute("sizes"),
               box: Math.round(r.width),

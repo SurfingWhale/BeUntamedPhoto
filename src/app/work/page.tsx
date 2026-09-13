@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
-import { SIZES } from "@/lib/images";
+import { tileSizes } from "@/lib/images";
 import { Plate } from "@/components/plate";
 import { getAlbumsWithCovers } from "@/lib/gallery";
 import { genres } from "@/lib/site";
@@ -92,7 +92,7 @@ export default async function WorkPage() {
                     <img
                       src={cover.url}
                       srcSet={cover.srcSet ?? undefined}
-                      sizes={SIZES.tile}
+                      sizes={tileSizes(i)}
                       alt={cover.caption ?? album.title}
                       loading={i < 2 ? "eager" : "lazy"}
                       fetchPriority={i === 0 ? "high" : "auto"}

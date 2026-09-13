@@ -7,7 +7,7 @@ import { Plate } from "@/components/plate";
 import { getAlbumsWithCovers } from "@/lib/gallery";
 import { SignedOut } from "@/components/signed-out";
 import { plate } from "@/lib/format";
-import { SIZES } from "@/lib/images";
+import { tileSizes } from "@/lib/images";
 import { elsewhere, genres, site } from "@/lib/site";
 
 /**
@@ -146,7 +146,7 @@ export default async function GenrePage({ params }: Params) {
                     <img
                       src={cover.url}
                       srcSet={cover.srcSet ?? undefined}
-                      sizes={SIZES.tile}
+                      sizes={tileSizes(i)}
                       alt={cover.caption ?? album.title}
                       loading={i < 2 ? "eager" : "lazy"}
                       decoding="async"

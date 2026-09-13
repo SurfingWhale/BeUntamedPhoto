@@ -60,7 +60,7 @@ export function PhotoFold({
           className="fold-photo__img"
           src={photo!.url!}
           srcSet={photo!.srcSet ?? undefined}
-          sizes={SIZES.fold}
+          sizes={shape === "portrait" ? SIZES.foldPortrait : SIZES.fold}
           alt={photo!.caption ?? `Plate ${no}`}
           width={photo!.width ?? undefined}
           height={photo!.height ?? undefined}
