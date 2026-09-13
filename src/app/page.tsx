@@ -82,6 +82,32 @@ export default async function HomePage() {
 
       <Ticker items={tickerItems} />
 
+      {/* ---- the statement · one paragraph, large, straight under the ticker
+           The Nomvnt reference puts its "About Us" here and nowhere else: an
+           eyebrow tag, then a single large sentence-case paragraph, then a
+           smaller supporting line. It is the only text between the hero and
+           the product grids, and it is what this page was missing — it went
+           from the ticker straight into the index. The long editorial block
+           stays where it is, below the galleries. */}
+      <Reveal as="section" className="statement" index={0}>
+        <p className="statement__eyebrow">
+          <span aria-hidden="true">{"\u2739"}</span> About
+        </p>
+        <p className="statement__lead">
+          I shoot graduations, brand work, sport, food and events. Most of it is
+          patience — holding a frame until the arranged version of a moment
+          drops away and the honest one shows up.
+        </p>
+        <p className="statement__sub">
+          Every genre is booked from here. Two of them have their own deeper
+          portfolios — UNTMD Sports and VisuFavor — but the brief comes to the
+          same inbox:{" "}
+          <a className="link" href={`mailto:${site.email}`}>
+            {site.email}
+          </a>
+        </p>
+      </Reveal>
+
       {/* ---- project index · opens on a photograph, chips under it --------
            Moved above the editorial block. Measured on the live page before
            this: the first photograph landed at 0.17 screens and the second at
@@ -94,7 +120,7 @@ export default async function HomePage() {
       </section>
 
       {/* ---- opening zone · mostly empty, marks placed in the blank cells --- */}
-      <section className="open">
+      <section className="open u-lattice">
         <Reveal className="open__label" index={0}>
           <p className="u-mono">
             visual
@@ -120,7 +146,7 @@ export default async function HomePage() {
       </section>
 
       {/* ---- lower zone · display type against a narrow justified column --- */}
-      <section className="story">
+      <section className="story u-lattice">
         <Reveal className="story__head" index={0}>
           <h2 className="story__title">
             the half-second
@@ -159,18 +185,13 @@ export default async function HomePage() {
             <p className="story__gloss">wait for the real one.</p>
           </div>
 
+          {/* The two paragraphs that were here now open the page as the
+              statement above the galleries. Saying them twice on one page was
+              the fault this section used to have with the old index. */}
           <p className="story__body">
-            I shoot graduations, brand work, sport, food and events. Most of
-            it is patience — holding a frame until the
-            arranged version of a moment drops away and the honest one shows up.
-          </p>
-          <p className="story__body">
-            Every genre is booked from here. Two of them have their own deeper
-            portfolios — UNTMD Sports and VisuFavor — but the brief comes to the
-            same inbox:{" "}
-            <a className="link" href={`mailto:${site.email}`}>
-              {site.email}
-            </a>
+            Show up early enough that nobody is performing yet, and stay long
+            enough that they forget the camera is there. Everything else is
+            timing.
           </p>
           <p className="label-wide story__by">archive by {site.byline}</p>
         </Reveal>

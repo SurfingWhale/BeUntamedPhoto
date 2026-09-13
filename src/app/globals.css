@@ -1435,6 +1435,78 @@ img { display: block; max-width: 100%; }
   white-space: nowrap;
 }
 
+/* The drawn square grid, opted into rather than imposed.
+ *
+ * Two lines repeating at --row, which is the same module the page's block
+ * padding is measured in, so the cells line up with the composition rather
+ * than floating over it. Painted as a background on the section instead of as
+ * a <GridLines /> element: it costs no DOM, it cannot end up above anything,
+ * and it stops exactly where the section does.
+ *
+ * Only the typographic sections carry it. The reference with the lattice is a
+ * type composition; the reference without it is a shop, and its photographs
+ * are the surface. Putting ruler lines behind a photograph is the thing both
+ * references agree not to do. */
+.u-lattice {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--color-grid) 0 1px,
+      transparent 1px var(--row)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--color-grid) 0 1px,
+      transparent 1px var(--row)
+    );
+  background-position: 0 0;
+}
+
+/* The statement — one paragraph, large, directly under the ticker.
+ *
+ * The Nomvnt reference puts its "About Us" exactly here and nowhere else: a
+ * quiet eyebrow, a single large sentence-case paragraph running to a wide
+ * measure, and a smaller supporting line beneath it. It is the only prose
+ * between the hero and the product grids. This page went from the ticker
+ * straight into the index, which is the gap the owner named. */
+.statement {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  /* --space-2xl, not 3xl. Measured: at the larger step this block pushed the
+   * second photograph from 1.04 to 1.61 screens, past the 1.5 the research
+   * sets as the target — and a statement that costs the galleries half a
+   * screen is arguing against the thing it introduces. */
+  padding: var(--space-2xl) var(--page-gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  justify-items: start;
+}
+.statement__eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.statement__lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 4.4vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: var(--tracking-heading);
+  max-width: 42ch;
+  text-wrap: pretty;
+}
+.statement__sub {
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-ink-2);
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
 .open {
   max-width: var(--page-max);
   margin-inline: auto;
