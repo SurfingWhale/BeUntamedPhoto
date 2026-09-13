@@ -30,6 +30,17 @@ const WIDTHS = [375, 640, 750, 1080, 1500, 2000, 2880];
  * trip. Covers a phone at 3× and the 1440px measure at 1×. */
 export const PRIVATE_WIDTH = 1500;
 
+/**
+ * The contact sheet in the darkroom, whose thumbnail is a 96px square.
+ *
+ * The darkroom was asking for PRIVATE_WIDTH and painting it into 96px:
+ * 15.6x oversized on each axis, ~244x the pixels the box can show. Measured,
+ * a 1500px render of a plate here is 263KB as WebP, so a page of 24 pulled
+ * about 6.3MB to draw 24 thumbnails. 288 is 96 at 3x, which is the densest
+ * phone, and lands near 20KB each.
+ */
+export const THUMB_WIDTH = 288;
+
 function origin(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");

@@ -5,7 +5,8 @@ import type { Metadata } from "next";
 import { AlbumAdmin } from "@/components/album-admin";
 import { Pager } from "@/components/pager";
 import { Uploader } from "@/components/uploader";
-import { clampPage, getAlbum, getMaxPosition, getPhotoPage } from "@/lib/gallery";
+import { PER_PAGE, clampPage, getAlbum, getMaxPosition, getPhotoPage } from "@/lib/gallery";
+import { THUMB_WIDTH } from "@/lib/images";
 import { getViewer } from "@/lib/auth";
 import { plate } from "@/lib/format";
 
@@ -34,7 +35,7 @@ export default async function DarkroomAlbumPage({ params, searchParams }: Params
    * view — on page two it would hand the uploader a position that is already
    * taken, and the new plates would interleave with the old ones. */
   const [plates, maxPosition] = await Promise.all([
-    getPhotoPage(album.id, page),
+    getPhotoPage(album.id, page, PER_PAGE, "viewer", THUMB_WIDTH),
     getMaxPosition(album.id),
   ]);
   const photos = plates.items;

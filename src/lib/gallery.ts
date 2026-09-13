@@ -49,7 +49,13 @@ const SIGNED_URL_TTL = 60 * 60; // 1 hour
  * full srcset; private files are signed one at a time, because the transform is
  * signed into the token and the batch signer takes no transform options.
  */
-export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
+export async function withUrls(
+  photos: Photo[],
+  /* How wide the caller will actually paint these. The default is the reading
+   * width; the darkroom's contact sheet asks for a thumbnail and was being
+   * handed 1500px for a 96px box. */
+  width: number = PRIVATE_WIDTH,
+): Promise<PhotoWithUrl[]> {
   const signed = new Map<string, string>();
 
   const privatePaths = photos
@@ -72,8 +78,8 @@ export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
             // Height and resize for the same reason as publicSrc: width alone
             // leaves the other axis at the source value and squashes the plate.
             transform: {
-              width: PRIVATE_WIDTH,
-              height: PRIVATE_WIDTH * 3,
+              width,
+              height: width * 3,
               resize: "contain",
               quality: QUALITY,
             },
@@ -92,7 +98,7 @@ export async function withUrls(photos: Photo[]): Promise<PhotoWithUrl[]> {
     }
     return {
       ...p,
-      url: publicSrc("gallery", p.path, PRIVATE_WIDTH, p.width, p.height),
+      url: publicSrc("gallery", p.path, width, p.width, p.height),
       srcSet: publicSrcSet("gallery", p.path, p.width, p.height),
     };
   });
@@ -155,6 +161,8 @@ export async function getPhotoPage(
    * lets the page holding it be cached. A held-back gallery has to ask as the
    * viewer, or its own plates are invisible to it. */
   scope: "public" | "viewer" = "viewer",
+  /* The darkroom paints 96px squares and does not need reading width. */
+  width: number = PRIVATE_WIDTH,
 ): Promise<Paged<PhotoWithUrl>> {
   const supabase = scope === "public" ? createAnonClient() : await createClient();
   const from = (page - 1) * perPage;
@@ -201,7 +209,7 @@ export async function getPhotoPage(
 
   const total = count ?? 0;
   return {
-    items: await withUrls((data ?? []) as Photo[]),
+    items: await withUrls((data ?? []) as Photo[], width),
     total,
     page,
     pages: Math.max(1, Math.ceil(total / perPage)),
