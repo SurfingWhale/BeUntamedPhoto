@@ -1,6 +1,8 @@
 # Ideas — motion for a portfolio that is mostly photographs
 
-**Status:** ideas, not a plan — drafted 2026-09-13 against the measured state
+**Status:** § 3.1, § 3.2, § 3.3, § 3.6 and § 3.7 shipped 2026-09-13; § 3.4 and
+§ 3.5 open. § 4's three gates are in `npm run measure`, each proved by
+reintroducing the bug it catches.
 **Scope:** what moves on this site, what it means, and what it costs
 **Reads with:** `design.md` § 3 (motion tokens), `src/components/motion.tsx`,
 `PRD-index-as-gallery.md` (the reel this proposes to animate)
@@ -26,6 +28,14 @@ usage in the stylesheet:
 | distinct durations | **3** — 120ms, 220ms, 420ms |
 | `@keyframes` in the whole stylesheet | 3 — a shimmer, a spinner, a marquee |
 | entrance gestures | **1** — fade + `translateY(14px)` |
+
+**After § 3 shipped**, measured the same way: two curves in use, three
+entrances (`text`, `plate`, `lateral`), a scroll-linked `settle` on the folds,
+and every public route carrying entrance motion —
+
+```
+/  4 -> 11     /about  0 -> 3     /elsewhere  0 -> 1     /notes  0 -> 2
+```
 
 And where it lands:
 
@@ -200,6 +210,12 @@ reintroducing the bug:
    adds a keyframe.
 
 ## 5. Order, if any of this is wanted
+
+> Shipped: 1, 2, 3, 4 and 5 below, plus § 4's gates. **6 is the one left**, and
+> it is left on purpose — a shared-element navigation needs the Next router to
+> drive `startViewTransition`, and the cover crops with `object-fit: cover`
+> while the opening plate does not, so the shared element changes aspect
+> mid-flight. That wants measuring before it is written, not after.
 
 1. § 3.1 — three curves with roles. Minutes, and it addresses the complaint
    directly.

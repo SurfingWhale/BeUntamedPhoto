@@ -2215,6 +2215,15 @@ img { display: block; max-width: 100%; }
 /* Paired with components/motion.tsx, which sets data-shown from an
  * IntersectionObserver. A transition rather than a keyframe, so a plate that
  * arrives mid-animation is not fighting a timeline it cannot interrupt. */
+/* Three entrances, not one — see docs/IDEAS-motion.md § 3.2.
+ *
+ * `text` is the original and is right for text: a sentence rising into place
+ * is how reading already works. `plate` settles out of a slight over-scale,
+ * because a photograph that slides reads as a card in a feed while one that
+ * settles reads as being placed. `lateral` arrives along the axis its reel
+ * scrolls, since an entrance on the vertical fights the gesture the reader is
+ * about to make. All three share the one duration and the one stagger, so
+ * they still read as the same system. */
 .reveal {
   opacity: 0;
   transform: translateY(14px);
@@ -2229,8 +2238,34 @@ img { display: block; max-width: 100%; }
 @media (scripting: none) {
   .reveal { opacity: 1; transform: none; }
 }
+.reveal[data-kind="plate"]   { transform: scale(1.04); }
+.reveal[data-kind="lateral"] { transform: translateX(18px); }
+
+/* Scroll-linked, where the browser can do it — § 3.3.
+ *
+ * .reveal is a switch: seen or not seen. This gives a plate a range instead,
+ * tied to the reader's own pace rather than to a timer, and it runs off the
+ * main thread with no observer and no JavaScript at all. Behind @supports
+ * because it degrades to nothing, which is the right failure. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .plinth .fold-photo__img {
+      animation: settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+    @keyframes settle {
+      from { scale: 1.05; }
+      to   { scale: 1; }
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal { transform: none; transition-duration: var(--dur-short); }
+  .reveal,
+  .reveal[data-kind="plate"],
+  .reveal[data-kind="lateral"] { transform: none; }
+  .reveal { transition-duration: var(--dur-short); }
 }
 
 /* --------------------------------------------------------- page shell */

@@ -77,7 +77,7 @@ export default async function WorkPage() {
           {albums.map((album, i) => {
             const cover = album.cover;
             return (
-              <Reveal as="article" className="album" key={album.id} index={i}>
+              <Reveal as="article" className="album" key={album.id} index={i} kind="plate">
                 <Link
                   className="album__media"
                   href={`/work/${album.slug}`}

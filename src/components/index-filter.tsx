@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { plate } from "@/lib/format";
 import { genres, genreLabel } from "@/lib/site";
 import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
+import { useRevealChildren } from "@/components/motion";
 import type { AlbumWithCover } from "@/lib/gallery";
 
 type Lens = "all" | (typeof genres)[number]["id"];
@@ -36,6 +37,14 @@ type Lens = "all" | (typeof genres)[number]["id"];
  */
 export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
   const [lens, setLens] = useState<Lens>("all");
+  const reelRef = useRef<HTMLDivElement | null>(null);
+
+  /* The cards reveal themselves rather than being wrapped: each one is the
+   * flex item the reel lays out, and a wrapper around it would be the thing
+   * that scroll-snaps. Re-runs on `lens`, so switching genre plays the
+   * stagger again instead of swapping rows in place — docs/IDEAS-motion.md
+   * § 3.6. */
+  useRevealChildren(reelRef, ".reel__card", lens);
 
   const counts = useMemo(() => {
     const map = new Map<string, number>();
@@ -95,9 +104,14 @@ export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
           Nothing filed under {genreLabel(lens)} yet.
         </p>
       ) : (
-        <div className="reel" aria-label="Galleries">
+        <div className="reel" aria-label="Galleries" ref={reelRef}>
           {shown.map((album, i) => (
-            <Link className="reel__card" key={album.id} href={`/work/${album.slug}`}>
+            <Link
+              className="reel__card reveal"
+              data-kind="lateral"
+              key={album.id}
+              href={`/work/${album.slug}`}
+            >
               <span className="reel__no">[{plate(i)}]</span>
               <span className="reel__frame">
                 {album.cover?.url ? (

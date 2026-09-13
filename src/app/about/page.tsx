@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { PhotoFold } from "@/components/photo-fold";
 import { getFeatured } from "@/lib/gallery";
 import { elsewhere, genres, site } from "@/lib/site";
+import { Reveal } from "@/components/motion";
 
 /**
  * Prerendered and revalidated, not rendered per request.
@@ -39,7 +40,7 @@ export default async function AboutPage() {
 
   return (
     <div className="page">
-      <section className="fold-text fold-text--tight">
+      <Reveal as="section" className="fold-text fold-text--tight" index={0}>
         <p className="u-mono">About</p>
         <h1 className="page__title">
           {site.byline}, <em>working</em>.
@@ -64,13 +65,13 @@ export default async function AboutPage() {
             wrong, and there&rsquo;s another one coming.
           </p>
         </div>
-      </section>
+      </Reveal>
 
       <div className="plinth">
         <PhotoFold photo={featured[0]} index={0} fallbackLabel="working portrait" />
       </div>
 
-      <section className="fold-text">
+      <Reveal as="section" className="fold-text" index={1}>
         <div className="head">
           <h2 className="head__title">Deeper portfolios</h2>
           <p className="head__sub">
@@ -93,13 +94,13 @@ export default async function AboutPage() {
             </a>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       <div className="plinth">
         <PhotoFold photo={featured[1]} index={1} fallbackLabel="on assignment" />
       </div>
 
-      <section className="fold-text fold-text--tight">
+      <Reveal as="section" className="fold-text fold-text--tight" index={2}>
         <div className="head">
           <h2 className="head__title">Commissions</h2>
           <p className="head__sub">Open for {commissionLine} work.</p>
@@ -123,7 +124,7 @@ export default async function AboutPage() {
             Guestbook
           </Link>
         </div>
-      </section>
+      </Reveal>
     </div>
   );
 }

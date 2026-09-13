@@ -4,9 +4,20 @@ import { useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 type RevealProps = {
-  as?: "div" | "article" | "figure" | "li" | "a";
+  as?: "div" | "article" | "figure" | "li" | "a" | "section";
   /** Position in its group — turns a row of siblings into a stagger. */
   index?: number;
+  /**
+   * What kind of thing is arriving.
+   *
+   * A photograph and a sentence are different objects and had the same
+   * entrance: fade plus a 14px rise, on everything. A frame that slides reads
+   * as a card in a feed; a frame that settles out of a slight over-scale
+   * reads as being placed. `lateral` is for anything inside a horizontal
+   * reel, where an entrance on the vertical axis fights the gesture the
+   * reader is about to make. See docs/IDEAS-motion.md § 3.2.
+   */
+  kind?: "text" | "plate" | "lateral";
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
@@ -28,7 +39,14 @@ type RevealProps = {
  * not be. Reduced motion and a scripting-disabled browser are handled in CSS
  * next to the rule they affect.
  */
-export function Reveal({ as = "div", index = 0, className, style, ...rest }: RevealProps) {
+export function Reveal({
+  as = "div",
+  index = 0,
+  kind = "text",
+  className,
+  style,
+  ...rest
+}: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -57,10 +75,57 @@ export function Reveal({ as = "div", index = 0, className, style, ...rest }: Rev
     <El
       ref={ref as React.Ref<HTMLDivElement>}
       className={className ? `reveal ${className}` : "reveal"}
+      data-kind={kind}
       style={{ ...style, "--i": index } as CSSProperties}
       {...rest}
     />
   );
+}
+
+/**
+ * Reveal rows a client component renders itself.
+ *
+ * `Reveal` wraps its children in an element, which is wrong inside a grid or
+ * a flex reel where the child *is* the layout item. This observes whatever is
+ * already there instead. Pass the container and a dependency that changes when
+ * the list changes — the index filter passes its lens, so switching genre
+ * re-runs the stagger rather than swapping rows in place, which is
+ * docs/IDEAS-motion.md § 3.6.
+ */
+export function useRevealChildren(
+  ref: React.RefObject<HTMLElement | null>,
+  selector: string,
+  dep: unknown,
+) {
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const rows = Array.from(root.querySelectorAll<HTMLElement>(selector));
+    if (!rows.length) return;
+
+    /* Re-arm on every change, so a filter switch plays the stagger again. */
+    rows.forEach((el, i) => {
+      delete el.dataset.shown;
+      el.style.setProperty("--i", String(i));
+    });
+
+    if (!("IntersectionObserver" in window)) {
+      rows.forEach((el) => { el.dataset.shown = "true"; });
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          (e.target as HTMLElement).dataset.shown = "true";
+          io.unobserve(e.target);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
+    );
+    rows.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [ref, selector, dep]);
 }
 
 /**

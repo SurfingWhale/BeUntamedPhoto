@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { NotesPanel } from "@/components/notes-panel";
 import { getNotes } from "@/lib/notes";
+import { Reveal } from "@/components/motion";
 
 /**
  * Prerendered and revalidated, not rendered per request.
@@ -23,7 +24,7 @@ export default async function NotesPage() {
 
   return (
     <div className="page">
-      <section className="page__intro">
+      <Reveal as="section" className="page__intro" index={0}>
         <h1 className="page__title">
           Leave a <em>note</em>.
         </h1>
@@ -31,11 +32,11 @@ export default async function NotesPage() {
           If a frame stopped you, say so. Notes are public, signed with your
           display name, and never turned into a mailing list.
         </p>
-      </section>
+      </Reveal>
 
-      <section className="fold-text fold-text--tight">
+      <Reveal as="section" className="fold-text fold-text--tight" index={1}>
         <NotesPanel initialNotes={notes} />
-      </section>
+      </Reveal>
     </div>
   );
 }

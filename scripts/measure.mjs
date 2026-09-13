@@ -419,7 +419,34 @@ section("Static gates");
   }
 }
 
-/* 9. Every sign-off reads from the byline, and the byline is the brand.
+/* 9. Reduced motion is a different design, not the same one switched off.
+ *
+ *    The stylesheet already does this correctly, and that is exactly why it
+ *    is worth a gate: it is the kind of rule that rots the moment somebody
+ *    adds a keyframe and forgets the branch. Three things have to hold —
+ *    entrances stop translating, the long transition drops to something
+ *    short, and no keyframe is left running at its full duration.
+ *
+ *    See docs/IDEAS-motion.md § 4. */
+{
+  const css = read(CSS);
+  const blocks = css.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)[^{]*\{([\s\S]*?)\n\}/g) || [];
+  const all = blocks.join("\n");
+  const missing = [];
+  if (!blocks.length) missing.push("no prefers-reduced-motion: reduce block at all");
+  if (!/\.reveal[^{]*\{[^}]*transform:\s*none/.test(all))
+    missing.push(".reveal still translates under reduced motion");
+  if (!/animation-duration:\s*\d+m?s\s*!important/.test(all))
+    missing.push("no animation-duration cap — a keyframe added later runs at full length");
+  if (missing.length)
+    bad("reduced motion is not fully answered", [
+      ...missing,
+      "reduced motion is a different design, not the same one switched off",
+    ]);
+  else ok(`reduced motion answered in ${blocks.length} blocks`);
+}
+
+/* 10. Every sign-off reads from the byline, and the byline is the brand.
  *    CLAUDE.md is the authority on why this matters. */
 {
   const site = read("src/lib/site.ts");
@@ -598,6 +625,12 @@ async function browserChecks(chromium, executablePath) {
           const display = [];
           const stickies = [];
           const slots = [];
+          /* Motion, which nothing asserted: the site ran 213 animated
+           * declarations through a single easing curve while two curve tokens
+           * sat in tokens.css referenced nowhere, and three of six public
+           * routes had no entrance at all. See docs/IDEAS-motion.md § 4. */
+          const easings = new Set();
+          let reveals = 0;
 
           /* Every CSS rule whose selector this element matches, asked whether
            * it names a safe-area inset — in `top`, in padding, anywhere. Same-
@@ -660,6 +693,18 @@ async function browserChecks(chromium, executablePath) {
                 });
             }
 
+            if (el.classList.contains("reveal")) reveals++;
+            if (cs.transitionProperty && cs.transitionProperty !== "none") {
+              const durs = cs.transitionDuration.split(",").map((d) => d.trim());
+              /* Split on commas *outside* the cubic-bezier parens, or every
+               * curve arrives as four fragments. */
+              const fns = cs.transitionTimingFunction.match(/(?:[^,(]|\([^)]*\))+/g) || [];
+              fns.forEach((fn, i) => {
+                if ((durs[i % durs.length] || "0s") === "0s") return;
+                easings.add(fn.trim());
+              });
+            }
+
             if (hasText && parseFloat(cs.fontSize) >= 32)
               display.push({
                 sel: name(el),
@@ -700,6 +745,8 @@ async function browserChecks(chromium, executablePath) {
           }
 
           return {
+            easings: [...easings],
+            reveals,
             families: [...families],
             scrollH: document.documentElement.scrollHeight,
             screens: +(document.documentElement.scrollHeight / vh).toFixed(2),
@@ -719,6 +766,15 @@ async function browserChecks(chromium, executablePath) {
         flags.push(
           `draws in ${m.families.length} typefaces, expected ${EXPECTED_FAMILIES} — ${m.families.join(", ")}`,
         );
+      /* One curve for everything is the monotony, and it is measurable. */
+      if (m.easings.length < 2)
+        flags.push(
+          `draws every transition through ${m.easings.length} easing curve${m.easings.length === 1 ? "" : "s"} — ${m.easings.join(", ") || "none"}`,
+        );
+      /* A site where half the routes animate and half do not reads as
+       * unfinished rather than restrained. */
+      if (m.reveals === 0) flags.push("no entrance motion on this route at all");
+
       for (const s of m.stickies)
         if (!s.usesInset)
           flags.push(`${s.sel} is sticky at top:${s.top} with no safe-area inset`);

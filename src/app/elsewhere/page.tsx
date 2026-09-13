@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Lanes } from "@/components/lanes";
 import { getFeatured } from "@/lib/gallery";
+import { Reveal } from "@/components/motion";
 
 /* Prerendered and revalidated: one featured frame and three fixed lanes,
  * nothing per-visitor. */
@@ -17,7 +18,7 @@ export default async function ElsewherePage() {
 
   return (
     <div className="page">
-      <section className="page__intro">
+      <Reveal as="section" className="page__intro" index={0}>
         <h1 className="page__title">
           Three sites, one <em>practice</em>.
         </h1>
@@ -25,7 +26,7 @@ export default async function ElsewherePage() {
           Every genre is booked from this site. Sport and food have enough work
           to warrant their own ground, where a client can see the depth of it.
         </p>
-      </section>
+      </Reveal>
 
       <Lanes
         archiveBanner={

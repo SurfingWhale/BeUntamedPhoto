@@ -132,7 +132,7 @@ export async function AlbumView({
       ) : (
         <div className="strip">
           {photos.map((photo, i) => (
-            <Reveal as="figure" className="strip__item" key={photo.id} index={i % 2}>
+            <Reveal as="figure" className="strip__item" key={photo.id} index={i % 2} kind="plate">
               <p className="strip__no">{plate(offset + i)}</p>
               <div className="strip__frame">
                 {photo.url ? (
