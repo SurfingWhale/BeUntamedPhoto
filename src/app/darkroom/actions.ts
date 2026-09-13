@@ -5,7 +5,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/auth";
 import { ALBUMS_TAG } from "@/lib/gallery";
-import { genreIds } from "@/lib/site";
+import { genreIds, genreLabel } from "@/lib/site";
 
 export type DarkroomState = { status: "idle" | "error" | "ok"; message: string };
 
@@ -25,6 +25,45 @@ async function requireOwner() {
   const viewer = await getViewer();
   if (!viewer?.isOwner) throw new Error("Owner access only.");
   return viewer;
+}
+
+/**
+ * A subtitle that repeats what is already on the card is not a subtitle.
+ *
+ * Measured on the live archive: of seven galleries, one subtitle was the
+ * literal string "unfiled", one restated its own title with the word
+ * "photography" appended, and two restated the genre printed beside them.
+ * Nothing caught it, because the field was populated and the page rendered
+ * correctly — see docs/PRD-the-archive-in-its-own-words.md § 3.1.
+ *
+ * Refused here rather than reported, because these three are mistakes and not
+ * choices. A weak caption is a judgement and stays the owner's; `npm run
+ * measure` reports on those and fails only on these.
+ *
+ * The subtitle itself is still optional. An empty one says nothing, which is
+ * honest; a duplicate says nothing while looking like it said something.
+ */
+const SUBTITLE_FILLER =
+  /\b(photography|photos?|photoshoot|shoot|session|series|set|project)\b/g;
+const SUBTITLE_PLACEHOLDER = /^(unfiled|untitled|n\/a|-|\u2014|tbd|todo)$/i;
+
+function subtitleFault(
+  subtitle: string | null,
+  title: string,
+  genre: string,
+): string | null {
+  if (!subtitle) return null;
+  const norm = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const bare = (t: string) =>
+    norm(t).replace(SUBTITLE_FILLER, " ").replace(/\s+/g, " ").trim();
+
+  if (SUBTITLE_PLACEHOLDER.test(subtitle.trim()))
+    return `"${subtitle}" is a placeholder, not a subtitle. Say what was shot, for whom, and where.`;
+  if (bare(subtitle) && bare(subtitle) === bare(title))
+    return "The subtitle repeats the title. A client can already read the title — tell them what the job was.";
+  if (norm(subtitle) === norm(genreLabel(genre)))
+    return `The subtitle repeats the genre, which is already printed on the card. Say what this ${genreLabel(genre).toLowerCase()} job actually was.`;
+  return null;
 }
 
 export async function createAlbum(
@@ -62,6 +101,8 @@ export async function createAlbum(
   if (!genreIds.includes(genre as (typeof genreIds)[number])) {
     return { status: "error", message: "Pick one of the listed genres." };
   }
+  const subFault = subtitleFault(subtitle, title, genre);
+  if (subFault) return { status: "error", message: subFault };
 
   const year = yearRaw ? Number(yearRaw) : null;
   if (year !== null && (!Number.isInteger(year) || year < 1900 || year > 2200)) {
@@ -182,6 +223,8 @@ export async function updateAlbum(
   if (title.length < 2) {
     return { status: "error", message: "Give the gallery a title first." };
   }
+  const subFault = subtitleFault(subtitle, title, genre);
+  if (subFault) return { status: "error", message: subFault };
   const year = yearRaw ? Number(yearRaw) : null;
   if (year !== null && (!Number.isInteger(year) || year < 1900 || year > 2200)) {
     return { status: "error", message: "That year doesn't look right." };

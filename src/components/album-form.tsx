@@ -49,11 +49,14 @@ export function AlbumForm() {
           className="field__input"
           id="subtitle"
           name="subtitle"
-          placeholder="Floodlight, humidity, and a lot of missed frames"
+          placeholder="Wisuda UI for Nuna and her family, Salemba"
           aria-describedby="subtitle-help"
         />
         <p className="field__help" id="subtitle-help">
-          One line. Optional.
+          One line: who it was for, what was shot, where. This is the only
+          sentence a client reads before deciding — so &ldquo;Graduation&rdquo;
+          or the title again says nothing they cannot already see. Optional,
+          and blank is better than a repeat.
         </p>
       </div>
 

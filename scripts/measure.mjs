@@ -799,6 +799,96 @@ async function browserChecks(chromium, executablePath) {
     }
     await page.close();
   }
+
+  /* ---------------------------------------------------------- content
+   *
+   * The system is asserted; the archive's own words are not. Every gate above
+   * passes on a gallery whose subtitle is the word "unfiled", because the
+   * field is populated, the CSS is right and the content is wrong. See
+   * docs/PRD-the-archive-in-its-own-words.md § 5.1.
+   *
+   * Two postures on purpose. A weak caption is a judgement and only reports;
+   * a subtitle that repeats its own title, repeats the genre printed beside
+   * it, or is a placeholder is a mistake rather than a choice, and fails. */
+  {
+    section("Content");
+    const page = await browser.newPage();
+    await page.setViewportSize({ width: 1440, height: 900 });
+    let cards = [];
+    try {
+      await page.goto(`${BASE}/work`, { waitUntil: "load", timeout: 60000 });
+      await page.waitForTimeout(900);
+      cards = await page.evaluate(() =>
+        [...document.querySelectorAll(".album")].map((c) => ({
+          title: (c.querySelector(".album__title")?.textContent || "").trim(),
+          sub: (c.querySelector(".album__sub")?.textContent || "").trim(),
+          meta: (c.querySelector(".album__meta")?.textContent || "").replace(/\s+/g, " ").trim(),
+          genre: "",
+        })),
+      );
+      /* Which genre each gallery is filed under is not printed on its card —
+       * the only place it is stated is the genre page it appears on, so ask
+       * each one. The chips on /work carry the ids and the labels together. */
+      const lenses = await page.evaluate(() =>
+        [...document.querySelectorAll(".chip")].map((c) => ({
+          label: (c.textContent || "").replace(/\(.*\)/, "").trim(),
+          href: c.getAttribute("href") || "",
+        })),
+      );
+      for (const lens of lenses) {
+        if (!lens.href) continue;
+        try {
+          await page.goto(`${BASE}${lens.href}`, { waitUntil: "load", timeout: 45000 });
+          await page.waitForTimeout(400);
+          const titles = await page.evaluate(() =>
+            [...document.querySelectorAll(".album__title")].map((t) => (t.textContent || "").trim()),
+          );
+          for (const c of cards) if (titles.includes(c.title)) c.genre = lens.label;
+        } catch {
+          /* a genre page that will not load is the routing gates' problem */
+        }
+      }
+    } catch {
+      cards = [];
+    }
+    await page.close();
+
+    if (!cards.length) {
+      skip("no galleries found on /work — content gates did not run");
+    } else {
+      const PLACEHOLDER = /^(unfiled|untitled|n\/a|-|—|tbd|todo)$/i;
+      const norm = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      const faults = [];
+      const notes = [];
+      for (const c of cards) {
+        const label = c.title || "(untitled)";
+        /* "Sales Headshot Photography" under "Sales HeadShot" is a restatement
+         * even though the strings differ: strip the words that carry no
+         * information about this particular job and see what is left. */
+        const FILLER = /\b(photography|photos?|photoshoot|shoot|session|series|set|project)\b/g;
+        const bare = (t) => norm(t).replace(FILLER, " ").replace(/\s+/g, " ").trim();
+        if (!c.sub) faults.push(`${label} — no subtitle`);
+        else if (PLACEHOLDER.test(c.sub)) faults.push(`${label} — subtitle is the placeholder "${c.sub}"`);
+        else if (bare(c.sub) && bare(c.sub) === bare(c.title))
+          faults.push(`${label} — subtitle restates the title ("${c.sub}")`);
+        else if (c.genre && norm(c.sub) === norm(c.genre))
+          faults.push(`${label} — subtitle restates its genre, which is already on the card ("${c.sub}")`);
+        if (/^[^a-z]*$/.test(c.title) && /[A-Z]{3,}/.test(c.title))
+          notes.push(`${label} — title is set in capitals (design.md § 5 is sentence case)`);
+        if (c.title.includes("...")) notes.push(`${label} — three periods where … belongs`);
+        if (/·\s*—\s*$/.test(c.meta) || /·\s*—/.test(c.meta))
+          notes.push(`${label} — no year, so it sorts last in a date-ordered index`);
+      }
+      if (faults.length)
+        bad(`${faults.length} of ${cards.length} galleries say nothing a client can use`, [
+          ...faults,
+          "design.md § 2: what was shot, for whom, where, when",
+        ]);
+      else ok(`all ${cards.length} galleries carry a subtitle of their own`);
+      for (const n of notes) note(n);
+    }
+  }
+
   await browser.close();
 }
 
