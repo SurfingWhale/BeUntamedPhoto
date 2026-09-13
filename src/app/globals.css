@@ -991,6 +991,72 @@ img { display: block; max-width: 100%; }
  * which is the same trap that made it a plain scrolling element in the first
  * place. */
 .index-wrap { display: block; }
+/* The index opens on a photograph, with its heading set in the middle of it.
+ *
+ * docs/RESEARCH-reference-vs-built.md § 5: the reference carries whole
+ * sections on a photograph with the content over them — its hero and its
+ * "Choose by Category" block both — and design.md's "photography is the
+ * imagery" had been read as "never set anything over a photograph". It was
+ * written against generated texture, not against this.
+ *
+ * The heading is sentence case, tightly tracked, and breaks across two lines
+ * with the second indented — § 1 of that same document, which found every
+ * heading in the reference set that way and every heading here shouting in
+ * capitals instead.
+ *
+ * The scrim is not decoration. White type over an arbitrary plate is unreadable
+ * on whatever the plate happens to be pale in, and --color-scrim is the token
+ * the system already keeps for exactly this. */
+.index-band {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--row) * 4);
+  overflow: hidden;
+  background: var(--color-paper-dark);
+}
+.index-band__img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.index-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--color-scrim);
+}
+.index-band__type {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 32rem;
+  padding: var(--space-2xl) var(--page-gutter);
+}
+.index-band__eyebrow {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-ink-on-dark-2);
+  margin-block-end: var(--space-sm);
+}
+.index-band__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: var(--tracking-display);
+  color: var(--color-ink-on-dark);
+  text-wrap: balance;
+}
+/* The second line steps in, which is the reference's own heading rhythm. */
+.index-band__title span { display: block; padding-inline-start: 1.2em; }
+
 /* It has to be a bar, not a banner. The first version pinned the display
  * heading, the count and a wrapping two-row chip set — about 300px of an
  * 844px phone, and the rows it was meant to introduce were hidden behind it.

@@ -36,7 +36,20 @@ type Status =
   | { kind: "error"; message: string }
   | { kind: "ok"; message: string };
 
-const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+/* What the picker offers. A hint, not a gate — see onChoose.
+ *
+ * HEIC and HEIF are here because an iPhone hands them over and they were not
+ * on the list, so choosing a batch straight out of Photos could put one file
+ * in it that threw the whole selection away. Safari decodes both, and the
+ * encoder turns them into something every browser can display. */
+const ALLOWED = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+];
 /* The cap is on what the browser reads, not on what reaches the bucket: every
  * file is re-encoded to WebP before it is uploaded. */
 const MAX_BYTES = 60 * 1024 * 1024;
@@ -106,22 +119,42 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
     const files = Array.from(event.target.files ?? []).filter((f) => f.size > 0);
     if (files.length === 0) return;
 
-    const bad = files.find((f) => !ALLOWED.includes(f.type) || f.size > MAX_BYTES);
-    if (bad) {
+    /* One unusable file used to throw the whole selection away.
+     *
+     * `files.find(...)` then `return` meant a batch of thirty plates with a
+     * single HEIC or one oversized frame in it staged nothing at all, and the
+     * message named one file while thirty went missing. That is the "I
+     * selected a lot of photos and they fell out" report, and it is the worst
+     * shape a bug can have: it looks like the app lost the work.
+     *
+     * The size cap is the only hard gate, because it is the only thing that
+     * can be judged without decoding. The declared type is a hint — an iPhone
+     * hands over HEIC, and sometimes an empty string — so whether a file is
+     * usable is decided by whether the browser can actually decode it, which
+     * is what encodeToWebp reports. Anything that fails is named; everything
+     * else is staged. */
+    const tooBig = files.filter((f) => f.size > MAX_BYTES);
+    const usable = files.filter((f) => f.size <= MAX_BYTES);
+    const refused: string[] = tooBig.map((f) => `${f.name} (over 60 MB)`);
+
+    if (usable.length === 0) {
       setStatus({
         kind: "error",
-        message: !ALLOWED.includes(bad.type)
-          ? `${bad.name} is a ${bad.type || "unknown"} — use JPEG, PNG, WebP or AVIF.`
-          : `${bad.name} is over the 60 MB limit.`,
+        message: `Nothing could be staged — ${refused.join(", ")}.`,
       });
       return;
     }
 
-    setStatus({ kind: "encoding", done: 0, total: files.length });
+    setStatus({ kind: "encoding", done: 0, total: usable.length });
     const next: Staged[] = [];
-    for (const [i, file] of files.entries()) {
-      setStatus({ kind: "encoding", done: i, total: files.length });
-      const { blob, width, height, ext, passthrough, reason } = await encodeToWebp(file);
+    for (const [i, file] of usable.entries()) {
+      setStatus({ kind: "encoding", done: i, total: usable.length });
+      const { blob, width, height, ext, passthrough, reason, undecodable } =
+        await encodeToWebp(file);
+      if (undecodable) {
+        refused.push(`${file.name} (${file.type || "unknown type"} — could not be read)`);
+        continue;
+      }
       next.push({
         kept: passthrough ? (reason ?? "kept as-is") : null,
         key: `${file.name}-${Date.now()}-${i}`,
@@ -136,7 +169,14 @@ export function Uploader({ albumId, slug, bucket, startPosition }: Props) {
       });
     }
     setStaged((prev) => [...prev, ...next]);
-    setStatus({ kind: "idle" });
+    setStatus(
+      refused.length
+        ? {
+            kind: "error",
+            message: `Staged ${next.length} of ${files.length}. Left out: ${refused.join(", ")}.`,
+          }
+        : { kind: "idle" },
+    );
     // Let the same file be chosen again after it is removed from the stage.
     if (fileRef.current) fileRef.current.value = "";
   }, []);

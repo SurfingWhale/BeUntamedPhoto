@@ -54,8 +54,13 @@ export default async function HomePage() {
    * the page. Fewer than three in the archive and the tail degrades — the
    * banner falls back to the hero's plate, four screens away, and PhotoFold
    * draws its numbered Plate placeholder. */
-  const [featured, albums] = await Promise.all([getFeatured(3), getAlbumsWithCovers()]);
-  const banner = featured[1] ?? featured[0];
+  const [featured, albums] = await Promise.all([getFeatured(4), getAlbumsWithCovers()]);
+  /* Four plates now: the hero, the index band, the lane banner and the closing
+   * fold, so no photograph appears twice. Each falls back to the one before
+   * it, so a thin archive degrades rather than breaking. */
+  const bandPlate = featured[1] ?? featured[0];
+  const banner = featured[2] ?? featured[0];
+  const closing = featured[3] ?? featured[1] ?? featured[0];
   const year = new Date().getUTCFullYear();
   const held = albums.filter((a) => a.visibility === "members").length;
 
@@ -76,6 +81,17 @@ export default async function HomePage() {
       <Hero photo={featured[0]} />
 
       <Ticker items={tickerItems} />
+
+      {/* ---- project index · opens on a photograph, chips under it --------
+           Moved above the editorial block. Measured on the live page before
+           this: the first photograph landed at 0.17 screens and the second at
+           2.73, with 1.7 screens of typography between them, on a site whose
+           only real evidence is photographs. The research on the first screen
+           puts the target at photograph two above 1.5 screens and six inside
+           the first three. See docs/RESEARCH-the-first-screen.md § 4.1. */}
+      <section className="grid-band">
+        <IndexFilter albums={albums} band={bandPlate} />
+      </section>
 
       {/* ---- opening zone · mostly empty, marks placed in the blank cells --- */}
       <section className="open">
@@ -162,16 +178,6 @@ export default async function HomePage() {
 
       <div className="rail">
         <span className="rail__mark" aria-hidden="true">{"\u2739"}</span>
-        <span>The index</span>
-      </div>
-
-      {/* ---- project index · counter, category chips, numbered rows -------- */}
-      <section className="grid-band">
-        <IndexFilter albums={albums} />
-      </section>
-
-      <div className="rail">
-        <span className="rail__mark" aria-hidden="true">{"\u2739"}</span>
         <span>Three sites, one practice</span>
       </div>
 
@@ -191,7 +197,7 @@ export default async function HomePage() {
       />
 
       <div className="plinth">
-        <PhotoFold photo={featured[2]} index={2} fallbackLabel={CLOSING_FALLBACK} />
+        <PhotoFold photo={closing} index={3} fallbackLabel={CLOSING_FALLBACK} />
       </div>
     </div>
   );

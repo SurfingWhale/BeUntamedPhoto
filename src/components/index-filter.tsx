@@ -8,7 +8,7 @@ import { genres, genreLabel } from "@/lib/site";
 import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
 import { useRevealChildren } from "@/components/motion";
-import type { AlbumWithCover } from "@/lib/gallery";
+import type { AlbumWithCover, PhotoWithUrl } from "@/lib/gallery";
 
 type Lens = "all" | (typeof genres)[number]["id"];
 
@@ -35,7 +35,23 @@ type Lens = "all" | (typeof genres)[number]["id"];
  * it at once. /work stays vertical: that is the survey page, and someone sent
  * that link is there to see everything at once.
  */
-export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
+export function IndexFilter({
+  albums,
+  band,
+}: {
+  albums: AlbumWithCover[];
+  /**
+   * A plate for the band this section opens on.
+   *
+   * The reference carries whole sections on a photograph with the content set
+   * over it — its "Choose by Category" block is exactly that, and it is the
+   * layout this page did not have. See docs/RESEARCH-reference-vs-built.md
+   * § 5, which found the rule "photography is the imagery" had been read as
+   * "never set anything over a photograph" when the reference does it twice,
+   * including for its strongest moment.
+   */
+  band?: PhotoWithUrl;
+}) {
   const [lens, setLens] = useState<Lens>("all");
   const reelRef = useRef<HTMLDivElement | null>(null);
 
@@ -73,6 +89,38 @@ export function IndexFilter({ albums }: { albums: AlbumWithCover[] }) {
        its own row — nowhere to travel, so it scrolled away like anything
        else. */
     <div className="index-wrap">
+      {/* The section opens on a photograph with its heading set in the middle
+          of it — the reference's one repeated structural move, and the one
+          this page was missing. The heading is sentence case and breaks across
+          two lines with the second indented, which is how every heading in the
+          reference is set. */}
+      {band?.url ? (
+        <div className="index-band">
+          {/* Storage URLs are remote — a plain <img>, as everywhere else. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="index-band__img"
+            src={band.url}
+            srcSet={band.srcSet ?? undefined}
+            sizes={SIZES.fold}
+            alt=""
+            width={band.width ?? undefined}
+            height={band.height ?? undefined}
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="index-band__type">
+            <p className="index-band__eyebrow">
+              <span aria-hidden="true">{"\u2739"}</span> Choose by lane
+            </p>
+            <h2 className="index-band__title">
+              {albums.length} {albums.length === 1 ? "gallery" : "galleries"},
+              <span>filed by what they are.</span>
+            </h2>
+          </div>
+        </div>
+      ) : null}
+
       {/* Heading and filters travel together, because a filter with its
           question scrolled off the screen is a row of unlabelled buttons. */}
       <div className="index-sticky">

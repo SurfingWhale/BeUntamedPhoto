@@ -33,6 +33,12 @@ export type Encoded = {
   passthrough: boolean;
   /** Why the original was kept. Only set when `passthrough` is true. */
   reason?: string;
+  /**
+   * The browser could not decode this file at all, so there is nothing to
+   * stage. The caller drops it and names it, rather than uploading bytes no
+   * visitor's browser will be able to display either.
+   */
+  undecodable?: boolean;
 };
 
 function extOf(name: string): string {
@@ -85,12 +91,102 @@ async function draw(
   if (!ctx) return null;
   ctx.drawImage(bitmap, 0, 0, width, height);
 
+  /* WebP first, JPEG second, and the type check is the whole point: when a
+   * canvas cannot encode the type asked for, the spec says produce PNG
+   * instead — silently. `blob.type === type` is what catches that.
+   *
+   * On iOS Safari this always falls to JPEG, because Safari's canvas has no
+   * WebP encoder. Every one of the 76 files in the bucket is a .jpg for that
+   * reason, and it is not a bug in this function. It is also not the loss it
+   * looks like: the resize is where the saving is — 7.77MB becomes 757KB at
+   * 2400px before the format is even considered — and Supabase's render
+   * endpoint negotiates WebP on the way out, so a visitor's browser is served
+   * WebP regardless of what the bucket holds. Measured: the same plate comes
+   * back 262,918 B as WebP and 324,410 B as JPEG from the same URL. */
   for (const [type, ext] of [
     ["image/webp", ".webp"],
     ["image/jpeg", ".jpg"],
   ] as const) {
     const blob = await encode(canvas, type);
     if (blob && blob.type === type) return { blob, ext };
+  }
+  return null;
+}
+
+/**
+ * Whether this browser's canvas can encode WebP at all.
+ *
+ * Asked once and cached. The uploader says so rather than letting every
+ * upload quietly come out as JPEG and leaving the owner to wonder why the
+ * feature he asked for is not working.
+ */
+let webpSupport: Promise<boolean> | null = null;
+export function canEncodeWebp(): Promise<boolean> {
+  if (!webpSupport) {
+    webpSupport = (async () => {
+      try {
+        const c =
+          typeof OffscreenCanvas !== "undefined"
+            ? new OffscreenCanvas(2, 2)
+            : Object.assign(document.createElement("canvas"), { width: 2, height: 2 });
+        const blob = await encode(c, "image/webp");
+        return Boolean(blob && blob.type === "image/webp");
+      } catch {
+        return false;
+      }
+    })();
+  }
+  return webpSupport;
+}
+
+/**
+ * The pixel dimensions, read from the file's header without decoding it.
+ *
+ * This exists so the decode itself can be bounded. A Fujifilm X-T30 frame is
+ * 6240x4160 — 26 megapixels, about 104 MB as a raw bitmap — and the only way
+ * to avoid handing that to the browser is to know the size before asking for
+ * the pixels. Guessing from the file size is not knowing.
+ *
+ * JPEG: walk the marker segments to a start-of-frame and read the two 16-bit
+ * fields. PNG: IHDR is always the first chunk. Anything else returns null and
+ * the caller decodes normally.
+ */
+async function headerSize(file: File): Promise<{ w: number; h: number } | null> {
+  const head = new Uint8Array(await file.slice(0, 256 * 1024).arrayBuffer());
+
+  // PNG: 8-byte signature, then IHDR length+type, then width/height.
+  if (head.length > 24 && head[0] === 0x89 && head[1] === 0x50) {
+    const view = new DataView(head.buffer);
+    return { w: view.getUint32(16), h: view.getUint32(20) };
+  }
+
+  // JPEG: 0xFFD8, then segments. SOF0-3, 5-7, 9-11, 13-15 carry the size.
+  if (!(head.length > 4 && head[0] === 0xff && head[1] === 0xd8)) return null;
+  let i = 2;
+  while (i + 9 < head.length) {
+    if (head[i] !== 0xff) {
+      i++;
+      continue;
+    }
+    const marker = head[i + 1];
+    if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+      i += 2;
+      continue;
+    }
+    const len = (head[i + 2] << 8) | head[i + 3];
+    const isSof =
+      (marker >= 0xc0 && marker <= 0xc3) ||
+      (marker >= 0xc5 && marker <= 0xc7) ||
+      (marker >= 0xc9 && marker <= 0xcb) ||
+      (marker >= 0xcd && marker <= 0xcf);
+    if (isSof) {
+      return {
+        h: (head[i + 5] << 8) | head[i + 6],
+        w: (head[i + 7] << 8) | head[i + 8],
+      };
+    }
+    if (len < 2) return null;
+    i += 2 + len;
   }
   return null;
 }
@@ -116,11 +212,38 @@ export async function encodeToWebp(file: File): Promise<Encoded> {
     }
   }
 
+  /* Decode bounded, not full size, whenever the header says it is worth it.
+   *
+   * This used to decode every file at its native resolution and only take the
+   * resize-on-decode path above 40 megapixels. A 26MP camera JPEG — an X-T30
+   * frame is 6240x4160 — sits under that line, so it was decoded whole: about
+   * 104 MB of bitmap before a single pixel was drawn. iOS Safari answers that
+   * by handing back a canvas that draws nothing, silently, which this file
+   * then correctly identified as blank and fell back to keeping the original.
+   * So the shrink quietly stopped happening on exactly the files it existed
+   * for. Thirteen of the seventy-six plates in the bucket are still stored at
+   * full camera resolution because of it.
+   *
+   * Only resizeWidth is passed, never both. The spec preserves the aspect
+   * ratio from the one given, and EXIF rotation is applied before the resize —
+   * so passing both would stretch anything shot in portrait. A portrait frame
+   * therefore comes back with a 2400px *width* and a taller height; that is
+   * still a fraction of the full decode, and the canvas target below caps the
+   * long edge properly afterwards. */
+  const header = await headerSize(file).catch(() => null);
+
   // imageOrientation: a phone photo carries its rotation in EXIF, and the
   // canvas would otherwise bake in the unrotated pixels.
-  let bitmap: ImageBitmap;
+  let bitmap: ImageBitmap | null = null;
+  if (header && Math.max(header.w, header.h) > MAX_EDGE) {
+    bitmap = await createImageBitmap(file, {
+      imageOrientation: "from-image",
+      resizeWidth: MAX_EDGE,
+      resizeQuality: "high",
+    }).catch(() => null);
+  }
   try {
-    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    if (!bitmap) bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
   } catch {
     return {
       blob: file,
@@ -129,37 +252,27 @@ export async function encodeToWebp(file: File): Promise<Encoded> {
       ext: extOf(file.name),
       passthrough: true,
       reason: "this browser could not decode the file",
+      undecodable: true,
     };
   }
 
   // Read the source size before close(); the fallback below reports it.
-  const sourceWidth = bitmap.width;
-  const sourceHeight = bitmap.height;
-  const scale = Math.min(1, MAX_EDGE / Math.max(sourceWidth, sourceHeight));
-  const width = Math.round(sourceWidth * scale);
-  const height = Math.round(sourceHeight * scale);
+  /* Two different sizes, and they stopped being the same thing when the decode
+   * became bounded. `decoded*` is what the canvas will draw from — already at
+   * or under MAX_EDGE on its width when the header path ran. `original*` is
+   * what came off the camera, and it is what the passthrough branch has to
+   * report, because passthrough returns the original file rather than
+   * anything this function produced. */
+  const decodedWidth = bitmap.width;
+  const decodedHeight = bitmap.height;
+  const originalWidth = header?.w ?? decodedWidth;
+  const originalHeight = header?.h ?? decodedHeight;
+  const scale = Math.min(1, MAX_EDGE / Math.max(decodedWidth, decodedHeight));
+  const width = Math.round(decodedWidth * scale);
+  const height = Math.round(decodedHeight * scale);
 
-  /* A 8000x12000 frame is 96 megapixels — 384 MB as raw bitmap, past what a
-   * browser will hand to a canvas, and the draw comes back blank. Decoding a
-   * second time with resize options lets the decoder downsample as it reads,
-   * so the canvas only ever sees the target size. Only worth the extra decode
-   * on the frames that need it. */
-  let source = bitmap;
-  if (sourceWidth * sourceHeight > 40_000_000 && scale < 1) {
-    const small = await createImageBitmap(file, {
-      imageOrientation: "from-image",
-      resizeWidth: width,
-      resizeHeight: height,
-      resizeQuality: "high",
-    }).catch(() => null);
-    if (small) {
-      bitmap.close();
-      source = small;
-    }
-  }
-
-  const drawn = await draw(source, width, height);
-  source.close();
+  const drawn = await draw(bitmap, width, height);
+  bitmap.close();
 
   // Keep the original only when there is genuinely nothing better: no encoder
   // at all, a canvas that failed to draw, or a result no smaller than the
@@ -170,8 +283,8 @@ export async function encodeToWebp(file: File): Promise<Encoded> {
   if (!drawn || blank || bigger) {
     return {
       blob: file,
-      width: sourceWidth,
-      height: sourceHeight,
+      width: originalWidth,
+      height: originalHeight,
       ext: extOf(file.name),
       passthrough: true,
       reason: !drawn
