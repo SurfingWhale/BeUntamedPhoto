@@ -83,6 +83,9 @@ The static gates need none of this and already run on every push.
 
 ## 3. Two of the five genres have no work on this site
 
+> `docs/PRD-the-archive-in-its-own-words.md` § 3.5 measures this against the
+> live genre pages and notes why § 3.2 there makes it worse than it looks.
+
 Counted off the live pages: **7 galleries — Graduation 2, Brand 2, Event 3.
 Food 0. Sport 0.** The tagline, the ticker, `site.genres` and `/about`'s
 commissions line all name five.
@@ -110,6 +113,12 @@ site currently promises five and shows three.
 
 ## 4. The galleries that exist do not say what the job was
 
+> Measured in full, with the live subtitles, the genre membership and a
+> proposal, in `docs/PRD-the-archive-in-its-own-words.md`. That document also
+> corrects this section: it is not true that everything is filed under Event —
+> four of seven are filed correctly, and the three that are not are all the
+> same kind of work, which is a narrower fault and a worse one.
+
 A visitor cannot tell what they are looking at. Live subtitles, verbatim:
 
 | Gallery | What it says | What a client needs |
@@ -135,6 +144,9 @@ filter — the one tool a client has for finding relevant work — is pointing a
 the wrong sets.
 
 ## 5. Gallery titles are inconsistently cased, and only data can fix it
+
+> See `docs/PRD-the-archive-in-its-own-words.md` § 3.3 and § 5.1 — the casing
+> is one of seven checks a reporting content gate could carry.
 
 Sentence case is the rule (`design.md` § 5) and the stylesheet no longer
 forces anything — so a title renders exactly as it was typed. Live right now,
