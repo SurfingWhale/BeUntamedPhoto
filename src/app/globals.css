@@ -1038,24 +1038,47 @@ img { display: block; max-width: 100%; }
   max-width: 32rem;
   padding: var(--space-2xl) var(--page-gutter);
 }
-.index-band__eyebrow {
+
+/* One opening for every section — see components/section-head.tsx. */
+.section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+  justify-items: start;
+}
+.section-head__eyebrow {
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--color-ink-on-dark-2);
-  margin-block-end: var(--space-sm);
+  color: var(--color-muted);
 }
-.index-band__title {
+.section-head__eyebrow span { color: var(--color-accent-deep); font-size: 0.75em; }
+.section-head__title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 7vw, 3.25rem);
+  font-size: clamp(1.75rem, 6vw, 3rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: var(--tracking-display);
-  color: var(--color-ink-on-dark);
   text-wrap: balance;
 }
-/* The second line steps in, which is the reference's own heading rhythm. */
-.index-band__title span { display: block; padding-inline-start: 1.2em; }
+/* The second line steps in. This is the reference's heading rhythm and it is
+ * the detail that makes a two-line heading read as composed rather than as a
+ * sentence that happened to wrap. */
+.section-head__title span { display: block; padding-inline-start: 1.2em; }
+
+/* Standing on a photograph rather than on canvas. */
+.section-head--on-photo .section-head__eyebrow { color: var(--color-ink-on-dark-2); }
+.section-head--on-photo .section-head__eyebrow span { color: var(--color-accent); }
+.section-head--on-photo .section-head__title { color: var(--color-ink-on-dark); }
+
+/* Standing on the page's own measure, between full-bleed sections. */
+.section-head--band {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--space-2xl) var(--page-gutter) var(--space-lg);
+}
 
 /* It has to be a bar, not a banner. The first version pinned the display
  * heading, the count and a wrapping two-row chip set — about 300px of an
@@ -1231,6 +1254,36 @@ img { display: block; max-width: 100%; }
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: calc(var(--rule-hair) * -1);
 }
+/* One lime surface, behind the first gallery in the index.
+ *
+ * docs/RESEARCH-reference-vs-built.md § 4 measured this and nothing acted on
+ * it: the reference stands a photograph on a lime block twice, puts a portrait
+ * on one in its testimonial, and fills its footer with a cropped lime
+ * wordmark. This page used lime for the ticker band and one word of the hero,
+ * which is a hairline where the reference has a surface.
+ *
+ * One block, on the first card only — the reference does not do it to every
+ * card either, and a lime panel behind all nine would be the flood design.md
+ * § 3.6 rules out. Offset by one gap so it reads as a panel the photograph is
+ * standing on rather than a border around it, and it lands in the gap the reel
+ * already leaves between cards.
+ *
+ * docs/PRD-the-reference-layout.md § 3.2. */
+.index-wrap .reel__card:first-child {
+  position: relative;
+  isolation: isolate;
+}
+.index-wrap .reel__card:first-child::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block-start: var(--space-md);
+  inset-inline-start: var(--space-md);
+  inline-size: 100%;
+  block-size: calc(var(--row) * 2.2);
+  background: var(--color-accent);
+}
+
 /* The index covers crop; the lane banners do not.
  *
  * `contain` above is right for the lanes: those are stills borrowed from two
@@ -1409,6 +1462,34 @@ img { display: block; max-width: 100%; }
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
+/* Four covers along the foot of the opening frame — the reference's own move,
+ * and the first evidence there is more than one photograph. Inside the hero's
+ * box, over the plate, so it costs the page no height at all.
+ *
+ * 56px squares: big enough to read as photographs, small enough that four of
+ * them plus the gutters fit a 320px phone with room to spare. */
+.hero__strip {
+  display: flex;
+  gap: var(--space-xs);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hero__thumb {
+  display: block;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  outline: var(--rule-hair) solid var(--color-rule-on-dark);
+  outline-offset: calc(var(--rule-hair) * -1);
+  transition: outline-color var(--dur-micro) var(--ease-out);
+}
+.hero__thumb img { width: 100%; height: 100%; object-fit: cover; }
+@media (hover: hover) and (pointer: fine) {
+  .hero__thumb:hover { outline-color: var(--color-accent); }
+}
+.hero__thumb:active { transform: scale(0.96); }
+
 .hero__foot {
   display: flex;
   flex-wrap: wrap;
@@ -1571,7 +1652,11 @@ img { display: block; max-width: 100%; }
     gap: var(--space-xl);
   }
   .story__head  { grid-column: 2 / span 4; }
-  .story__arrow { grid-column: 6; align-self: start; justify-self: center; margin-top: var(--module); }
+    /* --row, not --module: they are the same 120px at desktop, but --row is
+   * what the lattice repeats at and what the block padding is measured in, so
+   * below 60rem the mark used to drift off the cells it is meant to sit on.
+   * docs/PRD-the-reference-layout.md § 3.5. */
+  .story__arrow { grid-column: 6; align-self: start; justify-self: center; margin-block-start: var(--row); }
   .story__foot  { grid-column: 6; justify-self: center; align-self: end; }
   .story__col   { grid-column: 8 / span 4; }
   .story__body  { max-width: 34ch; }
@@ -1718,40 +1803,14 @@ img { display: block; max-width: 100%; }
   .grid-band { padding-block: calc(var(--row) * 1.5); }
 }
 
-/* A section divider rail — index number, title, right-hand metadata. */
-/* A section label, and nothing more.
- *
- * design.md § 3.7: in the reference this is a small glyph and two or three
- * words, grey, sentence case, top-left — `⊹ Featured Collection`. What was
- * here instead was a full-width rail with a mono numeral, an arrow, capitals,
- * a hairline across the page and a bracketed phrase at the far right, which is
- * louder than the heading it introduces and is the pattern § 11 itself calls a
- * templated tell. The numeral, the capitals, the rule and the right-hand
- * bracket are gone; the label names the section and gets out of the way. */
-.rail {
-  max-width: var(--page-max);
-  margin-inline: auto;
-  /* width, or the auto margins below absorb the free space and shrink-wrap
-   * this box instead of stretching it — see .page, a grid parent. */
-  width: 100%;
-  padding: var(--space-lg) var(--page-gutter) var(--space-2xs);
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2xs);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  color: var(--color-muted);
-}
-/* The glyph, not a numeral. Small, and it sits on the label's baseline. */
-/* --color-accent-deep, not --color-accent-ink. "Ink" means text *on* lime,
- * and every other use of it in this file pairs it with a lime ground; this
- * mark sits on canvas. In light that token is near-black and looked fine by
- * accident. In dark it is #051C14 — the page's own background — so the glyph
- * was painted in the background colour and vanished. --color-accent-deep is
- * the accent that survives on a canvas, in both themes, which is why link
- * hover uses it too. Caught by screenshotting the dark scheme, not by any
- * check: the CSS was valid and both gates passed. */
-.rail__mark { color: var(--color-accent-deep); font-size: 0.75em; }
+/* The section label that used to live here is now .section-head__eyebrow, and
+ * the rail it sat on is gone. design.md § 3.7 wanted a small glyph and two or
+ * three words, grey, sentence case; what stood here was a full-width bar with
+ * a mono numeral, an arrow, capitals, a hairline across the page and a
+ * bracketed phrase at the far right — louder than the heading it introduced.
+ * See components/section-head.tsx, which is now the one opening every section
+ * on the page shares. */
+
 
 /* section heads — stacked single column, never tag-left/head-right */
 /* A grid cell's worth of text, and below 60rem there is no grid.

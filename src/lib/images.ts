@@ -41,6 +41,16 @@ export const PRIVATE_WIDTH = 1500;
  */
 export const THUMB_WIDTH = 288;
 
+/**
+ * The four covers along the foot of the hero, which render at 56px.
+ *
+ * A fixed box that small wants one small file, not a ladder: the smallest
+ * candidate WIDTHS offers is 375w, and the gates caught it pulling that for a
+ * 56px box — 2.2x the pixels at 3x DPR. Asked for directly, with no srcset and
+ * no sizes, the same way the darkroom's contact sheet does it.
+ */
+export const HERO_THUMB_WIDTH = 168;
+
 function origin(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");

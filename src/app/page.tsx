@@ -3,6 +3,7 @@ import { Reveal } from "@/components/motion";
 import { Lanes } from "@/components/lanes";
 import { Hero } from "@/components/hero";
 import { PhotoFold } from "@/components/photo-fold";
+import { SectionHead } from "@/components/section-head";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
 import { site } from "@/lib/site";
@@ -78,7 +79,7 @@ export default async function HomePage() {
   return (
     <div className="page">
       {/* ---- the hero · full bleed, the statement set on it in light type -- */}
-      <Hero photo={featured[0]} />
+      <Hero photo={featured[0]} thumbs={albums.slice(0, 4)} />
 
       <Ticker items={tickerItems} />
 
@@ -197,10 +198,12 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      <div className="rail">
-        <span className="rail__mark" aria-hidden="true">{"\u2739"}</span>
-        <span>Three sites, one practice</span>
-      </div>
+      <SectionHead
+        className="section-head--band"
+        eyebrow="Elsewhere"
+        lead="Three sites,"
+        tail="one practice."
+      />
 
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
       <Lanes

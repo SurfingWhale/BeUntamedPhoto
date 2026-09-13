@@ -7,6 +7,7 @@ import { plate } from "@/lib/format";
 import { genres, genreLabel } from "@/lib/site";
 import { SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
+import { SectionHead } from "@/components/section-head";
 import { useRevealChildren } from "@/components/motion";
 import type { AlbumWithCover, PhotoWithUrl } from "@/lib/gallery";
 
@@ -110,13 +111,12 @@ export function IndexFilter({
             decoding="async"
           />
           <div className="index-band__type">
-            <p className="index-band__eyebrow">
-              <span aria-hidden="true">{"\u2739"}</span> Choose by lane
-            </p>
-            <h2 className="index-band__title">
-              {albums.length} {albums.length === 1 ? "gallery" : "galleries"},
-              <span>filed by what they are.</span>
-            </h2>
+            <SectionHead
+              className="section-head--on-photo"
+              eyebrow="Choose by lane"
+              lead={`${albums.length} ${albums.length === 1 ? "gallery" : "galleries"},`}
+              tail="filed by what they are."
+            />
           </div>
         </div>
       ) : null}
