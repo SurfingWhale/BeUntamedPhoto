@@ -970,7 +970,12 @@ img { display: block; max-width: 100%; }
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xs);
+  /* 12px, not 8: these are bordered pills sitting side by side, and 8px
+   * between two adjacent controls is under the point where a thumb stops
+   * choosing reliably. It is also the one control a client actually uses, so
+   * it is the wrong place to be tight. Measured at 390: three chips end at
+   * 338px of 350, so the extra 8px still fits without wrapping. */
+  gap: var(--space-sm);
   padding-block: var(--space-md);
   border-block: var(--rule-hair) solid var(--color-rule);
 }
@@ -1946,8 +1951,13 @@ img { display: block; max-width: 100%; }
 }
 
 /* --------------------------------------------------------- elsewhere */
+/* The two rows are links, and at gap: 0 their hit areas met exactly on the
+ * hairline: 374x157 and 374x158 touching at 390px, measured. A rule is a
+ * separator for the eye and nothing at all for a thumb. The hairline stays —
+ * it is the system's own language — and the space is what keeps the two
+ * targets apart. */
 .elsewhere { display: grid;
-  grid-template-columns: minmax(0, 1fr); gap: 0; }
+  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
 .elsewhere__row {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
