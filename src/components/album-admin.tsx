@@ -8,11 +8,12 @@ import {
   deletePhoto,
   movePhoto,
   setCover,
+  setFeaturedSlot,
   updateAlbum,
   type DarkroomState,
 } from "@/app/darkroom/actions";
 import { plate } from "@/lib/format";
-import { genres } from "@/lib/site";
+import { FEATURED_SLOTS, genres } from "@/lib/site";
 import { SIZES } from "@/lib/images";
 import type { Album, PhotoWithUrl } from "@/lib/gallery";
 
@@ -157,6 +158,7 @@ export function AlbumAdmin({
   const [delState, delAction] = useActionState(deleteAlbum, IDLE);
   const [photoState, photoAction] = useActionState(deletePhoto, IDLE);
   const [coverState, coverAction] = useActionState(setCover, IDLE);
+  const [featState, featAction] = useActionState(setFeaturedSlot, IDLE);
 
   return (
     <>
@@ -319,6 +321,33 @@ export function AlbumAdmin({
                   </span>
                 </p>
                 <div className="plates__acts">
+                  {/* Which of the home page's four slots this plate fills.
+                      Submits on change rather than behind a second button:
+                      every other control in this row is one press, and a
+                      select that needs a confirm is the row's only two-step
+                      control. */}
+                  <form action={featAction} className="plates__slot">
+                    <input type="hidden" name="id" value={photo.id} />
+                    <input type="hidden" name="slug" value={album.slug} />
+                    <label className="u-sr" htmlFor={`slot-${photo.id}`}>
+                      Home page slot for plate {plate(offset + i)}
+                    </label>
+                    <select
+                      id={`slot-${photo.id}`}
+                      name="rank"
+                      className="field__select"
+                      defaultValue={photo.featured_rank ?? ""}
+                      onChange={(e) => e.currentTarget.form?.requestSubmit()}
+                    >
+                      <option value="">Not on the home page</option>
+                      {FEATURED_SLOTS.map((slot) => (
+                        <option key={slot.rank} value={slot.rank}>
+                          {slot.rank} · {slot.label} — {slot.what}
+                        </option>
+                      ))}
+                    </select>
+                  </form>
+
                   {!photo.is_cover && (
                     <form action={coverAction}>
                       <input type="hidden" name="id" value={photo.id} />
@@ -340,6 +369,7 @@ export function AlbumAdmin({
           ))
         )}
         <Result state={coverState} />
+        <Result state={featState} />
         <Result state={photoState} />
       </div>
 

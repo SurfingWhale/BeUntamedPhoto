@@ -5,7 +5,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/auth";
 import { ALBUMS_TAG } from "@/lib/gallery";
-import { genreIds, genreLabel } from "@/lib/site";
+import { genreIds, genreLabel, FEATURED_SLOTS } from "@/lib/site";
 
 export type DarkroomState = { status: "idle" | "error" | "ok"; message: string };
 
@@ -533,6 +533,75 @@ export async function deletePhoto(
   updateTag(ALBUMS_TAG);
   revalidatePath("/");
   return { status: "ok", message: "Plate removed." };
+}
+
+/**
+ * Put this plate in one of the home page's four slots, or take it out of all
+ * of them.
+ *
+ * The slots are not interchangeable — hero, index band, lane banner, closing
+ * fold — so this is a rank rather than a flag, and a rank can only be held by
+ * one plate at a time. Whoever held it is cleared first, in a separate
+ * statement, because the unique index refuses two rows with the same value and
+ * an update that swaps them in one go trips it mid-flight.
+ *
+ * Revalidates `/` as well as the darkroom, which is the only action here that
+ * has to: this is the one control whose whole effect is on the front page.
+ *
+ * Needs supabase/add-featured-rank.sql to have been run. Until then the update
+ * fails with 42703 and this says so in a sentence instead of a stack trace —
+ * the read path falls back on its own, so the site keeps working meanwhile.
+ */
+export async function setFeaturedSlot(
+  _prev: DarkroomState,
+  formData: FormData,
+): Promise<DarkroomState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { status: "error", message: "Owner access only." };
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const slug = String(formData.get("slug") ?? "");
+  const raw = String(formData.get("rank") ?? "").trim();
+  const rank = raw === "" ? null : Number(raw);
+
+  if (!id) return { status: "error", message: "Which plate?" };
+  if (rank !== null && (!Number.isInteger(rank) || rank < 1 || rank > 4)) {
+    return { status: "error", message: "That is not one of the four slots." };
+  }
+
+  const supabase = await createClient();
+
+  if (rank !== null) {
+    const { error: clearError } = await supabase
+      .from("photos")
+      .update({ featured_rank: null })
+      .eq("featured_rank", rank);
+    if (clearError) return { status: "error", message: featuredMessage(clearError) };
+  }
+
+  const { error } = await supabase.from("photos").update({ featured_rank: rank }).eq("id", id);
+  if (error) return { status: "error", message: featuredMessage(error) };
+
+  revalidatePath("/");
+  revalidatePath(`/darkroom/${slug}`);
+  updateTag(ALBUMS_TAG);
+
+  const slot = FEATURED_SLOTS.find((s) => s.rank === rank);
+  return {
+    status: "ok",
+    message: slot ? `Set as the ${slot.label.toLowerCase()}.` : "Taken off the home page.",
+  };
+}
+
+/** The migration is the likely cause, so say that rather than the raw code. */
+function featuredMessage(error: { code?: string; message: string }): string {
+  if (error.code === "42703" || /featured_rank/.test(error.message)) {
+    return "Run supabase/add-featured-rank.sql once against the project — the column it adds is not there yet.";
+  }
+  return error.message;
 }
 
 export async function setCover(

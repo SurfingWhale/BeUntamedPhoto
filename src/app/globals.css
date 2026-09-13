@@ -2536,6 +2536,17 @@ img { display: block; max-width: 100%; }
   object-fit: contain;
   background: var(--color-paper-2);
 }
+/* The home-page slot selector, one per plate row. Narrow on purpose: it sits
+ * in a column with "make cover" and "remove", and a full-width select there
+ * would make the row read as a form rather than as three small controls. */
+.plates__slot { min-width: 0; }
+.plates__slot .field__select {
+  width: 100%;
+  max-width: 22rem;
+  font-size: var(--text-sm);
+  padding-block: var(--space-2xs);
+}
+
 .plates__meta { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); min-width: 0; }
 /* Ordering sits beside the plate it moves. Stacked, because two arrows side by

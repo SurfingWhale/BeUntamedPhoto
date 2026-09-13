@@ -127,3 +127,17 @@ export const elsewhere = [
     h: 750,
   },
 ] as const;
+
+/**
+ * The home page's four photographic slots, in the order the page renders them.
+ * The darkroom offers exactly these; the check constraint in
+ * supabase/add-featured-rank.sql refuses anything else.
+ */
+export const FEATURED_SLOTS = [
+  { rank: 1, label: "Hero", what: "full bleed, the statement set on it" },
+  { rank: 2, label: "Index band", what: "the frame the genre filter sits on" },
+  { rank: 3, label: "Lane banner", what: "the archive's own card in the lanes" },
+  { rank: 4, label: "Closing fold", what: "the plate the page ends on" },
+] as const;
+
+export type FeaturedSlot = (typeof FEATURED_SLOTS)[number];

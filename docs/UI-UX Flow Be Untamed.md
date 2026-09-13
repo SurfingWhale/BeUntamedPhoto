@@ -198,6 +198,110 @@ flowchart LR
 
 ---
 
+## 5b. Flow — the owner choosing what opens the site
+
+Added 2026-09-14. Until now the four photographs on `/` were whichever four the
+archive returned — covers first, then newest first — so the front page was a
+by-product of upload order. There was no way to say *this frame opens the
+site*, which is the one editorial decision a photographer most wants over their
+own front page.
+
+### The four slots
+
+`/` renders four photographic positions, and they are not interchangeable —
+different sizes, different jobs:
+
+| rank | slot | what it is |
+| --- | --- | --- |
+| 1 | **Hero** | full bleed, the statement set on it in light type |
+| 2 | **Index band** | the frame the genre filter and heading sit on |
+| 3 | **Lane banner** | the archive's own card in the lanes reel |
+| 4 | **Closing fold** | the plate the page ends on |
+
+`FEATURED_SLOTS` in `src/lib/site.ts` is the single list. It is in `site.ts`
+rather than `gallery.ts` because the darkroom's plate row is a client
+component, and `gallery.ts` is `server-only` — importing the list from there
+pulled `next/headers` into the client bundle and failed the build.
+
+### The control
+
+One `<select>` per plate in `/darkroom/<slug>`, in the same row as **make
+cover** and **remove**:
+
+```
+Not on the home page          ← default, and what every plate starts as
+1 · Hero — full bleed, the statement set on it
+2 · Index band — the frame the genre filter sits on
+3 · Lane banner — the archive's own card in the lanes
+4 · Closing fold — the plate the page ends on
+```
+
+It submits on change rather than behind a confirm button. Every other control
+in that row is one press, and a select that needs a second press would be the
+only two-step control on the row.
+
+### The flow
+
+```mermaid
+flowchart TD
+  A[Owner opens /darkroom/slug] --> B[Plate row shows its current slot]
+  B --> C{Pick a slot}
+  C -->|"Not on the home page"| D[rank := null]
+  C -->|"1-4"| E[Clear whoever holds that rank]
+  E --> F[rank := chosen]
+  D --> G[revalidatePath '/' + darkroom, updateTag ALBUMS_TAG]
+  F --> G
+  G --> H[Home page re-renders with the new order]
+  H --> I{Column exists?}
+  I -->|yes| J[Chosen plates first, then covers, then newest]
+  I -->|"no — migration un-run"| K[Falls back to covers, then newest]
+```
+
+### Why a rank and not a flag
+
+A boolean would say *this is featured* and leave the page to guess which of the
+four positions it meant. A rank says which. The unique partial index in
+`supabase/add-featured-rank.sql` then makes "one plate per slot" a property of
+the database rather than a convention the UI hopes to maintain — two
+photographs cannot both claim the hero.
+
+The clear-then-set is two statements on purpose: that unique index refuses two
+rows holding the same value, and an update that swaps them in one statement
+trips it mid-flight.
+
+### What happens before the migration is run
+
+`supabase/add-featured-rank.sql` has to be run once against the project. Until
+it is:
+
+- **Reading degrades, it does not break.** `runFeaturedQuery` asks for
+  `featured_rank`, and on `42703 — column does not exist` falls back to the
+  query it used before. A front page that 500s until someone opens the SQL
+  editor is a worse answer than one that orders itself the way it did last
+  week. Every other error still throws, because a swallowed error renders an
+  empty archive at 200.
+- **Writing says so in a sentence.** The action answers "Run
+  supabase/add-featured-rank.sql once against the project — the column it adds
+  is not there yet" rather than surfacing the Postgres code.
+
+Proven rather than assumed: `next build` runs the featured query against the
+live project for real, and it succeeds today, with the column absent.
+
+### The ordering trick that is easy to get wrong
+
+```ts
+.order("featured_rank", { ascending: true, nullsFirst: false })
+```
+
+`nullsFirst: false` is the whole thing. Postgres sorts NULLs **first** on an
+ascending order by default, which would put every *unchosen* plate ahead of the
+chosen one and invert the feature exactly.
+
+The consequence of ordering rather than filtering is the useful part: an
+unassigned plate still queues behind the assigned ones in the old order, so the
+page is never blank while the archive is being arranged, and assigning one slot
+does not disturb the other three.
+
 ## 6. Audit — what is wrong or missing
 
 Ordered by how much it costs someone using the site.

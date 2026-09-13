@@ -31,6 +31,14 @@ export type Photo = {
   height: number | null;
   position: number;
   is_cover: boolean;
+  /**
+   * Which slot on the home page this plate fills, 1-4, or null for "not
+   * chosen". See supabase/add-featured-rank.sql for what each number is.
+   * Optional on the type because the column may not exist yet — the query
+   * below falls back rather than breaking the site while the migration is
+   * still un-run.
+   */
+  featured_rank?: number | null;
 };
 
 export type PhotoWithUrl = Photo & {
@@ -252,6 +260,12 @@ function stripPhotos(row: Album & { photos: Photo[] }): Album {
 const PHOTO_COLUMNS =
   "id, album_id, bucket, path, caption, place, taken_on, width, height, position, is_cover";
 
+/* The same list plus the slot column. Kept separate because only the featured
+ * query needs it, and asking for a column that does not exist yet fails the
+ * whole select — see the fallback in runFeaturedQuery. */
+const FEATURED_COLUMNS = `${PHOTO_COLUMNS}, featured_rank`;
+
+
 /**
  * Albums and their covers in one round trip.
  *
@@ -352,7 +366,6 @@ export async function getAlbumsWithCovers(genre?: string): Promise<AlbumWithCove
   }));
 }
 
-
 /**
  * Plates still stored as an oversized original.
  *
@@ -376,11 +389,45 @@ export async function getOversizedPhotos(limit = 200): Promise<PhotoWithUrl[]> {
   return withUrls(stale);
 }
 
-
 async function runFeaturedQuery(
   supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createAnonClient>,
   limit: number,
 ): Promise<Photo[]> {
+  /* Owner's choice first, then the old behaviour underneath it.
+   *
+   * `featured_rank` ascending with nulls last means an assigned plate takes
+   * its slot and every unassigned one queues behind in the order this query
+   * always used — so the page is never blank while the archive is being
+   * arranged, and assigning one slot does not disturb the other three.
+   *
+   * nullsFirst: false is the whole trick. Postgres sorts NULLs first on an
+   * ascending order by default, which would put every unchosen plate ahead of
+   * the chosen one and invert the feature. */
+  const ranked = await supabase
+    .from("photos")
+    .select(FEATURED_COLUMNS)
+    .order("featured_rank", { ascending: true, nullsFirst: false })
+    .order("is_cover", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (!ranked.error) return (ranked.data ?? []) as Photo[];
+
+  /* 42703 is "column does not exist". The migration in
+   * supabase/add-featured-rank.sql has not been run yet, and a front page that
+   * 500s until someone opens the SQL editor is a worse answer than one that
+   * orders itself the way it did last week. Every other error still throws. */
+  const missingColumn =
+    ranked.error.code === "42703" || /featured_rank/.test(ranked.error.message);
+  if (!missingColumn) {
+    console.error(
+      "[gallery] featured query failed:",
+      ranked.error.message,
+      ranked.error.details,
+    );
+    throw new Error(`Could not read the archive: ${ranked.error.message}`);
+  }
+
   const { data, error } = await supabase
     .from("photos")
     .select(PHOTO_COLUMNS)
