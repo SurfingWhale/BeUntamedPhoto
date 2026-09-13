@@ -2383,6 +2383,32 @@ img { display: block; max-width: 100%; }
 .field__file:focus-visible { outline-color: var(--color-focus); }
 
 /* ------------------------------------------------- the staging grid */
+/* The card as it will render, beside the form that writes it — § 5.2.3 of
+ * docs/PRD-the-archive-in-its-own-words.md. 167px is one card of the two-up
+ * /work grid on a 390px phone, measured. It borrows .album__meta,
+ * .album__title and .album__sub from the real card rather than restating
+ * them, so the two cannot drift. */
+.preview { display: grid; gap: var(--space-xs); justify-items: start; }
+.preview__label {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.preview__card {
+  width: 167px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+}
+.preview__media {
+  display: block;
+  aspect-ratio: 3 / 4;
+  background: var(--color-paper-2);
+  outline: var(--rule-hair) solid var(--outline-image);
+  outline-offset: calc(var(--rule-hair) * -1);
+}
+
 /* Chosen plates, re-encoded and previewed, before anything is published. The
  * row is thumbnail · caption · controls — the same shape as .plates__row in
  * the list below it, so the darkroom reads as one place rather than two. */

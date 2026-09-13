@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { createAlbum, type DarkroomState } from "@/app/darkroom/actions";
@@ -18,11 +18,54 @@ function Submit() {
   );
 }
 
+/**
+ * The card, at the width it will actually render.
+ *
+ * The subtitle is written in a text input two hundred pixels wider than the
+ * box that has to hold it, which is how "Strobist, PrimeLens And Summer" and
+ * "Sales Headshot Photography" both looked fine while being written. One card
+ * of the two-up /work grid measures 167px on a 390px phone — measured, not
+ * guessed — so that is the width here. Same classes as the real card, so it
+ * cannot drift from it.
+ *
+ * See docs/PRD-the-archive-in-its-own-words.md § 5.2.3.
+ */
+function CardPreview({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="preview">
+      <p className="u-mono preview__label">
+        As it renders — one card of the two-up grid, 167px, on a 390px phone
+      </p>
+      <div className="preview__card" aria-hidden="true">
+        <span className="preview__media" />
+        <div className="album__meta">
+          <h2 className="album__title">{title || "Untitled"}</h2>
+          <p className="album__sub">{subtitle || "no subtitle"}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AlbumForm() {
   const [state, action] = useActionState(createAlbum, IDLE);
+  const [card, setCard] = useState({ title: "", subtitle: "" });
 
   return (
-    <form className="auth__form" action={action}>
+    <form
+      className="auth__form"
+      action={action}
+      /* Uncontrolled inputs, read on the way past: the form already posts as
+       * FormData, so mirroring every field into React state would be two
+       * sources of truth for no gain. */
+      onInput={(e) => {
+        const f = new FormData(e.currentTarget);
+        setCard({
+          title: String(f.get("title") ?? ""),
+          subtitle: String(f.get("subtitle") ?? ""),
+        });
+      }}
+    >
       <div className="field">
         <label className="field__label" htmlFor="title">
           Title
@@ -132,6 +175,8 @@ export function AlbumForm() {
           <p className="field__help" />
         </div>
       </div>
+
+      <CardPreview title={card.title} subtitle={card.subtitle} />
 
       <div>
         <Submit />
