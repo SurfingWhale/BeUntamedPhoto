@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { IndexFilter } from "@/components/index-filter";
 import { Reveal } from "@/components/motion";
 import { Lanes } from "@/components/lanes";
@@ -133,33 +135,48 @@ export default async function HomePage() {
         <IndexFilter albums={albums} band={bandPlate} />
       </section>
 
-      {/* ---- opening zone · mostly empty, marks placed in the blank cells --- */}
+      {/* ---- featured · the reference's section 4, built as a section -----
+           docs/reference/nomvnt-page.jpg. Eyebrow, a two-line heading with
+           the second line stepped in and one word marked, a supporting line,
+           then two cards — the first standing on a lime block — and an action
+           at the trailing edge. That is the whole shape of its Featured
+           Collection, and the first pass at this put two plates into the
+           typographic zone without any of it: no opening, no card names, no
+           foot. A pair of photographs is not a section.
+
+           The zone's own voice is kept rather than replaced. "Visual archive"
+           becomes the eyebrow it always read like, and `2K26` stays as the
+           graphic numeral — the reference has no equivalent, but this archive
+           does and it is the one thing here that is not borrowed.
+
+           What the copy must not claim: these two are *not* hand-picked.
+           featured_rank exists for that and its migration is still un-run
+           (pending-task.md § 9), so the plates arrive in the archive's own
+           order. The heading says "out of the file", which is true either
+           way. */}
       <section className="open u-lattice">
-        <Reveal className="open__label" index={0}>
-          <p className="u-mono">
-            visual
-            <br />
-            archive
-          </p>
-          <p className="open__no">{`2K${String(year).slice(2)}`}</p>
-        </Reveal>
+        <SectionHead
+          className="open__head"
+          eyebrow="Visual archive"
+          lead="Out of the file,"
+          tail={
+            <>
+              <em>two</em> frames.
+            </>
+          }
+          sub="No brief attached and no set around them — two plates at the size this page can give them. Everything with a job behind it is filed by lane below."
+        />
+
+        <p className="open__no" aria-hidden="true">{`2K${String(year).slice(2)}`}</p>
 
         <span className="mark mark--thin open__arrow" aria-hidden="true">
           ←
         </span>
 
-        {/* Two plates, the first standing on a lime block — the reference's
-            Featured Collection, which is the one section of its nine this page
-            had no answer to. It replaces four 12px colour squares: those were
-            the only generated graphic left on the page, their own comment
-            claimed they were "sampled from the adjacent photograph" when they
-            were four hardcoded tokens, and there was no adjacent photograph to
-            sample. docs/reference/nomvnt-page.jpg, section 4.
-
-            Eight of the reference's nine sections carry a photograph and
-            exactly one is type alone. This page had two type-only sections
-            back to back, which is the whole of "gaada element image jadinya
-            flat". */}
+        {/* Two cards, and they are cards now: the plate, its own name, and a
+            quiet line under it — the reference's "Olive Parade Outwear /
+            Classic, Oversized Fit". A figure with a plate number and nothing
+            else was a contact sheet. */}
         <Reveal className="open__pair" index={2}>
           {[pairA, pairB].map((plate, i) =>
             plate?.url ? (
@@ -177,13 +194,29 @@ export default async function HomePage() {
                   decoding="async"
                 />
                 <figcaption className="pair__cap">
-                  <span className="pair__no">[{plate2(i + 4)}]</span>
-                  {plate.place ? <span>{plate.place}</span> : null}
+                  <span className="pair__name">
+                    <span className="pair__no">[{plate2(i + 4)}]</span>{" "}
+                    {plate.caption ?? `Plate ${plate2(i + 4)}`}
+                  </span>
+                  {plate.place ? (
+                    <span className="pair__meta">{plate.place}</span>
+                  ) : null}
                 </figcaption>
               </figure>
             ) : null,
           )}
         </Reveal>
+
+        {/* The action at the trailing edge, where the reference puts its
+            `( 24 Products )` and its arrows. A link rather than arrows:
+            arrows page a carousel and there is nothing here to page. The
+            count is not repeated either — the index below already prints it,
+            and this page has listed one set twice before. */}
+        <p className="open__foot">
+          <Link className="link" href="/work">
+            All galleries →
+          </Link>
+        </p>
       </section>
 
       {/* ---- lower zone · display type against a narrow justified column --- */}

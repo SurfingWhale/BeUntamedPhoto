@@ -170,9 +170,22 @@ The load-bearing layout decision on this site.
   index carries a sticky head above it — a count and the genre chips — which
   is the only sticky thing on the page besides the masthead, and therefore the
   only other place § 10's safe-area rule bites.
-  The opening zone carries **two plates, the first standing on a lime block** —
-  the reference's Featured Collection, and the section that replaced a strip of
-  four 12px colour squares. It is the answer to a count: eight of the
+  The opening zone **is** the reference's Featured Collection now, and built as
+  a section rather than as two plates dropped into a typographic zone: eyebrow,
+  two-line heading with the second line stepped in and one word marked, a
+  supporting line, then two cards — the first standing on a lime block, each
+  with a name and a quieter line under it — and an action at the trailing edge.
+  A pair of photographs is not a section; that was the first pass and the owner
+  sent the reference crop back.
+
+  Its own voice is kept rather than replaced: "Visual archive" became the
+  eyebrow it always read like, and `2K26` stays as the graphic numeral the
+  reference has no equivalent for. What the copy may not claim is that the two
+  are hand-picked — `featured_rank` exists for that and its migration is
+  un-run, so they arrive in the archive's own order and the heading says "out
+  of the file", which is true either way.
+
+  It replaced a strip of four 12px colour squares. It is the answer to a count: eight of the
   reference's nine sections carry a photograph and exactly one is type alone,
   where this page ran two type-only sections back to back. The heading takes
   the first grid row and the plates the second, because `2K26` is a 469px
@@ -585,3 +598,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | Type resized for the phone, on the owner's report that it felt cramped. Measured at six widths, every display clamp was flat across 360/390/430 — the floor was beating its own `vw` term, so a phone got the desktop minimum. Six rules rewritten as `rem + vw` ramps fitted to 1280, the position marks sized for the phone first, the index's own image box cut from 2.2 to 1.7 rows below 48rem, and the contact strip kept to the lead card where its boxes are 89px rather than 44px. The index section at 390 went 1632px → 1267px. Hero and card titles untouched, at the owner's instruction. Gate 12 added and proved. |
 | 2026-09-14 | The reference images committed to `docs/reference/`, after four sessions of design work written against images that only ever existed in a chat window. Counting them settled the owner's "gaada element image jadinya flat": eight of the reference's nine sections carry a photograph and one is type alone, against two type-only sections back to back here. The opening zone took the reference's **Featured pair** — two plates, the first on a lime block — in place of four hardcoded colour swatches whose own comment claimed they were sampled from an adjacent photograph that did not exist. The lanes stack below 48rem, which put three banner cards on a phone where a reel showed one and a sliver. Two bugs found by measuring rather than looking: `2K26` is a 469px numeral that has always overflowed its 264px cell, invisible only because the columns beside it were empty; and the sport lane's `sizes` had described a stacked layout ever since the lanes became a reel, over-declaring by 19%. |
 | 2026-09-14 | A gallery became a case study. The owner's read of the reference: its cards explain the product and tap through to a page that tells its story, which is what a client needs before commissioning food or sport — the two lanes with nothing filed under them. `albums.story` (nullable, one migration) carries the paragraph; the gallery page opens on lane · title · line · story · facts; and the home index cards show the subtitle they had been carrying but never printing. The write falls back when the column is absent and says the story did not stick, rather than refusing the save. |
+| 2026-09-14 | The Featured section rebuilt as a section, on the owner's correction — the first pass put two plates into the `2K26` zone with no opening, no card names and no foot, which is a pair of photographs rather than the reference's section 4. Three grid rows now, because `2K26` is a 469px numeral that may not share one: the opening, the cards, the action. Cards carry a name and a descriptor, the reference's "Olive Parade Outwear / Classic, Oversized Fit". |

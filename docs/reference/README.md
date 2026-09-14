@@ -29,7 +29,7 @@ to the image.
 | 1 | Hero | full-bleed photograph · giant wordmark on it in lime · caption block low-right **on** the image · **four small thumbnails along the bottom edge** |
 | 2 | Ticker | lime band, no image |
 | 3 | About | **no image** — one large paragraph and a smaller grey one |
-| 4 | Featured | **two cards side by side, the left one standing on a lime block** · `( 24 Products )` and ← → |
+| 4 | Featured | **two cards side by side, the left one standing on a lime block** · `( 24 Products )` and ← → · each card: image, **name**, and a quieter descriptor under it |
 | 5 | Seasonal | **one large card, three smaller** |
 | 6 | By category | a photograph carrying the whole section, **filter chips laid over it** |
 | 7 | Testimonials | **portrait on a lime block** + a quote card |
@@ -39,6 +39,14 @@ to the image.
 Eight of its nine sections carry a photograph. Exactly one — About — is type
 alone. That is the measurement behind "biar ga flat": this site had *two*
 type-only sections back to back where the reference has one.
+
+A section is more than its pictures, which is the mistake worth recording: the
+first attempt at row 4 put two plates into an existing typographic zone and
+called it done. The reference's Featured Collection is an eyebrow, a two-line
+heading with the second line stepped in, a supporting line, two *named* cards
+and an action at the trailing edge — and the owner sent this crop back with
+"kan maksud gw dibagian section ini tambahin". Count the parts of a section,
+not just whether a photograph appears in it.
 
 **And the sections are only half of it.** Every card in rows 4, 5 and 8 taps
 through to a page that explains the thing — the reference's product detail.

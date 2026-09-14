@@ -1935,23 +1935,25 @@ img { display: block; max-width: 100%; }
     align-items: start;
     padding-block: var(--row) calc(var(--row) * 2);
   }
-  /* Two rows, and the reason is measured. `2K26` is a 469px graphic numeral at
-   * 1280 and 1440, in a cell that was 264px — it has always overflowed, and it
-   * never showed because every column to its right was empty. Put two plates
-   * in those columns and the numeral runs 53px *into* the first one at 1280
-   * and comes within 1px of it at 1440.
+  /* Three rows: the opening, the cards, the action — the reference's own
+   * order for this section.
    *
-   * So the heading takes row one and the plates row two, which is also what
-   * the reference does with this section: heading top-left, cards below it and
-   * to the right. Five columns is 538px at 1440 and 472 at 1280, so the
-   * numeral now fits inside its own cell at both rather than being trusted not
-   * to collide with whatever happens to sit beside it. */
-  .open__label { grid-column: 2 / span 5; grid-row: 1; }
+   * Rows exist because of a measurement. `2K26` is a 469px graphic numeral at
+   * 1280 and 1440, and it sat in a cell of 264px — it has always overflowed,
+   * and it never showed because every column to its right was empty. Put two
+   * plates in those columns and the numeral runs 53px *into* the first one at
+   * 1280 and comes within 1px of it at 1440. So nothing shares a row with it.
+   *
+   * The numeral takes the trailing five columns of row one, which is 538px at
+   * 1440 and 472 at 1280 — it fits inside its own cell at both now rather than
+   * being trusted not to collide with whatever happens to sit beside it. */
+  .open__head  { grid-column: 2 / span 5; grid-row: 1; }
+  .open__no    { grid-column: 8 / span 5; grid-row: 1; justify-self: end; align-self: start; }
   .open__arrow { grid-column: 5; grid-row: 2; justify-self: center; align-self: center; }
   .open__pair  { grid-column: 6 / span 7; grid-row: 2; }
+  .open__foot  { grid-column: 6 / span 7; grid-row: 3; justify-self: end; }
 }
-.open__label { display: grid;
-  grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
+
 .open__no {
   font-family: var(--font-display);
   /* Was --text-2xl, the same step as a section heading, which made the year
@@ -2012,19 +2014,42 @@ img { display: block; max-width: 100%; }
 .pair[data-lime="true"] img {
   box-shadow: calc(var(--space-xs) * -1) var(--space-xs) 0 0 var(--color-accent);
 }
+/* Name then descriptor, which is how the reference labels a card: a line you
+ * read, and a quieter one under it. A plate number on its own was a contact
+ * sheet. */
 .pair__cap {
-  display: flex;
-  gap: var(--space-xs);
-  align-items: baseline;
+  display: grid;
+  gap: var(--space-3xs);
+  min-width: 0;
+}
+.pair__name {
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+  text-wrap: pretty;
+  /* Two lines at most: a caption the owner wrote long belongs on the plate's
+   * own page, not in a 379px card. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.pair__meta {
   font-size: var(--text-xs);
   color: var(--color-muted);
-  min-width: 0;
 }
 .pair__no {
   font-family: var(--font-mono);
   letter-spacing: var(--tracking-code);
   font-variant-numeric: tabular-nums;
-  color: var(--color-ink-2);
+  color: var(--color-muted);
+}
+
+/* The action at the trailing edge of the section. */
+.open__foot {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
 /* A gallery reads as a case study — see the note in album-view.tsx.
