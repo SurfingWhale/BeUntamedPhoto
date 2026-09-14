@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { Apex } from "@/components/apex";
 import { usePathname } from "next/navigation";
 
 import { MastheadRetract, ScrollRule } from "@/components/motion";
@@ -21,8 +23,10 @@ export function Masthead() {
     <header className="mast">
       <div className="mast__bar">
         <Link className="mast__id" href="/" aria-label={`${site.name} — home`}>
-          <span className="mast__glyph" aria-hidden="true">
-            U
+          {/* The apex, not a letter. See components/apex.tsx — this box held
+              a `U` typeset in the display face, which was never the mark. */}
+          <span className="mast__glyph">
+            <Apex size="1.5rem" />
           </span>
           <span>
             <span className="mast__name">

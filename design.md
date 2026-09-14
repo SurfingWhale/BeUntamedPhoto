@@ -219,7 +219,38 @@ The load-bearing layout decision on this site.
 - **`/enter`, `/account`, `/darkroom`** — function only. No enrichment of any
   kind; get out of the way.
 
-### The marks
+### The mark
+
+**The apex.** `docs/reference/untamed-marks.png` specifies the archive's
+primary mark in words and the code follows them literally: *"One continuous
+stroke. Ascending arc that stops sharply at the highest point. The half-second
+before a thing is over."* That last sentence is `.story__title` on the home
+page, so the mark and the copy are the same idea.
+
+- **One continuous stroke** — a `stroke` on a single path, never a `fill`. Two
+  shapes would be two marks.
+- **Ascending arc** — flat off the baseline, steepening only at the end. A
+  symmetrical arc reads as a swoosh, which this is not.
+- **Stops sharply** — `miter` at the apex, `butt` at both ends. A round cap or
+  a bevel turns the sharp stop into a soft one and loses the whole idea.
+
+`components/apex.tsx` is the only copy of the path. The masthead register box
+draws it, and the five app icons are rasterised from that same file by a
+script that reads the path out of it rather than repeating it, so the favicon
+and the masthead cannot drift apart.
+
+Until 2026-09-14 all six of those drew a **letter `U`** typeset in the display
+face. The owner asked where his logo was, which is a fair question: it had
+never been implemented. The mark sheet had been committed to
+`docs/reference/` the day before and nothing read it.
+
+The **second** mark on that sheet — four corner registration marks, "the frame
+before the photograph exists" — is `.bracket` in the stylesheet. Still open:
+the **wordmark**. `.mast__name` sets `UNTAM<em>E</em>D` in Archivo with a lime
+`E`, and the sheet shows specific custom lettering. That needs the real
+outlines, not a guess at them.
+
+### The marks in the margins
 
 The Corbusier restraint layer. `←` alone in an empty region · `↗` bold, level
 with a headline's second line · `⌐` at a text block's top-right, outside its
@@ -599,3 +630,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The reference images committed to `docs/reference/`, after four sessions of design work written against images that only ever existed in a chat window. Counting them settled the owner's "gaada element image jadinya flat": eight of the reference's nine sections carry a photograph and one is type alone, against two type-only sections back to back here. The opening zone took the reference's **Featured pair** — two plates, the first on a lime block — in place of four hardcoded colour swatches whose own comment claimed they were sampled from an adjacent photograph that did not exist. The lanes stack below 48rem, which put three banner cards on a phone where a reel showed one and a sliver. Two bugs found by measuring rather than looking: `2K26` is a 469px numeral that has always overflowed its 264px cell, invisible only because the columns beside it were empty; and the sport lane's `sizes` had described a stacked layout ever since the lanes became a reel, over-declaring by 19%. |
 | 2026-09-14 | A gallery became a case study. The owner's read of the reference: its cards explain the product and tap through to a page that tells its story, which is what a client needs before commissioning food or sport — the two lanes with nothing filed under them. `albums.story` (nullable, one migration) carries the paragraph; the gallery page opens on lane · title · line · story · facts; and the home index cards show the subtitle they had been carrying but never printing. The write falls back when the column is absent and says the story did not stick, rather than refusing the save. |
 | 2026-09-14 | The Featured section rebuilt as a section, on the owner's correction — the first pass put two plates into the `2K26` zone with no opening, no card names and no foot, which is a pair of photographs rather than the reference's section 4. Three grid rows now, because `2K26` is a 469px numeral that may not share one: the opening, the cards, the action. Cards carry a name and a descriptor, the reference's "Olive Parade Outwear / Classic, Oversized Fit". |
+| 2026-09-14 | The apex mark implemented. The masthead register box and all five app icons had been drawing a letter `U` typeset in the display face; the owner asked where his logo was and the answer was that it had never been built, one day after the mark sheet was committed to `docs/reference/`. `components/apex.tsx` holds the only copy of the path, derived from the three sentences on that sheet, and the icons are rasterised from that file by a script that reads the path out of it. The wordmark is still Archivo and still not his. |

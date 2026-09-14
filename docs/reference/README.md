@@ -15,8 +15,8 @@ them. Don't.
 | file | what it is | what reads it |
 | --- | --- | --- |
 | `nomvnt-page.jpg` | The Nomvnt page, full length. The structural backbone — the owner's words: "Nomvnt itu kerangkanya". | `PRD-the-reference-layout.md` § 1 is a section-by-section table of this image. `design.md` § 4. |
-| `untamed-marks.png` | The archive's own mark sheet: the apex stroke, and the four corner registration marks. | `.mark` and `.bracket` in `globals.css` are these. So is `.story__title` — "the half-second before it is over" is the caption under the apex. |
-| `untamed-wordmark.jpg` | The wordmark. | `.foot__wordmark`, `.mast__name`, and the `site.byline` the whole site signs off with. |
+| `untamed-marks.png` | The archive's own mark sheet: the apex stroke, and the four corner registration marks. | **`components/apex.tsx`** is the apex — the masthead's register box and all five app icons draw it. `.bracket` in `globals.css` is the registration pair. And `.story__title` is the sheet's own caption: "the half-second before it is over". |
+| `untamed-wordmark.jpg` | The wordmark. | **Not implemented.** `.mast__name` and `.foot__wordmark` set `UNTAMED` in Archivo with a lime `E`; this is custom lettering and needs the real outlines rather than a guess at them. `site.byline` is the text the site signs off with either way. |
 | `type-specimen.jpg` | A type specimen, for the voice: a display heading at a size that crowds the frame, small technical labels, one accent colour on a word. | `design.md` § 1 and § 5. The numbered-plate rhythm and the marked word both come from here. |
 
 ## What the Nomvnt page actually does, in order

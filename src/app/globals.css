@@ -345,6 +345,12 @@ img { display: block; max-width: 100%; }
   padding: var(--space-2xs) var(--page-gutter);
 }
 .mast__id { display: flex; align-items: center; gap: var(--space-sm); }
+/* The register box, holding the apex mark.
+ *
+ * It held a `U` typeset in the display face until 2026-09-14, which is why the
+ * type declarations were here. They are gone with it: the mark is an SVG that
+ * takes `currentColor`, so `color` is the only one of them still doing work.
+ * See components/apex.tsx. */
 .mast__glyph {
   width: 2rem;
   height: 2rem;
@@ -354,13 +360,6 @@ img { display: block; max-width: 100%; }
   background: var(--color-paper-dark);
   border: var(--rule-hair) solid var(--color-accent);
   color: var(--color-accent);
-  font-family: var(--font-display);
-  font-weight: 800;
-  /* --text-base, which is the same 0.9375rem this was written as. The literal
-   * was the only font-size in the stylesheet not reading from the scale, so a
-   * change to the scale would have left the register glyph behind. */
-  font-size: var(--text-base);
-  line-height: 1;
 }
 .mast__name {
   font-family: var(--font-display);
