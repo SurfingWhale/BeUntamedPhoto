@@ -77,8 +77,22 @@
    * figures are eyeballed off a screenshot and carry maybe ±20%; ours are
    * measured. --text-base stays at 15px and --text-md stops at 16px rather
    * than following the reference all the way down, because that is reading
-   * copy on a phone and this is not a desktop fashion site. */
-  --text-display-s: clamp(1.625rem, 2.6vw, 2.25rem);
+   * copy on a phone and this is not a desktop fashion site.
+   *
+   * 2026-09-14, the other half of the same read — "font size buat mobile gede
+   * banget ... visualnya kerasa sesek". Those figures were all taken at 1440,
+   * and on a phone it was the *display* steps that were wrong: every type
+   * clamp on / resolved to the identical number at 360, 390 and 430, because a
+   * plain `Nvw` middle term does not overtake its own floor until roughly
+   * 700px. A phone was being served the value picked as the desktop minimum,
+   * and the label steps here were never the problem. The shape that fixes it
+   * is `clamp(floor, rem + vw, ceiling)` — the rem carries the intercept so
+   * the slope can be gentle enough to govern at 390 — and gate 12 now fails
+   * any type clamp that comes out flat across the phone range. */
+  /* 22px at 390, 36px at 1440. It was 26px flat across every phone width,
+   * because 2.6vw does not reach the floor until 1000px — see the clamp-floor
+   * note on .statement__lead in globals.css. */
+  --text-display-s: clamp(1.375rem, 1.07rem + 1.3vw, 2.25rem);
   /* The hero statement, and its only caller.
    *
    * The floor came down from 3rem when a display webfont first landed, and it

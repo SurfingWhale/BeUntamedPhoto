@@ -253,6 +253,27 @@ draws in one family again, it fails.
 width, the display sizes were nearly double the reference's before they were
 corrected; the labels were already right. The scale lives in `tokens.css`.
 
+**A clamp floor is a phone's real size, not a safety net.** Every one of those
+figures was taken at 1440, and the phone was never checked. Measured at 360,
+390 and 430, six display sizes came back *identical* at all three: a
+`clamp(floor, Nvw, ceiling)` whose vw term does not overtake its floor until
+~700px hands a phone the value chosen as the desktop minimum, and nothing
+scales. On a 390 screen that was a 40px story heading, a 28px section heading
+and three 28–32px position marks, which is the whole of "visualnya kerasa
+sesek".
+
+Write it `clamp(floor, rem + vw, ceiling)`: the rem carries the intercept, so
+the slope can be gentle enough to govern at 390 instead of being overruled.
+Solve for two points — the phone size wanted and the size the desktop already
+had **at 1280, not 1440**. Fitting to 1440 arrives 5–8% low at 1280, because
+these clamps reach their ceiling between 1100 and 1400; fit to 1280 and the
+ceiling holds 1440 for free. Verify by measuring, not by the arithmetic.
+
+Exempt, and named in the gate: the hero, whose floor is derived from how many
+lines its statement takes, and `.head__title`, whose 22px already *is* the
+phone size. Space tokens are out of scope — `--page-gutter` is pinned at 20px
+across every phone and should be.
+
 **A `ch` cap belongs on the element whose own font it constrains.** The
 display face runs wider than the system sans at the same point size — Syne by
 **52.8%**, Archivo Expanded by **15.6%** — so the moment either landed every
@@ -470,11 +491,13 @@ proved by reintroducing that exact bug and watching it fail:
 | No kept-off term in the tree | a full legal name sat in `.hallmark/log.json`, and a personal name in the very PRD about not publishing one |
 | Reduced motion is a different design | not the same one switched off |
 | The byline is the brand | `CLAUDE.md` is the authority; this one prints and is read |
+| Every type clamp scales inside the phone range | six display sizes resolved to the *same* number at 360, 390 and 430 — a plain `Nvw` term does not overtake its floor until ~700px, so a phone got the desktop minimum |
 | Every `var()` resolves to something | `.index-band::after` painted `var(--color-scrim)`, which does not exist, so that band had **no scrim at all** and white type sat on a pale plate. The build was green, the CSS parsed, and the literal-colour gate passed *because* the value came from a token reference |
 
-The three allowlists are the point rather than a weakness: a token used
-outside its role, one that has gone dead, or one set from outside the
-stylesheets, has to be named in the script with a reason. That makes it a
+The four allowlists are the point rather than a weakness: a token used
+outside its role, one that has gone dead, one set from outside the
+stylesheets, or a clamp floor that genuinely is the phone's own size, has to
+be named in the script with a reason. That makes it a
 decision instead of an accident.
 
 The last two gates are each other's inverse and both were needed: one catches
@@ -530,3 +553,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The home index became a grid, on the owner's instruction, reversing a decision recorded in two documents. One large card on six of twelve columns, the rest on three, and a **contact strip** of three plates from inside each gallery. Costs 1307px on a phone, measured, all below photograph two. The lime surface re-cut as an offset shadow when a screenshot showed the pseudo-element version painting a lime border *around* the photograph — `isolation: isolate` makes a negative z-index child paint in front of its own card's background. |
 | 2026-09-14 | Section openings given a supporting line and a marked word, on the owner's read that the reference's text is fuller than this page's. The index band's copy now answers its own chip by reading each genre's `blurb` from `site.ts` — owner-written copy nothing on the home page had ever displayed. |
 | 2026-09-14 | `.index-band` found to have had **no scrim**: it painted `var(--color-scrim)` and the system only keeps `--color-scrim-3/-2/-0`, so white type stood on a pale plate. Re-cut as a caption block after the hero's gradient measured the eyebrow at 3.19:1 — a percentage stop cannot know where the copy starts. Gate 11 added and proved by reintroducing the exact declaration; it caught a wrong guess about the font properties on its first run. |
+| 2026-09-14 | Type resized for the phone, on the owner's report that it felt cramped. Measured at six widths, every display clamp was flat across 360/390/430 — the floor was beating its own `vw` term, so a phone got the desktop minimum. Six rules rewritten as `rem + vw` ramps fitted to 1280, the position marks sized for the phone first, the index's own image box cut from 2.2 to 1.7 rows below 48rem, and the contact strip kept to the lead card where its boxes are 89px rather than 44px. The index section at 390 went 1632px → 1267px. Hero and card titles untouched, at the owner's instruction. Gate 12 added and proved. |

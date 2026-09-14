@@ -184,6 +184,18 @@ return `[]` for one build and then put them back — never commit that.
   is also when every `clamp` floor has to be re-derived: `--text-display`'s
   3rem put a three-word hero on three lines at 390px.
 
+- **A `clamp` floor is the phone's real size, not a safety net.** A
+  `clamp(floor, Nvw, ceiling)` whose `vw` term does not overtake its floor
+  until ~700px serves every phone the value chosen as the *desktop minimum* —
+  measured at 360, 390 and 430, six display sizes on `/` came back identical at
+  all three and nothing scaled. Write `clamp(floor, rem + vw, ceiling)`: the
+  rem carries the intercept so the slope can govern at 390. Solve for the phone
+  size and the size the desktop already had **at 1280**, not 1440 — these
+  clamps reach their ceiling between 1100 and 1400, so fitting to 1440 arrives
+  5–8% low at 1280. `npm run measure` gate 12 fails any type clamp that is flat
+  across 360–430; a floor that genuinely is the phone size gets named there
+  with why.
+
 - **`naturalWidth` is not the file's width on a `srcset` image.** A candidate
   chosen by `w` descriptor carries a *current pixel density*, and
   `naturalWidth` returns the intrinsic width divided by it — so it reports

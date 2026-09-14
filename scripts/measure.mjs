@@ -522,6 +522,75 @@ section("Static gates");
   else ok(`all ${used.size} referenced properties resolve`);
 }
 
+/* 12. No type size pinned flat across every phone width. The owner's report,
+ *    2026-09-14: "font size buat mobile gede banget ... visualnya kerasa
+ *    sesek". Measured at 360, 390 and 430, every display size on / came back
+ *    *identical* — a `clamp(floor, Nvw, ceiling)` whose vw term does not reach
+ *    its floor until ~700px hands a phone the value picked as the desktop
+ *    minimum, and nothing scales. Six rules were like that.
+ *
+ *    The symptom is what is checked, because the symptom is unambiguous: if a
+ *    font-size resolves to the same number at 360 and at 430, it is not
+ *    responsive on a phone. `clamp(floor, rem + vw, ceiling)` fixes it — the
+ *    rem carries the intercept so the slope can be gentle enough to govern.
+ *
+ *    Space tokens are out of scope on purpose: --page-gutter is pinned at
+ *    20px across every phone and should be. This is about type.
+ *
+ *    A floor that *is* the phone's intended size is legitimate, so each one is
+ *    named with its reason — the hero's floor, for instance, is derived from
+ *    how many lines its statement takes and is documented in tokens.css. */
+{
+  const PINNED_ON_PURPOSE = {
+    "--text-display":
+      "the hero. The floor is derived from line count, not chosen — re-derived when the display face changed; see tokens.css",
+    ".ghost": "a decorative numeral at 0.04 opacity, behind the copy — it has no visual weight to reduce",
+    ".head__title":
+      "22px already is the phone size; the clamp grows it for desktop rather than shrinking it for a phone",
+  };
+  const REM = 16;
+  const evalTerm = (expr, w) => {
+    let total = 0;
+    for (const m of expr.matchAll(/([+-]?\s*[\d.]+)\s*(rem|vw|px)/g)) {
+      const v = Number.parseFloat(m[1].replace(/\s+/g, ""));
+      total += m[2] === "rem" ? v * REM : m[2] === "vw" ? (v * w) / 100 : v;
+    }
+    return total;
+  };
+  const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "");
+  const flat = [];
+  for (const file of [...walk("src").filter((f) => f.endsWith(".css")), TOKENS]) {
+    const css = strip(read(file));
+    for (const m of css.matchAll(
+      /(--text-[a-z0-9-]+|font-size)\s*:\s*clamp\(([^()]*(?:\([^()]*\))?[^()]*)\)/g,
+    )) {
+      const parts = m[2].split(",").map((x) => x.trim());
+      if (parts.length !== 3 || !/vw/.test(parts[1])) continue;
+      /* A ceiling naming another token cannot be evaluated here, but the
+       * floor and the middle term are what decide the phone. */
+      const at = (w) => Math.max(evalTerm(parts[0], w), evalTerm(parts[1], w));
+      if (Math.abs(at(360) - at(430)) > 0.5) continue;
+      const open = css.lastIndexOf("{", m.index);
+      const before = css.slice(0, open);
+      const sel = before
+        .slice(Math.max(before.lastIndexOf("}"), before.lastIndexOf("{")) + 1)
+        .trim()
+        .split("\n")
+        .pop()
+        .trim();
+      const key = m[1].startsWith("--") ? m[1] : sel;
+      if (key in PINNED_ON_PURPOSE) continue;
+      flat.push(`${key} — ${at(360)}px at both 360 and 430 (${parts[0]} | ${parts[1]})`);
+    }
+  }
+  if (flat.length)
+    bad("type size is flat across every phone width", [
+      ...flat,
+      "the floor is beating its own vw term — write it as clamp(floor, rem + vw, ceiling), or name it in PINNED_ON_PURPOSE with why",
+    ]);
+  else ok("every type clamp scales inside the phone range");
+}
+
 /* ------------------------------------------------------- browser checks */
 
 if (flag("static")) {

@@ -125,20 +125,30 @@ h1, h2, h3 {
   color: var(--color-ink);
   user-select: none;
 }
-.mark--thin  { font-weight: 300; font-size: var(--text-2xl); }
-.mark--bold  { font-weight: 700; font-size: var(--text-xl); }
+/* Sized for the phone first and grown at 48rem, rather than one desktop size
+ * everywhere. A 32px glyph in a 390px column is not a mark in a margin, it is
+ * a third element competing with the heading beside it — which is what made
+ * the typographic sections feel tight on a phone. */
+.mark--thin  { font-weight: 300; font-size: var(--text-lg); }
+.mark--bold  { font-weight: 700; font-size: var(--text-lg); }
+@media (min-width: 48rem) {
+  .mark--thin { font-size: var(--text-2xl); }
+  .mark--bold { font-size: var(--text-xl); }
+}
 
 /* Corner brackets — ⌐ pins a block's top-right, ∟ its bottom-left. */
 .bracket {
   position: absolute;
   font-family: var(--font-body);
   font-weight: 300;
-  font-size: var(--text-xl);
+  /* Same reason as .mark above. */
+  font-size: var(--text-lg);
   line-height: 1;
   color: var(--color-ink);
   user-select: none;
   pointer-events: none;
 }
+@media (min-width: 48rem) { .bracket { font-size: var(--text-xl); } }
 .bracket--tr { top: calc(var(--space-md) * -1); right: calc(var(--space-md) * -1); }
 
 /* Swatch row — stepped diagonal, never a neat block. Colours are sampled
@@ -1097,7 +1107,12 @@ img { display: block; max-width: 100%; }
 .section-head__eyebrow span { color: var(--color-accent-deep); font-size: 0.75em; }
 .section-head__title {
   font-family: var(--font-display);
-  font-size: clamp(1.75rem, 6vw, 3rem);
+  /* 24px at 390, 48px at 1440 — see the clamp-floor note on .statement__lead.
+   * A section opening is not a card title: the owner asked for the hero and
+   * the card headings to stay large and everything else to come down, and a
+   * two-line heading at 28px on a 390 phone was taking three lines and a
+   * third of the frame. */
+  font-size: clamp(1.5rem, 0.84rem + 2.7vw, 3rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: var(--tracking-display);
@@ -1114,7 +1129,11 @@ img { display: block; max-width: 100%; }
  * where this page's were two lines and a photograph. It is the same shape as
  * .statement__sub, which is the one section that already had it. */
 .section-head__sub {
-  font-size: var(--text-sm);
+  /* --text-base, not --text-sm. This is a sentence somebody reads, and the
+   * site's other supporting paragraph — .statement__sub, the same role — has
+   * always been 15px. At 12px it was the one piece of copy on the page asking
+   * to be squinted at, which is the other half of "nyaman dibaca". */
+  font-size: var(--text-base);
   color: var(--color-muted);
   text-wrap: pretty;
   /* Modules, not `ch`: this box holds body copy under a display heading, and
@@ -1362,6 +1381,38 @@ img { display: block; max-width: 100%; }
   min-width: 0;
 }
 .index-grid > .reel__card:first-child { grid-column: 1 / -1; }
+
+/* A shorter frame on a phone, and only in the index.
+ *
+ * 2.2 rows is 215px at 390, inside a card 167px wide — a box taller than the
+ * card is broad, with a plate number over it and a title, a strip and a meta
+ * line under it. Seven of those is the "sesek" the owner reported. 1.7 rows is
+ * 166px, which still reserves the box against a lazy photograph and gives the
+ * card back 49px.
+ *
+ * Scoped to the index on purpose. `.reel__frame`'s height is shared with the
+ * lanes, and `SIZES.lane` in lib/images.ts is a set of measurements of that
+ * frame at six widths — changing the height there would silently invalidate
+ * every one of them. Width is what `sizes` describes and width is unchanged
+ * here, so nothing in that file has to move. */
+.index-grid .reel__frame { height: calc(var(--row) * 1.7); }
+@media (min-width: 48rem) {
+  .index-grid .reel__frame { height: calc(var(--row) * 2.2); }
+}
+
+/* The contact strip earns its place only where its boxes can be read.
+ *
+ * Measured: a strip box is 44 x 49 CSS px inside a small card at 390, against
+ * 89 x 48 at 768 and above. Three 44px boxes are not evidence of what a shoot
+ * looked like, they are three coloured squares and 57px of card height. So on
+ * a phone the strip belongs to the lead card, which spans the full measure and
+ * gets the readable 89px box, and every card carries it from 48rem up.
+ *
+ * This also takes the phone from twenty-one lazy thumbnails to three. */
+.index-grid > .reel__card:not(:first-child) .reel__strip { display: none; }
+@media (min-width: 48rem) {
+  .index-grid > .reel__card:not(:first-child) .reel__strip { display: grid; }
+}
 
 @media (min-width: 60rem) {
   .index-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
@@ -1783,7 +1834,29 @@ img { display: block; max-width: 100%; }
 }
 .statement__lead {
   font-family: var(--font-display);
-  font-size: clamp(1.375rem, 4.4vw, 2.25rem);
+/* A clamp floor is a phone's actual size, not a safety net.
+ *
+ * Measured across 360/390/430/768/1280/1440, every display size on this page
+ * came out *identical* at the three phone widths: the vw term is smaller than
+ * the floor until roughly 700px, so a phone was handed the value chosen as the
+ * desktop minimum and nothing scaled at all. The owner's read — "font size
+ * buat mobile gede banget ... visualnya kerasa sesek" — is exactly that.
+ *
+ * Written as `clamp(floor, rem + vw, ceiling)` instead. The rem carries the
+ * intercept, which is what lets the vw slope be gentle enough to govern at 390
+ * instead of being overruled by the floor. Each one is solved for two points:
+ * the phone size wanted, and the size the desktop already had at **1280** —
+ * not 1440. Solving against 1440 first looked right and was wrong: these
+ * clamps reach their ceiling somewhere between 1100 and 1400, so a ramp fitted
+ * to the ceiling arrives 5-8% low at 1280, and 1280 is a real screen. Fitted
+ * to 1280 the ceiling then holds 1440 for free. Both verified by measurement,
+ * not by the arithmetic.
+ *
+ * What does change is the middle: 768 comes down, because a ramp is the point
+ * and a cliff was the bug.
+ */
+  /* 18px at 390, 36px at 1440 — was 22px flat from 360 to 430. */
+  font-size: clamp(1.125rem, 0.63rem + 2.02vw, 2.25rem);
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: var(--tracking-heading);
@@ -1878,7 +1951,8 @@ img { display: block; max-width: 100%; }
 .story__title {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  /* 30px at 390, 68px at 1440 — see the clamp-floor note on .statement__lead. */
+  font-size: clamp(1.75rem, 0.83rem + 4.27vw, 4.25rem);
   line-height: 0.98;
   letter-spacing: var(--tracking-display);
   text-transform: none;
@@ -2577,7 +2651,8 @@ img { display: block; max-width: 100%; }
 .foot__statement {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  /* 20px at 390, 40px at 1440 — see the clamp-floor note on .statement__lead. */
+  font-size: clamp(1.25rem, 0.6rem + 2.66vw, 2.5rem);
   line-height: 1.08;
   letter-spacing: var(--tracking-display);
   max-width: 22ch;
