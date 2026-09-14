@@ -99,6 +99,30 @@ export function IndexFilter({
     [albums, lens],
   );
 
+  /* The band's copy answers the chip.
+   *
+   * The reference's sections are full of words where this one was two lines
+   * over a photograph, and the words that were missing already existed: every
+   * genre in site.ts carries a `blurb` written by the owner, and until now
+   * nothing on the home page read one. So the band says what the whole archive
+   * is while the lens is open, and what *this kind of work* is the moment a
+   * lane is picked — which is the question a visitor has and the one a count
+   * cannot answer.
+   *
+   * Derived from `lenses`, not written out: only lanes with galleries in them
+   * are named, and a hand-typed list of five genres is the exact shape of the
+   * bug that printed a nonsense commissions line on /about. */
+  const lane = useMemo(
+    () => (lens === "all" ? null : genres.find((g) => g.id === lens) ?? null),
+    [lens],
+  );
+  const laneLine = useMemo(() => {
+    const names = lenses.slice(1).map((l) => l.label.toLowerCase());
+    if (names.length === 0) return "";
+    if (names.length === 1) return names[0];
+    return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+  }, [lenses]);
+
   return (
     /* One wrapper around both halves. A sticky element is bound by its
        containing block, and as a direct grid item of .grid-band that block was
@@ -128,9 +152,24 @@ export function IndexFilter({
           <div className="index-band__type">
             <SectionHead
               className="section-head--on-photo"
-              eyebrow="Choose by lane"
-              lead={`${albums.length} ${albums.length === 1 ? "gallery" : "galleries"},`}
-              tail="filed by what they are."
+              eyebrow={lane ? `Lane · ${lane.label}` : "Choose by lane"}
+              /* The count is the highlighted word. It is the one assertion on
+                 the page that a visitor can check in a glance — there is a
+                 body of work here, this much of it — and lime on a numeral
+                 reads as a fact rather than as decoration. One word, the same
+                 device as the hero's line. */
+              lead={
+                <>
+                  <em>{shown.length}</em>{" "}
+                  {shown.length === 1 ? "gallery" : "galleries"},
+                </>
+              }
+              tail={lane ? `all of it ${lane.label.toLowerCase()}.` : "filed by what they are."}
+              sub={
+                lane
+                  ? lane.blurb
+                  : `${laneLine} — pick a lane and the index narrows to it. Every set opens in full, plate by plate.`
+              }
             />
           </div>
         </div>

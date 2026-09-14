@@ -282,9 +282,36 @@ backwards is invisible in a diff and obvious on the page.
 - A two-line heading **steps its second line in.** A negative `text-indent`
   against matching padding does it with no markup and no guessed break point,
   and it is invisible on a heading that fits one line.
-- **Colour played on one word.** One word of a heading takes a lime ground —
-  `Work, `*`indexed`*`.` — and the wordmark carries a lime letter. One word,
-  once per page.
+- **Colour played on one word.** One word of a heading takes a lime ground,
+  drawn as if run over with a marker — `Work, `*`indexed`*`.` — and the
+  wordmark carries a lime letter.
+
+  **One word per heading, never two.** It was "once per page" until
+  2026-09-14; the owner's read of the reference is that its text is far fuller
+  than this page's and that the accent lands in every section, not once. So
+  `/` marks three words: the hero's own line, the count in the index band, and
+  `one` in "3 sites, one practice." All three come from the single rule
+  `.hero__line em, .section-head__title em` — one device, so a second way of
+  accenting a word cannot appear by accident — and the pair is always
+  `--color-accent-ink` on `--color-accent`, measured at 14.9:1 in light and
+  13.6:1 in dark. Pick the word that carries the assertion: a count, or the
+  word the sentence turns on.
+
+- **Every section opening carries a supporting line.** Eyebrow, two-line
+  heading, then a smaller paragraph — the reference's shape, and the answer to
+  "the reference's text is full and this is not". `SectionHead`'s `sub`, and on
+  the index band it is the *active lane's* `blurb` from `site.ts`: pick a chip
+  and the band says what that kind of work is. Copy the owner already wrote,
+  which nothing on the home page was reading.
+
+- **Type on a photograph stands on a block, not on a wash.** The hero
+  gradient-scrims the band its type occupies. The index band tried the same
+  device and its eyebrow measured 3.19:1 — a percentage gradient stop cannot
+  know where a block of copy starts, and the copy rewraps at every width. The
+  caption block is its own ground at `--color-scrim-3`, so every line in it
+  stands on one measured value whatever the copy does, and the photograph
+  keeps its tonality beside it. This is also the reference's move: a block low
+  on the frame, not a dimmed frame.
 
 Character-level conventions, which are the reference's voice and not typos:
 `heals .` (a space before terminal punctuation in display type) · `camera :
@@ -441,11 +468,18 @@ proved by reintroducing that exact bug and watching it fail:
 | No orphaned tokens | four went dead the day the lattice did |
 | No dead class | `.plot` kept two tokens looking alive with no markup since the lanes became a reel |
 | No kept-off term in the tree | a full legal name sat in `.hallmark/log.json`, and a personal name in the very PRD about not publishing one |
+| Reduced motion is a different design | not the same one switched off |
 | The byline is the brand | `CLAUDE.md` is the authority; this one prints and is read |
+| Every `var()` resolves to something | `.index-band::after` painted `var(--color-scrim)`, which does not exist, so that band had **no scrim at all** and white type sat on a pale plate. The build was green, the CSS parsed, and the literal-colour gate passed *because* the value came from a token reference |
 
-The two allowlists are the point rather than a weakness: a token used outside
-its role, or one that has gone dead, has to be named in the script with a
-reason. That makes it a decision instead of an accident.
+The three allowlists are the point rather than a weakness: a token used
+outside its role, one that has gone dead, or one set from outside the
+stylesheets, has to be named in the script with a reason. That makes it a
+decision instead of an accident.
+
+The last two gates are each other's inverse and both were needed: one catches
+a token nothing reads, the other a reference to a token nothing declares. The
+second is the one that actually shipped.
 
 The kept-off-term gate is the one that reads a file **outside** the repository
 — `.privacy-terms`, one term per line, git-ignored — because the terms cannot
@@ -494,3 +528,5 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-11 | Dead code cut: `.plot` and its two crosshair tokens, the pre-reel lane rules, `.fold-photo--tall` and `PhotoFold`'s unreachable `size` prop. A § 6 claim about `.band--dark` corrected — it has no callers. Gate 7 added so the next one is caught, not written into the document. |
 | 2026-09-14 | One section-heading rhythm, four covers on the hero's foot, one lime surface, marks on the grid — the four gaps `PRD-the-reference-layout.md` found. Photograph two moved 1.56 → 0.71 screens. |
 | 2026-09-14 | The home index became a grid, on the owner's instruction, reversing a decision recorded in two documents. One large card on six of twelve columns, the rest on three, and a **contact strip** of three plates from inside each gallery. Costs 1307px on a phone, measured, all below photograph two. The lime surface re-cut as an offset shadow when a screenshot showed the pseudo-element version painting a lime border *around* the photograph — `isolation: isolate` makes a negative z-index child paint in front of its own card's background. |
+| 2026-09-14 | Section openings given a supporting line and a marked word, on the owner's read that the reference's text is fuller than this page's. The index band's copy now answers its own chip by reading each genre's `blurb` from `site.ts` — owner-written copy nothing on the home page had ever displayed. |
+| 2026-09-14 | `.index-band` found to have had **no scrim**: it painted `var(--color-scrim)` and the system only keeps `--color-scrim-3/-2/-0`, so white type stood on a pale plate. Re-cut as a caption block after the hero's gradient measured the eyebrow at 3.19:1 — a percentage stop cannot know where the copy starts. Gate 11 added and proved by reintroducing the exact declaration; it caught a wrong guess about the font properties on its first run. |

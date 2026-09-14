@@ -6,7 +6,7 @@ import { PhotoFold } from "@/components/photo-fold";
 import { SectionHead } from "@/components/section-head";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
-import { site } from "@/lib/site";
+import { elsewhere, site } from "@/lib/site";
 
 /**
  * Prerendered and revalidated, not rendered per request.
@@ -201,11 +201,23 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
+      {/* The lanes' opening. "one" is the highlighted word: the whole point of
+           this section is that three addresses are not three photographers,
+           and that is the word carrying it. Counted and named from the
+           `elsewhere` data rather than written out, so adding a lane cannot
+           leave the heading claiming three. */}
       <SectionHead
         className="section-head--band"
         eyebrow="Elsewhere"
-        lead="Three sites,"
-        tail="one practice."
+        lead={`${elsewhere.length + 1} sites,`}
+        tail={
+          <>
+            <em>one</em> practice.
+          </>
+        }
+        sub={`${elsewhere
+          .map((e) => `${e.name} for ${e.lane.toLowerCase()}`)
+          .join(", ")} — both shot from here. This archive is everything else.`}
       />
 
       {/* ---- lane index · white, hairlines only. No slab. ------------------- */}

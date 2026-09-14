@@ -459,6 +459,69 @@ section("Static gates");
   }
 }
 
+/* 11. Every var() resolves to something. The inverse of gate 6, and the one
+ *    that actually shipped: `.index-band::after` painted
+ *    `background: var(--color-scrim)` for days, and there is no
+ *    `--color-scrim` — the system keeps `--color-scrim-3/-2/-0`. An unresolved
+ *    var() in a `background` makes the whole declaration invalid, so that band
+ *    had no scrim at all and white type sat on a pale photograph. Nothing
+ *    caught it: the build is green, the CSS parses, and gate 3 is satisfied
+ *    precisely *because* the value came from a token reference. A phone
+ *    screenshot found it.
+ *
+ *    A var() with a fallback is fine by construction — `var(--x, 1rem)`
+ *    resolves either way — so only bare references are checked. Custom
+ *    properties set from outside the stylesheets are declared here with where
+ *    they come from, because "it is set in JS" has to be a decision rather
+ *    than a hole. */
+{
+  const SET_ELSEWHERE = {
+    /* next/font generates this and app/layout.tsx puts the class on <html>.
+     * Where the class goes is the whole subject of the `var()` note in
+     * CLAUDE.md, so this one is load-bearing: on <body> it resolved to
+     * nothing at :root and the site rendered in the system stack for months.
+     * The body and mono roles are the system stack by choice and have no
+     * generated property — this gate caught a guess that they did. */
+    "--font-display-face": "next/font, class on <html> in app/layout.tsx",
+  };
+  const sheets = walk("src").filter((f) => f.endsWith(".css"));
+  const css = sheets.map(read).join("\n") + read(TOKENS);
+  const declared = new Set([
+    ...[...css.matchAll(/(^|[;{\s])(--[a-z0-9-]+)\s*:/gim)].map((m) => m[2]),
+    ...Object.keys(SET_ELSEWHERE),
+    /* Anything a component sets inline with a style prop. --mast-h is the
+     * masthead's own published height, and the lanes publish their ratios. */
+    ...[...walk("src")
+      .filter((f) => /\.tsx?$/.test(f))
+      .map(read)
+      .join("\n")
+      .matchAll(/"(--[a-z0-9-]+)"\s*:/g)].map((m) => m[1]),
+  ]);
+
+  /* Bare references only: a comma inside the parens is a fallback. */
+  const used = new Map();
+  for (const f of [...sheets, TOKENS]) {
+    read(f)
+      .split("\n")
+      .forEach((line, i) => {
+        for (const m of line.matchAll(/var\(\s*(--[a-z0-9-]+)\s*\)/g)) {
+          if (!used.has(m[1])) used.set(m[1], `${f}:${i + 1}`);
+        }
+      });
+  }
+
+  const missing = [...used].filter(([t]) => !declared.has(t));
+  const staleSet = Object.keys(SET_ELSEWHERE).filter((t) => !css.includes(`var(${t}`));
+  if (missing.length)
+    bad("var() names a custom property nothing declares", [
+      ...missing.map(([t, where]) => `${t} — first read at ${where}`),
+      "an unresolved var() invalidates its whole declaration, silently",
+    ]);
+  else if (staleSet.length)
+    bad("SET_ELSEWHERE names a property no stylesheet reads", staleSet);
+  else ok(`all ${used.size} referenced properties resolve`);
+}
+
 /* ------------------------------------------------------- browser checks */
 
 if (flag("static")) {

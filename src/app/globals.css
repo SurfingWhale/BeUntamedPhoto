@@ -1005,13 +1005,52 @@ img { display: block; max-width: 100%; }
  * capitals instead.
  *
  * The scrim is not decoration. White type over an arbitrary plate is unreadable
- * on whatever the plate happens to be pale in, and --color-scrim is the token
- * the system already keeps for exactly this. */
+ * on whatever the plate happens to be pale in.
+ *
+ * It asked for `--color-scrim`, which **does not exist** — the system keeps
+ * `--color-scrim-3/-2/-0`, and there is no unsuffixed one. So the declaration
+ * was invalid, this band had no scrim at all, and on a pale plate the eyebrow
+ * and the heading sat on the photograph with nothing behind them. It shipped
+ * that way and a phone screenshot is what found it: neither the build, the
+ * linter nor any gate can see a `var()` that resolves to nothing, because a
+ * token reference is exactly what they check for.
+ *
+ * The scrim is a block under the type, not a gradient over the photograph.
+ * The hero's bottom-weighted gradient was tried first, since reusing a proved
+ * device beats inventing one — and measured on the composited pixels over a
+ * pure-white plate it failed:
+ *
+ *                          on the gradient      on a block
+ *   heading, 28-48px 800   9.29:1               9.29:1
+ *   sub, 14px              5.47:1               5.47:1
+ *   eyebrow, 12px mono     3.19:1 / 3.54:1      5.47:1
+ *
+ * The eyebrow fails the 4.5:1 a 12px run needs, and it fails *positionally*:
+ * it is the topmost line, so it lands above the solid stop, in the fade. The
+ * two figures are 390 and 1440 — the copy wraps to different heights, so the
+ * same percentage stop sits in a different place relative to the text at every
+ * width and with every edit to the wording. No stop value fixes that; a stop
+ * high enough to cover the eyebrow at 390 darkens most of the frame.
+ *
+ * A block cannot be mistimed. It is the type's own box, so every line in it
+ * stands on exactly one measured ground whatever the copy does — and the
+ * photograph above keeps its tonality instead of being dimmed to carry twelve
+ * pixels of mono. It is also the reference's own move: its hero sets a caption
+ * block low on the image rather than washing the whole frame.
+ *
+ * The highlighted word is not on this ground at all — `--color-accent` is
+ * opaque, so the mark carries its own contrast: `--color-accent-ink` on lime,
+ * 14.92:1, which is the pair gate 5 exists to keep honest. Measuring it
+ * against the scrim read 2.09:1 and was an instrument error, not a finding —
+ * as was reading the block's own ground with its wrapper set to
+ * `visibility: hidden`, which hides the ground along with the text and
+ * reported 1.00:1 on white. Suspect the instrument first (CLAUDE.md). */
 .index-band {
   position: relative;
   isolation: isolate;
   display: grid;
-  place-items: center;
+  /* The foot of the frame, not its middle — see the scrim note above. */
+  place-items: end start;
   min-height: calc(var(--row) * 4);
   overflow: hidden;
   background: var(--color-paper-dark);
@@ -1024,19 +1063,21 @@ img { display: block; max-width: 100%; }
   height: 100%;
   object-fit: cover;
 }
-.index-band::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: var(--color-scrim);
-}
+
+/* Held to the page's own measure, the same as .hero__type, so the band's
+ * first character lands on the same vertical as every other section's above
+ * --page-max. At 32rem it was hugging the viewport edge instead, which only
+ * agreed with the rest of the page at exactly 1440. The text's own measure is
+ * capped on .section-head--on-photo. */
 .index-band__type {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 32rem;
-  padding: var(--space-2xl) var(--page-gutter);
+  max-width: var(--page-max);
+  margin-inline: auto;
+  /* The block inside carries its own padding now, so this only holds it to
+   * the page's measure and off the frame's edges. */
+  padding: var(--space-xl) var(--page-gutter);
 }
 
 /* One opening for every section — see components/section-head.tsx. */
@@ -1067,10 +1108,36 @@ img { display: block; max-width: 100%; }
  * sentence that happened to wrap. */
 .section-head__title span { display: block; padding-inline-start: 1.2em; }
 
+/* The supporting line the reference puts under every heading.
+ *
+ * The owner's read of the images: the reference's sections are full of words
+ * where this page's were two lines and a photograph. It is the same shape as
+ * .statement__sub, which is the one section that already had it. */
+.section-head__sub {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  text-wrap: pretty;
+  /* Modules, not `ch`: this box holds body copy under a display heading, and
+   * a `ch` cap set here would resolve in whichever face the box happens to
+   * inherit. See the .head lesson in CLAUDE.md. */
+  max-width: calc(var(--module) * 4);
+}
+
 /* Standing on a photograph rather than on canvas. */
+/* The caption block itself, and the scrim is its ground — see the note over
+ * .index-band. Capped at four modules and padded, so on a wide screen it is a
+ * block standing low on the photograph with the frame still readable beside
+ * it. Spanning the page measure instead made a full-width dark bar of a
+ * 1440px frame to carry two hundred characters in its left third. */
+.section-head--on-photo {
+  max-width: calc(var(--module) * 4);
+  background: var(--color-scrim-3);
+  padding: var(--space-lg);
+}
 .section-head--on-photo .section-head__eyebrow { color: var(--color-ink-on-dark-2); }
 .section-head--on-photo .section-head__eyebrow span { color: var(--color-accent); }
 .section-head--on-photo .section-head__title { color: var(--color-ink-on-dark); }
+.section-head--on-photo .section-head__sub { color: var(--color-ink-on-dark-2); }
 
 /* Standing on the page's own measure, between full-bleed sections. */
 .section-head--band {
@@ -1585,7 +1652,19 @@ img { display: block; max-width: 100%; }
   max-width: 16ch;
   text-wrap: balance;
 }
-.hero__line em {
+/* The lime highlight — one word of a heading, drawn as if run over with a
+ * marker. The reference lands its accent on a word rather than tinting a whole
+ * line, and this is the site's one way of doing that: the hero's own line and
+ * every section opening share the rule, so a second way of accenting a word
+ * cannot appear by accident.
+ *
+ * `--color-accent-ink` is the pair the system keeps for text *on* lime, which
+ * is exactly this and is what gate 5 checks. `box-decoration-break: clone`
+ * because a highlight that wraps has to keep its padding on both fragments —
+ * without it the second line of a wrapped mark loses its left inset and the
+ * word looks clipped. */
+.hero__line em,
+.section-head__title em {
   font-style: normal;
   background: var(--color-accent);
   color: var(--color-accent-ink);
