@@ -1560,6 +1560,20 @@ img { display: block; max-width: 100%; }
   letter-spacing: var(--tracking-display);
   line-height: 1.06;
 }
+/* The card's own line about the work, between the name and the technical row.
+ * Reading size, not label size: it is a sentence, and .reel__meta below is
+ * not. Two lines at most on a phone column — beyond that it is a story and
+ * belongs on the gallery page. */
+.reel__sub {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
 /* Small, grey, sentence case — the reference's "Classic, Oversized Fit", not a
  * tracked-capitals rail. */
 .reel__meta {
@@ -2011,6 +2025,55 @@ img { display: block; max-width: 100%; }
   letter-spacing: var(--tracking-code);
   font-variant-numeric: tabular-nums;
   color: var(--color-ink-2);
+}
+
+/* A gallery reads as a case study — see the note in album-view.tsx.
+ *
+ * The measure is capped in modules rather than `ch`, because this box holds a
+ * display title and two body-face paragraphs and a `ch` here would resolve in
+ * whichever face the box inherits. That exact mistake is written up on `.head`
+ * in CLAUDE.md. */
+.case { max-width: calc(var(--module) * 6); }
+.case__lane {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.case__lane span { color: var(--color-accent-deep); font-size: 0.75em; }
+/* The line that says what the job was. One step above reading size, because
+ * it is the sentence a client reads first. */
+.case__lead {
+  font-size: var(--text-md);
+  color: var(--color-ink);
+  text-wrap: pretty;
+}
+.case__story {
+  font-size: var(--text-base);
+  color: var(--color-ink-2);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+/* The specification, last and quiet. A row on a phone that wraps rather than
+ * a table that scrolls. */
+.case__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  margin-block-start: var(--space-2xs);
+}
+.case__facts dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.case__facts dd {
+  font-size: var(--text-base);
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ------------------------------------------------------- story zone */

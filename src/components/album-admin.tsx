@@ -199,6 +199,29 @@ export function AlbumAdmin({
           <p className="field__help" />
         </div>
 
+        <div className="field">
+          <label className="field__label" htmlFor="story-edit">
+            The story
+          </label>
+          <textarea
+            className="field__area"
+            id="story-edit"
+            name="story"
+            rows={5}
+            maxLength={1200}
+            defaultValue={album.story ?? ""}
+            placeholder="What the brief was, what it was for, how it was made."
+            aria-describedby="story-edit-help"
+          />
+          <p className="field__help" id="story-edit-help">
+            Shown on the gallery page under the title. This is what makes a
+            gallery a sample project rather than a folder of frames. Saving is
+            safe either way: until{" "}
+            <code>supabase/add-album-story.sql</code> has been run the save
+            reports that the story did not stick and keeps everything else.
+          </p>
+        </div>
+
         <div className="row2">
           <div className="field">
             <label className="field__label" htmlFor="place-edit">

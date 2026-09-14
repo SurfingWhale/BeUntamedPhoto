@@ -66,6 +66,34 @@ function subtitleFault(
   return null;
 }
 
+/**
+ * Write an album row, retrying without `story` if the column is not there yet.
+ *
+ * 42703 is "column does not exist". `supabase/add-album-story.sql` is a
+ * migration somebody has to run, and a darkroom that refuses every save until
+ * they do is a worse answer than one that saves everything else and says the
+ * story did not stick. Every other error is returned as itself.
+ *
+ * The same shape as the `featured_rank` fallback in lib/gallery.ts, and for
+ * the same reason: a select or a write naming a column that does not exist
+ * fails whole, not partially.
+ */
+async function writeAlbum(
+  run: (fields: Record<string, unknown>) => PromiseLike<{ error: { code?: string; message: string } | null }>,
+  fields: Record<string, unknown>,
+  story: string | null,
+): Promise<{ error: { code?: string; message: string } | null; storyDropped: boolean }> {
+  const first = await run({ ...fields, story });
+  if (!first.error) return { error: null, storyDropped: false };
+
+  const missingColumn =
+    first.error.code === "42703" || /\bstory\b/.test(first.error.message);
+  if (!missingColumn) return { error: first.error, storyDropped: false };
+
+  const second = await run(fields);
+  return { error: second.error, storyDropped: !second.error };
+}
+
 export async function createAlbum(
   _prev: DarkroomState,
   formData: FormData,
@@ -78,6 +106,7 @@ export async function createAlbum(
 
   const title = String(formData.get("title") ?? "").trim();
   const subtitle = String(formData.get("subtitle") ?? "").trim() || null;
+  const story = String(formData.get("story") ?? "").trim() || null;
   const place = String(formData.get("place") ?? "").trim() || null;
   const yearRaw = String(formData.get("year") ?? "").trim();
   const visibility = String(formData.get("visibility") ?? "public");
@@ -110,9 +139,11 @@ export async function createAlbum(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("albums")
-    .insert({ title, subtitle, place, year, visibility, genre, slug });
+  const { error, storyDropped } = await writeAlbum(
+    (fields) => supabase.from("albums").insert(fields),
+    { title, subtitle, place, year, visibility, genre, slug },
+    story,
+  );
 
   if (error) {
     return {
@@ -126,7 +157,12 @@ export async function createAlbum(
   // updateTag, not revalidateTag: these run in server actions, and the owner
   // saving a change should see it, not stale-while-revalidate.
   updateTag(ALBUMS_TAG);
-  return { status: "ok", message: `Filed as /work/${slug}.` };
+  return {
+    status: "ok",
+    message: storyDropped
+      ? `Filed as /work/${slug}. The story was not saved — run supabase/add-album-story.sql first.`
+      : `Filed as /work/${slug}.`,
+  };
 }
 
 /* How many plates one save relocates. Held low so a long album cannot time the
@@ -211,6 +247,7 @@ export async function updateAlbum(
   const slug = String(formData.get("slug") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const subtitle = String(formData.get("subtitle") ?? "").trim() || null;
+  const story = String(formData.get("story") ?? "").trim() || null;
   const place = String(formData.get("place") ?? "").trim() || null;
   const yearRaw = String(formData.get("year") ?? "").trim();
 
@@ -249,11 +286,19 @@ export async function updateAlbum(
    * already sent. It is also the folder prefix every photos.path was written
    * with, so a rename would leave the files behind under the old name. The
    * words a visitor reads are the title; that is what renaming should change. */
-  const flip = () =>
-    supabase
-      .from("albums")
-      .update({ visibility, genre, title, subtitle, place, year })
-      .eq("id", id);
+  /* One place tracks whether the story column was there, because `flip` runs
+   * twice on an opening-up save and the second call must not report the first
+   * call's answer. */
+  let storyDropped = false;
+  const flip = async () => {
+    const out = await writeAlbum(
+      (fields) => supabase.from("albums").update(fields).eq("id", id),
+      { visibility, genre, title, subtitle, place, year },
+      story,
+    );
+    storyDropped = storyDropped || out.storyDropped;
+    return { error: out.error };
+  };
 
   if (visibility === "members") {
     const { error } = await flip();
@@ -286,9 +331,12 @@ export async function updateAlbum(
   }
 
   const settled =
-    visibility === "members"
+    (storyDropped
+      ? "The story was not saved — run supabase/add-album-story.sql first. "
+      : "") +
+    (visibility === "members"
       ? "Held back — signed-in visitors only."
-      : "Open to everyone.";
+      : "Open to everyone.");
   const note =
     moved > 0
       ? ` Moved ${moved} ${moved === 1 ? "file" : "files"} to the ${

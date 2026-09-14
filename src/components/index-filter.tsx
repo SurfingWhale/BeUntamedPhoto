@@ -266,6 +266,15 @@ export function IndexFilter({
                 )}
 
                 <span className="reel__name">{album.title}</span>
+                {/* The line that explains the work before the tap.
+                    The reference's cards carry a product name *and* a line
+                    under it; these carried a title and a technical meta row,
+                    so a card said which gallery it was and nothing about what
+                    the job had been. `/work` has shown this same field for
+                    months — the home index was the one place it did not. */}
+                {album.subtitle && (
+                  <span className="reel__sub">{album.subtitle}</span>
+                )}
                 <span className="reel__meta">
                   {genreLabel(album.genre)} · {album.place ?? "\u2014"} ·{" "}
                   {album.year ?? "\u2014"} {"\u2197\uFE0E"}

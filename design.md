@@ -189,8 +189,20 @@ The load-bearing layout decision on this site.
   visible — the invitation to scroll is a band of real content, not a chevron.
   The typographic zone that used to be the front door is now an interstitial
   below the ticker.
-- **`/work`, `/work/[slug]`, `/about`, `/notes`** — typography and the
-  photographs, nothing else. Plates carry numbered labels.
+- **`/work`, `/about`, `/notes`** — typography and the photographs, nothing
+  else. Plates carry numbered labels.
+- **`/work/[slug]` (a gallery) — a case study, not a folder.** Lane eyebrow ·
+  title · the one line that says what the job was · the story paragraph · a
+  technical facts row · then the plates. The reference's product cards explain
+  the product and tap through to a page that tells its story, and that is what
+  a client needs before they commission a lane they have not seen: this page
+  used to open with `2025 · Bandung`, a title and an optional one-liner, so
+  the frames answered "is this any good" and nothing answered "what was the
+  job". `albums.story` carries the paragraph and `subtitle` the line; a gallery
+  with neither renders exactly as it did before, because the archive will not
+  be back-filled in one sitting and a page of "TBD" is worse than a page of
+  photographs. The facts run last: a client reads the sentence first and the
+  specification second.
 - **`/enter`, `/account`, `/darkroom`** — function only. No enrichment of any
   kind; get out of the way.
 
@@ -572,3 +584,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | `.index-band` found to have had **no scrim**: it painted `var(--color-scrim)` and the system only keeps `--color-scrim-3/-2/-0`, so white type stood on a pale plate. Re-cut as a caption block after the hero's gradient measured the eyebrow at 3.19:1 — a percentage stop cannot know where the copy starts. Gate 11 added and proved by reintroducing the exact declaration; it caught a wrong guess about the font properties on its first run. |
 | 2026-09-14 | Type resized for the phone, on the owner's report that it felt cramped. Measured at six widths, every display clamp was flat across 360/390/430 — the floor was beating its own `vw` term, so a phone got the desktop minimum. Six rules rewritten as `rem + vw` ramps fitted to 1280, the position marks sized for the phone first, the index's own image box cut from 2.2 to 1.7 rows below 48rem, and the contact strip kept to the lead card where its boxes are 89px rather than 44px. The index section at 390 went 1632px → 1267px. Hero and card titles untouched, at the owner's instruction. Gate 12 added and proved. |
 | 2026-09-14 | The reference images committed to `docs/reference/`, after four sessions of design work written against images that only ever existed in a chat window. Counting them settled the owner's "gaada element image jadinya flat": eight of the reference's nine sections carry a photograph and one is type alone, against two type-only sections back to back here. The opening zone took the reference's **Featured pair** — two plates, the first on a lime block — in place of four hardcoded colour swatches whose own comment claimed they were sampled from an adjacent photograph that did not exist. The lanes stack below 48rem, which put three banner cards on a phone where a reel showed one and a sliver. Two bugs found by measuring rather than looking: `2K26` is a 469px numeral that has always overflowed its 264px cell, invisible only because the columns beside it were empty; and the sport lane's `sizes` had described a stacked layout ever since the lanes became a reel, over-declaring by 19%. |
+| 2026-09-14 | A gallery became a case study. The owner's read of the reference: its cards explain the product and tap through to a page that tells its story, which is what a client needs before commissioning food or sport — the two lanes with nothing filed under them. `albums.story` (nullable, one migration) carries the paragraph; the gallery page opens on lane · title · line · story · facts; and the home index cards show the subtitle they had been carrying but never printing. The write falls back when the column is absent and says the story did not stick, rather than refusing the save. |

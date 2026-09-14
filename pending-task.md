@@ -81,88 +81,35 @@ The static gates need none of this and already run on every push.
 
 ---
 
-## 3. Two of the five genres have no work on this site
+## 3. Food and Sport have nothing filed under them — and now there is a shape to fill
 
-> `docs/PRD-the-archive-in-its-own-words.md` § 3.5 measures this against the
-> live genre pages and notes why § 3.2 there makes it worse than it looks.
+Unchanged as a fact: of nine galleries, **Food has 0 and Sport has 0**. A
+visitor who wants a food shoot sees the genre offered in the copy and finds no
+work behind it. Both genre pages hand off to VisuFavor and UNTMD Sports rather
+than showing "Nothing filed here yet", which is the right public answer to an
+empty lane but is not a sample project.
 
-Counted off the live pages: **7 galleries — Graduation 2, Brand 2, Event 3.
-Food 0. Sport 0.** The tagline, the ticker, `site.genres` and `/about`'s
-commissions line all name five.
+**What changed 2026-09-14:** there is somewhere to put the story now. A gallery
+renders as a case study — lane, title, the line that says what the job was, the
+paragraph, then the frames — so "a sample project" is no longer a vague ask.
+Concretely, one Food gallery and one Sport gallery each need:
 
-The work itself is not missing, it is on the satellites, and `/work/genre/food`
-and `/work/genre/sport` now hand a visitor over to VisuFavor and UNTMD Sports
-instead of dead-ending on "Nothing filed here yet". That stops the bleeding; it
-does not fix the shape.
-
-**The shape is the decision, and it is the owner's.** Three ways, and they are
-genuinely different businesses:
-
-- **File food and sport sets here too.** The archive becomes the one place
-  that holds everything, and the satellites become deeper cuts rather than the
-  only proof. Costs uploading work that already exists.
-- **Stop selling five genres from this site.** If food and sport live
-  elsewhere on purpose, then the tagline, the ticker and the commissions line
-  should say three and point at two, rather than claim five and hold three.
-  Costs nothing but honesty.
-- **Leave it.** Defensible only if the satellites are what get sent to food and
-  sport clients, and this site is never the first thing they see.
-
-Doing none of the three is the only option that is actively wrong, because the
-site currently promises five and shows three.
-
-## 4. The galleries that exist do not say what the job was
-
-> Measured in full, with the live subtitles, the genre membership and a
-> proposal, in `docs/PRD-the-archive-in-its-own-words.md`. That document also
-> corrects this section: it is not true that everything is filed under Event —
-> four of seven are filed correctly, and the three that are not are all the
-> same kind of work, which is a narrower fault and a worse one.
-
-A visitor cannot tell what they are looking at. Live subtitles, verbatim:
-
-| Gallery | What it says | What a client needs |
+| | field | where it shows |
 | --- | --- | --- |
-| Summer In Bloom | `Strobist, PrimeLens And Summer` | who it was for, what it produced |
-| DARA BERSEMI | `Wellness & Yoga` | closer, but the title is internal |
-| Sales HeadShot | `Sales Headshot Photography` | restates the title |
-| Cindy's Graduation | `Graduation` | restates the genre |
-| Hello There... | `unfiled` | — |
-| Nuna Graduation | `Graduation` | restates the genre |
+| 1 | the plates | the gallery, and one becomes the card's cover |
+| 2 | `subtitle` — one line: who it was for, what was shot, where | every card, before the tap |
+| 3 | `story` — what the brief was and how it was made, up to 1200 chars | the gallery page, after the tap |
 
-Three of the six restate their own title or genre, one is a camera-technique
-note, one is literally `unfiled`. `design.md` § 2 asks for "what was shot, for
-whom, where, when" — specific beats clever — and none of these do that.
+All three are in `/darkroom/<slug>`. The subtitle is validated on save — a
+placeholder, a repeat of the title or a repeat of the genre is refused with a
+sentence saying why — and the story is free text.
 
-No gate can catch it: the fields are filled, the CSS is right, and the content
-is in the database. It is a writing job in the darkroom, one line per gallery,
-and it is probably worth more per minute spent than anything left in the code.
+**Still the owner's decision, not a code task.** The three options from before
+stand: shoot something for each lane, move a set across from VisuFavor and
+UNTMD Sports, or drop the two lanes from the copy so the site stops offering
+what it cannot show. The difference is that option one is now a filling-in
+rather than a build.
 
-Also: everything is filed under **Event**, including "Summer In Bloom" and
-"DARA BERSEMI", which look like portrait and wellness work. So the genre
-filter — the one tool a client has for finding relevant work — is pointing at
-the wrong sets.
-
-## 5. Gallery titles are inconsistently cased, and only data can fix it
-
-> See `docs/PRD-the-archive-in-its-own-words.md` § 3.3 and § 5.1 — the casing
-> is one of seven checks a reporting content gate could carry.
-
-Sentence case is the rule (`design.md` § 5) and the stylesheet no longer
-forces anything — so a title renders exactly as it was typed. Live right now,
-in the same reel:
-
-```
-Summer In Bloom      ← title case
-DARA BERSEMI         ← all capitals
-Sales HeadShot       ← title case, internal capital
-Cindy's Graduation   ← sentence case
-```
-
-No gate can catch this: the CSS is correct and the casing is in the database.
-Rename them in the darkroom, or leave it deliberately — but it is the loudest
-remaining inconsistency on the page, and `DARA BERSEMI` in particular
-reintroduces exactly the shouting the de-shouting pass removed.
 
 ---
 
@@ -220,8 +167,20 @@ positions — hero, index band, lane banner, closing fold — and until the
 migration is run they are filled by whatever the archive returns: covers first,
 then newest first. The front page is a by-product of upload order.
 
-**What unblocks it:** run `supabase/add-featured-rank.sql` once against the
-project. Then every plate row in `/darkroom/<slug>` carries a select naming the
+**Two migrations are now waiting, and they are independent** — running either
+one alone is fine:
+
+| file | what it unlocks | until it runs |
+| --- | --- | --- |
+| `add-featured-rank.sql` | choosing which plate fills each of the four front-page slots | the slots fill from upload order |
+| `add-album-story.sql` | the story paragraph on a gallery page (§ 3) | the gallery renders as it did before, and a save reports that the story did not stick |
+
+Neither can break the site by being absent: both reads fall back and the story
+write retries without the column. Both are idempotent, so running one twice is
+harmless.
+
+**What unblocks this one:** run `supabase/add-featured-rank.sql` once against
+the project. Then every plate row in `/darkroom/<slug>` carries a select naming the
 four slots, and choosing one takes effect on the next render.
 
 Nothing breaks meanwhile, and that is checked rather than hoped: the read falls

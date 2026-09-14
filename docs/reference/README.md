@@ -40,6 +40,15 @@ Eight of its nine sections carry a photograph. Exactly one — About — is type
 alone. That is the measurement behind "biar ga flat": this site had *two*
 type-only sections back to back where the reference has one.
 
+**And the sections are only half of it.** Every card in rows 4, 5 and 8 taps
+through to a page that explains the thing — the reference's product detail.
+That is the pattern behind "cards bisa di tap dan ada storynya", and the
+archive's answer to it is `/work/<slug>`: a gallery renders as a case study
+(lane · title · the line · the story · the facts · the plates) rather than as
+a folder with a date on it. `albums.story` is where the paragraph lives; see
+`design.md` § 4 and `pending-task.md` § 3, which is the one thing still
+outstanding for the Food and Sport lanes.
+
 ## A note on the Nomvnt capture
 
 It is a screenshot of somebody else's live commercial site, kept as a design

@@ -104,6 +104,30 @@ export function AlbumForm() {
       </div>
 
       <div className="field">
+        <label className="field__label" htmlFor="story">
+          The story
+        </label>
+        <textarea
+          className="field__area"
+          id="story"
+          name="story"
+          rows={5}
+          maxLength={1200}
+          placeholder="Rona Mekar were launching a gift box and needed the packaging to read as a present rather than a product. Two hours in their kitchen, one window, no lights — the afternoon sun off the tiles was the whole set-up."
+          aria-describedby="story-help"
+        />
+        <p className="field__help" id="story-help">
+          The paragraph on the gallery page itself, after a client taps
+          through. What the brief was, what it was for, how it was made. This
+          is what turns a set of frames into a sample project — a food or
+          sport gallery with no story is a folder, and a client cannot tell
+          from photographs alone whether you can be briefed. Optional, up to
+          1200 characters, and it only appears once{" "}
+          <code>add-album-story.sql</code> has been run.
+        </p>
+      </div>
+
+      <div className="field">
         <label className="field__label" htmlFor="genre">
           Genre
         </label>

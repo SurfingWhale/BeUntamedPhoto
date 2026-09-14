@@ -18,6 +18,19 @@ export type Album = {
   slug: string;
   title: string;
   subtitle: string | null;
+  /**
+   * What the job was, in the owner's words — the paragraph on the gallery
+   * page, where `subtitle` is the one line on the card before you tap.
+   *
+   * Optional on the type, like `featured_rank`, because the column may not
+   * exist yet: `supabase/add-album-story.sql` is a migration somebody has to
+   * run, and asking for a column that is not there fails the whole select.
+   * `getAlbum` reads `select("*")` so it arrives on its own once the column
+   * does; ALBUM_COLUMNS deliberately does **not** list it, because that query
+   * feeds every card on the site and must not be the thing that breaks while
+   * the migration is outstanding.
+   */
+  story?: string | null;
   place: string | null;
   year: number | null;
   visibility: "public" | "members";

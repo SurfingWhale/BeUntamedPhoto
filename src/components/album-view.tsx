@@ -10,6 +10,7 @@ import { SignedIn } from "@/components/signed-in";
 import { SignedOut } from "@/components/signed-out";
 import { formatDate, plate } from "@/lib/format";
 import { getAlbum, getPhotoPage, PER_PAGE } from "@/lib/gallery";
+import { genreLabel } from "@/lib/site";
 import { SIZES } from "@/lib/images";
 import { getNotes } from "@/lib/notes";
 
@@ -78,15 +79,60 @@ export async function AlbumView({
 
   return (
     <div className="page">
-      <section className="page__intro">
-        <p className="u-mono">
-          {album.year ?? "—"}
-          {album.place ? ` · ${album.place}` : ""}
-          {album.visibility === "members" ? " · signed-in only" : ""}
-          {plates.pages > 1 ? ` · page ${plates.page}/${plates.pages}` : ""}
+      {/* The gallery as a case study, not a folder with a date on it.
+       *
+       * The owner's read of the reference: its product cards explain the
+       * product and tap through to a page that tells its story, and that is
+       * the thing a client needs before they commission a food or a sport
+       * shoot. This page used to open with `2025 · Bandung`, a title and an
+       * optional one-liner — the frames answered "is this any good" and
+       * nothing answered "what was the job".
+       *
+       * Four parts, in the order the reference puts them: the lane it belongs
+       * to, the name, the line that says what it was, then the paragraph. The
+       * facts run last as a technical row, because a client reads the sentence
+       * first and the specification second.
+       *
+       * `story` is absent until supabase/add-album-story.sql is run, and the
+       * block is absent with it — see the note on Album.story. Nothing here
+       * renders an empty state for it: a gallery with no story looks exactly
+       * like this page did yesterday. */}
+      <section className="page__intro case">
+        <p className="case__lane">
+          <span aria-hidden="true">{"\u2739"}</span> {genreLabel(album.genre)}
         </p>
         <h1 className="page__title">{album.title}</h1>
-        {album.subtitle && <p className="fold-text__body">{album.subtitle}</p>}
+        {album.subtitle && <p className="case__lead">{album.subtitle}</p>}
+        {album.story && <p className="case__story">{album.story}</p>}
+        <dl className="case__facts">
+          {album.place && (
+            <div>
+              <dt>Where</dt>
+              <dd>{album.place}</dd>
+            </div>
+          )}
+          {album.year && (
+            <div>
+              <dt>When</dt>
+              <dd>{album.year}</dd>
+            </div>
+          )}
+          {!locked && plates.total > 0 && (
+            <div>
+              <dt>Frames</dt>
+              <dd>
+                {plates.total}
+                {plates.pages > 1 ? ` · page ${plates.page}/${plates.pages}` : ""}
+              </dd>
+            </div>
+          )}
+          {album.visibility === "members" && (
+            <div>
+              <dt>Access</dt>
+              <dd>Signed-in only</dd>
+            </div>
+          )}
+        </dl>
         <p>
           <Link className="link" href="/work">
             ← All galleries
