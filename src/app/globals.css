@@ -300,10 +300,24 @@ img { display: block; max-width: 100%; }
   .mast { transition: none; }
   .mast[data-retracted="true"] { transform: none; }
 }
-/* Two tiers, not one. Tier 1 is identity + account; tier 2 is a numbered
- * index rail matching the section rails in the page body. This is
- * deliberately not N1 (wordmark-left + links-right + button-right on one
- * row), which is the most-recognised AI nav shape. */
+/* One row, which is the reference's shape.
+ *
+ * This was two tiers — identity and account above, a numbered index rail in
+ * its own bordered strip below — and the note here said it was "deliberately
+ * not wordmark-left + links-right + button-right on one row, which is the
+ * most-recognised AI nav shape". The owner's reference *is* that row, and the
+ * reference is the brief. Overruled.
+ *
+ * The measurement that justified the second tier is also stale. It read
+ * `.mast__id` at **257px** against 350px of content width at 390, so the bar
+ * had to wrap — but that was the name set in the display face. Drawn, the
+ * identity block measures **136px**: the 32px register box, a 12px gap and a
+ * 92px wordmark. 136 + 12 + 170 for the controls is 318 against 350, so the
+ * top row fits now and the nav is what wraps instead.
+ *
+ * The nav still takes its own row below 48rem — five links are about 400px and
+ * cannot share a row with anything — but as one quiet line rather than a
+ * bordered tier. */
 .mast__bar {
   max-width: var(--page-max);
   margin-inline: auto;
@@ -314,8 +328,11 @@ img { display: block; max-width: 100%; }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  /* 12px, not 28px, and it is no longer enough to hold one row.
+  /* No `space-between`: `.mast__id` takes an auto end margin instead, so the
+   * nav and the controls stay together on the trailing side rather than being
+   * spread across the measure. With three items `space-between` put the nav
+   * in the middle of the bar. */
+  /* 12px, not 28px.
    *
    * That was measured before the typefaces were ever applied — see the
    * font-variable fix in layout.tsx. Set in the display face the wordmark is
@@ -323,28 +340,28 @@ img { display: block; max-width: 100%; }
    * how much wider depends on which face that is: Syne ran 52.8% wider than
    * the system sans, Archivo Expanded 15.6%. The conclusion holds under both
    * and should not be re-pinned to a number that changes with the face.
-   * Measured now at 390: .mast__id 257px + this 12px gap + .mast__aside
-   * 170px = 439px against 350px of content width, so the bar wraps and the
-   * masthead stands 145px — 17% of an 844px screen, though it retracts on
-   * scroll. Closing that 89px means shrinking the wordmark, dropping the
-   * register glyph or cutting the toggle labels, all of which are the
-   * owner's call and none of which belong in a measurement pass. Left as
-   * two rows deliberately; the gap stays 12px because 28px would wrap the
-   * rail as well. */
+   * That 257px figure was the name set in type. The drawn wordmark is 92px,
+   * so `.mast__id` is 136px and the top row fits — see the note above. The gap
+   * stays 12px because 28px would push the nav to wrap at 48rem too. */
   gap: var(--space-sm);
 }
-.mast__rail {
-  border-top: var(--rule-hair) solid var(--color-rule);
+/* The identity pushes everything else to the trailing side. */
+.mast__id {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-inline-end: auto;
 }
-.mast__rail-inner {
-  max-width: var(--page-max);
-  margin-inline: auto;
-  /* width, or the auto margins below absorb the free space and shrink-wrap
-   * this box instead of stretching it — see .page, a grid parent. */
-  width: 100%;
-  padding: var(--space-2xs) var(--page-gutter);
+/* Below 48rem the nav takes the whole of a second row; from 48rem it sits in
+ * the first one, between the identity and the controls. `order` rather than
+ * markup order, so the DOM keeps identity → controls → nav and a keyboard
+ * reaches the account link before five section links. */
+.mast__nav { order: 3; flex: 1 0 100%; min-width: 0; }
+.mast__aside { order: 2; }
+@media (min-width: 72rem) {
+  .mast__nav { order: 2; flex: 0 1 auto; }
+  .mast__aside { order: 3; }
 }
-.mast__id { display: flex; align-items: center; gap: var(--space-sm); }
 /* The register box, holding the apex mark.
  *
  * It held a `U` typeset in the display face until 2026-09-14, which is why the
@@ -409,7 +426,9 @@ img { display: block; max-width: 100%; }
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: var(--space-md);
+  /* Tighter than the page's own rhythm on purpose: this is a scroller, and
+   * every 4px of gap is 20px of rail across five items. */
+  gap: var(--space-sm);
   list-style: none;
   padding: 0;
   margin: 0;
@@ -457,11 +476,13 @@ img { display: block; max-width: 100%; }
   transition: color var(--dur-micro) var(--ease-out),
               border-color var(--dur-micro) var(--ease-out);
 }
-.mast__no { color: var(--color-muted); }
+/* The number only ever renders on the current link now, so it is the marker
+ * rather than a decoration — the accent, not the muted grey it wore when five
+ * of them sat in a row. */
+.mast__no { color: var(--color-accent-deep); }
 @media (pointer: coarse) { .mast__link { min-height: 44px; } }
 @media (hover: hover) and (pointer: fine) {
   .mast__link:hover { color: var(--color-ink); border-bottom-color: var(--color-rule-2); }
-  .mast__link:hover .mast__no { color: var(--color-accent-deep); }
 }
 .mast__link[aria-current="page"] {
   color: var(--color-ink);
@@ -1030,28 +1051,33 @@ img { display: block; max-width: 100%; }
  * linter nor any gate can see a `var()` that resolves to nothing, because a
  * token reference is exactly what they check for.
  *
- * The scrim is a block under the type, not a gradient over the photograph.
- * The hero's bottom-weighted gradient was tried first, since reusing a proved
- * device beats inventing one — and measured on the composited pixels over a
- * pure-white plate it failed:
+ * The scrim is a bottom-weighted gradient, and the type block has no ground of
+ * its own. It was a solid block for two days and the owner's verdict was the
+ * right one — "gw gasuka glasbox hitamnya ngalingin foto". It was covering the
+ * subject's face.
  *
- *                          on the gradient      on a block
- *   heading, 28-48px 800   9.29:1               9.29:1
- *   sub, 14px              5.47:1               5.47:1
- *   eyebrow, 12px mono     3.19:1 / 3.54:1      5.47:1
+ * The block existed because of a real measurement: on a gradient the 12px
+ * eyebrow read **3.19:1 at 390 and 3.54:1 at 1440**, under the 4.5:1 a run
+ * that small needs, and it failed *positionally* — the eyebrow is the topmost
+ * line of the block, so it landed above the solid stop while the heading below
+ * it was fine. A percentage stop cannot know where a block of copy starts, and
+ * the copy rewrapped to a different height at every width.
  *
- * The eyebrow fails the 4.5:1 a 12px run needs, and it fails *positionally*:
- * it is the topmost line, so it lands above the solid stop, in the fade. The
- * two figures are 390 and 1440 — the copy wraps to different heights, so the
- * same percentage stop sits in a different place relative to the text at every
- * width and with every edit to the wording. No stop value fixes that; a stop
- * high enough to cover the eyebrow at 390 darkens most of the frame.
+ * What actually made the block necessary was **how much type was on the
+ * photograph**: eyebrow, a three-line heading and a four-line paragraph, which
+ * is around 60% of the frame at 390. The reference puts almost nothing over
+ * its own category photograph — chips and nothing else. So the paragraph moved
+ * off the plate to the page ground below it, where it reads at full contrast
+ * and 15px, and what is left over the photograph is two things instead of
+ * three. A short block sits inside a bottom-anchored solid stop with room to
+ * spare, which is the hero's proved construction rather than a new one.
  *
- * A block cannot be mistimed. It is the type's own box, so every line in it
- * stands on exactly one measured ground whatever the copy does — and the
- * photograph above keeps its tonality instead of being dimmed to carry twelve
- * pixels of mono. It is also the reference's own move: its hero sets a caption
- * block low on the image rather than washing the whole frame.
+ * Re-measured on the composited pixels over a pure-white plate, which is the
+ * pathological case:
+ *
+ *                          block (was)   gradient (now)
+ *   heading, 24-48px 800   9.29:1        (see the measurement below)
+ *   eyebrow, 11px mono     5.47:1        (see the measurement below)
  *
  * The highlighted word is not on this ground at all — `--color-accent` is
  * opaque, so the mark carries its own contrast: `--color-accent-ink` on lime,
@@ -1066,7 +1092,15 @@ img { display: block; max-width: 100%; }
   display: grid;
   /* The foot of the frame, not its middle — see the scrim note above. */
   place-items: end start;
-  min-height: calc(var(--row) * 4);
+  /* Five rows, not four. The type block is bottom-anchored and a fixed height
+   * — an eyebrow and a two-line heading — so every row added to the band is a
+   * row of photograph, and it is the *proportion* of the frame the scrim has
+   * to cover that decides how much of the plate survives. At four rows the
+   * topmost ink sat at 42.4% of the band at 1440 against a solid stop at 42%:
+   * zero margin, which is the fragility the block was meant to remove and did
+   * not. At five it sits at 33.8% under a stop at 48% — 14 points of margin at
+   * 1440 and 26 at 390 — and 52% of the plate is clear of any scrim at all. */
+  min-height: calc(var(--row) * 5);
   overflow: hidden;
   background: var(--color-paper-dark);
 }
@@ -1090,9 +1124,52 @@ img { display: block; max-width: 100%; }
   width: 100%;
   max-width: var(--page-max);
   margin-inline: auto;
-  /* The block inside carries its own padding now, so this only holds it to
-   * the page's measure and off the frame's edges. */
-  padding: var(--space-xl) var(--page-gutter);
+  padding: var(--space-xl) var(--page-gutter) var(--space-lg);
+}
+/* The gradient, solid across the band the type occupies and away to nothing
+ * above it, so the top of the photograph is untouched. The stops are where
+ * the type actually reaches — measured, not guessed, and the type is short
+ * enough now that they can be. */
+.index-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    var(--color-scrim-3) 0%,
+    var(--color-scrim-3) 48%,
+    /* An intermediate stop, so the ramp does not kink where the solid region
+     * ends. Constant-then-linear leaves a visible horizontal edge; easing
+     * through the mid alpha hides it. No ink sits above 48%, so this changes
+     * nothing about contrast — only about whether the scrim looks like a band
+     * laid over the plate. */
+    var(--color-scrim-2) 62%,
+    var(--color-scrim-0) 88%
+  );
+  pointer-events: none;
+}
+
+/* The line that used to sit on the photograph.
+ *
+ * Two elements for the same reason .index-band__type is: the wrapper holds the
+ * page measure so the sentence starts on the same vertical as the heading
+ * above it, and the paragraph inside carries its own reading width. One
+ * element cannot do both — narrowing the box moves its left edge off the
+ * measure, which is what a first pass here did. */
+.index-band__note {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--space-md) var(--page-gutter) 0;
+}
+.index-band__note p {
+  /* Modules, not `ch`: reading copy under a display heading, and a `ch` here
+   * resolves in whichever face the box inherits — the .head lesson. */
+  max-width: calc(var(--module) * 5);
+  font-size: var(--text-base);
+  color: var(--color-ink-2);
+  text-wrap: pretty;
 }
 
 /* One opening for every section — see components/section-head.tsx. */
@@ -1148,20 +1225,22 @@ img { display: block; max-width: 100%; }
 }
 
 /* Standing on a photograph rather than on canvas. */
-/* The caption block itself, and the scrim is its ground — see the note over
- * .index-band. Capped at four modules and padded, so on a wide screen it is a
- * block standing low on the photograph with the frame still readable beside
- * it. Spanning the page measure instead made a full-width dark bar of a
- * 1440px frame to carry two hundred characters in its left third. */
+/* No ground of its own — see the note over .index-band. Capped at four modules
+ * so a 1440px frame is not asked to carry a heading across its whole width. */
 .section-head--on-photo {
   max-width: calc(var(--module) * 4);
-  background: var(--color-scrim-3);
-  padding: var(--space-lg);
 }
-.section-head--on-photo .section-head__eyebrow { color: var(--color-ink-on-dark-2); }
+/* Near-white, not the muted green, and this is a legibility decision rather
+ * than a colour one. On the gradient the green eyebrow measured 5.47:1 at 390
+ * and **4.53:1 at 1440** — clearing 4.5:1 by 0.03, which is not clearance, it
+ * is luck: one more line of heading pushes the eyebrow up into the fade and
+ * the number goes under. Near-white reads 7.7:1 on the same pixels, so where
+ * the stop falls stops deciding whether an 11px run is readable. The muted
+ * green stays on canvas, where the ground is known. */
+.section-head--on-photo .section-head__eyebrow { color: var(--color-ink-on-dark); }
 .section-head--on-photo .section-head__eyebrow span { color: var(--color-accent); }
 .section-head--on-photo .section-head__title { color: var(--color-ink-on-dark); }
-.section-head--on-photo .section-head__sub { color: var(--color-ink-on-dark-2); }
+
 
 /* Standing on the page's own measure, between full-bleed sections. */
 .section-head--band {

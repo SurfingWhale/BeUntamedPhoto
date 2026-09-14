@@ -52,11 +52,14 @@ export function Masthead() {
           )}
           <ThemeToggle />
         </div>
-      </div>
 
-      {/* Tier two — the numbered index rail. */}
-      <div className="mast__rail">
-        <nav className="mast__rail-inner mast__nav" aria-label="Primary">
+        {/* One row where there is room for one.
+            This was a second tier in its own bordered rail, chosen
+            deliberately to avoid the reference's shape — and the reference is
+            the brief. It is in the bar now: beside the identity from 48rem,
+            wrapping under it below that, where five links cannot share a row
+            with anything. */}
+        <nav className="mast__nav" aria-label="Primary">
           <ul>
             {/* First, not last. The rail scrolls on a phone and the owner's own
                 entrance was the sixth item — off-screen, behind a swipe with no
@@ -68,7 +71,9 @@ export function Masthead() {
                   href="/darkroom"
                   aria-current={pathname.startsWith("/darkroom") ? "page" : undefined}
                 >
-                  <span className="mast__no">—</span>
+                  {/* No number. The darkroom is not in the archive's index —
+                      it had an em-dash standing in for one, which is a
+                      placeholder pretending to be data. */}
                   <span>Darkroom</span>
                 </Link>
               </li>
@@ -83,7 +88,19 @@ export function Masthead() {
                     href={item.href}
                     aria-current={current ? "page" : undefined}
                   >
-                    <span className="mast__no">{String(i + 1).padStart(2, "0")}</span>
+                    {/* The index number marks where you *are*, and appears
+                        nowhere else.
+                        It used to sit on all five at once, which cost 26px a
+                        piece: measured, the rail was 649px of content in a
+                        390px window for the owner and 541 for a visitor, so
+                        40% of the nav was behind a swipe with the last item
+                        never fully on screen. Five numerals decorating five
+                        links is also five numerals saying nothing — one on the
+                        current link says which plate of the archive you have
+                        open, which is the conceit the rail was named for. */}
+                    {current && (
+                      <span className="mast__no">{String(i + 1).padStart(2, "0")}</span>
+                    )}
                     <span>{item.label}</span>
                   </Link>
                 </li>

@@ -192,6 +192,30 @@ The load-bearing layout decision on this site.
   graphic numeral and putting anything in the columns beside it is what made
   the overflow it always had visible.
 
+  **The masthead is one row**, which is the reference's shape: mark and drawn
+  wordmark left, the section links right, the account and theme controls at the
+  trailing edge. It was two tiers in a bordered rail, and the note in the
+  stylesheet said that was "deliberately not" the reference's row — the
+  reference is the brief, so that is overruled. The arithmetic behind it was
+  also stale: it read `.mast__id` at 257px, which was the name set in type;
+  drawn, the identity block is 136px and the top row fits.
+
+  The index number appears on the **current** link only. Five numerals
+  decorating five links cost 26px each — measured, 40% of the rail was behind a
+  swipe on a phone with the last item never fully visible — and said nothing.
+  One says which plate of the archive is open.
+
+  **Type on a photograph stands in a gradient, never a box.** The index band
+  carried a solid caption block for two days and the owner's verdict was that
+  it covered the subject's face. What made the block necessary was *how much*
+  type was on the plate — eyebrow, a three-line heading and a four-line
+  paragraph, around 60% of the frame. The paragraph moved to the page ground
+  below the band, the band grew from four rows to five, and what is left sits
+  in a bottom-weighted scrim with the top 52% of the plate untouched. Small
+  text over a photograph takes `--color-ink-on-dark`, not the muted green: the
+  green measured 4.53:1 at 1440, which clears 4.5 by luck rather than by
+  design.
+
   The index is one large card then small ones — six of twelve columns, then
   three each — and every card carries a **contact strip**: three more plates
   from inside that gallery, in fixed boxes no wider than 89px. One cover says
@@ -655,3 +679,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The Featured section rebuilt as a section, on the owner's correction — the first pass put two plates into the `2K26` zone with no opening, no card names and no foot, which is a pair of photographs rather than the reference's section 4. Three grid rows now, because `2K26` is a 469px numeral that may not share one: the opening, the cards, the action. Cards carry a name and a descriptor, the reference's "Olive Parade Outwear / Classic, Oversized Fit". |
 | 2026-09-14 | The apex mark implemented. The masthead register box and all five app icons had been drawing a letter `U` typeset in the display face; the owner asked where his logo was and the answer was that it had never been built, one day after the mark sheet was committed to `docs/reference/`. `components/apex.tsx` holds the only copy of the path, derived from the three sentences on that sheet, and the icons are rasterised from that file by a script that reads the path out of it. The wordmark is still Archivo and still not his. |
 | 2026-09-14 | The wordmark implemented from the owner's own brush lettering, as a mask so `currentColor` paints it — the file's `#A5C012` is not `--color-accent`, and a baked colour is one no token can reach. 826px lossless WebP, 34KB, chosen after weighing 420/826/1200/1653 against where it renders; legibility checked at six sizes in both themes, and the mask preloaded so the masthead cannot flash a rectangle. The footer still sets `site.name` as giant type, so the two now disagree — that is a naming decision, not a bug to fix quietly. |
+| 2026-09-14 | The masthead became one row and the index band lost its dark block, both on the owner's verdict. The two-tier masthead was justified by a measurement that had gone stale — `.mast__id` was 257px as type and is 136px drawn — so the identity row fits and the nav wraps under it only below 72rem; at 1152 and up the masthead is 74px against 110. The index number now marks the current link alone, which took 40% of the rail out from behind a swipe. The band's caption block became a bottom-weighted gradient over five rows instead of four, with the paragraph moved to paper: the top 52% of the plate is untouched and the topmost ink sits at 33.9% under a solid stop at 48% — 14 points of margin where the block had zero. |

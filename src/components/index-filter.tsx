@@ -165,15 +165,28 @@ export function IndexFilter({
                 </>
               }
               tail={lane ? `all of it ${lane.label.toLowerCase()}.` : "filed by what they are."}
-              sub={
-                lane
-                  ? lane.blurb
-                  : `${laneLine} — pick a lane and the index narrows to it. Every set opens in full, plate by plate.`
-              }
             />
           </div>
         </div>
       ) : null}
+
+      {/* The paragraph, off the photograph.
+          It was the third thing over the plate and the reason the type needed
+          a solid ground under it: eyebrow, a three-line heading and four lines
+          of this is about 60% of the frame on a phone, and the owner's verdict
+          on the block that made it legible was that it was covering the
+          subject's face. The reference puts chips over its category
+          photograph and nothing else.
+          Here it reads at 15px on paper at full contrast instead of at 12px
+          on an unknown plate — which is better for the sentence as well as
+          for the photograph. */}
+      <div className="index-band__note">
+        <p>
+          {lane
+            ? lane.blurb
+            : `${laneLine} — pick a lane and the index narrows to it. Every set opens in full, plate by plate.`}
+        </p>
+      </div>
 
       {/* Heading and filters travel together, because a filter with its
           question scrolled off the screen is a row of unlabelled buttons. */}
