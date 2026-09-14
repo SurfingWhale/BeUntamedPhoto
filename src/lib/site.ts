@@ -16,7 +16,7 @@ export const siteUrl = (
 ).replace(/\/$/, "");
 
 export const site = {
-  name: "UNTAMED",
+  name: "BeUntamed",
   wordmark: ["UNTAM", "E", "D"] as const,
   tagline: "Graduation, brand, sport, food and event photography.",
   /**
@@ -25,7 +25,7 @@ export const site = {
    * this work to whoever made it, and this site is the creative practice and
    * nothing else. See the rule in CLAUDE.md before changing this line.
    */
-  byline: "UNTAMED",
+  byline: "BeUntamed",
   /** The archive's own address. Never a personal account. */
   email: "untamed98x@gmail.com",
   mastLine: "Visual archive · frames, not feeds",

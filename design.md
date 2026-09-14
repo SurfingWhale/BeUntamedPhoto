@@ -1,4 +1,4 @@
-# Design — UNTAMED
+# Design — BeUntamed
 
 The layout and composition guideline for this site. **Everything in this file
 is current.** Nothing in it is superseded by anything else in it, and no rule
@@ -31,7 +31,7 @@ reporting a pass.
 
 ## 1 · What this site is
 
-UNTAMED is the master photography archive and the hub for three shooting lanes
+BeUntamed is the master photography archive and the hub for three shooting lanes
 that do not otherwise share an identity:
 
 | Lane | Lives at | Genre |
@@ -40,7 +40,7 @@ that do not otherwise share an identity:
 | Sport | `untmd-sports.vercel.app` | Sport |
 | Everything else | here, `/work` | Events, graduations, brand, documentation |
 
-Landing on UNTAMED and clicking through to either satellite should read as
+Landing on BeUntamed and clicking through to either satellite should read as
 **one photographer's system with three lanes**, not three unrelated sites.
 `/elsewhere` is the cross-link page.
 
@@ -259,11 +259,19 @@ The masthead draws it at 28px tall — legible, checked by rendering it at 20,
 because a masked element paints its own background until the mask arrives and
 the masthead would otherwise flash a rectangle of ink.
 
-Still open: `.foot__wordmark` sets **`site.name`** — "UNTAMED" — as giant type
-cropped by the page edge, so the footer and the masthead now say different
-things. Which of the two is the brand is the owner's call, and `site.name`
-reaches the manifest, both OG images, the ticker and the metadata, while
-`site.byline` is what gate 10 asserts. Not guessed at here.
+**Settled 2026-09-14: the brand is "BeUntamed".** The owner's call, once the
+wordmark made the two names visible side by side. `site.name` and
+`site.byline` both carry it, gate 10 holds the expected string in one place,
+and everything reading either — the footer wordmark, the manifest, both OG
+images, the ticker, the masthead's aria-label and the page metadata — follows
+from there. The archive's own lane in `elsewhere` reads `site.name` rather
+than repeating it, which is how it came to be the one place still saying
+"UNTAMED" after the rename.
+
+`.foot__wordmark` stays **type**, not the lettering: its whole idea is a word
+set huge and cropped by the page edge, which wants a typeface. The lettering
+is the logo and lives in the masthead. A brand having a drawn logo and a
+typeset name is ordinary; the two saying *different words* was the problem.
 
 ### The marks in the margins
 

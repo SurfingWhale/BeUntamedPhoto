@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 import { LANE_MAX_WIDTH, SIZES, trimSrcSet } from "@/lib/images";
-import { elsewhere } from "@/lib/site";
+import { elsewhere, site } from "@/lib/site";
 
 type Props = {
   /**
-   * A frame from this archive for the UNTAMED lane. The other two carry a
+   * A frame from this archive for its own lane. The other two carry a
    * committed still from the site they point at; this one takes whatever the
    * archive is showing, so it is never out of date with the work.
    */
@@ -62,7 +62,10 @@ export function Lanes({ archiveBanner }: Props) {
       href: "/work",
       external: false,
       label: "Everything else",
-      name: "UNTAMED",
+      /* From site.name, not repeated: this lane *is* this site, and a second
+       * copy of the brand string is a second thing to forget when it
+       * changes — which it did, on 2026-09-14. */
+      name: site.name,
       what: "Graduations, brand work and events — the full archive, filed by genre.",
       addr: "this site",
       mark: "\u2192",

@@ -1,4 +1,4 @@
-/* The site's whole stylesheet. UNTAMED — a photography archive.
+/* The site's whole stylesheet. BeUntamed — a photography archive.
  *
  * Two authorities, and neither of them is this comment:
  *
@@ -3204,8 +3204,10 @@ img { display: block; max-width: 100%; }
  * allows the wordmark, the ticker, tiny labels and control text), and caps
  * have no ascenders or descenders to interlock, so a negative step only
  * closes their counters. */
-.foot__wordmark,
-.mast__name,
-.mast__name em {
+.foot__wordmark {
   letter-spacing: var(--tracking-caps);
 }
+/* `.mast__name` and `.mast__name em` were in this rule until 2026-09-14. The
+ * masthead sets no type any more — it holds the drawn lettering as a masked
+ * span — so tracking there applied to nothing, and the `em` had already gone
+ * with the lime `E`. */

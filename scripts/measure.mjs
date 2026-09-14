@@ -447,12 +447,19 @@ section("Static gates");
 }
 
 /* 10. Every sign-off reads from the byline, and the byline is the brand.
- *    CLAUDE.md is the authority on why this matters. */
+ *    CLAUDE.md is the authority on why this matters.
+ *
+ *    The brand is the drawn lettering, so it is "BeUntamed" — renamed from
+ *    "UNTAMED" on 2026-09-14 when the owner supplied the wordmark and chose
+ *    which of the two names the site should carry. This constant is the one
+ *    place the expected value lives; `site.name` and `site.byline` are
+ *    checked against it. */
 {
+  const BRAND = "BeUntamed";
   const site = read("src/lib/site.ts");
   const m = site.match(/byline:\s*"([^"]+)"/);
   if (!m) bad("src/lib/site.ts declares no byline");
-  else if (m[1] !== "UNTAMED") bad(`byline is "${m[1]}", expected the brand`);
+  else if (m[1] !== BRAND) bad(`byline is "${m[1]}", expected the brand`);
   else {
     const uses = walk("src").filter((f) => /\.tsx?$/.test(f)).filter((f) => read(f).includes("site.byline"));
     ok(`byline is "${m[1]}", read by ${uses.length} files`);

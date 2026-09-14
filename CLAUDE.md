@@ -13,7 +13,10 @@ background of any kind — in copy, metadata, alt text, form placeholders, or
 comments that ship. A visiting client sees a photographer, full stop.
 
 **No person.** No legal name and no personal address. The public byline is
-`site.byline`, which reads "UNTAMED", and every sign-off reads from it.
+`site.byline`, which reads "BeUntamed" — the brand, renamed from "UNTAMED" on
+2026-09-14 when the owner supplied the drawn wordmark and chose which of the
+two names the site carries. Every sign-off reads from it, and `npm run measure`
+gate 10 holds the expected string in one place.
 `site.email` is the archive's own address, never a personal account. No link
 to the owner's GitHub, or to any site that is not photography.
 
@@ -40,6 +43,7 @@ What can be checked here, and should be before any copy lands:
 
 ```bash
 # Every sign-off reads from the byline, and the byline is the brand.
+# Gate 10 in scripts/measure.mjs does this and names the expected string.
 grep -rn "site\.byline" src/ && grep -n "byline:" src/lib/site.ts
 
 # Nothing signs off with a bare name instead.
