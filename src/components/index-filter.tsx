@@ -5,7 +5,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { plate } from "@/lib/format";
 import { genres, genreLabel } from "@/lib/site";
-import { CARD_THUMB_WIDTH, SIZES } from "@/lib/images";
+import { CARD_THUMB_WIDTH, SIZES, cardSizes } from "@/lib/images";
 import { Plate } from "@/components/plate";
 import { SectionHead } from "@/components/section-head";
 import { useRevealChildren } from "@/components/motion";
@@ -245,7 +245,10 @@ export function IndexFilter({
                     <img
                       src={album.cover.url}
                       srcSet={album.cover.srcSet ?? undefined}
-                      sizes={i === 0 ? SIZES.cardLead : SIZES.card}
+                      /* Per position, because the grid gives cards three
+                         different widths above 60rem and one declaration
+                         cannot describe all three — see cardSizes(). */
+                      sizes={cardSizes(i)}
                       alt={album.cover.caption ?? album.title}
                       width={album.cover.width ?? undefined}
                       height={album.cover.height ?? undefined}

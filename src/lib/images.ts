@@ -272,34 +272,6 @@ export const SIZES = {
    */
   lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 91vw",
   /**
-   * .reel__frame — the lead cover in the home index, the card that spans six
-   * of the twelve columns above 60rem and both columns below it.
-   *
-   * Measured off the rendered grid rather than derived from the span count,
-   * because `.index-grid` carries the page gutters and eleven gaps and the
-   * arithmetic is where two of these declarations were wrong before:
-   *
-   *   390    348px   the full content measure, two columns spanned
-   *   768    705px   same, still two columns
-   *   1280   590px   six of twelve
-   *   1440   670px   six of twelve, at --page-max
-   *
-   * 47vw declares 601 at 1280 and 677 at 1440; 92vw declares 359 and 706
-   * below it. All four land on the smallest candidate that covers the box at
-   * that viewport's density — 1080w on a 390 phone at 3x, 1500w elsewhere.
-   */
-  cardLead: "(min-width: 60rem) 47vw, 92vw",
-  /**
-   * .reel__frame — every other cover in the home index: three of twelve
-   * columns above 60rem, one of two below it. Measured the same way.
-   *
-   *   390    165px    ->  640w at 3x
-   *   768    343px    ->  750w at 2x
-   *   1280   286px    ->  640w at 2x
-   *   1440   326px    ->  750w at 2x
-   */
-  card: "(min-width: 60rem) 23vw, 45vw",
-  /**
    * `.pair` — the two plates in the opening zone. Two up at every width: half
    * the page measure below 60rem, then half of the seven columns the section
    * gives them above it. Measured box, which is why 768 is *wider* than 1280
@@ -314,7 +286,42 @@ export const SIZES = {
    * photograph rather than bytes — caught by measuring, not by the arithmetic.
    */
   pair: "(min-width: 60rem) 27vw, 45vw",
+  /**
+   * `.reel__frame` in the home index, per span. The grid runs a rhythm of six
+   * — 5, 4, 3, 4, 5, 3 columns of twelve above 60rem — so there are three
+   * widths, not one. Measured, not derived:
+   *
+   *            1280   1440
+   *   span 5    489    555     -> 39vw
+   *   span 4    387    441     -> 31vw
+   *   span 3    286    326     -> 23vw
+   *
+   * Below 60rem the grid is two up and only the first card spans both, so
+   * there are two widths there: 348/705 for the lead and 165/343 for the rest,
+   * declared 92vw and 45vw.
+   */
+  cardSpan5: "(min-width: 60rem) 39vw, 45vw",
+  cardSpan4: "(min-width: 60rem) 31vw, 45vw",
+  cardSpan3: "(min-width: 60rem) 23vw, 45vw",
 } as const;
+
+/**
+ * The `sizes` for the card at index `i` of the **home index** grid.
+ *
+ * The span pattern in globals.css is 5, 4, 3, 4, 5, 3 on
+ * `.index-grid > .reel__card:nth-child(6n+k)` above 60rem, and only the very
+ * first card spans the full measure below it. Change one and change the other:
+ * they describe the same boxes, and a `sizes` that disagrees with its grid is
+ * not a rounding error — it is the next candidate up.
+ */
+export function cardSizes(i: number): string {
+  /* Index 0 is the only card that spans both columns on a phone. */
+  if (i === 0) return "(min-width: 60rem) 39vw, 92vw";
+  const span = [5, 4, 3, 4, 5, 3][i % 6];
+  if (span === 4) return SIZES.cardSpan4;
+  if (span === 3) return SIZES.cardSpan3;
+  return SIZES.cardSpan5;
+}
 
 /**
  * The `sizes` for the card at index `i` of the /work grid.

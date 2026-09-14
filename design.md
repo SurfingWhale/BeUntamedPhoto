@@ -235,7 +235,19 @@ The load-bearing layout decision on this site.
   green measured 4.53:1 at 1440, which clears 4.5 by luck rather than by
   design.
 
-  The index is one large card then small ones — six of twelve columns, then
+  The index runs a **rhythm of six**, not one lead and a row of identical
+  boxes: 5, 4, 3, 4, 5, 3 columns of twelve, with two of the six pushed down
+  half a row and six different frame heights. Both rows of the rhythm fill
+  twelve columns, so nothing is ever left hanging, and nothing lines up — which
+  is the owner's read of the reference, "ukurannya ada yang besar kecil dan ga
+  sejajar". It was span 6 then span 3 for everything: tiles perfectly, reads
+  flat.
+
+  Three widths means three `sizes`, so `cardSizes(i)` mirrors the span pattern
+  the way `tileSizes(i)` mirrors `/work`'s. Change one and re-measure the
+  other.
+
+  The index was one large card then small ones — six of twelve columns, then
   three each — and every card carries a **contact strip**: three more plates
   from inside that gallery, in fixed boxes no wider than 89px. One cover says
   a gallery exists; three plates say what the job looked like.
@@ -700,3 +712,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The wordmark implemented from the owner's own brush lettering, as a mask so `currentColor` paints it — the file's `#A5C012` is not `--color-accent`, and a baked colour is one no token can reach. 826px lossless WebP, 34KB, chosen after weighing 420/826/1200/1653 against where it renders; legibility checked at six sizes in both themes, and the mask preloaded so the masthead cannot flash a rectangle. The footer still sets `site.name` as giant type, so the two now disagree — that is a naming decision, not a bug to fix quietly. |
 | 2026-09-14 | The masthead became one row and the index band lost its dark block, both on the owner's verdict. The two-tier masthead was justified by a measurement that had gone stale — `.mast__id` was 257px as type and is 136px drawn — so the identity row fits and the nav wraps under it only below 72rem; at 1152 and up the masthead is 74px against 110. The index number now marks the current link alone, which took 40% of the rail out from behind a swipe. The band's caption block became a bottom-weighted gradient over five rows instead of four, with the paragraph moved to paper: the top 52% of the plate is untouched and the topmost ink sits at 33.9% under a solid stop at 48% — 14 points of margin where the block had zero. |
 | 2026-09-14 | The deck built, on the owner's read of the reference: cards showing three photographs each, swipeable, stacked. One card per lane rather than per gallery, so it answers "what does this kind of work look like" instead of repeating the index. The frames reuse the 288w files the contact strip already requests and the card is capped at 29rem so 141 CSS px is covered at 2x — nine photographs for no new bytes. The stack went from a horizontal overlap, which read as a bug wherever the cards fit, to the vertical stagger the reference actually uses. The statement became a landscape card with its type block centred and its lines left-aligned. |
+| 2026-09-14 | The index grid given a rhythm of six — 5/4/3/4/5/3 columns, two cards dropped half a row, six frame heights — on the owner's note that one lead plus identical boxes reads flat where the reference varies size and alignment. Three widths measured at 1280 and 1440 (489/387/286 and 555/441/326) and `cardSizes(i)` written from those; `SIZES.cardLead` and `SIZES.card` removed rather than left to drift. |

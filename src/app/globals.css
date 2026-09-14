@@ -1480,8 +1480,17 @@ img { display: block; max-width: 100%; }
  * every one of them. Width is what `sizes` describes and width is unchanged
  * here, so nothing in that file has to move. */
 .index-grid .reel__frame { height: calc(var(--row) * 1.7); }
+/* And the frames are not all one height either, which is the other half of
+ * "ga sejajar". A definite height every time — these are reserved boxes, and
+ * a lazy photograph that reserves nothing is the drift that moved a section
+ * 575px under a reader — but a different definite height per position. */
+.index-grid > .reel__card:nth-child(6n + 3) .reel__frame { height: calc(var(--row) * 2); }
+.index-grid > .reel__card:nth-child(6n + 5) .reel__frame { height: calc(var(--row) * 1.9); }
 @media (min-width: 48rem) {
   .index-grid .reel__frame { height: calc(var(--row) * 2.2); }
+  .index-grid > .reel__card:nth-child(6n + 3) .reel__frame { height: calc(var(--row) * 2.8); }
+  .index-grid > .reel__card:nth-child(6n + 4) .reel__frame { height: calc(var(--row) * 2.4); }
+  .index-grid > .reel__card:nth-child(6n + 5) .reel__frame { height: calc(var(--row) * 3); }
 }
 
 /* The contact strip earns its place only where its boxes can be read.
@@ -1500,13 +1509,32 @@ img { display: block; max-width: 100%; }
 
 @media (min-width: 60rem) {
   .index-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  /* Six and three: the lead beside two small ones fills row one, and four
-     small ones fill every row after it. Seven galleries land exactly on two
-     full rows; a chip that narrows the set leaves a short row rather than a
-     broken one. The `sizes` in lib/images.ts describe these two widths and
-     nothing else — change one and re-measure the other. */
-  .index-grid > .reel__card { grid-column: span 3; }
-  .index-grid > .reel__card:first-child { grid-column: span 6; }
+  /* A rhythm of six, not one lead and a row of identical boxes.
+   *
+   * It was span 6 then span 3 for everything else, which tiles perfectly and
+   * reads flat — the owner's note: the reference is "creative ukurannya ada
+   * yang besar kecil dan ga sejajar". Its Seasonal grid has one large card and
+   * three smaller ones at different widths, sitting at different heights.
+   *
+   * Two different rows that both fill twelve columns, so nothing is ever left
+   * hanging: 5 + 4 + 3 and 4 + 5 + 3. Two of the six are pushed down half a
+   * row, which is what stops the tops from lining up — `align-items: start`
+   * already lets the bottoms fall where the content ends.
+   *
+   * Three widths now, so `cardSizes()` in lib/images.ts has three
+   * declarations. A `sizes` that disagrees with its grid is not a rounding
+   * error, it is the next candidate up — change this pattern and re-measure
+   * that function. */
+  .index-grid > .reel__card:nth-child(6n + 1) { grid-column: span 5; }
+  .index-grid > .reel__card:nth-child(6n + 2) { grid-column: span 4; }
+  .index-grid > .reel__card:nth-child(6n + 3) { grid-column: span 3; }
+  .index-grid > .reel__card:nth-child(6n + 4) { grid-column: span 4; }
+  .index-grid > .reel__card:nth-child(6n + 5) { grid-column: span 5; }
+  .index-grid > .reel__card:nth-child(6n + 6) { grid-column: span 3; }
+  .index-grid > .reel__card:nth-child(6n + 2),
+  .index-grid > .reel__card:nth-child(6n + 5) {
+    margin-block-start: calc(var(--row) * 0.5);
+  }
 }
 
 /* The lead card opens taller, so the row it heads is not three equal boxes.
@@ -1516,7 +1544,7 @@ img { display: block; max-width: 100%; }
  * box whose other axis is derived. This is a definite height, which is also
  * what stops a lazy cover moving the row under the reader. */
 @media (min-width: 60rem) {
-  .index-grid > .reel__card:first-child .reel__frame { height: calc(var(--row) * 3.4); }
+  .index-grid > .reel__card:nth-child(6n + 1) .reel__frame { height: calc(var(--row) * 3.4); }
 }
 
 /* The contact strip — three more plates from inside the gallery.
