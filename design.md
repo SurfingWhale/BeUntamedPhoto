@@ -192,6 +192,25 @@ The load-bearing layout decision on this site.
   graphic numeral and putting anything in the columns beside it is what made
   the overflow it always had visible.
 
+  **The deck** is one card per lane, swiped rather than scrolled, each card
+  carrying **three photographs** from that lane. Lanes and not galleries on
+  purpose: the index lists all nine galleries already, and this page has
+  printed one set twice before. A lane card answers the other question — what
+  a food shoot from here looks like — which is the one a client has before
+  commissioning a lane they have not seen. A lane with nothing filed is absent
+  rather than empty.
+
+  The cards **stagger vertically** from 48rem, which is how the reference
+  stacks its Featured pair: one card stepped down from the other. A horizontal
+  overlap with descending z-index was tried first and looked like a bug
+  wherever the cards all fit — hairline borders running into each other with
+  nothing to say it was deliberate.
+
+  **The statement is a landscape card with its type centred in it.** Centred as
+  a *block*, left-aligned inside: the lead caps itself at `42ch`, which is
+  962px at 36px in this face, and 962px of centre-aligned prose is ragged on
+  both edges. Composition without costing the reading.
+
   **The masthead is one row**, which is the reference's shape: mark and drawn
   wordmark left, the section links right, the account and theme controls at the
   trailing edge. It was two tiers in a bordered rail, and the note in the
@@ -680,3 +699,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The apex mark implemented. The masthead register box and all five app icons had been drawing a letter `U` typeset in the display face; the owner asked where his logo was and the answer was that it had never been built, one day after the mark sheet was committed to `docs/reference/`. `components/apex.tsx` holds the only copy of the path, derived from the three sentences on that sheet, and the icons are rasterised from that file by a script that reads the path out of it. The wordmark is still Archivo and still not his. |
 | 2026-09-14 | The wordmark implemented from the owner's own brush lettering, as a mask so `currentColor` paints it — the file's `#A5C012` is not `--color-accent`, and a baked colour is one no token can reach. 826px lossless WebP, 34KB, chosen after weighing 420/826/1200/1653 against where it renders; legibility checked at six sizes in both themes, and the mask preloaded so the masthead cannot flash a rectangle. The footer still sets `site.name` as giant type, so the two now disagree — that is a naming decision, not a bug to fix quietly. |
 | 2026-09-14 | The masthead became one row and the index band lost its dark block, both on the owner's verdict. The two-tier masthead was justified by a measurement that had gone stale — `.mast__id` was 257px as type and is 136px drawn — so the identity row fits and the nav wraps under it only below 72rem; at 1152 and up the masthead is 74px against 110. The index number now marks the current link alone, which took 40% of the rail out from behind a swipe. The band's caption block became a bottom-weighted gradient over five rows instead of four, with the paragraph moved to paper: the top 52% of the plate is untouched and the topmost ink sits at 33.9% under a solid stop at 48% — 14 points of margin where the block had zero. |
+| 2026-09-14 | The deck built, on the owner's read of the reference: cards showing three photographs each, swipeable, stacked. One card per lane rather than per gallery, so it answers "what does this kind of work look like" instead of repeating the index. The frames reuse the 288w files the contact strip already requests and the card is capped at 29rem so 141 CSS px is covered at 2x — nine photographs for no new bytes. The stack went from a horizontal overlap, which read as a bug wherever the cards fit, to the vertical stagger the reference actually uses. The statement became a landscape card with its type block centred and its lines left-aligned. |

@@ -8,9 +8,9 @@ import { PhotoFold } from "@/components/photo-fold";
 import { SectionHead } from "@/components/section-head";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
-import { PAIR_MAX_WIDTH, SIZES, trimSrcSet } from "@/lib/images";
+import { CARD_THUMB_WIDTH, PAIR_MAX_WIDTH, SIZES, publicSrc, trimSrcSet } from "@/lib/images";
 import { plate as plate2 } from "@/lib/format";
-import { elsewhere, site } from "@/lib/site";
+import { elsewhere, genres, site } from "@/lib/site";
 
 /**
  * Prerendered and revalidated, not rendered per request.
@@ -78,6 +78,47 @@ export default async function HomePage() {
   const banner = featured[2] ?? featured[0];
   const closing = featured[3] ?? featured[1] ?? featured[0];
   const year = new Date().getUTCFullYear();
+
+  /* One card per lane that has work in it, each carrying three photographs
+   * from that lane.
+   *
+   * Deliberately lanes and not galleries. The index below already lists all
+   * nine galleries with a contact strip each, and this page has printed one set
+   * twice before — 2162px of a 6569px page, measured. A lane card answers a
+   * different question: not "which galleries exist" but "what does a food
+   * shoot from here actually look like", which is the one a client has before
+   * they commission a lane they have never seen.
+   *
+   * Covers first, then the plates behind them, because a cover is the frame
+   * the owner chose to front that gallery with. Lanes with nothing filed are
+   * absent rather than empty — Food and Sport are both 0 today
+   * (pending-task.md § 3), and a card promising a lane the archive cannot show
+   * is worse than no card. */
+  const laneCards = genres
+    .map((g) => {
+      const inLane = albums.filter((a) => a.genre === g.id);
+      /* Both shapes normalised to the one the contact strip already uses: an
+       * id and a single 288w source. That width is not a guess — it is the
+       * same file the index cards request, so a deck frame is a cache hit
+       * rather than a ninth download, and `.deck__frames` is sized so 288
+       * covers it at 2x (141 CSS px x 2 = 282). Zero new bytes for nine
+       * photographs. */
+      const frames = [
+        ...inLane
+          .map((a) => a.cover)
+          .filter((c) => c?.url)
+          .map((c) => ({
+            id: c!.id,
+            src:
+              c!.bucket === "gallery"
+                ? publicSrc("gallery", c!.path, CARD_THUMB_WIDTH, c!.width, c!.height)
+                : c!.url!,
+          })),
+        ...inLane.flatMap((a) => a.plates),
+      ].slice(0, 3);
+      return { id: g.id, label: g.label, blurb: g.blurb, frames, count: inLane.length };
+    })
+    .filter((l) => l.frames.length === 3);
   const held = albums.filter((a) => a.visibility === "members").length;
 
   /* Ticker content is real: counts and lanes, nothing invented. */
@@ -105,23 +146,82 @@ export default async function HomePage() {
            the product grids, and it is what this page was missing — it went
            from the ticker straight into the index. The long editorial block
            stays where it is, below the galleries. */}
+      {/* ---- the deck · one card per lane, three photographs each ----------
+           docs/reference/nomvnt-page.jpg. Cards that show what a lane looks
+           like, swiped rather than scrolled, with the next one standing
+           behind the one in front so the set reads as a deck.
+
+           Lanes, not galleries, on purpose: the index below lists all nine
+           galleries and this page has printed one set twice before. A lane
+           card answers the other question — what a food shoot from here
+           actually looks like — which is the one a client has before they
+           commission a lane they have not seen. */}
+      {laneCards.length > 0 && (
+        <section className="deck-band">
+          <SectionHead
+            className="deck-band__head"
+            eyebrow="By lane"
+            lead="Three frames,"
+            tail={
+              <>
+                <em>each</em> way of working.
+              </>
+            }
+          />
+          <div className="deck" aria-label="Lanes">
+            {laneCards.map((lane) => (
+              <Link className="deck__card" key={lane.id} href={`/work/genre/${lane.id}`}>
+                <span className="deck__frames" aria-hidden="true">
+                  {lane.frames.map((f) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={f.id}
+                      src={f.src}
+                      alt=""
+                      width={CARD_THUMB_WIDTH}
+                      height={CARD_THUMB_WIDTH}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ))}
+                </span>
+                <span className="deck__name">{lane.label}</span>
+                <span className="deck__what">{lane.blurb}</span>
+                <span className="deck__meta">
+                  {lane.count} {lane.count === 1 ? "gallery" : "galleries"}{" "}
+                  {"\u2197\uFE0E"}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---- the statement · a landscape card, the type set in the middle --
+           It was a full-bleed block of type on the page ground. In a card it
+           has edges to be centred inside, which is what makes a paragraph
+           this size read as composed rather than as a paragraph that happens
+           to be large. The reference's own About block is the widest single
+           thing on its page and this is the same move held to a card. */}
       <Reveal as="section" className="statement" index={0}>
-        <p className="statement__eyebrow">
-          <span aria-hidden="true">{"\u2739"}</span> About
-        </p>
-        <p className="statement__lead">
-          I shoot graduations, brand work, sport, food and events. Most of it is
-          patience — holding a frame until the arranged version of a moment
-          drops away and the honest one shows up.
-        </p>
-        <p className="statement__sub">
-          Every genre is booked from here. Two of them have their own deeper
-          portfolios — UNTMD Sports and VisuFavor — but the brief comes to the
-          same inbox:{" "}
-          <a className="link" href={`mailto:${site.email}`}>
-            {site.email}
-          </a>
-        </p>
+        <div className="statement__card">
+          <p className="statement__eyebrow">
+            <span aria-hidden="true">{"\u2739"}</span> About
+          </p>
+          <p className="statement__lead">
+            I shoot graduations, brand work, sport, food and events. Most of it
+            is patience — holding a frame until the arranged version of a
+            moment drops away and the honest one shows up.
+          </p>
+          <p className="statement__sub">
+            Every genre is booked from here. Two of them have their own deeper
+            portfolios — UNTMD Sports and VisuFavor — but the brief comes to
+            the same inbox:{" "}
+            <a className="link" href={`mailto:${site.email}`}>
+              {site.email}
+            </a>
+          </p>
+        </div>
       </Reveal>
 
       {/* ---- project index · opens on a photograph, chips under it --------

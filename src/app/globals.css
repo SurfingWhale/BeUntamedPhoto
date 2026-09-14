@@ -1947,6 +1947,135 @@ img { display: block; max-width: 100%; }
  * measure, and a smaller supporting line beneath it. It is the only prose
  * between the hero and the product grids. This page went from the ticker
  * straight into the index, which is the gap the owner named. */
+/* The deck — lane cards, swiped, with the next one standing behind the front.
+ *
+ * The owner's ask, from the reference: "cards yang munculin 3 foto ... bisa di
+ * swipe ke kanan juga stacked card". Three parts, and each is doing something:
+ *
+ * - **Three frames.** Not one cover. A single photograph says a lane exists;
+ *   three say what it looks like, which is the question a client has before
+ *   commissioning a lane they have not seen.
+ * - **Swiped.** An overflow scroller with snap points, the same device as the
+ *   lanes reel — compositor-driven, works before any script, degrades to a
+ *   plain scroller. No carousel component and no autoplay.
+ * - **Stacked.** The card ahead is *behind* the one in front: each card after
+ *   the first pulls back by a gap and sits a step lower in the stacking order,
+ *   so the set reads as a deck rather than a row with a gap in it. Scroll-snap
+ *   still lands on each card because the snap position is the card's own start
+ *   edge, which the negative margin moves along with it.
+ *
+ * The frame width is the constraint everything else is set from: the card is
+ * capped at 29rem so three frames land at 141 CSS px, which the 288w file the
+ * contact strip already requested covers at 2x. Nine photographs for no new
+ * bytes — see the note in page.tsx. */
+.deck-band {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding-block: var(--space-2xl) 0;
+}
+.deck-band__head { padding-inline: var(--page-gutter); }
+.deck {
+  display: flex;
+  gap: var(--space-md);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  padding-inline: var(--page-gutter);
+  scroll-padding-inline-start: var(--page-gutter);
+  padding-block: var(--space-lg) var(--space-sm);
+  scrollbar-width: none;
+  min-width: 0;
+}
+.deck::-webkit-scrollbar { display: none; }
+.deck__card {
+  flex: none;
+  /* Under 100%, so a sliver of the card behind is the invitation to swipe. */
+  width: min(84%, 29rem);
+  scroll-snap-align: start;
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: start;
+  text-decoration: none;
+  min-width: 0;
+  /* The same box as every other card on the site — hairline, paper-white
+     ground, no radius, no shadow. */
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-white);
+  padding: var(--space-sm);
+}
+/* The stagger, which is how the reference stacks cards: its two Featured cards
+ * sit at different heights, one stepped down from the other.
+ *
+ * A horizontal overlap was tried first — each card pulled back a gap with a
+ * descending z-index — and it looked like a bug at any width where the cards
+ * all fit: the hairline borders ran into each other with nothing to say the
+ * overlap was deliberate. Vertical, every card keeps its own edges and the set
+ * still reads as a deck rather than a row.
+ *
+ * Only from 48rem. On a phone one card fills the view, so a stagger is a card
+ * that starts lower for no visible reason. */
+@media (min-width: 48rem) {
+  .deck__card:nth-child(even) { margin-block-start: var(--space-xl); }
+}
+.deck__frames {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+.deck__frames img {
+  width: 100%;
+  /* Definite box, derived from the width — the archive shoots vertical, and a
+     lazy frame that reserves nothing is the drift that moved .lane__frame
+     575px under a reader. */
+  aspect-ratio: 3 / 4;
+  height: auto;
+  object-fit: cover;
+  background: var(--color-paper-2);
+  outline: var(--rule-hair) solid var(--outline-image);
+  outline-offset: calc(var(--rule-hair) * -1);
+}
+.deck__name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.06;
+  margin-block-start: var(--space-2xs);
+}
+.deck__what {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+}
+.deck__meta {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+@media (hover: hover) and (pointer: fine) {
+  .deck__card:hover { border-color: var(--color-rule-2); }
+}
+@supports selector(::scroll-marker) {
+  .deck { scroll-marker-group: after; }
+  .deck::scroll-marker-group {
+    display: flex;
+    gap: var(--space-2xs);
+    padding-inline: var(--page-gutter);
+    padding-block-start: var(--space-xs);
+  }
+  .deck__card::scroll-marker {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border: var(--rule-hair) solid var(--color-rule-2);
+  }
+  .deck__card::scroll-marker:target-current { background: var(--color-accent); }
+}
+
 .statement {
   max-width: var(--page-max);
   margin-inline: auto;
@@ -1959,6 +2088,44 @@ img { display: block; max-width: 100%; }
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-md);
+  justify-items: start;
+}
+/* The card the statement sits in.
+ *
+ * It was a block of type on the page ground with nothing to be centred
+ * against. A landscape card gives the paragraph edges, and centring it inside
+ * them is what makes type this size read as composed rather than as a
+ * paragraph that happens to be large — the owner's "isinya typography di
+ * tengahnya dan kebaca enak".
+ *
+ * The measure is capped in modules, not `ch`: this box holds a display lead
+ * and two body-face paragraphs, and a `ch` here resolves in whichever face the
+ * box inherits. That is the `.head` lesson in CLAUDE.md. */
+.statement__card {
+  /* `.statement` aligns its children to the start, which shrink-wrapped the
+   * card to its type. A landscape card spans the measure. */
+  justify-self: stretch;
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-white);
+  padding: var(--space-xl) var(--space-lg);
+  display: grid;
+  gap: var(--space-md);
+  /* One column, centred in the card, with the type left-aligned inside it.
+   *
+   * "Typography di tengahnya" is the block sitting in the middle of the card,
+   * not the text being centre-aligned. Those are different things and only one
+   * of them is "kebaca enak": the lead caps itself at 42ch, which is 962px at
+   * 36px in this face, and 962px of centre-aligned prose is ragged on both
+   * edges and hard to read. Centring the column and leaving the lines
+   * left-aligned gives the composition without costing the reading.
+   *
+   * The children cap themselves and correctly — `.statement__lead` at 42ch in
+   * its own display face, `.statement__sub` at `--measure`. A cap here in
+   * modules on top of those was wrong twice over: it lost to their own
+   * specificity, and it would have fought a `ch` that is doing exactly what
+   * CLAUDE.md says a `ch` should. */
+  grid-template-columns: min(100%, calc(var(--module) * 7));
+  justify-content: center;
   justify-items: start;
 }
 .statement__eyebrow {
