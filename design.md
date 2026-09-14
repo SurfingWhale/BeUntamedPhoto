@@ -247,6 +247,17 @@ The load-bearing layout decision on this site.
   the way `tileSizes(i)` mirrors `/work`'s. Change one and re-measure the
   other.
 
+  **And the band runs full-bleed, with no box on a card.** `.grid-band` was a
+  `--page-max` box with a gutter either side, so nine photographs stopped 40px
+  short of the glass — this section was breaking the rule at the top of this
+  list. The measure comes back on the things inside it that are type: the
+  standfirst and the sticky filter bar each hold themselves to it. The cards
+  lose the hairline and the paper-white ground that § 4 gives every other card;
+  the reference's own product cards have no stroke, the frame already carries a
+  ground, and a border round each of nine photographs is nine boxes competing
+  with the photographs. Measured, the photographs got *bigger* everywhere:
+  348 → 390 for the lead at 390, and 555/441/326 → 598/477/357 at 1440.
+
   The index was one large card then small ones — six of twelve columns, then
   three each — and every card carries a **contact strip**: three more plates
   from inside that gallery, in fixed boxes no wider than 89px. One cover says
@@ -713,3 +724,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The masthead became one row and the index band lost its dark block, both on the owner's verdict. The two-tier masthead was justified by a measurement that had gone stale — `.mast__id` was 257px as type and is 136px drawn — so the identity row fits and the nav wraps under it only below 72rem; at 1152 and up the masthead is 74px against 110. The index number now marks the current link alone, which took 40% of the rail out from behind a swipe. The band's caption block became a bottom-weighted gradient over five rows instead of four, with the paragraph moved to paper: the top 52% of the plate is untouched and the topmost ink sits at 33.9% under a solid stop at 48% — 14 points of margin where the block had zero. |
 | 2026-09-14 | The deck built, on the owner's read of the reference: cards showing three photographs each, swipeable, stacked. One card per lane rather than per gallery, so it answers "what does this kind of work look like" instead of repeating the index. The frames reuse the 288w files the contact strip already requests and the card is capped at 29rem so 141 CSS px is covered at 2x — nine photographs for no new bytes. The stack went from a horizontal overlap, which read as a bug wherever the cards fit, to the vertical stagger the reference actually uses. The statement became a landscape card with its type block centred and its lines left-aligned. |
 | 2026-09-14 | The index grid given a rhythm of six — 5/4/3/4/5/3 columns, two cards dropped half a row, six frame heights — on the owner's note that one lead plus identical boxes reads flat where the reference varies size and alignment. Three widths measured at 1280 and 1440 (489/387/286 and 555/441/326) and `cardSizes(i)` written from those; `SIZES.cardLead` and `SIZES.card` removed rather than left to drift. |
+| 2026-09-14 | The index band went full-bleed and the cards lost their boxes — "full screen gaada border kiri kanan". It had been a page-max box with gutters, which is the rule at the top of § 4 broken by the section that most needed it. Photographs got bigger at every width (lead 348 → 390 at 390; 555/441/326 → 598/477/357 at 1440) and `cardSizes()` was re-measured to match: with no gutter and no card padding to subtract, a span is exactly its share of the viewport. The measure returns on the standfirst and the sticky bar, which are type. |

@@ -1256,6 +1256,13 @@ img { display: block; max-width: 100%; }
  * On a phone the title drops to the label size and shares a line with its
  * count; the display setting returns at 60rem, where there is room for it. */
 .index-sticky {
+  /* Its own measure, because the band around it is full-bleed now. The
+   * photographs run to the glass; a heading and a row of controls do not —
+   * that is the second half of the rule in design.md § 4. */
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding-inline: var(--page-gutter);
   position: sticky;
   /* max(), not --mast-h alone. The masthead publishes --mast-h: 0px while it is
    * retracted, so on a downward scroll this bar pinned to the very top of the
@@ -1456,15 +1463,43 @@ img { display: block; max-width: 100%; }
 .index-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-md);
+  /* Tight, like the reference: the photographs are the content and the space
+   * between them is a seam, not a margin. */
+  gap: var(--space-2xs);
   align-items: start;
-  max-width: var(--page-max);
-  margin-inline: auto;
-  padding-inline: var(--page-gutter);
   /* Nothing in a grid of photographs may make the page scroll sideways. */
   min-width: 0;
 }
 .index-grid > .reel__card:first-child { grid-column: 1 / -1; }
+
+/* No box on an index card.
+ *
+ * `design.md` § 4 says every card sits in one — a hairline, a paper-white
+ * ground — and that holds for the lanes, where a borrowed still needs an edge
+ * to sit on. It does not hold here: the reference's own product cards have no
+ * stroke at all. The photograph sits on a light ground and the name sits under
+ * it, and the frame already carries that ground (`--color-paper-2`). A
+ * hairline round each of nine photographs is nine boxes competing with the
+ * photographs, and with the band full-bleed it also put a border where the
+ * owner asked for none. */
+.index-grid > .reel__card {
+  border: 0;
+  background: none;
+  padding: 0;
+}
+/* The text lines up with the photograph's own edge rather than being inset
+ * from a card that no longer exists. One uniform step, the same size as the
+ * seam between the photographs, so a caption never touches the glass and
+ * never looks inset either.
+ *
+ * Not per-position: an attempt to give only the cards at the viewport edges a
+ * full gutter needed `nth-child` to know which cards those were, and above
+ * 60rem the spans are 5/4/3/4/5/3 — so odd and even stop meaning left and
+ * right. A rule that has to know the column pattern to place a caption is a
+ * rule that will be wrong the next time the pattern changes. */
+.index-grid > .reel__card > :not(.reel__frame) {
+  padding-inline: var(--space-2xs);
+}
 
 /* A shorter frame on a phone, and only in the index.
  *
@@ -2547,13 +2582,20 @@ img { display: block; max-width: 100%; }
 }
 
 /* the selected-work grid band — light ground, generous block padding */
+/* Full bleed, because it is a band of photographs.
+ *
+ * `design.md` § 4 and CLAUDE.md both say it in one line — "photographs run
+ * full-bleed, everything else is held to --page-max" — and this section was
+ * breaking its own rule: a page-max box with a gutter either side, so nine
+ * photographs stopped 40px short of the screen. The owner's note: "full screen
+ * gaada border kiri kanan".
+ *
+ * The measure comes back on the things inside it that are *type* — the
+ * standfirst and the sticky filter bar each hold themselves to it — rather
+ * than on the band. */
 .grid-band {
-  max-width: var(--page-max);
-  margin-inline: auto;
-  /* width, or the auto margins below absorb the free space and shrink-wrap
-   * this box instead of stretching it — see .page, a grid parent. */
   width: 100%;
-  padding: calc(var(--row) * 0.75) var(--page-gutter);
+  padding-block: calc(var(--row) * 0.75);
   display: grid;
   /* Pinned. An auto track takes its width from the widest child's
    * min-content, which is how a nowrap chip row pushed this section to

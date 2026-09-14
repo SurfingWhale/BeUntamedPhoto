@@ -289,20 +289,23 @@ export const SIZES = {
   /**
    * `.reel__frame` in the home index, per span. The grid runs a rhythm of six
    * — 5, 4, 3, 4, 5, 3 columns of twelve above 60rem — so there are three
-   * widths, not one. Measured, not derived:
+   * widths, not one.
    *
-   *            1280   1440
-   *   span 5    489    555     -> 39vw
-   *   span 4    387    441     -> 31vw
-   *   span 3    286    326     -> 23vw
+   * Re-measured when the band went full-bleed, which is why these are round
+   * numbers: with no page gutter and no card padding to subtract, a span is
+   * exactly its share of the viewport.
    *
-   * Below 60rem the grid is two up and only the first card spans both, so
-   * there are two widths there: 348/705 for the lead and 165/343 for the rest,
-   * declared 92vw and 45vw.
+   *            1280   1440          was (boxed)
+   *   span 5    531    598     42vw   489/555  39vw
+   *   span 4    424    477     34vw   387/441  31vw
+   *   span 3    317    357     25vw   286/326  23vw
+   *
+   * Below 60rem the grid is two up and only the first card spans both: 390/768
+   * for the lead, which is the whole viewport, and 193/382 for the rest.
    */
-  cardSpan5: "(min-width: 60rem) 39vw, 45vw",
-  cardSpan4: "(min-width: 60rem) 31vw, 45vw",
-  cardSpan3: "(min-width: 60rem) 23vw, 45vw",
+  cardSpan5: "(min-width: 60rem) 42vw, 50vw",
+  cardSpan4: "(min-width: 60rem) 34vw, 50vw",
+  cardSpan3: "(min-width: 60rem) 25vw, 50vw",
 } as const;
 
 /**
@@ -315,8 +318,9 @@ export const SIZES = {
  * not a rounding error — it is the next candidate up.
  */
 export function cardSizes(i: number): string {
-  /* Index 0 is the only card that spans both columns on a phone. */
-  if (i === 0) return "(min-width: 60rem) 39vw, 92vw";
+  /* Index 0 is the only card that spans both columns on a phone, and the band
+   * is full-bleed, so below 60rem it is the entire viewport width. */
+  if (i === 0) return "(min-width: 60rem) 42vw, 100vw";
   const span = [5, 4, 3, 4, 5, 3][i % 6];
   if (span === 4) return SIZES.cardSpan4;
   if (span === 3) return SIZES.cardSpan3;
