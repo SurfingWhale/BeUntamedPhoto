@@ -82,7 +82,7 @@ export function Lanes({ archiveBanner }: Props) {
   ];
 
   return (
-    <div className="reel" aria-label="The three sites">
+    <div className="reel lanes" aria-label="The three sites">
       {lanes.map((lane, i) => {
         const body = (
           <>

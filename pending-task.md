@@ -256,6 +256,37 @@ it is still the owner's to write.
 
 ---
 
+## 11. The archive lane over-fetches its banner for a portrait plate
+
+Small, real, and measured while the lanes were being stacked. `SIZES.lane`
+describes the **box** the banner sits in, because the archive's own lane
+carries a plate whose ratio is not known until render — a landscape plate
+fills the box, a portrait one letterboxes inside it. The two borrowed banners
+have fixed ratios and declare their painted width directly, so only this one
+lane is affected.
+
+For the archive's usual shape the gap is large:
+
+| | 390 | 1440 |
+| --- | --- | --- |
+| box the slot declares | 355px | 416px |
+| painted area, 2:3 plate | 143px | 176px |
+
+So a phone pulls a 1080w candidate to paint 143 CSS px. Declaring the box is
+the *safe* direction — under-declaring gives a soft photograph, which costs
+more than bytes — so it stays that way until this is done properly.
+
+**What would fix it:** `archiveBanner.width/height` are already passed into
+`Lanes`, so the lane can derive its own `sizes` from the plate's ratio at
+render time instead of falling back to the box. Needs the frame's height per
+breakpoint, which is `--row` based, so it is a small table rather than a
+one-liner — and it wants measuring at all six widths afterwards.
+
+Not blocked on anything. Just not worth doing in the same change as the
+stacking, because the stacking is what changed the box.
+
+---
+
 ## What is *not* pending
 
 So this file does not become the thing it is warning about:

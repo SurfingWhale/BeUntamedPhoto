@@ -4,7 +4,10 @@
 section built by the end of that day
 **Scope:** `/` only. The structure of its sections, not their copy.
 **References:** the Nomvnt page (structure, rhythm, how lime is used) and the
-"silence that heals" composition (the drawn grid, the type-on-grid voice)
+"silence that heals" composition (the drawn grid, the type-on-grid voice).
+**Both are in the repository now** — `docs/reference/`, committed 2026-09-14
+after four sessions of work written against images nobody after the session
+could open.
 **Reads with:** `RESEARCH-reference-vs-built.md` (which found `design.md` was a
 paraphrase), `RESEARCH-the-first-screen.md` (the scroll-depth budget this has
 to live inside)
@@ -201,5 +204,24 @@ rather than near it.
    z-index child paint *in front of* its own card's background.
 4. ~~§ 3.5 the marks~~ — built, `4d303b3`.
 5. ~~§ 3.4 the index as a grid~~ — built on instruction; see that section.
+6. ~~Section 4 of the § 1 table, the Featured pair~~ — built 2026-09-14, on the
+   owner's note that the page had no image elements beyond the hero and the
+   index. **This document never listed it as a gap**, which was the miss: § 3
+   catalogued what was missing from the sections this page *had*, and section 4
+   of the reference had no counterpart here at all, so it fell out of the
+   comparison entirely. Counting the reference rather than reading it is what
+   found it — eight of its nine sections carry a photograph and exactly one is
+   type alone, against two type-only sections back to back here. The opening
+   zone now carries two plates with the first on a lime block, in place of a
+   strip of four 12px colour squares.
+7. ~~The lanes stack below 48rem~~ — same note. A reel that shows one of three
+   on a phone is not a choice set; § 3 had no criterion for *how many of a set
+   are visible*, only for which axis it runs on.
 
 Nothing in this document is outstanding.
+
+> **The lesson for the next one of these.** Both misses above are the same
+> shape: this PRD compared section to section and never counted. A table of
+> "what the reference does" and a table of "what this page has" will not
+> surface a section the page is missing outright, or a set the layout hides.
+> Count the images, count what is on screen, then compare.

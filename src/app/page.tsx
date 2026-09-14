@@ -6,6 +6,8 @@ import { PhotoFold } from "@/components/photo-fold";
 import { SectionHead } from "@/components/section-head";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
+import { PAIR_MAX_WIDTH, SIZES, trimSrcSet } from "@/lib/images";
+import { plate as plate2 } from "@/lib/format";
 import { elsewhere, site } from "@/lib/site";
 
 /**
@@ -54,15 +56,23 @@ export default async function HomePage() {
    * The extra rows ride the same round trip — see getAlbumsWithCovers — and
    * only this page asks for them, because only this page draws them. */
   const [featured, albums] = await Promise.all([
-    getFeatured(4),
+    getFeatured(6),
     getAlbumsWithCovers(undefined, 3),
   ]);
-  /* Four featured plates: the hero, the index band, the lane banner and the
-   * closing fold, so no photograph appears twice on the page. Each falls back
-   * to the one before it, so a thin archive degrades rather than breaking —
-   * fewer than four and the banner reuses the hero's plate four screens away,
-   * and PhotoFold draws its numbered placeholder. */
+  /* Six featured plates now: the hero, the index band, the pair in the opening
+   * zone, the lane banner and the closing fold, so no photograph appears twice
+   * on the page. Each falls back to the one before it, so a thin archive
+   * degrades rather than breaking — fewer than six and the pair reuses earlier
+   * plates and PhotoFold draws its numbered placeholder.
+   *
+   * FEATURED_SLOTS and the check constraint in add-featured-rank.sql still
+   * name four, because those are the four the owner picks by hand. The pair
+   * takes whatever the archive returns after them, which is what every slot
+   * did before that migration was written and is still un-run. Worth two more
+   * ranks later; not worth blocking this on a migration. */
   const bandPlate = featured[1] ?? featured[0];
+  const pairA = featured[4] ?? featured[1] ?? featured[0];
+  const pairB = featured[5] ?? featured[2] ?? featured[0];
   const banner = featured[2] ?? featured[0];
   const closing = featured[3] ?? featured[1] ?? featured[0];
   const year = new Date().getUTCFullYear();
@@ -138,14 +148,41 @@ export default async function HomePage() {
           ←
         </span>
 
-        <Reveal className="open__swatches" index={2}>
-          <div className="swatches" aria-hidden="true">
-            <span className="swatch" style={{ background: "var(--color-ink)" }} />
-            <span className="swatch" style={{ background: "var(--color-accent-deep)" }} />
-            <span className="swatch" style={{ background: "var(--color-paper-dark)" }} />
-            <span className="swatch" style={{ background: "var(--color-accent)" }} />
-          </div>
-          <p className="u-mono">.colour picture</p>
+        {/* Two plates, the first standing on a lime block — the reference's
+            Featured Collection, which is the one section of its nine this page
+            had no answer to. It replaces four 12px colour squares: those were
+            the only generated graphic left on the page, their own comment
+            claimed they were "sampled from the adjacent photograph" when they
+            were four hardcoded tokens, and there was no adjacent photograph to
+            sample. docs/reference/nomvnt-page.jpg, section 4.
+
+            Eight of the reference's nine sections carry a photograph and
+            exactly one is type alone. This page had two type-only sections
+            back to back, which is the whole of "gaada element image jadinya
+            flat". */}
+        <Reveal className="open__pair" index={2}>
+          {[pairA, pairB].map((plate, i) =>
+            plate?.url ? (
+              <figure className="pair" key={plate.id} data-lime={i === 0 ? "true" : undefined}>
+                {/* Storage URLs are remote — a plain <img>, as everywhere. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={plate.url}
+                  srcSet={trimSrcSet(plate.srcSet, PAIR_MAX_WIDTH)}
+                  sizes={SIZES.pair}
+                  alt={plate.caption ?? `Plate ${plate2(i + 4)}`}
+                  width={plate.width ?? undefined}
+                  height={plate.height ?? undefined}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption className="pair__cap">
+                  <span className="pair__no">[{plate2(i + 4)}]</span>
+                  {plate.place ? <span>{plate.place}</span> : null}
+                </figcaption>
+              </figure>
+            ) : null,
+          )}
         </Reveal>
       </section>
 

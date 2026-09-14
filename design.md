@@ -126,9 +126,9 @@ was there before.
 
 The load-bearing layout decision on this site.
 
-- **A set you pick *between*** — the three lanes — is a **reel**: one
-  horizontally snap-scrolled row, card ~78% of the scroller so the next one
-  peeks. Compositor-driven, no JavaScript needed for the scrolling, and it
+- **A set you pick *between*** — the three lanes — is a **reel from 48rem**,
+  and a stack below it: one horizontally snap-scrolled row, card ~78% of the
+  scroller so the next one peeks. Compositor-driven, no JavaScript needed for the scrolling, and it
   degrades to a plain scroller. Position dots come from `::scroll-marker`
   behind `@supports`, additive only.
 - **What you came to look *at*** — the plates inside one gallery — is
@@ -141,7 +141,14 @@ The load-bearing layout decision on this site.
   galleries at a time, which on the one page a stranger lands on is the wrong
   trade however correct the axis. It costs 1307px on a phone, measured, all
   of it below photograph two. `docs/PRD-the-reference-layout.md` § 3.4.
-  Three destinations in the lanes reel are a different case: all three fit.
+  The lanes are the same argument at a smaller scale: from 48rem the reel shows
+  two of three and from 60rem all three, so it earns its axis — but at 390 it
+  showed one and a sliver, and three banners nobody can see are not a choice
+  set either. Stacked below 48rem, and the reel above it. Re-measuring that
+  found a second thing: the sport lane's `sizes` had been describing a stacked
+  layout ever since the lanes *became* a reel and nobody re-measured, so it
+  over-declared by 19% for months. Stacking made its own declaration true
+  again.
 
 ### Cards
 
@@ -158,10 +165,20 @@ The load-bearing layout decision on this site.
 ### Page skeletons
 
 - **`/` (hub)** — hero · ticker · statement · photographic band · the index
-  as a grid · opening zone · story · label + lanes reel · closing plate. The
+  as a grid · opening zone **+ a pair of plates** · story · label + lanes
+  (stacked on a phone, a reel from 48rem) · closing plate. The
   index carries a sticky head above it — a count and the genre chips — which
   is the only sticky thing on the page besides the masthead, and therefore the
   only other place § 10's safe-area rule bites.
+  The opening zone carries **two plates, the first standing on a lime block** —
+  the reference's Featured Collection, and the section that replaced a strip of
+  four 12px colour squares. It is the answer to a count: eight of the
+  reference's nine sections carry a photograph and exactly one is type alone,
+  where this page ran two type-only sections back to back. The heading takes
+  the first grid row and the plates the second, because `2K26` is a 469px
+  graphic numeral and putting anything in the columns beside it is what made
+  the overflow it always had visible.
+
   The index is one large card then small ones — six of twelve columns, then
   three each — and every card carries a **contact strip**: three more plates
   from inside that gallery, in fixed boxes no wider than 89px. One cover says
@@ -554,3 +571,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | Section openings given a supporting line and a marked word, on the owner's read that the reference's text is fuller than this page's. The index band's copy now answers its own chip by reading each genre's `blurb` from `site.ts` — owner-written copy nothing on the home page had ever displayed. |
 | 2026-09-14 | `.index-band` found to have had **no scrim**: it painted `var(--color-scrim)` and the system only keeps `--color-scrim-3/-2/-0`, so white type stood on a pale plate. Re-cut as a caption block after the hero's gradient measured the eyebrow at 3.19:1 — a percentage stop cannot know where the copy starts. Gate 11 added and proved by reintroducing the exact declaration; it caught a wrong guess about the font properties on its first run. |
 | 2026-09-14 | Type resized for the phone, on the owner's report that it felt cramped. Measured at six widths, every display clamp was flat across 360/390/430 — the floor was beating its own `vw` term, so a phone got the desktop minimum. Six rules rewritten as `rem + vw` ramps fitted to 1280, the position marks sized for the phone first, the index's own image box cut from 2.2 to 1.7 rows below 48rem, and the contact strip kept to the lead card where its boxes are 89px rather than 44px. The index section at 390 went 1632px → 1267px. Hero and card titles untouched, at the owner's instruction. Gate 12 added and proved. |
+| 2026-09-14 | The reference images committed to `docs/reference/`, after four sessions of design work written against images that only ever existed in a chat window. Counting them settled the owner's "gaada element image jadinya flat": eight of the reference's nine sections carry a photograph and one is type alone, against two type-only sections back to back here. The opening zone took the reference's **Featured pair** — two plates, the first on a lime block — in place of four hardcoded colour swatches whose own comment claimed they were sampled from an adjacent photograph that did not exist. The lanes stack below 48rem, which put three banner cards on a phone where a reel showed one and a sliver. Two bugs found by measuring rather than looking: `2K26` is a 469px numeral that has always overflowed its 264px cell, invisible only because the columns beside it were empty; and the sport lane's `sizes` had described a stacked layout ever since the lanes became a reel, over-declaring by 19%. |

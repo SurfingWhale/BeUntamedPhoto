@@ -106,7 +106,21 @@ export const elsewhere = [
      * candidate step and pulled the 1200w file onto a 320px phone.
      *
      * 800w exists because 390 @2x needs 644px, and the gap from 640 to 1200
-     * meant a 4px shortfall cost 70KB. */
+     * meant a 4px shortfall cost 70KB.
+     *
+     * 2026-09-14: **this declaration was right and the layout had drifted
+     * away from it.** Re-measured before stacking the lanes on a phone, the
+     * painted width in the reel was 216 / 271 / 302 at those three widths —
+     * not the 264 / 322 / 355 above. The figures in this comment are the
+     * *stacked* ones, taken before the lanes became a reel, and nobody
+     * re-measured when they did: 83vw has been over-declaring by ~19% ever
+     * since, which at 390 @2x meant the 800w file where 640w would do.
+     *
+     * Stacking them below 48rem makes the numbers above true again, and they
+     * were re-measured to confirm it rather than assumed — 264 / 322 / 355
+     * exactly. This is the failure CLAUDE.md warns about under SIZES ("wrong
+     * precisely because a column count changed and the declaration did not"),
+     * and it is the one instance that warning did not already cover. */
     bannerSizes: "(min-width: 64rem) 396px, (min-width: 48rem) 316px, 83vw",
     w: 1600,
     h: 1066,

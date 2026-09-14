@@ -160,6 +160,15 @@ export function trimSrcSet(srcSet: string | null, maxWidth: number): string | un
 export const LANE_MAX_WIDTH = 1080;
 
 /**
+ * The widest a `.pair` figure renders — the two plates in the opening zone.
+ *
+ * Same reasoning as LANE_MAX_WIDTH: these are lazy, so the browser picks their
+ * candidate when they scroll into view rather than at layout, and a ceiling
+ * cannot be mistimed the way a `sizes` declaration can. Measured box below.
+ */
+export const PAIR_MAX_WIDTH = 1080;
+
+/**
  * `sizes` per slot, so the browser picks from the srcset before layout.
  * These mirror the breakpoints in globals.css — change them together.
  */
@@ -234,10 +243,34 @@ export const SIZES = {
   plateHalf: "(min-width: 60rem) 32vw, 45vw",
   /** .plates__thumb — a fixed 96px contact-sheet square. */
   thumb: "96px",
-  /** .reel__frame — the lane banners, measured box by box rather than guessed:
-   * 218px at 320, 273 at 390, 304 at 430, 311 at 768, 293 at 1024 and 416
-   * from 1440 up. Declared at the widest each range actually reaches. */
-  lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 304px",
+  /**
+   * .reel__frame — the archive's own lane banner, whose plate has no ratio
+   * this file can know, so this describes the **box** rather than the painted
+   * area. The two borrowed banners have fixed ratios and declare their painted
+   * width directly in site.ts; this one cannot, because a landscape plate
+   * fills the box while a portrait one letterboxes inside it.
+   *
+   * Re-measured 2026-09-14 when the lanes started stacking below 48rem. The
+   * box widens on a phone and the old 304px under-declared it, which is the
+   * expensive direction — an under-declared slot picks a candidate too small
+   * and the frame goes soft:
+   *
+   *          320    390    430    768   1024   1440
+   *   box    278    348    388    309    291    414
+   *   was    304    304    304    311    293    416
+   *   now    291    355    391    311    293    416
+   *
+   * 91vw covers all three phone widths with 1-3px to spare; the fixed values
+   * from 48rem up are unchanged, because stacking stops there.
+   *
+   * Known and left: for a *portrait* plate the painted area is far narrower
+   * than the box — a 2:3 plate paints 143px of a 348px box at 390 — so this
+   * declaration over-fetches for the archive's usual shape. Closing it means
+   * deriving the slot from `archiveBanner.width/height` at render time, which
+   * is real and is noted in pending-task.md rather than done here. Declaring
+   * the box is the safe direction; a landscape plate needs every pixel of it.
+   */
+  lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 91vw",
   /**
    * .reel__frame — the lead cover in the home index, the card that spans six
    * of the twelve columns above 60rem and both columns below it.
@@ -266,6 +299,21 @@ export const SIZES = {
    *   1440   326px    ->  750w at 2x
    */
   card: "(min-width: 60rem) 23vw, 45vw",
+  /**
+   * `.pair` — the two plates in the opening zone. Two up at every width: half
+   * the page measure below 60rem, then half of the seven columns the section
+   * gives them above it. Measured box, which is why 768 is *wider* than 1280
+   * — below 60rem the pair has the whole measure, above it only seven twelfths
+   * of the field:
+   *
+   *          390    430    768   1280   1440
+   *   box    167    187    345    332    379
+   *
+   * 45vw declares 176 / 194 / 346 and 27vw declares 346 / 389. A first pass at
+   * 24vw under-declared 1440 by 9%, which is the direction that costs a soft
+   * photograph rather than bytes — caught by measuring, not by the arithmetic.
+   */
+  pair: "(min-width: 60rem) 27vw, 45vw",
 } as const;
 
 /**
