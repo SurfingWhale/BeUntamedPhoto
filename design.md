@@ -264,6 +264,19 @@ The load-bearing layout decision on this site.
   with row one 562px tall on its own. Measured after: five whole cards inside
   900px at both 1280 and 1440, and seven at least partly in view.
 
+  **And it is spaced, not packed.** The first build of this grid used a 24px
+  gutter and the verdict was "kalo card sama boxnya terlalu sempit hasilnya
+  jelek" — a contact sheet pressed flat. `--space-2xl` from 60rem, which is
+  80px on a wide screen, so the cards stop touching and read as placed. Within
+  each row one or two cards drop by a fraction of a module, because a grid
+  aligns the tops of its rows and something has to break that; the large card
+  and the tall medium beside it are left alone, since offsetting the anchor of
+  a composition reads as a mistake rather than as placement.
+
+  Air is something a wide screen has to spend and a phone does not: at 40px a
+  gutter took the photographs to **117px** at 390, and the extra card padding
+  took them to 129. Both are scoped to 60rem, which leaves a phone at 161.
+
   Two widths means two `sizes` — `cardSizes(i)` returns 64vw for the two cards
   that span two columns and 31vw for the rest, 46vw for both below 60rem.
   Re-measured from scratch when the grid went from twelve columns to three: the
@@ -738,3 +751,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The index grid given a rhythm of six — 5/4/3/4/5/3 columns, two cards dropped half a row, six frame heights — on the owner's note that one lead plus identical boxes reads flat where the reference varies size and alignment. Three widths measured at 1280 and 1440 (489/387/286 and 555/441/326) and `cardSizes(i)` written from those; `SIZES.cardLead` and `SIZES.card` removed rather than left to drift. |
 | 2026-09-14 | The index band went full-bleed and the cards lost their boxes — "full screen gaada border kiri kanan". It had been a page-max box with gutters, which is the rule at the top of § 4 broken by the section that most needed it. Photographs got bigger at every width (lead 348 → 390 at 390; 555/441/326 → 598/477/357 at 1440) and `cardSizes()` was re-measured to match: with no gutter and no card padding to subtract, a span is exactly its share of the viewport. The measure returns on the standfirst and the sticky bar, which are type. |
 | 2026-09-14 | The index grid redesigned to a brief: three columns, a ten-card cycle over four rows, two mirrored compositions, thin borders back on the cards and a consistent 24px gutter — which needed `--space-mlg`, the step the small end of the space scale was missing between 16 and 28. No card spans the container: that is a product hero and this section had been one twice. The heights were set from a density target rather than by eye — five or six cards in the first viewport, where the first pass put two at 1440 — and a small card now drops its contact strip and standfirst to earn the word "small". `cardSizes()` re-measured for a three-column field; the previous set described twelfths and every value was wrong. |
+| 2026-09-14 | The index grid spaced out: an 80px gutter from 60rem where it had 24, a step more card padding, and a fractional vertical drop on one or two cards per row so the tops stop lining up. Both the gutter and the padding are scoped above 60rem — measured, they took a 390 photograph to 117px and 129px respectively, and "sesek" was the complaint two rounds earlier. A phone keeps a 16px gutter and a 161px frame. |

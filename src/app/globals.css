@@ -1480,7 +1480,22 @@ img { display: block; max-width: 100%; }
 .index-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-mlg);
+  /* Generous, and that is the point rather than a preference.
+   *
+   * The owner's verdict on the tight version: "kalo card sama boxnya terlalu
+   * sempit hasilnya jelek". A 24px gutter is a contact sheet pressed flat —
+   * the reference he sent next has four cards floating in a band with about
+   * half the width as air between and around them. `--space-2xl` is
+   * clamp(2.5rem, 8vw, 5rem), so 40px on a phone and 80px from 1000px up: the
+   * cards stop touching and the grid starts reading as placed rather than
+   * packed. The row gap matches, because air between rows is what lets the
+   * vertical offsets below be seen at all.
+   *
+   * Only from 60rem, though — measured, a 40px gutter on a 390 phone took the
+   * photographs down to **117px**, and "sesek" was the complaint before this
+   * one. Two columns on a phone with a 16px gutter leaves them at 163. Air is
+   * something a wide screen has to spend and a phone does not. */
+  gap: var(--space-md);
   padding-inline: var(--space-mlg);
   /* Cards end where their content ends, so a row of three does not stretch
      all three to the tallest — that is half of the asymmetry. */
@@ -1494,7 +1509,14 @@ img { display: block; max-width: 100%; }
  * hairline-and-paper-white box as every other card on the site (design.md
  * § 4). It came off when the band went full-bleed and the photographs were
  * asked to run to the glass; with a consistent gutter round the grid they no
- * longer do, so the box has somewhere to sit. */
+ * longer do, so the box has somewhere to sit.
+ *
+ * A step more padding than the shared card, because "boxnya terlalu sempit"
+ * is the box as well as the gutter: a hairline 12px off a photograph reads as
+ * a frame clamped round it. */
+@media (min-width: 60rem) {
+  .index-grid > .reel__card { padding: var(--space-md); }
+}
 
 /* A shorter frame on a phone, and only in the index.
  *
@@ -1542,7 +1564,10 @@ img { display: block; max-width: 100%; }
    * document order, and these cards carry [01], [02], [03] — a numbered set
    * that reads in a different order from the one it is numbered in is worse
    * than a gap. Cycles that tile exactly need no backfilling. */
-  .index-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .index-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2xl);
+  }
   .index-grid > .reel__card { grid-column: span 1; }
   .index-grid > .reel__card:nth-child(10n + 1),
   .index-grid > .reel__card:nth-child(10n + 7) { grid-column: span 2; }
@@ -1581,6 +1606,18 @@ img { display: block; max-width: 100%; }
   .index-grid > .reel__card:nth-child(10n + 8) .reel__frame,
   .index-grid > .reel__card:nth-child(10n + 9) .reel__frame,
   .index-grid > .reel__card:nth-child(10n + 10) .reel__frame { height: calc(var(--row) * 1.2); }
+
+  /* Nothing starts on the same line as its neighbour.
+   *
+   * The grid rows still align the *tops of the rows* — that is what a grid
+   * does — so within each row one or two cards are dropped by a fraction of a
+   * module. Row two is cards 3, 4 and 5; row four is 8, 9 and 10. The large
+   * card and the tall medium beside it are left alone: they are the anchor
+   * each composition is read from, and offsetting those reads as a mistake
+   * rather than as placement. */
+  .index-grid > .reel__card:nth-child(10n + 4) { margin-block-start: calc(var(--row) * 0.45); }
+  .index-grid > .reel__card:nth-child(10n + 8) { margin-block-start: calc(var(--row) * 0.5); }
+  .index-grid > .reel__card:nth-child(10n + 10) { margin-block-start: calc(var(--row) * 0.3); }
 
   /* A small card is the short one, so it carries less: no contact strip and no
    * standfirst. Three extra thumbnails and two lines of prose are what a
