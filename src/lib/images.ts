@@ -51,6 +51,24 @@ export const THUMB_WIDTH = 288;
  */
 export const HERO_THUMB_WIDTH = 168;
 
+/**
+ * The three plates in a home-index card's contact strip.
+ *
+ * Same reasoning as HERO_THUMB_WIDTH and the same shape — one small file, no
+ * ladder — because the strip's height is fixed by `--row` rather than derived
+ * from the card, so the box has a known ceiling at every viewport:
+ *
+ *   desktop   92 x 60 CSS px   (a span-3 card, three boxes across)
+ *   phone     45 x 49          (two cards up, so the card is narrower)
+ *
+ * 288 covers 96 at 3x, which is past the widest box on the densest phone, and
+ * lands near 20KB each — the same figure THUMB_WIDTH measured. It has to be a
+ * ceiling and not a fit: a lazy box inside a grid picks its candidate when it
+ * scrolls into view, and `trimSrcSet`'s note above is the record of what
+ * mistimed picks cost.
+ */
+export const CARD_THUMB_WIDTH = 288;
+
 function origin(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");
@@ -221,11 +239,33 @@ export const SIZES = {
    * from 1440 up. Declared at the widest each range actually reaches. */
   lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 304px",
   /**
-   * .reel__frame — a cover in the index reel. The card is `min(78%, 21rem)` of
-   * the reel's content box, which inside the index section measures 242px on a
-   * 390px phone and 347px at 1280.
+   * .reel__frame — the lead cover in the home index, the card that spans six
+   * of the twelve columns above 60rem and both columns below it.
+   *
+   * Measured off the rendered grid rather than derived from the span count,
+   * because `.index-grid` carries the page gutters and eleven gaps and the
+   * arithmetic is where two of these declarations were wrong before:
+   *
+   *   390    348px   the full content measure, two columns spanned
+   *   768    705px   same, still two columns
+   *   1280   590px   six of twelve
+   *   1440   670px   six of twelve, at --page-max
+   *
+   * 47vw declares 601 at 1280 and 677 at 1440; 92vw declares 359 and 706
+   * below it. All four land on the smallest candidate that covers the box at
+   * that viewport's density — 1080w on a 390 phone at 3x, 1500w elsewhere.
    */
-  cover: "(min-width: 60rem) 22rem, (min-width: 48rem) 38vw, 62vw",
+  cardLead: "(min-width: 60rem) 47vw, 92vw",
+  /**
+   * .reel__frame — every other cover in the home index: three of twelve
+   * columns above 60rem, one of two below it. Measured the same way.
+   *
+   *   390    165px    ->  640w at 3x
+   *   768    343px    ->  750w at 2x
+   *   1280   286px    ->  640w at 2x
+   *   1440   326px    ->  750w at 2x
+   */
+  card: "(min-width: 60rem) 23vw, 45vw",
 } as const;
 
 /**

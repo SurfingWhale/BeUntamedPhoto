@@ -234,24 +234,25 @@ trap.
 
 ---
 
-## 10. The reference layout is four sections short
+## 10. The reference layout — done, nothing outstanding
 
-Both references are now in hand and read against the built page, section by
-section, in `docs/PRD-the-reference-layout.md`. Four things are missing, and
-none of them is blocked on an account or a decision — they are simply not built
-yet:
+Both references were read against the built page section by section in
+`docs/PRD-the-reference-layout.md`, which listed four gaps. All four are built
+(`4d303b3`), and § 3.4 — the one recorded as *not* wanted — was built too, on
+the owner's instruction:
 
-| | what | why it matters |
+| | what | state |
 | --- | --- | --- |
-| § 3.1 | one section-heading rhythm — eyebrow, two-line heading with the second line indented | three different openings on one page is most of why it does not read like the reference |
-| § 3.3 | four gallery thumbnails along the foot of the hero | the reference's own move, and the cheapest fix for one photograph in the first screen |
-| § 3.2 | one lime surface block | the reference stands photographs on lime four times; this page uses it as a hairline |
-| § 3.5 | the marks aligned to `--row` | they were placed before the lattice came back, so they sit near cells rather than on them |
+| § 3.1 | one section-heading rhythm — eyebrow, two-line heading with the second line indented | built |
+| § 3.3 | four gallery thumbnails along the foot of the hero | built · photograph two 1.56 → 0.71 screens |
+| § 3.2 | one lime surface block | built, then re-cut as a shadow on the lead frame — the first version drew a border around the photograph rather than a block under it |
+| § 3.5 | the marks aligned to `--row` | built |
+| § 3.4 | the index as a grid, one large card then small, each with a contact strip | built on instruction · reverses a recorded decision; the reasoning is in that PRD and in `PRD-index-as-gallery.md` § 5.1 |
 
-Ordered, with acceptance criteria, in that PRD. Listed here because this file
-is what gets read first, and because § 3.4 — the home index staying a reel
-rather than becoming a grid — is a **decision already taken** and recorded, so
-nobody re-opens it by accident.
+The one thing § 3.4 does **not** answer is what those cards say. Three plates
+from inside a gallery show what a job looked like; they cannot say what the
+brief was, who it was for, or what was delivered. That is § 4 of this file, and
+it is still the owner's to write.
 
 ---
 

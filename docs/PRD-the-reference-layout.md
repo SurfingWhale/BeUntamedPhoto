@@ -1,6 +1,7 @@
 # PRD — the reference layout, section by section
 
-**Status:** open — written 2026-09-14 with both references in hand
+**Status:** closed — written 2026-09-14 with both references in hand, and every
+section built by the end of that day
 **Scope:** `/` only. The structure of its sections, not their copy.
 **References:** the Nomvnt page (structure, rhythm, how lime is used) and the
 "silence that heals" composition (the drawn grid, the type-on-grid voice)
@@ -46,7 +47,8 @@ hero → ticker → statement → index band (photo + heading)
 
 Sections 1, 2, 3, 6 and 9 are present. The lattice is back on the two
 typographic sections. The reference's **type-on-photograph** move is in twice —
-the hero and the index band.
+the hero and the index band. Since 2026-09-14 the index is a grid rather than a
+reel (§ 3.4), and § 3.1, § 3.2, § 3.3 and § 3.5 are built.
 
 ## 3. What is missing, in the order it is worth building
 
@@ -100,11 +102,54 @@ to its gallery. They are already fetched for the index.
 
 Nomvnt's seasonal section is an asymmetric grid — one large card, three
 smaller. `/work` already does exactly this with its 7/5/5/7/6/6 spans. The home
-index is a horizontal reel instead, which was a deliberate decision recorded in
+index was a horizontal reel instead, which was a deliberate decision recorded in
 `PRD-index-as-gallery.md` (seven galleries are a set you choose between, not a
-thing you read) and it is still defensible.
+thing you read).
 
-**Not wanted, for now.** Named so nobody "fixes" it later without reading why.
+**Reversed and built, 2026-09-14, on the owner's instruction.** This section
+said "not wanted, for now" and was named so nobody would fix it without
+reading why. The reason it was reversed rather than overridden:
+
+- **The trade was priced before the hero carried anything.** The reel bought
+  back height at a moment when the page had one photograph in its first 2.7
+  screens, and stacked covers measured 1273px. § 3.3 has since put four covers
+  inside the hero's own box: five photographs on screen one, photograph two at
+  0.71 screens. The height a stacked index costs is no longer being paid where
+  it hurt.
+- **What the reel cost was the thing the site is for.** Six of seven galleries
+  were off-screen, and someone deciding whether this archive shoots what they
+  need had to swipe to find out. "A set you choose between" is the right
+  reading of what the index *is*; it does not follow that the set should be
+  hidden.
+
+Built as: twelve columns above 60rem with the lead card on six and the rest on
+three — one large, then small, which is the reference's own shape — and two
+columns below it with the lead across both. Measured section height, against
+the reel it replaces:
+
+| | 390 | 768 | 1280 | 1440 |
+| --- | --- | --- | --- | --- |
+| reel | 325 | 328 | 351 | 380 |
+| grid | 1632 | 1535 | 945 | 1033 |
+
+That is the cost, stated plainly: **+1307px on a phone**. It is spent below
+photograph two, so it changes neither number § 4 constrains, and the first
+three screens now hold more photographs rather than fewer.
+
+**And each card carries a contact strip** — three more plates from inside that
+gallery, capped at 2.5 modules so no box exceeds 89 CSS px and each one is a
+single 288w file. This was the other half of the instruction, and it is the
+part that answers a question the reel could not: one cover says a gallery
+exists, three plates behind it say what the job looked like. Evidence rather
+than copy, deliberately — the subtitles are the owner's to write
+(`pending-task.md` § 4) and the photographs were already in the archive.
+
+One consequence worth naming: the lead card's strip is capped well short of
+its own 672px width, so there is a band of empty ground to the right of it at
+desktop. Left as it is. Filling it means either serving those three boxes at
+448w — 120KB to decorate a card that already carries a large photograph — or a
+second layout rule for one card. The emptiness is consistent with the rest of
+the page.
 
 ### 3.5 Marks in the empty cells
 
@@ -118,8 +163,9 @@ rather than near it.
 ## 4. Constraints this has to respect
 
 - **The scroll budget.** `RESEARCH-the-first-screen.md`: photograph two above
-  1.5 screens, six or more inside the first three. It currently reads 1.56 and
-  10. Nothing here may make the first number worse — § 3.3 improves it.
+  1.5 screens, six or more inside the first three. It read 1.56 and 10 when
+  this was written; § 3.3 moved the first to 0.71. Nothing here may make that
+  worse — and § 3.4's height is all spent below it.
 - **No new tokens.** Everything above is composition using what
   `tokens.css` already has. The one token added this week, `--color-grid`, was
   a restoration.
@@ -139,11 +185,21 @@ rather than near it.
 5. The marks in `.open` and `.story` land on `--row` multiples.
 6. `npm run measure` passes every gate it passed before, and the content gate's
    count does not change.
+7. The index is a grid: one card spans half the twelve-column field and the
+   rest a quarter of it, every card carries three plates from inside its own
+   gallery, no strip box exceeds 96 CSS px at 390, 768, 1280 or 1440, and the
+   grid's horizontal overflow is 0 at all four.
 
 ## 6. Order of work
 
-1. § 3.1 the heading rhythm — it is the one that makes the page read as one
-   thing, and it touches the most sections.
-2. § 3.3 the hero strip — cheapest win against the first-screen budget.
-3. § 3.2 the lime surface — one block, one rule.
-4. § 3.5 the marks — smallest, and only worth doing once the lattice is settled.
+1. ~~§ 3.1 the heading rhythm~~ — built, `4d303b3`.
+2. ~~§ 3.3 the hero strip~~ — built, `4d303b3`.
+3. ~~§ 3.2 the lime surface~~ — built, `4d303b3`; re-cut as an offset shadow on
+   the lead frame when a screenshot showed the pseudo-element version drawing a
+   lime border around the photograph rather than a block under it. The why is
+   in `globals.css` over that rule: `isolation: isolate` makes a negative
+   z-index child paint *in front of* its own card's background.
+4. ~~§ 3.5 the marks~~ — built, `4d303b3`.
+5. ~~§ 3.4 the index as a grid~~ — built on instruction; see that section.
+
+Nothing in this document is outstanding.

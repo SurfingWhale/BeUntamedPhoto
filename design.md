@@ -126,15 +126,22 @@ was there before.
 
 The load-bearing layout decision on this site.
 
-- **A set you pick *between*** — the galleries, the three lanes — is a
-  **reel**: one horizontally snap-scrolled row, card ~78% of the scroller so
-  the next one peeks. Compositor-driven, no JavaScript needed for the
-  scrolling, and it degrades to a plain scroller. Position dots come from
-  `::scroll-marker` behind `@supports`, additive only.
+- **A set you pick *between*** — the three lanes — is a **reel**: one
+  horizontally snap-scrolled row, card ~78% of the scroller so the next one
+  peeks. Compositor-driven, no JavaScript needed for the scrolling, and it
+  degrades to a plain scroller. Position dots come from `::scroll-marker`
+  behind `@supports`, additive only.
 - **What you came to look *at*** — the plates inside one gallery — is
   **vertical**. Horizontal breaks the reading direction.
-- `/work` is the exception that proves the rule: it is the survey page, so it
-  is a vertical grid, two columns from the smallest width.
+- `/work` is the survey page, so it is a vertical grid, two columns from the
+  smallest width.
+- **The home index is a grid, and was a reel until 2026-09-14.** The rule
+  above is about reading direction and it is still right; what it cannot
+  price is *how many of the set are visible*. A reel showed one of seven
+  galleries at a time, which on the one page a stranger lands on is the wrong
+  trade however correct the axis. It costs 1307px on a phone, measured, all
+  of it below photograph two. `docs/PRD-the-reference-layout.md` § 3.4.
+  Three destinations in the lanes reel are a different case: all three fit.
 
 ### Cards
 
@@ -150,11 +157,15 @@ The load-bearing layout decision on this site.
 
 ### Page skeletons
 
-- **`/` (hub)** — opening zone · ticker · full-bleed plate · statement ·
-  label + gallery reel · label + lanes reel · closing plate. The gallery reel
-  carries a sticky head above it — a count and the genre chips — which is the
-  only sticky thing on the page besides the masthead, and therefore the only
-  other place § 10's safe-area rule bites.
+- **`/` (hub)** — hero · ticker · statement · photographic band · the index
+  as a grid · opening zone · story · label + lanes reel · closing plate. The
+  index carries a sticky head above it — a count and the genre chips — which
+  is the only sticky thing on the page besides the masthead, and therefore the
+  only other place § 10's safe-area rule bites.
+  The index is one large card then small ones — six of twelve columns, then
+  three each — and every card carries a **contact strip**: three more plates
+  from inside that gallery, in fixed boxes no wider than 89px. One cover says
+  a gallery exists; three plates say what the job looked like.
   The hero is a full-bleed photograph with the statement set on it in white,
   the lime landing on one word, and a plate credit beside the tagline at its
   foot. It stops at ~74% of the first screen so the ticker below it is already
@@ -481,3 +492,5 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-11 | Syne 800 given to the display role — one 10.7KB subset, self-hosted, class on `<html>`. Verified by reading `getComputedStyle` and `document.fonts` back, and by reproducing the `<body>` bug to prove the test was sensitive. `.head`'s `ch` cap moved to modules. |
 | 2026-09-11 | Syne replaced by Archivo 800 expanded, on the owner's verdict. Same 10.7KB. The clamp floor and every `ch` cap re-derived against the new face rather than assumed; hero holds two lines on phones, one at desktop, fits with 348–530px headroom, no gutter breached, zero overflow. Both share cards moved to the same face. |
 | 2026-09-11 | Dead code cut: `.plot` and its two crosshair tokens, the pre-reel lane rules, `.fold-photo--tall` and `PhotoFold`'s unreachable `size` prop. A § 6 claim about `.band--dark` corrected — it has no callers. Gate 7 added so the next one is caught, not written into the document. |
+| 2026-09-14 | One section-heading rhythm, four covers on the hero's foot, one lime surface, marks on the grid — the four gaps `PRD-the-reference-layout.md` found. Photograph two moved 1.56 → 0.71 screens. |
+| 2026-09-14 | The home index became a grid, on the owner's instruction, reversing a decision recorded in two documents. One large card on six of twelve columns, the rest on three, and a **contact strip** of three plates from inside each gallery. Costs 1307px on a phone, measured, all below photograph two. The lime surface re-cut as an offset shadow when a screenshot showed the pseudo-element version painting a lime border *around* the photograph — `isolation: isolate` makes a negative z-index child paint in front of its own card's background. |

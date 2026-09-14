@@ -33,8 +33,8 @@ const CLOSING_FALLBACK = "between assignments";
  *
  * Composition, in the order it draws (design.md § 4):
  *
- *   hero · ticker · opening zone · statement · label + gallery reel ·
- *   label + lanes reel · closing plate
+ *   hero · ticker · statement · photographic band · the index, as a grid ·
+ *   opening zone · story · label + lanes reel · closing plate
  *
  * The hero is new and the order around it changed. This page used to open on
  * the masthead, then a screen of mostly-empty typography, then the ticker,
@@ -50,15 +50,18 @@ const CLOSING_FALLBACK = "between assignments";
 export default async function HomePage() {
   // One wave, not a chain: covers arrive with their albums now, so nothing
   // here waits on anything else.
-  /* Three plates, not two: the hero takes the first, the lane banner the
-   * second and the closing fold the third, so no photograph appears twice on
-   * the page. Fewer than three in the archive and the tail degrades — the
-   * banner falls back to the hero's plate, four screens away, and PhotoFold
-   * draws its numbered Plate placeholder. */
-  const [featured, albums] = await Promise.all([getFeatured(4), getAlbumsWithCovers()]);
-  /* Four plates now: the hero, the index band, the lane banner and the closing
-   * fold, so no photograph appears twice. Each falls back to the one before
-   * it, so a thin archive degrades rather than breaking. */
+  /* Three plates past each cover, for the contact strip on every index card.
+   * The extra rows ride the same round trip — see getAlbumsWithCovers — and
+   * only this page asks for them, because only this page draws them. */
+  const [featured, albums] = await Promise.all([
+    getFeatured(4),
+    getAlbumsWithCovers(undefined, 3),
+  ]);
+  /* Four featured plates: the hero, the index band, the lane banner and the
+   * closing fold, so no photograph appears twice on the page. Each falls back
+   * to the one before it, so a thin archive degrades rather than breaking —
+   * fewer than four and the banner reuses the hero's plate four screens away,
+   * and PhotoFold draws its numbered placeholder. */
   const bandPlate = featured[1] ?? featured[0];
   const banner = featured[2] ?? featured[0];
   const closing = featured[3] ?? featured[1] ?? featured[0];

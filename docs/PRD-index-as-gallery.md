@@ -360,6 +360,14 @@ Seven galleries are a choice set — horizontal. Twenty-four plates inside one
 gallery are the content — vertical. This is why the answer is not "make
 everything a carousel".
 
+> **Superseded for `/` on 2026-09-14.** The home index is a grid now, on the
+> owner's instruction, and the reasoning is in
+> `PRD-the-reference-layout.md` § 3.4 — briefly: the reel's saving was priced
+> before the hero carried four covers of its own, and being a choice set does
+> not argue for six of the seven being off-screen. The distinction above still
+> holds for the **lanes**, which are three destinations and still a reel, and
+> for the inside of a gallery, which is still vertical.
+
 ### 5.2 One index, not two — delete "Recent work"
 
 Remove the `.grid-band.plot` cover grid from `src/app/page.tsx`. The index
@@ -384,6 +392,10 @@ rounder figure. An earlier draft of this PRD claimed **5.2 screens** — that
 overstated the saving by 495px and is corrected here.
 
 ### 5.3 The index becomes a film strip
+
+> Superseded — see the note in § 5.1. The card, the plate number and the crop
+> below are all still what ships; only the container changed, from a snapping
+> row to a twelve-column grid.
 
 One horizontally snap-scrolled row of cover cards, in place of both the grid and
 the text list. Per card, keeping the Specimen numbered-plate rhythm that § 1 of

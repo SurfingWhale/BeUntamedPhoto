@@ -4,7 +4,13 @@ import { unstable_cache } from "next/cache";
 
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
-import { PRIVATE_WIDTH, publicSrc, publicSrcSet, QUALITY } from "@/lib/images";
+import {
+  CARD_THUMB_WIDTH,
+  PRIVATE_WIDTH,
+  publicSrc,
+  publicSrcSet,
+  QUALITY,
+} from "@/lib/images";
 import type { Genre } from "@/lib/site";
 
 export type Album = {
@@ -245,8 +251,34 @@ export async function getMaxPosition(albumId: string): Promise<number> {
   return data?.position ?? -1;
 }
 
-/** An album with the one photograph that fronts it. */
-export type AlbumWithCover = Album & { cover: PhotoWithUrl | null };
+/**
+ * One plate in a card's contact strip: an id to key on and one small source.
+ *
+ * Deliberately not a `PhotoWithUrl`. The index is a client component, so every
+ * field of every object handed to it is serialised into the HTML as the RSC
+ * payload whether or not anything renders it — and on a prerendered page that
+ * payload sits in a shared cache (CLAUDE.md). A full `PhotoWithUrl` carries a
+ * seven-candidate `srcSet` of ~180-character URLs; twenty-one of those is
+ * about 50KB of markup describing widths a fixed 89px box can never use. The
+ * strip asks for one width, so one width is what leaves the server.
+ */
+export type StripPlate = { id: string; src: string };
+
+/**
+ * An album with the one photograph that fronts it, and optionally a few more
+ * from inside it.
+ *
+ * `plates` is empty unless the caller asked for it. The home index does,
+ * because a card carrying one cover says which galleries exist and nothing
+ * about what any of them was — see the contact strip in `index-filter.tsx`.
+ * `/work` and the genre pages do not: they already open every cover large, and
+ * rows nothing renders are still serialised into the payload.
+ */
+export type AlbumWithCover = Album & {
+  cover: PhotoWithUrl | null;
+  /** Plates after the cover, in gallery order. Never includes the cover. */
+  plates: StripPlate[];
+};
 
 const ALBUM_COLUMNS =
   "id, slug, title, subtitle, place, year, visibility, genre, position";
@@ -294,9 +326,9 @@ export const ALBUMS_TAG = "albums";
  * visitor queries live, because their view legitimately contains more.
  */
 const readPublicAlbums = unstable_cache(
-  async (genre?: string) => {
+  async (genre?: string, photosPerAlbum = 1) => {
     const supabase = createAnonClient();
-    return runAlbumQuery(supabase, genre);
+    return runAlbumQuery(supabase, genre, photosPerAlbum);
   },
   ["albums-with-covers"],
   { tags: [ALBUMS_TAG], revalidate: 300 },
@@ -307,6 +339,13 @@ type AlbumRow = Album & { photos: Photo[] };
 async function runAlbumQuery(
   supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createAnonClient>,
   genre?: string,
+  /* How many photographs to embed per album. One is the cover; anything above
+   * that is the contact strip on the home index. Measured when this was
+   * written: all 28 photo rows of the archive came back in 313ms against 330ms
+   * for the round trip itself, so the cost of this query is the trip, not the
+   * rows — but it stays a parameter because the cap is what stops a
+   * 200-plate gallery returning 200 rows to draw three boxes. */
+  photosPerAlbum = 1,
 ): Promise<AlbumRow[]> {
   /* Ordered by when the work was made, not when it was uploaded.
    *
@@ -325,7 +364,7 @@ async function runAlbumQuery(
     .order("created_at", { ascending: false })
     .order("is_cover", { ascending: false, referencedTable: "photos" })
     .order("position", { ascending: true, referencedTable: "photos" })
-    .limit(1, { referencedTable: "photos" });
+    .limit(photosPerAlbum, { referencedTable: "photos" });
 
   if (genre) query = query.eq("genre", genre);
   const { data, error } = await query;
@@ -353,16 +392,44 @@ async function runAlbumQuery(
  * just carry no cover here. The gallery itself asks as the viewer and shows
  * the plates in full.
  */
-export async function getAlbumsWithCovers(genre?: string): Promise<AlbumWithCover[]> {
-  const rows = await readPublicAlbums(genre);
+export async function getAlbumsWithCovers(
+  genre?: string,
+  /* Plates to carry past the cover, for a caller that shows more than one.
+   * Zero keeps the payload exactly the shape it was. */
+  plates = 0,
+): Promise<AlbumWithCover[]> {
+  const rows = await readPublicAlbums(genre, plates + 1);
 
-  // One signing pass for every cover, rather than one per album.
-  const covers = await withUrls(rows.map((r) => r.photos?.[0]).filter(Boolean));
+  /* Two passes, not one, because the two ask for different widths — the cover
+   * at the reading width with a full ladder, the strip at one small fixed one.
+   * Neither costs a round trip while every plate here is public, which is all
+   * of them: this reads as an anonymous visitor, so RLS returns no held-back
+   * plate at all.
+   *
+   * Cover first within each album: the query orders the embed by is_cover
+   * descending, then position, so everything behind the first row is the strip
+   * in gallery order. */
+  const [covers, strip] = await Promise.all([
+    withUrls(rows.map((r) => r.photos?.[0]).filter(Boolean)),
+    withUrls(
+      rows.flatMap((r) => (r.photos ?? []).slice(1)),
+      CARD_THUMB_WIDTH,
+    ),
+  ]);
+
   const byId = new Map(covers.map((c) => [c.album_id, c]));
+  const stripByAlbum = new Map<string, StripPlate[]>();
+  for (const p of strip) {
+    if (!p.url) continue;
+    const list = stripByAlbum.get(p.album_id);
+    if (list) list.push({ id: p.id, src: p.url });
+    else stripByAlbum.set(p.album_id, [{ id: p.id, src: p.url }]);
+  }
 
   return rows.map((row) => ({
     ...stripPhotos(row),
     cover: byId.get(row.id) ?? null,
+    plates: stripByAlbum.get(row.id) ?? [],
   }));
 }
 

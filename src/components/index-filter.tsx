@@ -5,7 +5,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { plate } from "@/lib/format";
 import { genres, genreLabel } from "@/lib/site";
-import { SIZES } from "@/lib/images";
+import { CARD_THUMB_WIDTH, SIZES } from "@/lib/images";
 import { Plate } from "@/components/plate";
 import { SectionHead } from "@/components/section-head";
 import { useRevealChildren } from "@/components/motion";
@@ -30,11 +30,27 @@ type Lens = "all" | (typeof genres)[number]["id"];
  * "typography + the photographs only", and a photographer's index with no
  * photographs in it reads as a directory, because it was one.
  *
- * It runs sideways because seven galleries are a set you choose between, not
- * a thing you read — see the .reel note in globals.css. Stacked with covers it
- * was 1273px; as a reel it is one card deep, and the chips cap how many are in
- * it at once. /work stays vertical: that is the survey page, and someone sent
- * that link is there to see everything at once.
+ * It stacks, in the asymmetric grid the reference uses for its own product
+ * section: one large card, the rest small. It ran sideways as a reel until
+ * now, on the argument in `PRD-index-as-gallery.md` that seven galleries are a
+ * set you choose between rather than a thing you read — and a reel is one card
+ * deep where stacked covers measured 1273px.
+ *
+ * That trade was made before the hero carried anything. It no longer holds:
+ * the four covers along the hero's foot (`hero.tsx`) already put five
+ * photographs on the first screen and moved photograph two from 1.56 screens
+ * to 0.71, so the height a stacked index costs is no longer being paid at the
+ * top of the page where it mattered. What the reel cost instead is that six of
+ * seven galleries were off-screen, and a visitor deciding whether this archive
+ * shoots what they need had to swipe to find out. The owner asked for the
+ * grid; `PRD-the-reference-layout.md` § 3.4 has the decision it reverses.
+ *
+ * Each card also carries a contact strip — three more plates from inside that
+ * gallery, small. One cover says a gallery exists; three plates behind it say
+ * what the job looked like, which is the question a visitor actually has and
+ * the one a title like "Graduation 2025" cannot answer on its own. It is
+ * evidence rather than copy on purpose: the subtitles are the owner's to write
+ * (pending-task.md § 4) and photographs were already in the archive.
  */
 export function IndexFilter({
   albums,
@@ -54,14 +70,13 @@ export function IndexFilter({
   band?: PhotoWithUrl;
 }) {
   const [lens, setLens] = useState<Lens>("all");
-  const reelRef = useRef<HTMLDivElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
 
   /* The cards reveal themselves rather than being wrapped: each one is the
-   * flex item the reel lays out, and a wrapper around it would be the thing
-   * that scroll-snaps. Re-runs on `lens`, so switching genre plays the
-   * stagger again instead of swapping rows in place — docs/IDEAS-motion.md
-   * § 3.6. */
-  useRevealChildren(reelRef, ".reel__card", lens);
+   * grid item, and a wrapper around it would be the thing the grid placed.
+   * Re-runs on `lens`, so switching genre plays the stagger again instead of
+   * swapping rows in place — docs/IDEAS-motion.md § 3.6. */
+  useRevealChildren(gridRef, ".reel__card", lens);
 
   const counts = useMemo(() => {
     const map = new Map<string, number>();
@@ -152,39 +167,73 @@ export function IndexFilter({
           Nothing filed under {genreLabel(lens)} yet.
         </p>
       ) : (
-        <div className="reel" aria-label="Galleries" ref={reelRef}>
-          {shown.map((album, i) => (
-            <Link
-              className="reel__card reveal"
-              data-kind="lateral"
-              key={album.id}
-              href={`/work/${album.slug}`}
-            >
-              <span className="reel__no">[{plate(i)}]</span>
-              <span className="reel__frame">
-                {album.cover?.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={album.cover.url}
-                    srcSet={album.cover.srcSet ?? undefined}
-                    sizes={SIZES.cover}
-                    alt={album.cover.caption ?? album.title}
-                    width={album.cover.width ?? undefined}
-                    height={album.cover.height ?? undefined}
-                    loading={i < 2 ? "eager" : "lazy"}
-                    decoding="async"
-                  />
-                ) : (
-                  <Plate no={plate(i)} label="no cover" />
+        /* One large card then small ones, which is the shape of the
+           reference's own grid. The card vocabulary below is still
+           `.reel__*`: the lanes draw the same box from the same rules and
+           only the container differs, so renaming it would have touched a
+           section this change has no business in. See the note over
+           `.index-grid` in globals.css. */
+        <div className="index-grid" ref={gridRef}>
+          {shown.map((album, i) => {
+            /* Three, and only from galleries that have them. A strip of one
+               reads as a mistake rather than as a set. Each plate arrives as
+               a single source already sized for the box — see StripPlate for
+               why it is not a whole photograph. */
+            const strip = album.plates.slice(0, 3);
+            return (
+              <Link
+                className="reel__card reveal"
+                key={album.id}
+                href={`/work/${album.slug}`}
+              >
+                <span className="reel__no">[{plate(i)}]</span>
+                <span className="reel__frame">
+                  {album.cover?.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={album.cover.url}
+                      srcSet={album.cover.srcSet ?? undefined}
+                      sizes={i === 0 ? SIZES.cardLead : SIZES.card}
+                      alt={album.cover.caption ?? album.title}
+                      width={album.cover.width ?? undefined}
+                      height={album.cover.height ?? undefined}
+                      loading={i < 2 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  ) : (
+                    <Plate no={plate(i)} label="no cover" />
+                  )}
+                </span>
+
+                {strip.length === 3 && (
+                  /* Decorative: the card is one link with one name, and three
+                     more images inside it that each announced themselves
+                     would read the gallery out four times. The evidence is
+                     visual, and the title above already carries it. */
+                  <span className="reel__strip" aria-hidden="true">
+                    {strip.map((p) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={p.id}
+                        src={p.src}
+                        alt=""
+                        width={CARD_THUMB_WIDTH}
+                        height={CARD_THUMB_WIDTH}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ))}
+                  </span>
                 )}
-              </span>
-              <span className="reel__name">{album.title}</span>
-              <span className="reel__meta">
-                {genreLabel(album.genre)} · {album.place ?? "\u2014"} ·{" "}
-                {album.year ?? "\u2014"} {"\u2197\uFE0E"}
-              </span>
-            </Link>
-          ))}
+
+                <span className="reel__name">{album.title}</span>
+                <span className="reel__meta">
+                  {genreLabel(album.genre)} · {album.place ?? "\u2014"} ·{" "}
+                  {album.year ?? "\u2014"} {"\u2197\uFE0E"}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

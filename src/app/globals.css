@@ -1186,11 +1186,15 @@ img { display: block; max-width: 100%; }
   min-width: 0;
 }
 .reel::-webkit-scrollbar { display: none; }
+/* The card box, shared by the lanes' reel and the home index's grid.
+ *
+ * Everything here is the box itself — the hairline, the ground, the internal
+ * rhythm. What differs between the two is the container: `.reel` lays these
+ * out as flex items that snap sideways and `.index-grid` places them in
+ * columns, so the width, the flex and the snap alignment live under `.reel >`
+ * below rather than here. They were on this rule and made every grid card
+ * 21rem wide inside its column. */
 .reel__card {
-  flex: none;
-  /* Under 100% on purpose: the sliver of the next card is the invitation. */
-  width: min(78%, 21rem);
-  scroll-snap-align: start;
   display: grid;
   gap: var(--space-xs);
   align-content: start;
@@ -1203,11 +1207,19 @@ img { display: block; max-width: 100%; }
   padding-block: var(--space-xs) var(--space-sm);
 }
 .reel__card > :not(.reel__frame) { padding-inline: var(--space-sm); }
+
+/* A card in a reel, as opposed to one in a grid. */
+.reel > .reel__card {
+  flex: none;
+  /* Under 100% on purpose: the sliver of the next card is the invitation. */
+  width: min(78%, 21rem);
+  scroll-snap-align: start;
+}
 @media (min-width: 48rem) {
-  .reel__card { width: min(44%, 24rem); }
+  .reel > .reel__card { width: min(44%, 24rem); }
 }
 @media (min-width: 60rem) {
-  .reel__card { width: min(31%, 26rem); }
+  .reel > .reel__card { width: min(31%, 26rem); }
 }
 /* The frame owns its height so a lazy photograph cannot move the row.
  *
@@ -1254,6 +1266,105 @@ img { display: block; max-width: 100%; }
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: calc(var(--rule-hair) * -1);
 }
+/* The home index, stacked: one large card, the rest small.
+ *
+ * The reference's own product grid, and the layout this section did not have —
+ * see docs/PRD-the-reference-layout.md § 3.4, which recorded the reel as the
+ * deliberate choice, and the note over IndexFilter for why that no longer
+ * holds now the hero carries four covers of its own.
+ *
+ * Twelve columns above 60rem, because that is the field the rest of the page
+ * is drawn on (--module is 1440/12) and it is what lets one card take half
+ * the row while the others take a quarter of it. Two columns below that, with
+ * the lead card across both: three cards abreast on a phone would be a
+ * 105px box, which is a contact sheet, not an index.
+ *
+ * Cards align to the start of their row. The lead card is the tallest thing in
+ * row one by design, and without this the two beside it stretched to match it
+ * and opened a hole between each title and its meta — the same regression the
+ * card box caused on /work when it first gained a ground. */
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+  align-items: start;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  /* Nothing in a grid of photographs may make the page scroll sideways. */
+  min-width: 0;
+}
+.index-grid > .reel__card:first-child { grid-column: 1 / -1; }
+
+@media (min-width: 60rem) {
+  .index-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  /* Six and three: the lead beside two small ones fills row one, and four
+     small ones fill every row after it. Seven galleries land exactly on two
+     full rows; a chip that narrows the set leaves a short row rather than a
+     broken one. The `sizes` in lib/images.ts describe these two widths and
+     nothing else — change one and re-measure the other. */
+  .index-grid > .reel__card { grid-column: span 3; }
+  .index-grid > .reel__card:first-child { grid-column: span 6; }
+}
+
+/* The lead card opens taller, so the row it heads is not three equal boxes.
+ *
+ * A height on the frame, never a min-height: .reel__frame has no aspect-ratio
+ * of its own, but the family of bugs in CLAUDE.md all start with a floor on a
+ * box whose other axis is derived. This is a definite height, which is also
+ * what stops a lazy cover moving the row under the reader. */
+@media (min-width: 60rem) {
+  .index-grid > .reel__card:first-child .reel__frame { height: calc(var(--row) * 3.4); }
+}
+
+/* The contact strip — three more plates from inside the gallery.
+ *
+ * What the card says beyond "this gallery exists". The height comes from
+ * --row so the box has a known ceiling at every viewport, which is what lets
+ * these be one small file each with no srcset at all: 21 ladders on one page
+ * is how this page used to pull 8MB (see CARD_THUMB_WIDTH).
+ *
+ * Definite height and `overflow: hidden` for the same reason .reel__frame has
+ * them — three lazy images that reserve nothing is exactly the drift that
+ * moved .lane__frame 575px under the reader. */
+.reel__strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: calc(var(--row) * 0.5);
+  gap: var(--space-2xs);
+  /* The cap is what makes one small file per box correct.
+   *
+   * Left to fill the card, a strip box measured 224 CSS px inside the lead
+   * card at 768 — 448 device px at 2x, against the 288 CARD_THUMB_WIDTH
+   * serves, so three of them would have been visibly soft. Capped, the widest
+   * box at any of the four measured viewports is 89 — the cap includes this
+   * element's own inline padding, so 2.5 modules leaves 275 for the three:
+   *
+   *            lead card        small card
+   *   390        89 x 49          44 x 49
+   *   768        89 x 48          89 x 48
+   *   1280       89 x 53          85 x 53
+   *   1440       89 x 60          89 x 60
+   *
+   * 288 covers 96 at 3x, so every one of those is served above its own
+   * density. It also keeps the strip reading as a strip: three boxes 224px
+   * wide under a photograph are a second gallery, not a footnote to the
+   * first. */
+  max-inline-size: calc(var(--module) * 2.5);
+  overflow: hidden;
+  min-width: 0;
+}
+.reel__strip img {
+  width: 100%;
+  height: 100%;
+  /* cover, not contain: the same reasoning as the index covers below, and
+     more so — a 2:3 plate letterboxed into a 92x60 box paints a 40px strip. */
+  object-fit: cover;
+  background: var(--color-paper-2);
+  outline: var(--rule-hair) solid var(--outline-image);
+  outline-offset: calc(var(--rule-hair) * -1);
+}
+
 /* One lime surface, behind the first gallery in the index.
  *
  * docs/RESEARCH-reference-vs-built.md § 4 measured this and nothing acted on
@@ -1265,23 +1376,43 @@ img { display: block; max-width: 100%; }
  * One block, on the first card only — the reference does not do it to every
  * card either, and a lime panel behind all nine would be the flood design.md
  * § 3.6 rules out. Offset by one gap so it reads as a panel the photograph is
- * standing on rather than a border around it, and it lands in the gap the reel
- * already leaves between cards.
+ * standing on rather than a border around it, and it lands in the gap the
+ * grid already leaves between cards.
+ *
+ * An offset box-shadow on the frame, rather than an absolute pseudo-element
+ * behind the card. The pseudo-element version drew the opposite of what the
+ * sentence above asks for, and it took a screenshot to see it:
+ *
+ *   - `isolation: isolate` made the card its own stacking context, and a
+ *     negative z-index child paints *after* the background of the element
+ *     that establishes one. So the panel sat in front of the card's white
+ *     ground instead of behind it, and showed up wherever the card had no
+ *     content — which is the padding strip above the frame.
+ *   - It was offset a gap from the *card*, not from the photograph, and the
+ *     plate number sits between the two. The panel therefore ended a few
+ *     pixels short of the frame's foot and cleared its head instead.
+ *
+ * Between them: a lime hairline along the top edge and down the right, which
+ * is a border around the photograph. A shadow is offset from the frame itself
+ * and paints behind the frame's own background but over the card's, so the
+ * only lime that shows is the gap under the plate and the gap beside it. No
+ * stacking context, no second box, and it cannot come apart from the frame
+ * when the frame's height changes — which it does, at 60rem.
+ *
+ * The offset is the card's own internal gap, --space-xs, and not the grid's
+ * larger one. At a gap the panel is exactly the strip of ground between the
+ * photograph and the contact strip below it, so it reads as one edge; at
+ * --space-md it was twice that, and the three strip boxes stood in the middle
+ * of it with lime showing through the gaps between them.
+ *
+ * The frame's `overflow: hidden` does not clip this: an element's own shadow
+ * is not its overflow. It reaches one gap past the card on the trailing side
+ * and stays inside the page gutter at 390, where the lead card spans the full
+ * measure — measured, and the grid's own overflow is 0 at every width.
  *
  * docs/PRD-the-reference-layout.md § 3.2. */
-.index-wrap .reel__card:first-child {
-  position: relative;
-  isolation: isolate;
-}
-.index-wrap .reel__card:first-child::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset-block-start: var(--space-md);
-  inset-inline-start: var(--space-md);
-  inline-size: 100%;
-  block-size: calc(var(--row) * 2.2);
-  background: var(--color-accent);
+.index-grid > .reel__card:first-child .reel__frame {
+  box-shadow: var(--space-xs) var(--space-xs) 0 0 var(--color-accent);
 }
 
 /* The index covers crop; the lane banners do not.
