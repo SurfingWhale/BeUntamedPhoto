@@ -118,6 +118,19 @@ export default function RootLayout({
     <html lang="en" className={display.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        {/* The wordmark's mask, preloaded.
+            A masked element paints its own background until the mask arrives,
+            so the masthead would flash a 92x28 rectangle of ink before the
+            lettering appeared. The mask is above the fold on every page and
+            same-origin, so fetching it at high priority alongside the
+            stylesheet closes that window rather than accepting it. See
+            components/wordmark.tsx. */}
+        <link
+          rel="preload"
+          as="image"
+          href="/brand/beuntamed-wordmark.webp"
+          type="image/webp"
+        />
         {/* Motion server-renders its initial state as an inline opacity:0, so
             without JS the scroll reveals never fire and that content would
             stay invisible. This puts it back. */}

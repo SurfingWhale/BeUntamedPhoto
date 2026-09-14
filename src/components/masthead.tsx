@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Apex } from "@/components/apex";
+import { Wordmark } from "@/components/wordmark";
 import { usePathname } from "next/navigation";
 
 import { MastheadRetract, ScrollRule } from "@/components/motion";
@@ -29,8 +30,11 @@ export function Masthead() {
             <Apex size="1.5rem" />
           </span>
           <span>
+            {/* The drawn lettering, not the name set in the display face.
+                The link's own aria-label names the archive, so the mark is
+                decorative here — see components/wordmark.tsx. */}
             <span className="mast__name">
-              UNTAM<em>E</em>D
+              <Wordmark />
             </span>
             <span className="mast__sub">/ {site.mastLine}</span>
           </span>

@@ -245,10 +245,25 @@ never been implemented. The mark sheet had been committed to
 `docs/reference/` the day before and nothing read it.
 
 The **second** mark on that sheet — four corner registration marks, "the frame
-before the photograph exists" — is `.bracket` in the stylesheet. Still open:
-the **wordmark**. `.mast__name` sets `UNTAM<em>E</em>D` in Archivo with a lime
-`E`, and the sheet shows specific custom lettering. That needs the real
-outlines, not a guess at them.
+before the photograph exists" — is `.bracket` in the stylesheet. **The wordmark** is the owner's own brush lettering, reading *BeUntamed*, and
+it ships as a **mask rather than an image**. The artwork arrived as `#A5C012`
+on transparent — a different green from `--color-accent` — and two greens on
+one page read as a mistake, while a colour baked into a file is a colour no
+token can reach. So only its alpha channel ships and the page paints it with
+`currentColor`: near-black on paper, near-white in dark, which is what the
+type it replaced did. Lime would have been 1.9:1 on the light ground, the same
+mistake `.rail__mark` and `.index-band` each made once.
+
+The masthead draws it at 28px tall — legible, checked by rendering it at 20,
+24, 28, 32, 40 and 56px in both themes before choosing. It is preloaded,
+because a masked element paints its own background until the mask arrives and
+the masthead would otherwise flash a rectangle of ink.
+
+Still open: `.foot__wordmark` sets **`site.name`** — "UNTAMED" — as giant type
+cropped by the page edge, so the footer and the masthead now say different
+things. Which of the two is the brand is the owner's call, and `site.name`
+reaches the manifest, both OG images, the ticker and the metadata, while
+`site.byline` is what gate 10 asserts. Not guessed at here.
 
 ### The marks in the margins
 
@@ -631,3 +646,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | A gallery became a case study. The owner's read of the reference: its cards explain the product and tap through to a page that tells its story, which is what a client needs before commissioning food or sport — the two lanes with nothing filed under them. `albums.story` (nullable, one migration) carries the paragraph; the gallery page opens on lane · title · line · story · facts; and the home index cards show the subtitle they had been carrying but never printing. The write falls back when the column is absent and says the story did not stick, rather than refusing the save. |
 | 2026-09-14 | The Featured section rebuilt as a section, on the owner's correction — the first pass put two plates into the `2K26` zone with no opening, no card names and no foot, which is a pair of photographs rather than the reference's section 4. Three grid rows now, because `2K26` is a 469px numeral that may not share one: the opening, the cards, the action. Cards carry a name and a descriptor, the reference's "Olive Parade Outwear / Classic, Oversized Fit". |
 | 2026-09-14 | The apex mark implemented. The masthead register box and all five app icons had been drawing a letter `U` typeset in the display face; the owner asked where his logo was and the answer was that it had never been built, one day after the mark sheet was committed to `docs/reference/`. `components/apex.tsx` holds the only copy of the path, derived from the three sentences on that sheet, and the icons are rasterised from that file by a script that reads the path out of it. The wordmark is still Archivo and still not his. |
+| 2026-09-14 | The wordmark implemented from the owner's own brush lettering, as a mask so `currentColor` paints it — the file's `#A5C012` is not `--color-accent`, and a baked colour is one no token can reach. 826px lossless WebP, 34KB, chosen after weighing 420/826/1200/1653 against where it renders; legibility checked at six sizes in both themes, and the mask preloaded so the masthead cannot flash a rectangle. The footer still sets `site.name` as giant type, so the two now disagree — that is a naming decision, not a bug to fix quietly. |

@@ -361,16 +361,36 @@ img { display: block; max-width: 100%; }
   border: var(--rule-hair) solid var(--color-accent);
   color: var(--color-accent);
 }
-.mast__name {
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
-  font-weight: 800;
-  letter-spacing: var(--tracking-heading);
-  line-height: 1;
-  text-transform: uppercase;
+/* The box the wordmark stands in. It used to set the name in the display face
+ * with a lime `E`, which is why the type declarations were here; they are gone
+ * with the type, and the `em` rule with them — there is no `em` in drawn
+ * lettering. See components/wordmark.tsx. */
+.mast__name { display: block; }
+.mast__name .wordmark { height: 1.75rem; }
+
+/* The drawn lettering, masked so the page colours it.
+ *
+ * `background: currentColor` with the artwork as the mask, rather than an
+ * `<img>` of the artwork: the file arrived as #A5C012, which is not
+ * `--color-accent`, and two greens on one page read as a mistake. This way the
+ * lettering is whatever it stands on — near-black on paper, near-white in
+ * dark — and no token can drift away from it. components/wordmark.tsx has the
+ * rest of the reasoning.
+ *
+ * Height in, width out. `aspect-ratio` against a definite height is what
+ * reserves the box; a `min-height` here would derive the *width* from the
+ * height and is the family of bug CLAUDE.md opens with. The ratio is the
+ * artwork's own, measured off its ink bounding box — 1653 x 502 after the
+ * transparent margin is cropped away. */
+.wordmark {
   display: block;
+  height: 1.75rem;
+  width: auto;
+  aspect-ratio: 1653 / 502;
+  background: currentColor;
+  -webkit-mask: url("/brand/beuntamed-wordmark.webp") center / contain no-repeat;
+  mask: url("/brand/beuntamed-wordmark.webp") center / contain no-repeat;
 }
-.mast__name em { font-style: normal; color: var(--color-accent-deep); }
 .mast__sub {
   /* Hidden on a phone: at ~270px wide it pushed .mast__aside onto a second
    * row, which is half of why the sticky header cost 195px there. */
