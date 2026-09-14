@@ -287,44 +287,39 @@ export const SIZES = {
    */
   pair: "(min-width: 60rem) 27vw, 45vw",
   /**
-   * `.reel__frame` in the home index, per span. The grid runs a rhythm of six
-   * — 5, 4, 3, 4, 5, 3 columns of twelve above 60rem — so there are three
-   * widths, not one.
+   * `.reel__frame` in the home index. Two widths above 60rem, because the grid
+   * is three columns and a card spans either two of them or one; one width
+   * below it, where the grid is two up and every card takes a column.
    *
-   * Re-measured when the band went full-bleed, which is why these are round
-   * numbers: with no page gutter and no card padding to subtract, a span is
-   * exactly its share of the viewport.
+   * Measured, not derived:
    *
-   *            1280   1440          was (boxed)
-   *   span 5    531    598     42vw   489/555  39vw
-   *   span 4    424    477     34vw   387/441  31vw
-   *   span 3    317    357     25vw   286/326  23vw
+   *            390   768   1280   1440
+   *   span 2     -     -    811    918    -> 64vw
+   *   span 1   157   346    393    446    -> 31vw above 60rem, 46vw below
    *
-   * Below 60rem the grid is two up and only the first card spans both: 390/768
-   * for the lead, which is the whole viewport, and 193/382 for the rest.
+   * Re-measured from scratch when the grid went from twelve columns to three:
+   * the old set described spans of 5, 4 and 3 of twelve and every one of them
+   * was wrong for a three-column field. A `sizes` that disagrees with its grid
+   * is not a rounding error, it is the next candidate up.
    */
-  cardSpan5: "(min-width: 60rem) 42vw, 50vw",
-  cardSpan4: "(min-width: 60rem) 34vw, 50vw",
-  cardSpan3: "(min-width: 60rem) 25vw, 50vw",
+  cardWide: "(min-width: 60rem) 64vw, 46vw",
+  cardCol: "(min-width: 60rem) 31vw, 46vw",
 } as const;
 
 /**
  * The `sizes` for the card at index `i` of the **home index** grid.
  *
- * The span pattern in globals.css is 5, 4, 3, 4, 5, 3 on
- * `.index-grid > .reel__card:nth-child(6n+k)` above 60rem, and only the very
- * first card spans the full measure below it. Change one and change the other:
- * they describe the same boxes, and a `sizes` that disagrees with its grid is
- * not a rounding error — it is the next candidate up.
+ * The grid is three columns above 60rem and cards 10n+1 and 10n+7 span two of
+ * them; everything else spans one. Change that pattern and change this — they
+ * describe the same boxes, and a `sizes` that disagrees with its grid is not a
+ * rounding error, it is the next candidate up.
  */
 export function cardSizes(i: number): string {
-  /* Index 0 is the only card that spans both columns on a phone, and the band
-   * is full-bleed, so below 60rem it is the entire viewport width. */
-  if (i === 0) return "(min-width: 60rem) 42vw, 100vw";
-  const span = [5, 4, 3, 4, 5, 3][i % 6];
-  if (span === 4) return SIZES.cardSpan4;
-  if (span === 3) return SIZES.cardSpan3;
-  return SIZES.cardSpan5;
+  /* Two of the ten span two columns — the LARGE in each of the brief's two
+   * compositions. Every other card takes one. Below 60rem nothing spans, so
+   * both declarations fall back to the same 46vw. */
+  const wide = i % 10 === 0 || i % 10 === 6;
+  return wide ? SIZES.cardWide : SIZES.cardCol;
 }
 
 /**

@@ -235,28 +235,40 @@ The load-bearing layout decision on this site.
   green measured 4.53:1 at 1440, which clears 4.5 by luck rather than by
   design.
 
-  The index runs a **rhythm of six**, not one lead and a row of identical
-  boxes: 5, 4, 3, 4, 5, 3 columns of twelve, with two of the six pushed down
-  half a row and six different frame heights. Both rows of the rhythm fill
-  twelve columns, so nothing is ever left hanging, and nothing lines up — which
-  is the owner's read of the reference, "ukurannya ada yang besar kecil dan ga
-  sejajar". It was span 6 then span 3 for everything: tiles perfectly, reads
-  flat.
+  The index is an **editorial contact sheet**: three columns above 60rem, a
+  cycle of ten cards across four grid rows, and two compositions that mirror
+  each other so the page never settles into a pattern the eye can predict.
 
-  Three widths means three `sizes`, so `cardSizes(i)` mirrors the span pattern
-  the way `tileSizes(i)` mirrors `/work`'s. Change one and re-measure the
-  other.
+  ```
+  [------ LARGE ------][ MED ]        2 + 1
+  [ SMALL ][ SMALL ][ MED ]           1 + 1 + 1
+  [ MED ][------ LARGE ------]        1 + 2
+  [ SMALL ][ SMALL ][ SMALL ]         1 + 1 + 1
+  ```
 
-  **And the band runs full-bleed, with no box on a card.** `.grid-band` was a
-  `--page-max` box with a gutter either side, so nine photographs stopped 40px
-  short of the glass — this section was breaking the rule at the top of this
-  list. The measure comes back on the things inside it that are type: the
-  standfirst and the sticky filter bar each hold themselves to it. The cards
-  lose the hairline and the paper-white ground that § 4 gives every other card;
-  the reference's own product cards have no stroke, the frame already carries a
-  ground, and a border round each of nine photographs is nine boxes competing
-  with the photographs. Measured, the photographs got *bigger* everywhere:
-  348 → 390 for the lead at 390, and 555/441/326 → 598/477/357 at 1440.
+  Each row tiles three columns exactly, so **no `grid-auto-flow: dense`**:
+  dense backfills gaps by taking cards out of document order, and these cards
+  carry `[01]`, `[02]`, `[03]` — a numbered set that reads in a different
+  order from the one it is numbered in is worse than a gap.
+
+  What is **not** allowed here, and was twice: one card spanning the whole
+  container. That is a product hero, not an archive. The large card takes two
+  of three columns.
+
+  Height is the second axis. A large frame is 2.3 rows, a tall medium 2, a
+  medium 1.6, a small 1.2 — and a small card drops its contact strip and its
+  standfirst, because a small card is the *short* one and three thumbnails
+  plus two lines of prose is what a large card has room for. Those numbers come
+  from a density target rather than from taste: the brief asks for five or six
+  cards inside the first viewport and the first pass put **two** there at 1440,
+  with row one 562px tall on its own. Measured after: five whole cards inside
+  900px at both 1280 and 1440, and seven at least partly in view.
+
+  Two widths means two `sizes` — `cardSizes(i)` returns 64vw for the two cards
+  that span two columns and 31vw for the rest, 46vw for both below 60rem.
+  Re-measured from scratch when the grid went from twelve columns to three: the
+  previous set described spans of 5, 4 and 3 of twelve and every one of them
+  was wrong for a three-column field.
 
   The index was one large card then small ones — six of twelve columns, then
   three each — and every card carries a **contact strip**: three more plates
@@ -725,3 +737,4 @@ Short, so it stays out of the way. Full text in git history.
 | 2026-09-14 | The deck built, on the owner's read of the reference: cards showing three photographs each, swipeable, stacked. One card per lane rather than per gallery, so it answers "what does this kind of work look like" instead of repeating the index. The frames reuse the 288w files the contact strip already requests and the card is capped at 29rem so 141 CSS px is covered at 2x — nine photographs for no new bytes. The stack went from a horizontal overlap, which read as a bug wherever the cards fit, to the vertical stagger the reference actually uses. The statement became a landscape card with its type block centred and its lines left-aligned. |
 | 2026-09-14 | The index grid given a rhythm of six — 5/4/3/4/5/3 columns, two cards dropped half a row, six frame heights — on the owner's note that one lead plus identical boxes reads flat where the reference varies size and alignment. Three widths measured at 1280 and 1440 (489/387/286 and 555/441/326) and `cardSizes(i)` written from those; `SIZES.cardLead` and `SIZES.card` removed rather than left to drift. |
 | 2026-09-14 | The index band went full-bleed and the cards lost their boxes — "full screen gaada border kiri kanan". It had been a page-max box with gutters, which is the rule at the top of § 4 broken by the section that most needed it. Photographs got bigger at every width (lead 348 → 390 at 390; 555/441/326 → 598/477/357 at 1440) and `cardSizes()` was re-measured to match: with no gutter and no card padding to subtract, a span is exactly its share of the viewport. The measure returns on the standfirst and the sticky bar, which are type. |
+| 2026-09-14 | The index grid redesigned to a brief: three columns, a ten-card cycle over four rows, two mirrored compositions, thin borders back on the cards and a consistent 24px gutter — which needed `--space-mlg`, the step the small end of the space scale was missing between 16 and 28. No card spans the container: that is a product hero and this section had been one twice. The heights were set from a density target rather than by eye — five or six cards in the first viewport, where the first pass put two at 1440 — and a small card now drops its contact strip and standfirst to earn the word "small". `cardSizes()` re-measured for a three-column field; the previous set described twelfths and every value was wrong. |

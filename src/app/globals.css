@@ -1460,46 +1460,41 @@ img { display: block; max-width: 100%; }
  * row one by design, and without this the two beside it stretched to match it
  * and opened a hole between each title and its meta — the same regression the
  * card box caused on /work when it first gained a ground. */
+/* An editorial contact sheet: three columns of different spans and heights,
+ * with several cards in view at once.
+ *
+ * The brief, and each line of it is a rule the previous versions broke:
+ *
+ * - **No full-width featured card.** The lead spans two of three columns, not
+ *   the container. A card that takes the whole width is a product hero, and
+ *   two rounds of this section were exactly that.
+ * - **Multiple cards in the first viewport**, five or six. Measured below.
+ * - **Different sizes and spans**, so nothing is the same width *or* height as
+ *   its neighbour.
+ * - **Consistent gutters**, the same value between cards and at the edges —
+ *   which is `--space-mlg`, the 24px step added to the scale for it.
+ * - **Thin borders back on the cards.** They came off when the band went
+ *   full-bleed; the brief puts them back, so an index card is the same box
+ *   every other card on the site is.
+ */
 .index-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  /* Tight, like the reference: the photographs are the content and the space
-   * between them is a seam, not a margin. */
-  gap: var(--space-2xs);
+  gap: var(--space-mlg);
+  padding-inline: var(--space-mlg);
+  /* Cards end where their content ends, so a row of three does not stretch
+     all three to the tallest — that is half of the asymmetry. */
   align-items: start;
   /* Nothing in a grid of photographs may make the page scroll sideways. */
   min-width: 0;
 }
-.index-grid > .reel__card:first-child { grid-column: 1 / -1; }
 
-/* No box on an index card.
- *
- * `design.md` § 4 says every card sits in one — a hairline, a paper-white
- * ground — and that holds for the lanes, where a borrowed still needs an edge
- * to sit on. It does not hold here: the reference's own product cards have no
- * stroke at all. The photograph sits on a light ground and the name sits under
- * it, and the frame already carries that ground (`--color-paper-2`). A
- * hairline round each of nine photographs is nine boxes competing with the
- * photographs, and with the band full-bleed it also put a border where the
- * owner asked for none. */
-.index-grid > .reel__card {
-  border: 0;
-  background: none;
-  padding: 0;
-}
-/* The text lines up with the photograph's own edge rather than being inset
- * from a card that no longer exists. One uniform step, the same size as the
- * seam between the photographs, so a caption never touches the glass and
- * never looks inset either.
- *
- * Not per-position: an attempt to give only the cards at the viewport edges a
- * full gutter needed `nth-child` to know which cards those were, and above
- * 60rem the spans are 5/4/3/4/5/3 — so odd and even stop meaning left and
- * right. A rule that has to know the column pattern to place a caption is a
- * rule that will be wrong the next time the pattern changes. */
-.index-grid > .reel__card > :not(.reel__frame) {
-  padding-inline: var(--space-2xs);
-}
+
+/* The card box is back, on the brief's instruction: an index card is the same
+ * hairline-and-paper-white box as every other card on the site (design.md
+ * § 4). It came off when the band went full-bleed and the photographs were
+ * asked to run to the glass; with a consistent gutter round the grid they no
+ * longer do, so the box has somewhere to sit. */
 
 /* A shorter frame on a phone, and only in the index.
  *
@@ -1514,19 +1509,7 @@ img { display: block; max-width: 100%; }
  * frame at six widths — changing the height there would silently invalidate
  * every one of them. Width is what `sizes` describes and width is unchanged
  * here, so nothing in that file has to move. */
-.index-grid .reel__frame { height: calc(var(--row) * 1.7); }
-/* And the frames are not all one height either, which is the other half of
- * "ga sejajar". A definite height every time — these are reserved boxes, and
- * a lazy photograph that reserves nothing is the drift that moved a section
- * 575px under a reader — but a different definite height per position. */
-.index-grid > .reel__card:nth-child(6n + 3) .reel__frame { height: calc(var(--row) * 2); }
-.index-grid > .reel__card:nth-child(6n + 5) .reel__frame { height: calc(var(--row) * 1.9); }
-@media (min-width: 48rem) {
-  .index-grid .reel__frame { height: calc(var(--row) * 2.2); }
-  .index-grid > .reel__card:nth-child(6n + 3) .reel__frame { height: calc(var(--row) * 2.8); }
-  .index-grid > .reel__card:nth-child(6n + 4) .reel__frame { height: calc(var(--row) * 2.4); }
-  .index-grid > .reel__card:nth-child(6n + 5) .reel__frame { height: calc(var(--row) * 3); }
-}
+/* Heights live with the span cycle further down, so one place decides both. */
 
 /* The contact strip earns its place only where its boxes can be read.
  *
@@ -1543,34 +1526,81 @@ img { display: block; max-width: 100%; }
 }
 
 @media (min-width: 60rem) {
-  .index-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  /* A rhythm of six, not one lead and a row of identical boxes.
+  /* Three columns, and a cycle of ten cards across four grid rows. The brief
+   * gives two compositions; these are them, and each one tiles three columns
+   * exactly so no card is ever left hanging in a short row:
    *
-   * It was span 6 then span 3 for everything else, which tiles perfectly and
-   * reads flat — the owner's note: the reference is "creative ukurannya ada
-   * yang besar kecil dan ga sejajar". Its Seasonal grid has one large card and
-   * three smaller ones at different widths, sitting at different heights.
+   *     [------ LARGE ------][ MED ]      2 + 1
+   *     [ SMALL ][ SMALL ][ MED ]         1 + 1 + 1
+   *     [ MED ][------ LARGE ------]      1 + 2
+   *     [ SMALL ][ SMALL ][ SMALL ]       1 + 1 + 1
    *
-   * Two different rows that both fill twelve columns, so nothing is ever left
-   * hanging: 5 + 4 + 3 and 4 + 5 + 3. Two of the six are pushed down half a
-   * row, which is what stops the tops from lining up — `align-items: start`
-   * already lets the bottoms fall where the content ends.
+   * The mirror in the third row is the point: the large card changes side, so
+   * the page does not settle into a pattern the eye can predict.
    *
-   * Three widths now, so `cardSizes()` in lib/images.ts has three
-   * declarations. A `sizes` that disagrees with its grid is not a rounding
-   * error, it is the next candidate up — change this pattern and re-measure
-   * that function. */
-  .index-grid > .reel__card:nth-child(6n + 1) { grid-column: span 5; }
-  .index-grid > .reel__card:nth-child(6n + 2) { grid-column: span 4; }
-  .index-grid > .reel__card:nth-child(6n + 3) { grid-column: span 3; }
-  .index-grid > .reel__card:nth-child(6n + 4) { grid-column: span 4; }
-  .index-grid > .reel__card:nth-child(6n + 5) { grid-column: span 5; }
-  .index-grid > .reel__card:nth-child(6n + 6) { grid-column: span 3; }
-  .index-grid > .reel__card:nth-child(6n + 2),
-  .index-grid > .reel__card:nth-child(6n + 5) {
-    margin-block-start: calc(var(--row) * 0.5);
+   * No `grid-auto-flow: dense`. Dense backfills gaps by taking cards out of
+   * document order, and these cards carry [01], [02], [03] — a numbered set
+   * that reads in a different order from the one it is numbered in is worse
+   * than a gap. Cycles that tile exactly need no backfilling. */
+  .index-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .index-grid > .reel__card { grid-column: span 1; }
+  .index-grid > .reel__card:nth-child(10n + 1),
+  .index-grid > .reel__card:nth-child(10n + 7) { grid-column: span 2; }
+}
+
+/* Height is the other axis of the asymmetry, and it is a definite height every
+ * time — these are reserved boxes, and a lazy photograph that reserves nothing
+ * is the drift that once moved a section 575px under a reader.
+ *
+ * Three sizes, matching the brief: large, medium, and small on a shorter
+ * frame. The two cards either side of a large one are given the *tall* medium
+ * so the row does not read as one big card with an offcut beside it. */
+.index-grid .reel__frame { height: calc(var(--row) * 1.7); }
+.index-grid > .reel__card:nth-child(10n + 3) .reel__frame,
+.index-grid > .reel__card:nth-child(10n + 4) .reel__frame { height: calc(var(--row) * 1.4); }
+.index-grid > .reel__card:nth-child(10n + 5) .reel__frame { height: calc(var(--row) * 1.9); }
+
+@media (min-width: 60rem) {
+  /* The heights are set by a density target, not by taste: the brief asks for
+   * five or six cards inside the first viewport, and the first pass put two
+   * there at 1440. A large frame at 3.4 rows made row one 562px tall on its
+   * own. These are the values that land the first two rows inside 900px —
+   * measured, then checked again after the strip and the standfirst came off
+   * the small cards. */
+  /* LARGE */
+  .index-grid > .reel__card:nth-child(10n + 1) .reel__frame,
+  .index-grid > .reel__card:nth-child(10n + 7) .reel__frame { height: calc(var(--row) * 2.3); }
+  /* MEDIUM, tall — beside a large one */
+  .index-grid > .reel__card:nth-child(10n + 2) .reel__frame,
+  .index-grid > .reel__card:nth-child(10n + 6) .reel__frame { height: calc(var(--row) * 2); }
+  /* MEDIUM */
+  .index-grid > .reel__card:nth-child(10n + 5) .reel__frame { height: calc(var(--row) * 1.6); }
+  /* SMALL — a shorter frame, per the brief */
+  .index-grid > .reel__card:nth-child(10n + 3) .reel__frame,
+  .index-grid > .reel__card:nth-child(10n + 4) .reel__frame,
+  .index-grid > .reel__card:nth-child(10n + 8) .reel__frame,
+  .index-grid > .reel__card:nth-child(10n + 9) .reel__frame,
+  .index-grid > .reel__card:nth-child(10n + 10) .reel__frame { height: calc(var(--row) * 1.2); }
+
+  /* A small card is the short one, so it carries less: no contact strip and no
+   * standfirst. Three extra thumbnails and two lines of prose are what a
+   * *large* card has room for, and leaving them on the small ones is how the
+   * first pass ended up with rows 562px tall. The title, the lane and the
+   * plate number stay — a small card is still an independent gallery item. */
+  .index-grid > .reel__card:nth-child(10n + 3) .reel__strip,
+  .index-grid > .reel__card:nth-child(10n + 4) .reel__strip,
+  .index-grid > .reel__card:nth-child(10n + 8) .reel__strip,
+  .index-grid > .reel__card:nth-child(10n + 9) .reel__strip,
+  .index-grid > .reel__card:nth-child(10n + 10) .reel__strip,
+  .index-grid > .reel__card:nth-child(10n + 3) .reel__sub,
+  .index-grid > .reel__card:nth-child(10n + 4) .reel__sub,
+  .index-grid > .reel__card:nth-child(10n + 8) .reel__sub,
+  .index-grid > .reel__card:nth-child(10n + 9) .reel__sub,
+  .index-grid > .reel__card:nth-child(10n + 10) .reel__sub {
+    display: none;
   }
 }
+
 
 /* The lead card opens taller, so the row it heads is not three equal boxes.
  *
@@ -1578,9 +1608,6 @@ img { display: block; max-width: 100%; }
  * of its own, but the family of bugs in CLAUDE.md all start with a floor on a
  * box whose other axis is derived. This is a definite height, which is also
  * what stops a lazy cover moving the row under the reader. */
-@media (min-width: 60rem) {
-  .index-grid > .reel__card:nth-child(6n + 1) .reel__frame { height: calc(var(--row) * 3.4); }
-}
 
 /* The contact strip — three more plates from inside the gallery.
  *
@@ -1676,7 +1703,7 @@ img { display: block; max-width: 100%; }
  * measure — measured, and the grid's own overflow is 0 at every width.
  *
  * docs/PRD-the-reference-layout.md § 3.2. */
-.index-grid > .reel__card:first-child .reel__frame {
+.index-grid > .reel__card:nth-child(10n + 1) .reel__frame {
   box-shadow: var(--space-xs) var(--space-xs) 0 0 var(--color-accent);
 }
 

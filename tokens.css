@@ -116,6 +116,14 @@
   --space-xs:  0.5rem;
   --space-sm:  0.75rem;
   --space-md:  1rem;
+  /* 24px. The step that was missing: the small end of this scale runs 4, 8,
+   * 12, 16 and then jumps to 28, which is the largest relative gap in it. The
+   * index grid's gutter wants this value specifically — the owner's spec for
+   * it is "consistent gutters around 20–24px" — and 16 is 27% under while 28
+   * is 17% over. A literal would have been the other way to do it, and
+   * CLAUDE.md rules that out for exactly this reason: the next thing that
+   * needs 24px would write its own. */
+  --space-mlg: 1.5rem;
   --space-lg:  1.75rem;
   --space-xl:  3rem;
   /* The three big steps are fluid: they hold their desktop values at the
