@@ -3500,8 +3500,16 @@ img { display: block; max-width: 100%; }
 @media (scripting: none) {
   .reveal { opacity: 1; transform: none; }
 }
-.reveal[data-kind="plate"]   { transform: scale(1.04); }
-.reveal[data-kind="lateral"] { transform: translateX(18px); }
+/* Only while hidden. These used to be written as `.reveal[data-kind="plate"]`
+ * — the same specificity as `.reveal[data-shown="true"]` and later in the
+ * file, so they won, and the entrance state became the resting state. Every
+ * plate stayed at scale(1.04) after it arrived and every lateral card stayed
+ * 18px to the right. Measured at 390: /work cards 174px wide in a 167px track,
+ * the album's lead plate 364px in 350, both spilling past the page gutter —
+ * which is what made the gallery edges sit at x=13 and x=17 instead of 20.
+ * `:not([data-shown="true"])` makes the rule true only before the reveal. */
+.reveal[data-kind="plate"]:not([data-shown="true"])   { transform: scale(1.04); }
+.reveal[data-kind="lateral"]:not([data-shown="true"]) { transform: translateX(18px); }
 
 /* Scroll-linked, where the browser can do it — § 3.3.
  *
@@ -3777,6 +3785,28 @@ img { display: block; max-width: 100%; }
  * span — so tracking there applied to nothing, and the `em` had already gone
  * with the lime `E`. */
 
+/* The /work grid on a phone, one shape per tile.
+ *
+ * The tile ratio followed each cover, capped at square. That kept every
+ * vertical cover uncropped — but two-up, row mates are 2:3 and 1:1 side by
+ * side, and with each card ending where its content ends the row opened a
+ * hole under the shorter one: measured at 390, 133px of nothing under
+ * "Hello There..." and 66px under "Sales HeadShot". A two-up grid of
+ * photographs reads as a grid only when its tiles share a shape, which is
+ * why every gallery on a phone uses one.
+ *
+ * 4:5 is the compromise: a vertical cover loses about 17% top and bottom
+ * instead of 25% at 3:4, and a landscape one fills the box. The card itself
+ * stretches to its row so a missing subtitle leaves the box's space inside
+ * the box rather than as a gap in the grid. Every tile links to the full
+ * gallery, where nothing is cropped. Wide screens keep their spans and
+ * ratios. */
+@media (max-width: 47.99rem) {
+  .albums { align-items: stretch; }
+  .albums > .album { align-self: stretch; }
+  .albums .album__media { aspect-ratio: 4 / 5; }
+}
+
 /* ============================================================== phone
  *
  * The phone, designed rather than inherited from the desktop.
@@ -3802,11 +3832,6 @@ img { display: block; max-width: 100%; }
   .deck__frames > picture:first-child img { aspect-ratio: 4 / 5; }
   .deck__frames > picture:not(:first-child) img { aspect-ratio: 1 / 1; }
 
-  /* One control, not three. The deck had position dots, a "( 3 lanes )"
-   * count and a pair of arrows stacked under it — three answers to "is there
-   * more". The arrows were asked for and the count says how much; the dots
-   * go. */
-  .deck { scroll-marker-group: none; }
 
   /* A paragraph set in a paragraph face.
    *
@@ -3857,4 +3882,12 @@ img { display: block; max-width: 100%; }
   z-index: 1;
   background: color-mix(in srgb, var(--color-ink) 16%, transparent);
   pointer-events: none;
+}
+
+/* One control under the deck, at every width. Position dots, a "( 3 lanes )"
+ * count and a pair of arrows all answered "is there more": the arrows were
+ * asked for and the count says how much, so the dots go. Written after the
+ * @supports block that adds them, so it wins on order at equal specificity. */
+@supports selector(::scroll-marker) {
+  .deck { scroll-marker-group: none; }
 }
