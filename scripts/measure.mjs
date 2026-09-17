@@ -716,16 +716,28 @@ async function browserChecks(chromium, executablePath) {
 
   for (const vp of VIEWPORTS) {
     console.log(`\n  \x1b[1m${vp.name} — ${vp.w}x${vp.h} dpr${vp.dpr}\x1b[0m`);
-    const page = await browser.newPage({
-      viewport: { width: vp.w, height: vp.h },
-      deviceScaleFactor: vp.dpr,
-      /* Every request, not just the first: the bypass has to be on the
-       * document, the CSS, the JS and every image, or a protected deployment
-       * renders as a page of 401s and the measurements are of nothing. */
-      extraHTTPHeaders: BYPASS_HEADERS,
-    });
-
     for (const path of PAGES) {
+      /* A fresh context — and so a cold HTTP cache — for every route.
+       *
+       * One page used to walk every route at a viewport, so each route
+       * inherited the images the routes before it had downloaded. Chrome
+       * legitimately reuses a larger candidate it already holds, at zero
+       * bytes, and the `sizes` check then read that reuse as an over-ask:
+       * /elsewhere reported a 640w file for a 133px lane frame because / had
+       * already fetched that plate at 640w, while a cold context on
+       * /elsewhere picks 375w. A shared link lands a visitor cold on one
+       * page, so that is what each measurement now models. */
+      const context = await browser.newContext({
+        viewport: { width: vp.w, height: vp.h },
+        deviceScaleFactor: vp.dpr,
+        /* Every request, not just the first: the bypass has to be on the
+         * document, the CSS, the JS and every image, or a protected
+         * deployment renders as a page of 401s and the measurements are of
+         * nothing. */
+        extraHTTPHeaders: BYPASS_HEADERS,
+      });
+      const page = await context.newPage();
+      try {
       const res = await page.goto(BASE + path, { waitUntil: "networkidle" }).catch(() => null);
       if (!res || !res.ok()) {
         bad(`${path} did not load`, [res ? `status ${res.status()}` : "no response"]);
@@ -935,8 +947,13 @@ async function browserChecks(chromium, executablePath) {
           `largest type: ${m.display.map((d) => `${d.sel} ${d.px}px (${d.shareOfVw}% vw)`).join(" · ")}`,
         );
       }
+      } finally {
+        /* Closed on every path out, including the `continue` on a route that
+         * fails to load — a context that skips this would hold its cache and
+         * its process for the rest of the run. */
+        await context.close();
+      }
     }
-    await page.close();
   }
 
   /* ---------------------------------------------------------- content

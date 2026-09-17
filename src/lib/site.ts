@@ -121,7 +121,11 @@ export const elsewhere = [
      * exactly. This is the failure CLAUDE.md warns about under SIZES ("wrong
      * precisely because a column count changed and the declaration did not"),
      * and it is the one instance that warning did not already cover. */
-    bannerSizes: "(min-width: 64rem) 396px, (min-width: 48rem) 316px, 83vw",
+    /* 35vw below 48rem since the lanes became rows on a phone: the frame is the
+     * leading 2fr of the row and paints at 32.7-34.6vw across 320-430,
+     * measured. The 83vw this replaced was the stacked card, and it pulled the
+     * 1200w file for a 133px frame at 390. */
+    bannerSizes: "(min-width: 64rem) 396px, (min-width: 48rem) 316px, 35vw",
     w: 1600,
     h: 1066,
   },
@@ -136,7 +140,10 @@ export const elsewhere = [
     // 0.80 tall in the same box, so it renders 141/172/190/169/211 — far
     // narrower than the box it sits in. Declaring the box made a phone take
     // the 600w file to fill 172px.
-    bannerSizes: "(min-width: 64rem) 211px, (min-width: 48rem) 169px, 190px",
+    /* 28vw below 48rem: a portrait plate in the row's frame is height-bound
+     * and paints at a constant 28.0vw from 320 to 430, measured. The flat
+     * 190px it replaces took the 600w file for a 109px frame. */
+    bannerSizes: "(min-width: 64rem) 211px, (min-width: 48rem) 169px, 28vw",
     w: 600,
     h: 750,
   },

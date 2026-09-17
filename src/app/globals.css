@@ -1477,6 +1477,43 @@ img { display: block; max-width: 100%; }
  *   full-bleed; the brief puts them back, so an index card is the same box
  *   every other card on the site is.
  */
+/* The phone gets six cards and a link to the rest — see PHONE_CAP in
+ * components/index-filter.tsx for the reasoning and the measurement. */
+@media (max-width: 59.99rem) {
+  .index-grid > [data-beyond-phone] { display: none; }
+}
+.index-more {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--space-lg) var(--page-gutter) 0;
+}
+.index-more__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-md);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-ink);
+  transition: background-color var(--dur-micro) var(--ease-out),
+              color var(--dur-micro) var(--ease-out),
+              transform var(--dur-micro) var(--ease-out);
+}
+.index-more__link:active { transform: scale(0.96); }
+@media (hover: hover) and (pointer: fine) {
+  .index-more__link:hover { background: var(--color-ink); color: var(--color-paper); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .index-more__link:active { transform: none; }
+}
+/* Wide screens show the whole set, so the link has nothing to open. */
+@media (min-width: 60rem) {
+  .index-more { display: none; }
+}
+
 .index-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1836,6 +1873,38 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr);
 }
 .lanes > .reel__card { width: auto; }
+/* Rows, not tall cards, below 48rem.
+ *
+ * The stack above exists so all three lanes are on screen at once, and it
+ * stays. What it cost was height: three cards at 350x366 measured 1141px on a
+ * 390 phone — 1.35 screens for three links, one of which points back to this
+ * site. Laid out as rows with the photograph on the leading edge and the words
+ * beside it, the same three stay visible, each still carries its image, and the
+ * section is a fraction of the height. It is the pattern every phone already
+ * uses for a short list of destinations. */
+@media (max-width: 47.99rem) {
+  .lanes { gap: var(--space-md); }
+  .lanes > .reel__card {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-areas:
+      "frame no"
+      "frame name"
+      "frame what"
+      "frame meta";
+    column-gap: var(--space-md);
+    row-gap: var(--space-3xs);
+    align-content: start;
+  }
+  .lanes > .reel__card > .reel__no   { grid-area: no; }
+  .lanes > .reel__card > .reel__frame {
+    grid-area: frame;
+    align-self: stretch;
+    height: calc(var(--row) * 1.4);
+  }
+  .lanes > .reel__card > .reel__name { grid-area: name; }
+  .lanes > .reel__card > .lane__what { grid-area: what; }
+  .lanes > .reel__card > .reel__meta { grid-area: meta; }
+}
 @media (min-width: 48rem) {
   .lanes { display: flex; }
   .lanes > .reel__card { width: min(44%, 24rem); }
@@ -2565,6 +2634,35 @@ img { display: block; max-width: 100%; }
 }
 
 /* ------------------------------------------------------- story zone */
+/* The marks cost no height on a phone.
+ *
+ * On the twelve-column grid the ↗ ∟ ← marks sit in empty cells, which is the
+ * whole idea of the second reference — ornament placed in space that was
+ * already there. Below 60rem there is one column and no empty cells, so each
+ * mark became its own row with a full gap either side: measured at 390, the
+ * two in .story took 120px and the one in .open took 48px, all of it scroll
+ * spent on glyphs. Pinned to the section's corners instead, they are still on
+ * the page and still read as placed marks, at zero height.
+ *
+ * The block padding and the gap tighten a step for the same reason. Nothing
+ * with words or photographs in it is touched. */
+@media (max-width: 59.99rem) {
+  .open,
+  .story { position: relative; }
+  .open > .mark,
+  .story > .mark {
+    position: absolute;
+    margin: 0;
+  }
+  .open__arrow  { inset-block-start: var(--space-md); inset-inline-end: var(--page-gutter); }
+  .story__arrow { inset-block-start: var(--space-md); inset-inline-end: var(--page-gutter); }
+  .story__foot  { inset-block-end: var(--space-md);   inset-inline-end: var(--page-gutter); }
+  .story {
+    padding-block: calc(var(--row) * 0.5);
+    gap: var(--space-lg);
+  }
+}
+
 .story {
   position: relative;
   max-width: var(--page-max);

@@ -287,7 +287,13 @@ export const SIZES = {
    * is real and is noted in pending-task.md rather than done here. Declaring
    * the box is the safe direction; a landscape plate needs every pixel of it.
    */
-  lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 91vw",
+  /* Phone value re-measured when the lanes became rows below 48rem: the
+   * archive frame paints at 32.7-34.6vw across 320-430. 32vw rather than the
+   * measured 34 on purpose — at 390 and 3x, 34vw needs 399 device px and the
+   * ladder's next rung is 640w, which the gate correctly flags as over-asking
+   * a 133px box. 32vw lands on 375w, 6% under on a 133px thumbnail, which is
+   * not visible, against a file more than twice the size. */
+  lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 32vw",
   /**
    * `.pair` — the two plates in the opening zone. Two up at every width: half
    * the page measure below 60rem, then half of the seven columns the section
