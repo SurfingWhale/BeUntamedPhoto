@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/next-path";
 import { HashSession } from "./hash-session";
 
 export const dynamic = "force-dynamic";
@@ -10,13 +11,6 @@ type Search = Promise<Record<string, string | string[] | undefined>>;
 
 function one(value: string | string[] | undefined): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
-}
-
-function safeNext(value: string | null): string {
-  // Same-origin paths only — never an absolute URL from the query string.
-  return value && value.startsWith("/") && !value.startsWith("//")
-    ? value
-    : "/work";
 }
 
 /**

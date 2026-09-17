@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/next-path";
 
 export type AuthState = { status: "idle" | "error" | "ok"; message: string };
 
@@ -15,12 +16,6 @@ async function origin() {
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
   const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   return `${proto}://${host}`;
-}
-
-function safeNext(value: FormDataEntryValue | null) {
-  const next = String(value ?? "");
-  // Only same-origin paths — never an absolute URL from user input.
-  return next.startsWith("/") && !next.startsWith("//") ? next : "/work";
 }
 
 export async function signIn(_prev: AuthState, formData: FormData): Promise<AuthState> {

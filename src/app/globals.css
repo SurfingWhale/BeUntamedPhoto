@@ -1848,7 +1848,20 @@ img { display: block; max-width: 100%; }
  *
  * ::scroll-marker is CSS Overflow 5 — Chrome 135+ and Safari 19+, Firefox
  * partial, and not Baseline. Behind @supports it is additive: without it the
- * reel is simply a scroller with no dots, which is what it already was. */
+ * reel is simply a scroller with no dots, which is what it already was.
+ *
+ * **`next build` warns about every line of this and the rules ship anyway.**
+ * Lightning CSS does not have these selectors in its table, so it reports
+ * eight "Parsing CSS source code failed" warnings naming ::scroll-marker,
+ * ::scroll-marker-group and :target-current, and suggests they are typos.
+ * They are not. Checked against the built stylesheet rather than assumed:
+ * both @supports blocks come through with every rule intact — 8 of
+ * `::scroll-marker`, 4 of the `scroll-marker-group` property and 2 of
+ * `:target-current` in, the same 8 / 4 / 2 out, the reel's nested @media
+ * included. Taking the suggestion would turn working selectors into
+ * pseudo-classes that match nothing. This note is here because this
+ * repository has a written history of nearly "correcting" correct CSS on the
+ * strength of an instrument rather than a measurement. */
 @supports selector(::scroll-marker) {
   .reel { scroll-marker-group: after; }
   /* Three dots under a stack of three visible cards say nothing. */

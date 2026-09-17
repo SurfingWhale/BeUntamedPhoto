@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 
 import { MastheadRetract, ScrollRule } from "@/components/motion";
 import { useViewer } from "@/components/use-viewer";
+import { enterHref } from "@/lib/next-path";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { nav, site } from "@/lib/site";
 
@@ -46,7 +47,11 @@ export function Masthead() {
               {viewer.displayName}
             </Link>
           ) : (
-            <Link className="tog" href="/enter">
+            /* The path rides along: this is on every page, so a bare
+               /enter sent every reader who used it to /work regardless of
+               where they had been. enterHref drops it on the auth pages
+               themselves, which are not destinations. */
+            <Link className="tog" href={enterHref(pathname)}>
               [Sign in]
             </Link>
           )}

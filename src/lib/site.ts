@@ -17,7 +17,13 @@ export const siteUrl = (
 
 export const site = {
   name: "BeUntamed",
-  wordmark: ["UNTAM", "E", "D"] as const,
+  /* `wordmark: ["UNTAM", "E", "D"]` was here — three fragments for a masthead
+   * that used to set the name in the display face and colour the middle
+   * letter. The mark is drawn artwork now (components/wordmark.tsx) and
+   * nothing has read this since, so it sat in the one file that defines the
+   * brand still spelling the name the brand was renamed away from on
+   * 2026-09-14. Dead data is bad enough; dead data contradicting the rule in
+   * CLAUDE.md about which name the site carries is worse. */
   tagline: "Graduation, brand, sport, food and event photography.",
   /**
    * The public byline — every page that signs off reads from here. It is the

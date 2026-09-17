@@ -7,6 +7,7 @@ import { useFormStatus } from "react-dom";
 
 import { leaveNote, removeNote, type NoteState } from "@/app/notes/actions";
 import { useViewer } from "@/components/use-viewer";
+import { enterHref } from "@/lib/next-path";
 import { formatDate } from "@/lib/format";
 import type { Note } from "@/lib/notes";
 
@@ -118,7 +119,11 @@ export function NotesPanel({
         </form>
       ) : (
         <p className="form-note">
-          <Link className="link" href="/enter">
+          {/* Carries the path, so signing in comes back to the gallery the
+              note is about. A bare /enter lands on /work, which meant the
+              reader arrived somewhere other than the thing they had wanted to
+              say something about — with no trace of it on screen. */}
+          <Link className="link" href={enterHref(pathname)}>
             Sign in
           </Link>{" "}
           to leave a note. Notes are public and show your display name — nothing

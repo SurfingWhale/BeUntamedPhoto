@@ -116,12 +116,37 @@ export function IndexFilter({
     () => (lens === "all" ? null : genres.find((g) => g.id === lens) ?? null),
     [lens],
   );
-  const laneLine = useMemo(() => {
-    const names = lenses.slice(1).map((l) => l.label.toLowerCase());
-    if (names.length === 0) return "";
-    if (names.length === 1) return names[0];
-    return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-  }, [lenses]);
+  /** "a, b and c", or "" from nothing. */
+  const list = (names: string[]) =>
+    names.length === 0
+      ? ""
+      : names.length === 1
+        ? names[0]
+        : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+
+  const laneLine = useMemo(
+    () => list(lenses.slice(1).map((l) => l.label.toLowerCase())),
+    [lenses],
+  );
+  /* With nothing filed there are no lanes to name, and the sentence that names
+   * them opened on an em-dash with nothing before it. An empty archive is a
+   * real state — it is what this page looked like on its first deploy, and
+   * what it looks like again the moment the last gallery in a lane is
+   * unfiled — so it gets its own sentence rather than a broken version of the
+   * full one.
+   *
+   * That sentence names the lanes from `genres` rather than spelling them out.
+   * A hand-typed list of five is the precise shape of the bug that printed a
+   * nonsense commissions line on /about, and the comment above this one says
+   * so about the line right beside it — which did not stop the first version
+   * of this fallback from typing all five in again. */
+  const note = lane
+    ? lane.blurb
+    : laneLine
+      ? `${laneLine} — pick a lane and the index narrows to it. Every set opens in full, plate by plate.`
+      : `Galleries are filed by what they are — ${list(
+          genres.map((g) => g.label.toLowerCase()),
+        )}. The first of them will show up here.`;
 
   return (
     /* One wrapper around both halves. A sticky element is bound by its
@@ -181,11 +206,7 @@ export function IndexFilter({
           on an unknown plate — which is better for the sentence as well as
           for the photograph. */}
       <div className="index-band__note">
-        <p>
-          {lane
-            ? lane.blurb
-            : `${laneLine} — pick a lane and the index narrows to it. Every set opens in full, plate by plate.`}
-        </p>
+        <p>{note}</p>
       </div>
 
       {/* Heading and filters travel together, because a filter with its
@@ -215,8 +236,15 @@ export function IndexFilter({
       </div>
 
       {shown.length === 0 ? (
+        /* `genreLabel` was wrong here, and wrong in a way nothing would have
+         * caught: it falls back to "Event" for an id it does not know, and the
+         * only id that reaches this branch is "all" — every other lens is
+         * built from a genre that has galleries in it, so it can never come
+         * back empty. So an archive with nothing in it read "Nothing filed
+         * under Event yet", naming a lane the reader had not picked. The lens
+         * decides the sentence now. */
         <p className="notes__empty">
-          Nothing filed under {genreLabel(lens)} yet.
+          {lane ? `Nothing filed under ${lane.label} yet.` : "Nothing filed yet."}
         </p>
       ) : (
         /* One large card then small ones, which is the shape of the

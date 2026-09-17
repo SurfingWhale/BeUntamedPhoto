@@ -7,6 +7,10 @@ import { site } from "@/lib/site";
  * the icon set is what puts the mark on a home screen; the service worker in
  * public/sw.js caches only content-hashed static assets, so an installed copy
  * still fetches every page from the network and can never show a stale gallery.
+ *
+ * These icons are not among what it caches, and that is deliberate — see the
+ * note in public/sw.js. Their paths are fixed while their bytes are not, so a
+ * cache-first entry for one is an old mark nobody can evict.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {

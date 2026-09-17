@@ -8,6 +8,7 @@ import { Uploader } from "@/components/uploader";
 import { PER_PAGE, clampPage, getAlbum, getMaxPosition, getPhotoPage } from "@/lib/gallery";
 import { THUMB_WIDTH } from "@/lib/images";
 import { getViewer } from "@/lib/auth";
+import { enterHref } from "@/lib/next-path";
 import { plate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +21,15 @@ type Params = {
 export const metadata: Metadata = { title: "Darkroom", robots: { index: false } };
 
 export default async function DarkroomAlbumPage({ params, searchParams }: Params) {
+  const { slug } = await params;
   const viewer = await getViewer();
-  if (!viewer) redirect("/enter?next=%2Fdarkroom");
+  /* Back to this gallery, not to the darkroom's front page. The slug is in the
+   * URL already; sending the owner to the index meant signing in on a phone
+   * and then having to find the set again, which is the walk the Fab exists to
+   * avoid. */
+  if (!viewer) redirect(enterHref(`/darkroom/${slug}`));
   if (!viewer.isOwner) redirect("/work");
 
-  const { slug } = await params;
   const album = await getAlbum(slug);
   if (!album) notFound();
 
@@ -51,9 +56,25 @@ export default async function DarkroomAlbumPage({ params, searchParams }: Params
         <h1 className="page__title">{album.title}</h1>
         <p className="fold-text__body">
           {plates.total} {plates.total === 1 ? "plate" : "plates"} ·{" "}
+          {/* A held-back gallery's public page is the held-back *notice* — the
+              plates are only on /open, which is the route that reads a cookie.
+              "View the public page" pointed at the notice either way, so
+              checking a private set's plates as a reader sees them meant
+              landing on the sign-in prompt and working out that it was not a
+              bug. Both links are here now, named for what they open. */}
           <Link className="link" href={`/work/${album.slug}`}>
-            View the public page →
+            {album.visibility === "members"
+              ? "View the public notice →"
+              : "View the public page →"}
           </Link>
+          {album.visibility === "members" && (
+            <>
+              {" · "}
+              <Link className="link" href={`/work/${album.slug}/open`}>
+                Open the plates →
+              </Link>
+            </>
+          )}
         </p>
         <p>
           <Link className="link" href="/darkroom">

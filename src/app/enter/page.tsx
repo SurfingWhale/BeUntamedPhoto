@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { AuthForms } from "@/components/auth-forms";
 import { isMode } from "@/lib/auth-mode";
 import { getViewer } from "@/lib/auth";
+import { safeNext } from "@/lib/next-path";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ export default async function EnterPage({
 
   if (viewer) redirect("/account");
 
-  const target = next?.startsWith("/") && !next.startsWith("//") ? next : "/work";
+  const target = safeNext(next);
   /* The mode is in the URL so it can be linked. "Make an account" sent from
    * anywhere used to land on Sign in, because the switcher was four buttons
    * holding React state — the address could carry `next` but not which form
