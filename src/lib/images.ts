@@ -70,21 +70,41 @@ export const HERO_THUMB_WIDTH = 168;
 export const CARD_THUMB_WIDTH = 288;
 
 /**
- * The deck frames on a wide screen.
+ * The two frames of a lane panel, which is now a screen and not a card.
  *
- * The lane card grows above 60rem so two large cards show instead of three
- * small ones, and .deck__frames is three equal columns — so the photographs
- * grow with it, past what a 288w file can cover. At a 40rem card each frame
- * renders about 195 CSS px, which needs 390 at 2x.
+ * The deck was three narrow cards in a row, each holding three 98px
+ * photographs, and the owner's verdict was the right one: "terlalu monoton dan
+ * flat karena lu cuma kasih tiga kotak dan gridnya terlalu sempit". It is one
+ * full-viewport panel per lane now, and the photographs inside it are three to
+ * four times the size they were — so the old widths (288, and 480 above 60rem)
+ * no longer cover them and the frames would be soft.
  *
- * Delivered through <picture> with a media query rather than srcset, and that
- * is deliberate: `sizes` resolves against device pixels, so a 3x phone asking
- * for a 98px frame needs 294 and would take this file too — 43KB against
- * 17KB, nine times over, on the connection that can least afford it. A media
- * source is answered by the viewport alone. Measured: 288w is 17,096 B and
- * 480w is 43,040 B for the same plate as WebP.
+ * Two roles, two widths, and **no `<picture>` and no media source** — which is
+ * the point of the composition. `.deck__frames` carries its own ratio and is
+ * capped at `calc(var(--module) * 6)` = 720px, so each frame has a known
+ * ceiling at every viewport, and the ceiling a phone needs at 3x and the one a
+ * desktop needs at 2x land close enough together that one file serves both:
+ *
+ *                    phone 390      768      1440 (capped)
+ *   frames box          350         352          702
+ *   lead   (0.6 box)    208         211          419
+ *     needed            623 @3x     422 @2x      838 @2x
+ *   side   (0.4 box)    138         141          279
+ *     needed            415 @3x     282 @2x      558 @2x
+ *
+ * 880 covers the widest lead need with 5% to spare, and a phone at 3x needs
+ * 623 of it — 1.4x, not the 9x the old wide file would have cost a phone,
+ * which is what the `<picture>` in the previous version existed to avoid. The
+ * media switch is unnecessary once the box has a cap, and a source that cannot
+ * be mistimed is worth more than one that is exactly fitted: these frames are
+ * lazy, and `trimSrcSet`'s note above is the record of what mistimed picks
+ * cost.
+ *
+ * Re-measure both if the panel's column split, its gap or its cap change —
+ * they describe the same boxes.
  */
-export const DECK_FRAME_WIDE = 480;
+export const DECK_LEAD_WIDTH = 880;
+export const DECK_SIDE_WIDTH = 600;
 
 function origin(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

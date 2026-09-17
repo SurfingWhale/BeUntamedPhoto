@@ -275,7 +275,31 @@ export async function getMaxPosition(albumId: string): Promise<number> {
  * about 50KB of markup describing widths a fixed 89px box can never use. The
  * strip asks for one width, so one width is what leaves the server.
  */
-export type StripPlate = { id: string; src: string };
+export type StripPlate = {
+  id: string;
+  /** The strip's own source, already built at CARD_THUMB_WIDTH. */
+  src: string;
+  /**
+   * The stored object, so a caller painting a bigger box can ask for its own
+   * width instead of stretching this one.
+   *
+   * Added when the lane deck became a full panel: its frames are three to four
+   * times the size of a strip thumbnail, and with only `src` to work from the
+   * page had to hand a 288w file to a 419px box. The version before this one
+   * did exactly that — it built a wide source for the *cover* of each lane and
+   * then spread `{...f, srcWide: f.src}` over the plates behind it, so one
+   * frame in three was sharp and two were soft, which is the kind of asymmetry
+   * nothing reports.
+   *
+   * No new exposure: every one of these fields is already inside the `src` URL
+   * above, and the bucket is always the public one — this query reads as an
+   * anonymous visitor, so RLS returns no held-back plate at all. Four short
+   * fields is also nothing like the 50KB of srcset the note above rules out.
+   */
+  path: string;
+  width: number | null;
+  height: number | null;
+};
 
 /**
  * An album with the one photograph that fronts it, and optionally a few more
@@ -434,9 +458,16 @@ export async function getAlbumsWithCovers(
   const stripByAlbum = new Map<string, StripPlate[]>();
   for (const p of strip) {
     if (!p.url) continue;
+    const plate: StripPlate = {
+      id: p.id,
+      src: p.url,
+      path: p.path,
+      width: p.width,
+      height: p.height,
+    };
     const list = stripByAlbum.get(p.album_id);
-    if (list) list.push({ id: p.id, src: p.url });
-    else stripByAlbum.set(p.album_id, [{ id: p.id, src: p.url }]);
+    if (list) list.push(plate);
+    else stripByAlbum.set(p.album_id, [plate]);
   }
 
   return rows.map((row) => ({

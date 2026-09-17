@@ -10,8 +10,8 @@ import { SectionHead } from "@/components/section-head";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
 import {
-  CARD_THUMB_WIDTH,
-  DECK_FRAME_WIDE,
+  DECK_LEAD_WIDTH,
+  DECK_SIDE_WIDTH,
   PAIR_MAX_WIDTH,
   SIZES,
   publicSrc,
@@ -102,34 +102,53 @@ export default async function HomePage() {
    * absent rather than empty — Food and Sport are both 0 today
    * (pending-task.md § 3), and a card promising a lane the archive cannot show
    * is worse than no card. */
+  /* One panel per lane that has work in it, each carrying three photographs
+   * from that lane.
+   *
+   * Deliberately lanes and not galleries. The index below already lists all
+   * nine galleries with a contact strip each, and this page has printed one set
+   * twice before — 2162px of a 6569px page, measured. A lane panel answers a
+   * different question: not "which galleries exist" but "what does a food
+   * shoot from here actually look like", which is the one a client has before
+   * they commission a lane they have never seen.
+   *
+   * Covers first, then the plates behind them, because a cover is the frame
+   * the owner chose to front that gallery with. Lanes with nothing filed are
+   * absent rather than empty — Food and Sport are both 0 today
+   * (pending-task.md § 3), and a panel promising a lane the archive cannot
+   * show is worse than no panel.
+   *
+   * Two widths, by position rather than by breakpoint. The first frame is the
+   * panel's lead and paints up to 419px; the two behind it paint up to 279.
+   * Both are asked for directly at a measured ceiling — see DECK_LEAD_WIDTH.
+   * Cover and plate go through the same builder now: the version before this
+   * one built a wide source for the cover and reused the 288w strip file for
+   * the plates, so one frame in three was sharp. */
   const laneCards = genres
     .map((g) => {
       const inLane = albums.filter((a) => a.genre === g.id);
-      /* Both shapes normalised to the one the contact strip already uses: an
-       * id and a single 288w source. That width is not a guess — it is the
-       * same file the index cards request, so a deck frame is a cache hit
-       * rather than a ninth download, and `.deck__frames` is sized so 288
-       * covers it at 2x (141 CSS px x 2 = 282). Zero new bytes for nine
-       * photographs. */
-      const frames = [
+      const plates = [
         ...inLane
           .map((a) => a.cover)
-          .filter((c) => c?.url)
+          .filter((c) => c?.url && c.bucket === "gallery")
           .map((c) => ({
             id: c!.id,
-            src:
-              c!.bucket === "gallery"
-                ? publicSrc("gallery", c!.path, CARD_THUMB_WIDTH, c!.width, c!.height)
-                : c!.url!,
-            /* The wide-screen source, where the card is large enough that 288
-             * no longer covers the frame — see DECK_FRAME_WIDE. */
-            srcWide:
-              c!.bucket === "gallery"
-                ? publicSrc("gallery", c!.path, DECK_FRAME_WIDE, c!.width, c!.height)
-                : c!.url!,
+            path: c!.path,
+            width: c!.width,
+            height: c!.height,
           })),
-        ...inLane.flatMap((a) => a.plates).map((f) => ({ ...f, srcWide: f.src })),
+        ...inLane.flatMap((a) => a.plates),
       ].slice(0, 3);
+      const frames = plates.map((f, i) => ({
+        id: f.id,
+        src: publicSrc(
+          "gallery",
+          f.path,
+          i === 0 ? DECK_LEAD_WIDTH : DECK_SIDE_WIDTH,
+          f.width,
+          f.height,
+        ),
+      }));
       return { id: g.id, label: g.label, blurb: g.blurb, frames, count: inLane.length };
     })
     .filter((l) => l.frames.length === 3);

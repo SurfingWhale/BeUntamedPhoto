@@ -2109,20 +2109,34 @@ img { display: block; max-width: 100%; }
  * contact strip already requested covers at 2x. Nine photographs for no new
  * bytes — see the note in page.tsx. */
 .deck-band {
+  /* Full bleed, and that is the change. The scroller used to sit inside
+   * `--page-max` with a gutter around it, so a panel stopped short of the
+   * screen edge — which is what makes a thing read as a card rather than as a
+   * page. The heading and the foot keep the page measure; the scroller does
+   * not. */
+  width: 100%;
+  /* Pinned, like .grid-band: an auto track takes its width from the widest
+   * child's min-content, and a horizontal scroller's min-content is every
+   * panel laid end to end. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: var(--space-2xl) 0;
+}
+.deck-band__head {
   max-width: var(--page-max);
   margin-inline: auto;
   width: 100%;
-  padding-block: var(--space-2xl) 0;
+  padding-inline: var(--page-gutter);
 }
-.deck-band__head { padding-inline: var(--page-gutter); }
 .deck {
   display: flex;
-  gap: var(--space-md);
+  /* No gap: a panel is a page, and pages butt up. With mandatory snap and a
+     panel the full width of the scroller, two are never on screen at once, so
+     a gap would only ever show as a seam mid-swipe. */
+  gap: 0;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
-  padding-inline: var(--page-gutter);
-  scroll-padding-inline-start: var(--page-gutter);
   padding-block: var(--space-lg) var(--space-sm);
   scrollbar-width: none;
   min-width: 0;
@@ -2130,77 +2144,125 @@ img { display: block; max-width: 100%; }
 .deck::-webkit-scrollbar { display: none; }
 .deck__card {
   flex: none;
-  /* Under 100%, so a sliver of the card behind is the invitation to swipe. */
-  width: min(84%, 29rem);
-  /* A picture inside the frame grid behaves as the image did. */
-}
-/* Wider above 60rem, because three cards at 29rem come to about 1400px and at
- * 1440 they simply all fit — the section stopped being a deck and became a
- * flat three-up grid of small cards with three small photographs in each. The
- * reference shows two large cards in this position and moves between them with
- * arrows. Two at 40rem leaves a sliver of the third, which is the invitation
- * the phone width already has. */
-@media (min-width: 60rem) {
-  .deck__card { width: min(46%, 40rem); }
-}
-.deck__card {
+  /* One panel, one lane, the whole scroller. */
+  width: 100%;
   scroll-snap-align: start;
   display: grid;
-  gap: var(--space-2xs);
-  align-content: start;
+  grid-template-columns: minmax(0, 1fr);
   text-decoration: none;
   min-width: 0;
-  /* The same box as every other card on the site — hairline, paper-white
-     ground, no radius, no shadow. */
-  border: var(--rule-hair) solid var(--color-rule);
-  background: var(--color-paper-white);
-  padding: var(--space-sm);
+  /* No border and no ground: this is a panel, not a box on a page. The
+     hairline card it replaced put a second frame around photographs that
+     already carry their own outline. */
 }
-/* The stagger, which is how the reference stacks cards: its two Featured cards
- * sit at different heights, one stepped down from the other.
+/* The cap lives on the panel's contents, never on the panel.
  *
- * A horizontal overlap was tried first — each card pulled back a gap with a
- * descending z-index — and it looked like a bug at any width where the cards
- * all fit: the hairline borders ran into each other with nothing to say the
- * overlap was deliberate. Vertical, every card keeps its own edges and the set
- * still reads as a deck rather than a row.
- *
- * Only from 48rem. On a phone one card fills the view, so a stagger is a card
- * that starts lower for no visible reason. */
-@media (min-width: 48rem) {
-  .deck__card:nth-child(even) { margin-block-start: var(--space-xl); }
-}
-.deck__frames {
+ * `max-width` on .deck__card would shrink the flex item below the scroller's
+ * width on a wide screen, and snap would then leave part of the next panel
+ * showing — which is the card behaviour this replaced. The panel stays
+ * 100% and its contents are what centre inside `--page-max`. */
+.deck__panel {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding-inline: var(--page-gutter);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-2xs);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-content: start;
   min-width: 0;
 }
-.deck__frames picture { display: contents; }
+/* Two columns from 48rem: type on the leading side, photographs on the
+ * trailing one. 1fr / 1.15fr rather than even, because the frames are the
+ * evidence and the type is the label. */
+@media (min-width: 48rem) {
+  .deck__panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--space-xl);
+    align-items: center;
+    align-content: center;
+  }
+  /* Photographs first in the source, because they are what the panel is; the
+     type reads first on a wide screen, which is how the reference sets it. */
+  .deck__frames { order: 2; }
+  .deck__text { order: 1; }
+}
+/* One composition, not three equal thirds.
+ *
+ * The ratio is on the container and the tracks are fractions, which is what
+ * makes every box definite before a single byte arrives: the width comes from
+ * the column, the height from this ratio, and the two rows split that height.
+ * Putting `aspect-ratio` on the lead image instead left the side frames
+ * sizing their rows from their own intrinsic ratio, and a `min-height` here
+ * would make the *width* derive from the height — the family of blowouts
+ * CLAUDE.md records three of.
+ *
+ * A ceiling on this box is what lets DECK_LEAD_WIDTH be one file instead of a
+ * <picture> with a media source. Measured on the built stylesheet at eight
+ * viewports, not derived:
+ *
+ *            360    390    430    768   1024   1280   1440   1920
+ *   frames   320    350    390    352    479    616    702    702
+ *   lead     190    208    232    209    285    367    419    419
+ *   need     569    623    695    418    571    735    838    838
+ *            (x3)   (x3)   (x3)   (x2)   (x2)   (x2)   (x2)   (x2)
+ *
+ * 838 is the widest, and 880 covers it with 5% spare. The `max-width` below
+ * is a belt and not the actual ceiling — `--page-max` on .deck__panel binds
+ * first, which is why 1920 measures the same as 1440 — but it is what keeps
+ * the number true if that measure is ever widened. Change the split, the gap,
+ * either cap or the breakpoint and re-measure both widths rather than
+ * re-deriving them: they describe the same boxes. */
+.deck__frames {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2xs);
+  aspect-ratio: 5 / 4;
+  max-width: calc(var(--module) * 6);
+  width: 100%;
+  min-width: 0;
+}
 .deck__frames img {
   width: 100%;
-  /* Definite box, derived from the width — the archive shoots vertical, and a
-     lazy frame that reserves nothing is the drift that moved .lane__frame
-     575px under a reader. */
-  aspect-ratio: 3 / 4;
-  height: auto;
+  height: 100%;
   object-fit: cover;
   background: var(--color-paper-2);
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: calc(var(--rule-hair) * -1);
 }
+/* The lead frame, two rows tall. Its own box works out at 3:4 — the shape the
+   archive actually shoots — without that ratio being declared anywhere. */
+.deck__lead { grid-row: span 2; }
+
+.deck__text {
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: start;
+  min-width: 0;
+}
+.deck__no {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
 .deck__name {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  /* A panel's name, not a card's. --text-lg was right for a 327px card and
+     reads as a caption at this size. */
+  font-size: var(--text-display-s);
   font-weight: 800;
   letter-spacing: var(--tracking-display);
-  line-height: 1.06;
+  line-height: 1.04;
   margin-block-start: var(--space-2xs);
 }
 .deck__what {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   color: var(--color-ink-2);
   text-wrap: pretty;
+  max-width: 34ch;
 }
 .deck__meta {
   font-size: var(--text-xs);
@@ -2208,6 +2270,7 @@ img { display: block; max-width: 100%; }
   letter-spacing: var(--tracking-code);
   color: var(--color-muted);
   font-variant-numeric: tabular-nums;
+  margin-block-start: var(--space-2xs);
 }
 /* The foot of the section: a count on the leading edge and the arrows on the
  * trailing one, which is where the reference puts its "( 24 Products )" and
@@ -2266,9 +2329,8 @@ img { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   .deck__arrow:active { transform: none; }
 }
-
 @media (hover: hover) and (pointer: fine) {
-  .deck__card:hover { border-color: var(--color-rule-2); }
+  .deck__card:hover .deck__name { color: var(--color-ink-2); }
 }
 @supports selector(::scroll-marker) {
   .deck { scroll-marker-group: after; }
