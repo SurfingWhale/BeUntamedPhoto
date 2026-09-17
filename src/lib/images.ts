@@ -69,6 +69,23 @@ export const HERO_THUMB_WIDTH = 168;
  */
 export const CARD_THUMB_WIDTH = 288;
 
+/**
+ * The deck frames on a wide screen.
+ *
+ * The lane card grows above 60rem so two large cards show instead of three
+ * small ones, and .deck__frames is three equal columns — so the photographs
+ * grow with it, past what a 288w file can cover. At a 40rem card each frame
+ * renders about 195 CSS px, which needs 390 at 2x.
+ *
+ * Delivered through <picture> with a media query rather than srcset, and that
+ * is deliberate: `sizes` resolves against device pixels, so a 3x phone asking
+ * for a 98px frame needs 294 and would take this file too — 43KB against
+ * 17KB, nine times over, on the connection that can least afford it. A media
+ * source is answered by the viewport alone. Measured: 288w is 17,096 B and
+ * 480w is 43,040 B for the same plate as WebP.
+ */
+export const DECK_FRAME_WIDE = 480;
+
 function origin(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");

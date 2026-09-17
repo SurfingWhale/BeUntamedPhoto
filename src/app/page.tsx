@@ -4,11 +4,19 @@ import { IndexFilter } from "@/components/index-filter";
 import { Reveal } from "@/components/motion";
 import { Lanes } from "@/components/lanes";
 import { Hero } from "@/components/hero";
+import { Deck } from "@/components/deck";
 import { PhotoFold } from "@/components/photo-fold";
 import { SectionHead } from "@/components/section-head";
 import { Ticker } from "@/components/ticker";
 import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
-import { CARD_THUMB_WIDTH, PAIR_MAX_WIDTH, SIZES, publicSrc, trimSrcSet } from "@/lib/images";
+import {
+  CARD_THUMB_WIDTH,
+  DECK_FRAME_WIDE,
+  PAIR_MAX_WIDTH,
+  SIZES,
+  publicSrc,
+  trimSrcSet,
+} from "@/lib/images";
 import { plate as plate2 } from "@/lib/format";
 import { elsewhere, genres, site } from "@/lib/site";
 
@@ -113,8 +121,14 @@ export default async function HomePage() {
               c!.bucket === "gallery"
                 ? publicSrc("gallery", c!.path, CARD_THUMB_WIDTH, c!.width, c!.height)
                 : c!.url!,
+            /* The wide-screen source, where the card is large enough that 288
+             * no longer covers the frame — see DECK_FRAME_WIDE. */
+            srcWide:
+              c!.bucket === "gallery"
+                ? publicSrc("gallery", c!.path, DECK_FRAME_WIDE, c!.width, c!.height)
+                : c!.url!,
           })),
-        ...inLane.flatMap((a) => a.plates),
+        ...inLane.flatMap((a) => a.plates).map((f) => ({ ...f, srcWide: f.src })),
       ].slice(0, 3);
       return { id: g.id, label: g.label, blurb: g.blurb, frames, count: inLane.length };
     })
@@ -168,32 +182,7 @@ export default async function HomePage() {
               </>
             }
           />
-          <div className="deck" aria-label="Lanes">
-            {laneCards.map((lane) => (
-              <Link className="deck__card" key={lane.id} href={`/work/genre/${lane.id}`}>
-                <span className="deck__frames" aria-hidden="true">
-                  {lane.frames.map((f) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={f.id}
-                      src={f.src}
-                      alt=""
-                      width={CARD_THUMB_WIDTH}
-                      height={CARD_THUMB_WIDTH}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ))}
-                </span>
-                <span className="deck__name">{lane.label}</span>
-                <span className="deck__what">{lane.blurb}</span>
-                <span className="deck__meta">
-                  {lane.count} {lane.count === 1 ? "gallery" : "galleries"}{" "}
-                  {"\u2197\uFE0E"}
-                </span>
-              </Link>
-            ))}
-          </div>
+          <Deck lanes={laneCards} label="Lanes" />
         </section>
       )}
 

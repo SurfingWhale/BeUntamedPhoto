@@ -2132,6 +2132,18 @@ img { display: block; max-width: 100%; }
   flex: none;
   /* Under 100%, so a sliver of the card behind is the invitation to swipe. */
   width: min(84%, 29rem);
+  /* A picture inside the frame grid behaves as the image did. */
+}
+/* Wider above 60rem, because three cards at 29rem come to about 1400px and at
+ * 1440 they simply all fit — the section stopped being a deck and became a
+ * flat three-up grid of small cards with three small photographs in each. The
+ * reference shows two large cards in this position and moves between them with
+ * arrows. Two at 40rem leaves a sliver of the third, which is the invitation
+ * the phone width already has. */
+@media (min-width: 60rem) {
+  .deck__card { width: min(46%, 40rem); }
+}
+.deck__card {
   scroll-snap-align: start;
   display: grid;
   gap: var(--space-2xs);
@@ -2164,6 +2176,7 @@ img { display: block; max-width: 100%; }
   gap: var(--space-2xs);
   min-width: 0;
 }
+.deck__frames picture { display: contents; }
 .deck__frames img {
   width: 100%;
   /* Definite box, derived from the width — the archive shoots vertical, and a
@@ -2196,6 +2209,64 @@ img { display: block; max-width: 100%; }
   color: var(--color-muted);
   font-variant-numeric: tabular-nums;
 }
+/* The foot of the section: a count on the leading edge and the arrows on the
+ * trailing one, which is where the reference puts its "( 24 Products )" and
+ * its ← →. The arrows move the scroller; they do not replace it, so swipe,
+ * trackpad and keyboard all still work and a phone loses nothing. */
+.deck__foot {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--space-sm) var(--page-gutter) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+.deck__count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.deck__nav { display: flex; gap: var(--space-xs); }
+.deck__arrow {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 44px, because this is a control a thumb uses. */
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: var(--rule-hair) solid var(--color-rule-2);
+  color: var(--color-ink);
+  font-size: var(--text-md);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--dur-micro) var(--ease-out),
+              border-color var(--dur-micro) var(--ease-out),
+              color var(--dur-micro) var(--ease-out),
+              transform var(--dur-micro) var(--ease-out);
+}
+.deck__arrow:active { transform: scale(0.96); }
+.deck__arrow[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .deck__arrow:not([disabled]):hover {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck__arrow:active { transform: none; }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .deck__card:hover { border-color: var(--color-rule-2); }
 }
