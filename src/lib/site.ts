@@ -140,10 +140,12 @@ export const elsewhere = [
     // 0.80 tall in the same box, so it renders 141/172/190/169/211 — far
     // narrower than the box it sits in. Declaring the box made a phone take
     // the 600w file to fill 172px.
-    /* 28vw below 48rem: a portrait plate in the row's frame is height-bound
-     * and paints at a constant 28.0vw from 320 to 430, measured. The flat
-     * 190px it replaces took the 600w file for a 109px frame. */
-    bannerSizes: "(min-width: 64rem) 211px, (min-width: 48rem) 169px, 28vw",
+    /* 34vw below 48rem. The phone row crops with object-fit: cover now, so a
+     * portrait plate fills its frame instead of painting 28vw inside it — the
+     * painted width is the frame's own, measured at 32.7-34.6vw across
+     * 320-430. The flat 190px before that took the 600w file for a 109px
+     * frame. */
+    bannerSizes: "(min-width: 64rem) 211px, (min-width: 48rem) 169px, 34vw",
     w: 600,
     h: 750,
   },
