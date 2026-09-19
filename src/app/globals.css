@@ -1873,7 +1873,15 @@ img { display: block; max-width: 100%; }
   text-wrap: pretty;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  /* Three, not two.
+   *
+   * A clamp counts lines, and a line holds fewer words the moment someone
+   * enlarges text: at a 200% browser text size two subtitles on / lost their
+   * last words, and the only other copy of that sentence is a tap away on the
+   * gallery's own page. Three costs nothing at 100% — page height and card
+   * height are identical at 390 and 1440, measured — because no subtitle in
+   * the archive runs past two lines there. */
+  -webkit-line-clamp: 3;
   overflow: hidden;
 }
 
