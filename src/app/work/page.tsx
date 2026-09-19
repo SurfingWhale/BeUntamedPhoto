@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
 import { tileSizes } from "@/lib/images";
+import { AlbumStrip } from "@/components/album-strip";
 import { Plate } from "@/components/plate";
 import { getAlbumsWithCovers } from "@/lib/gallery";
 import { genres } from "@/lib/site";
@@ -25,7 +26,10 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkPage() {
-  const albums = await getAlbumsWithCovers();
+  /* Three plates past each cover. They ride the same round trip — see
+   * getAlbumsWithCovers — and they are the same files the home index asks
+   * for, so a visitor arriving from / has them already. */
+  const albums = await getAlbumsWithCovers(undefined, 3);
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   return (
@@ -102,6 +106,7 @@ export default async function WorkPage() {
                     <Plate no={plate(i)} label="no cover yet" />
                   )}
                 </Link>
+                <AlbumStrip plates={album.plates} />
                 <div className="album__meta">
                   <h2 className="album__title">
                     <Link href={`/work/${album.slug}`}>{album.title}</Link>

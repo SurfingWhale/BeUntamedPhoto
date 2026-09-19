@@ -5,6 +5,7 @@ import { unstable_cache } from "next/cache";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
 import {
+  CARD_THUMB_PHONE_WIDTH,
   CARD_THUMB_WIDTH,
   PRIVATE_WIDTH,
   publicSrc,
@@ -275,7 +276,9 @@ export async function getMaxPosition(albumId: string): Promise<number> {
  * about 50KB of markup describing widths a fixed 89px box can never use. The
  * strip asks for one width, so one width is what leaves the server.
  */
-export type StripPlate = { id: string; src: string };
+/** `src` is the phone's file; `srcWide` the one a <picture> swaps in above
+ * 60rem, where the box is twice the size. */
+export type StripPlate = { id: string; src: string; srcWide: string };
 
 /**
  * An album with the one photograph that fronts it, and optionally a few more
@@ -422,21 +425,29 @@ export async function getAlbumsWithCovers(
    * Cover first within each album: the query orders the embed by is_cover
    * descending, then position, so everything behind the first row is the strip
    * in gallery order. */
-  const [covers, strip] = await Promise.all([
+  const [covers, strip, stripPhone] = await Promise.all([
     withUrls(rows.map((r) => r.photos?.[0]).filter(Boolean)),
     withUrls(
       rows.flatMap((r) => (r.photos ?? []).slice(1)),
       CARD_THUMB_WIDTH,
     ),
+    withUrls(
+      rows.flatMap((r) => (r.photos ?? []).slice(1)),
+      CARD_THUMB_PHONE_WIDTH,
+    ),
   ]);
 
   const byId = new Map(covers.map((c) => [c.album_id, c]));
+  const phoneById = new Map(stripPhone.map((p) => [p.id, p.url]));
   const stripByAlbum = new Map<string, StripPlate[]>();
   for (const p of strip) {
     if (!p.url) continue;
+    /* The phone file if it built, the wide one if it somehow did not — a
+     * missing small URL should cost bytes, not a blank box. */
+    const plate: StripPlate = { id: p.id, src: phoneById.get(p.id) ?? p.url, srcWide: p.url };
     const list = stripByAlbum.get(p.album_id);
-    if (list) list.push({ id: p.id, src: p.url });
-    else stripByAlbum.set(p.album_id, [{ id: p.id, src: p.url }]);
+    if (list) list.push(plate);
+    else stripByAlbum.set(p.album_id, [plate]);
   }
 
   return rows.map((row) => ({

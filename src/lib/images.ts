@@ -84,6 +84,21 @@ export const HERO_THUMB_WIDTH = 168;
 export const CARD_THUMB_WIDTH = 288;
 
 /**
+ * The same strip on a phone, where the box is 44 x 49 rather than 89 x 60.
+ *
+ * 288 is the ceiling the desktop box needs and the phone was paying it: 132
+ * device px of need answered with 288, 11kB a plate where 160w is 5kB. With
+ * three plates on each of nine cards that is 162kB a page, on / and on /work
+ * both, and it is spent on the connection this archive is mostly read over.
+ *
+ * Delivered through <picture> with a media query rather than a srcset, for
+ * the reason DECK_FRAME_WIDE gives: `sizes` resolves against device pixels, so
+ * a 3x phone would ask for the wide file anyway. A media source is answered by
+ * the viewport alone.
+ */
+export const CARD_THUMB_PHONE_WIDTH = 160;
+
+/**
  * The deck frames on a wide screen.
  *
  * The lane card grows above 60rem so two large cards show instead of three

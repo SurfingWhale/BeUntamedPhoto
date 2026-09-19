@@ -1734,7 +1734,8 @@ img { display: block; max-width: 100%; }
  * Definite height and `overflow: hidden` for the same reason .reel__frame has
  * them — three lazy images that reserve nothing is exactly the drift that
  * moved .lane__frame 575px under the reader. */
-.reel__strip {
+.reel__strip,
+.album__strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: calc(var(--row) * 0.5);
@@ -1761,7 +1762,25 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   min-width: 0;
 }
-.reel__strip img {
+/* On /work the strip sits between the cover and the title, so it needs the
+ * gap the index card gets from its own flow. */
+.album__strip { margin-block-start: var(--space-2xs); }
+/* The grid item is the <picture>, not the <img>.
+ *
+ * Left at its default `inline`, a picture in a grid cell hands the box to
+ * nothing and the plate collapses; `display: contents` — tried once on the
+ * deck — promotes the <source> to a grid item of its own and builds a
+ * pyramid. Block, with the source hidden, is the shape that works. */
+.reel__strip picture,
+.album__strip picture {
+  display: block;
+  block-size: 100%;
+  min-width: 0;
+}
+.reel__strip source,
+.album__strip source { display: none; }
+.reel__strip img,
+.album__strip img {
   width: 100%;
   height: 100%;
   /* cover, not contain: the same reasoning as the index covers below, and

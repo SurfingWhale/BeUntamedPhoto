@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
+import { AlbumStrip } from "@/components/album-strip";
 import { Plate } from "@/components/plate";
 import { getAlbumsWithCovers } from "@/lib/gallery";
 import { SignedOut } from "@/components/signed-out";
@@ -65,7 +66,7 @@ export default async function GenrePage({ params }: Params) {
   const g = find(genre);
   if (!g) notFound();
 
-  const albums = await getAlbumsWithCovers(g.id);
+  const albums = await getAlbumsWithCovers(g.id, 3);
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   /* Two of the five genres this site sells have no sets filed here, because
@@ -155,6 +156,7 @@ export default async function GenrePage({ params }: Params) {
                     <Plate no={plate(i)} label="no cover yet" />
                   )}
                 </Link>
+                <AlbumStrip plates={album.plates} />
                 <div className="album__meta">
                   <h2 className="album__title">
                     <Link href={`/work/${album.slug}`}>{album.title}</Link>

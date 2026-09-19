@@ -5,7 +5,7 @@ import { useMemo, useRef, useState } from "react";
 
 import { plate } from "@/lib/format";
 import { genres, genreLabel } from "@/lib/site";
-import { CARD_THUMB_WIDTH, SIZES, cardSizes } from "@/lib/images";
+import { CARD_THUMB_PHONE_WIDTH, SIZES, cardSizes } from "@/lib/images";
 import { Plate } from "@/components/plate";
 import { SectionHead } from "@/components/section-head";
 import { useRevealChildren } from "@/components/motion";
@@ -289,16 +289,20 @@ export function IndexFilter({
                      visual, and the title above already carries it. */
                   <span className="reel__strip" aria-hidden="true">
                     {strip.map((p) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        key={p.id}
-                        src={p.src}
-                        alt=""
-                        width={CARD_THUMB_WIDTH}
-                        height={CARD_THUMB_WIDTH}
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      <picture key={p.id}>
+                        {/* Viewport, not device pixels — see
+                            CARD_THUMB_PHONE_WIDTH. The phone's box is 44x49
+                            and was being sent the 89px box's file. */}
+                        <source media="(min-width: 60rem)" srcSet={p.srcWide} />
+                        <img
+                          src={p.src}
+                          alt=""
+                          width={CARD_THUMB_PHONE_WIDTH}
+                          height={CARD_THUMB_PHONE_WIDTH}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </picture>
                     ))}
                   </span>
                 )}
