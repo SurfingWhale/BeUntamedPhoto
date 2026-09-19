@@ -284,4 +284,11 @@ So this file does not become the thing it is warning about:
   owner knows who each job was for, and the gate keeps failing until the
   sentences are real. Run it in the SQL editor, then `npm run measure`.
 
+- **Which page does which job is now written down.**
+  `docs/PRD-routes-that-coexist.md`, measured 2026-09-19: 89% of the home
+  page's photographs are also on `/work`, the home index spends 2.33 of its
+  8.37 screens being a worse copy of it, and a gallery — the page a client
+  reads longest — offers no way to the next one. Its § 9 carries this file's
+  open items so the list lives in one place.
+
 `design.md` § 13 has the dated record.
