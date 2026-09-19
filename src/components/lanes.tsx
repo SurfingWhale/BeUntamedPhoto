@@ -5,6 +5,21 @@ import { elsewhere, site } from "@/lib/site";
 
 type Props = {
   /**
+   * Whether this archive appears as a lane of its own.
+   *
+   * `/elsewhere` says yes: the page's subject is the whole practice, and the
+   * third card is what makes it a set rather than two outbound links.
+   *
+   * The home page says no, and that changed when the section's heading did.
+   * It used to read "3 sites, one practice", which needs all three to be
+   * counted; it now reads "sport and food, too", whose whole job is the two
+   * lanes a visitor cannot see from here. A card inviting the reader to the
+   * archive they are already standing on — directly under an index of that
+   * same archive — is the third destination competing with the other two, and
+   * on a phone it was a third of the section's 1172px.
+   */
+  includeSelf?: boolean;
+  /**
    * A frame from this archive for its own lane. The other two carry a
    * committed still from the site they point at; this one takes whatever the
    * archive is showing, so it is never out of date with the work.
@@ -39,7 +54,7 @@ type Props = {
  * three links, which is exactly what § 11 tells you to cut. The banner is not
  * smaller for it; there are simply not three of them stacked down the page.
  */
-export function Lanes({ archiveBanner }: Props) {
+export function Lanes({ archiveBanner, includeSelf = true }: Props) {
   const lanes = [
     ...elsewhere.map((place) => ({
       key: place.href,
@@ -49,15 +64,18 @@ export function Lanes({ archiveBanner }: Props) {
       name: place.name,
       what: place.what,
       addr: place.go,
+      /* The invitation, built from the lane rather than written per site.
+       * "See the food work" is the sentence that has to land; the domain is
+       * confirmation of where it goes, not the offer. */
+      go: `See the ${place.lane.toLowerCase()} work`,
       mark: "\u2197\uFE0E",
       banner: place.banner as string | null,
       bannerSet: place.bannerSet as string | null,
-      bannerSizes: place.bannerSizes as string,
       w: place.w as number | null,
       h: place.h as number | null,
       alt: `${place.name} — ${place.what}`,
     })),
-    {
+    ...(includeSelf ? [{
       key: "/work",
       href: "/work",
       external: false,
@@ -68,6 +86,7 @@ export function Lanes({ archiveBanner }: Props) {
       name: site.name,
       what: "Graduations, brand work and events — the full archive, filed by genre.",
       addr: "this site",
+      go: "Browse the full archive",
       mark: "\u2192",
       banner: archiveBanner?.url ?? null,
       /* Already resized on the way out of storage, so it brings its own —
@@ -75,13 +94,10 @@ export function Lanes({ archiveBanner }: Props) {
        * frame in a reel picks its candidate mid-scroll, and it was taking a
        * 1500w file for a 271px box. */
       bannerSet: trimSrcSet(archiveBanner?.srcSet ?? null, LANE_MAX_WIDTH) ?? null,
-      // The archive frame's ratio changes with whichever plate is showing, so
-      // it is the one lane that has to fall back to the box.
-      bannerSizes: SIZES.lane,
       w: archiveBanner?.width ?? null,
       h: archiveBanner?.height ?? null,
       alt: archiveBanner?.caption ?? "A frame from the archive",
-    },
+    }] : []),
   ];
 
   return (
@@ -100,11 +116,10 @@ export function Lanes({ archiveBanner }: Props) {
                 <img
                   src={lane.banner}
                   srcSet={lane.bannerSet ?? undefined}
-                  /* Per lane, because contain means the frame is narrower
-                     than its box by however much the ratios differ. Without
-                     any sizes the browser assumes 100vw and takes the largest
-                     candidate on every screen. */
-                  sizes={lane.bannerSizes}
+                  /* One declaration for all three, because the frames crop:
+                     painted width is box width and the box is the same in
+                     every lane. It was per lane while they letterboxed. */
+                  sizes={SIZES.lane}
                   alt={lane.alt}
                   width={lane.w ?? undefined}
                   height={lane.h ?? undefined}
@@ -126,9 +141,10 @@ export function Lanes({ archiveBanner }: Props) {
             </span>
             <span className="reel__name">{lane.name}</span>
             <span className="lane__what">{lane.what}</span>
-            <span className="reel__meta">
-              [{lane.addr}] {lane.mark}
+            <span className="lane__go">
+              {lane.go} {lane.mark}
             </span>
+            <span className="reel__meta">{lane.addr}</span>
           </>
         );
 

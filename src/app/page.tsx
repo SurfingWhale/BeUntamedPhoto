@@ -69,9 +69,12 @@ export default async function HomePage() {
     getFeatured(6),
     getAlbumsWithCovers(undefined, 3),
   ]);
-  /* Six featured plates now: the hero, the index band, the pair in the opening
-   * zone, the lane banner and the closing fold, so no photograph appears twice
-   * on the page. Each falls back to the one before it, so a thin archive
+  /* Six asked for, five used: the hero, the index band, the pair in the
+   * opening zone and the closing fold, so no photograph appears twice on the
+   * page. The sixth was the archive's own lane banner, and that lane is no
+   * longer on this page — see `includeSelf` in lanes.tsx. The query still
+   * fetches six because the fallback chain below reads across the list, and
+   * one unused row costs nothing. Each falls back to the one before it, so a thin archive
    * degrades rather than breaking — fewer than six and the pair reuses earlier
    * plates and PhotoFold draws its numbered placeholder.
    *
@@ -83,7 +86,6 @@ export default async function HomePage() {
   const bandPlate = featured[1] ?? featured[0];
   const pairA = featured[4] ?? featured[1] ?? featured[0];
   const pairB = featured[5] ?? featured[2] ?? featured[0];
-  const banner = featured[2] ?? featured[0];
   const closing = featured[3] ?? featured[1] ?? featured[0];
   const year = new Date().getUTCFullYear();
 
@@ -379,39 +381,36 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      {/* The lanes' opening. "one" is the highlighted word: the whole point of
-           this section is that three addresses are not three photographers,
-           and that is the word carrying it. Counted and named from the
-           `elsewhere` data rather than written out, so adding a lane cannot
-           leave the heading claiming three. */}
+      {/* The lanes' opening, and the word it turns on changed.
+           It read "3 sites, one practice." — a count of websites, with "one"
+           marked. That is true and it is an answer to a question nobody asked:
+           a visitor does not care how many addresses there are. The owner's
+           read of the whole section was that it never produces the one thought
+           it exists for — "wah dia bisa foto makanan juga yaa, coba gw liat
+           portofolionya" — and a heading about site-count cannot produce it.
+           So the lanes are named and "too" is the marked word, which is the
+           thought itself. Still built from `elsewhere` rather than written
+           out, so adding a lane cannot leave the heading naming two. */}
       <SectionHead
         className="section-head--band"
         eyebrow="Elsewhere"
-        lead={`${elsewhere.length + 1} sites,`}
+        lead={`${elsewhere.map((e) => e.lane.toLowerCase()).join(" and ")},`}
         tail={
           <>
-            <em>one</em> practice.
+            <em>too</em>.
           </>
         }
-        sub={`${elsewhere
-          .map((e) => `${e.name} for ${e.lane.toLowerCase()}`)
-          .join(", ")} — both shot from here. This archive is everything else.`}
+        sub={`Both have a portfolio of their own — ${elsewhere
+          .map((e) => e.name)
+          .join(" and ")} — and both are shot from here. Same camera, same
+          inbox. This archive is everything else.`}
       />
 
-      {/* ---- lane index · white, hairlines only. No slab. ------------------- */}
-      <Lanes
-        archiveBanner={
-          banner
-            ? {
-                url: banner.url,
-                srcSet: banner.srcSet,
-                caption: banner.caption,
-                width: banner.width,
-                height: banner.height,
-              }
-            : null
-        }
-      />
+      {/* ---- lane index · white, hairlines only. No slab. -------------------
+           Two lanes here, not three: this archive is not one of its own
+           destinations on its own front page. See `includeSelf` in lanes.tsx.
+           /elsewhere still shows all three. */}
+      <Lanes includeSelf={false} />
 
       <div className="plinth">
         <PhotoFold photo={closing} index={3} fallbackLabel={CLOSING_FALLBACK} />

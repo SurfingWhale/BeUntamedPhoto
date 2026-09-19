@@ -1817,6 +1817,20 @@ img { display: block; max-width: 100%; }
  * a row of two borrowed banners, and cropping one of three would make that
  * row disagree with itself. Left as it is, deliberately. */
 .index-wrap .reel__frame img { object-fit: cover; }
+/* And the lanes, at every width — which was the other half of the same fault.
+ *
+ * `contain` was defended above on the grounds that a plate's own shape has to
+ * survive. That holds for the archive's own plates, whose ratio this page
+ * cannot know. It does not hold for the two borrowed stills: they are one
+ * fixed-ratio frame each, chosen for this row, and letterboxing them meant the
+ * **food** lane — a 600x750 portrait in a landscape frame — painted a strip
+ * down the middle of a grey card. The one photograph on the whole site that
+ * says "food too" was the smallest thing in the section.
+ *
+ * The phone already cropped these (a `cover` override lived in the phone block
+ * and is now here instead); this makes the wide screen agree with it rather
+ * than keeping two answers for one row. */
+.lanes > .reel__card > .reel__frame img { object-fit: cover; }
 .reel__no {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -1882,37 +1896,57 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr);
 }
 .lanes > .reel__card { width: auto; }
-/* Rows, not tall cards, below 48rem.
+/* The photograph leads the lane, and it is the whole point of the section.
  *
- * The stack above exists so all three lanes are on screen at once, and it
- * stays. What it cost was height: three cards at 350x366 measured 1141px on a
- * 390 phone — 1.35 screens for three links, one of which points back to this
- * site. Laid out as rows with the photograph on the leading edge and the words
- * beside it, the same three stay visible, each still carries its image, and the
- * section is a fraction of the height. It is the pattern every phone already
- * uses for a short list of destinations. */
+ * This was a row: a 2fr/3fr split with the frame on the leading edge and the
+ * words beside it, which put the photograph at **134 x 136 CSS px on a 390
+ * phone** — measured. That layout was chosen to save height, and it did: three
+ * tall cards measured 1141px and the rows cut that to about 450.
+ *
+ * It saved the wrong thing. This section is the only place on the site that
+ * says the food and sport work exists, and a 134px square is not enough of a
+ * photograph to judge — the owner's read was that nobody looking at it would
+ * think "wah dia bisa foto makanan juga yaa, coba gw liat portofolionya",
+ * which is the one thought it has to produce. Height spent on a section nobody
+ * acts on is not a saving.
+ *
+ * So the frame runs the full width of the card with the words under it. At 390
+ * that is 350 x 219 against 134 x 136 — 4.2x the area, measured below — and
+ * the section gives back roughly 500px of the height the rows won. That is the
+ * trade, made deliberately and in this direction. */
 @media (max-width: 47.99rem) {
-  .lanes { gap: var(--space-md); }
+  .lanes { gap: var(--space-lg); }
   .lanes > .reel__card {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-    grid-template-areas:
-      "frame no"
-      "frame name"
-      "frame what"
-      "frame meta";
-    column-gap: var(--space-md);
+    grid-template-columns: minmax(0, 1fr);
     row-gap: var(--space-3xs);
     align-content: start;
   }
-  .lanes > .reel__card > .reel__no   { grid-area: no; }
+  /* The label stays above the photograph. Reordering the frame above it was
+   * tried and reverted: `.reel__card`'s own note records that the index sits
+   * over the frame because that is where the reference puts it, and every
+   * other card on the site does the same. One section disagreeing with all of
+   * them is a worse outcome than a caption above a photograph. */
   .lanes > .reel__card > .reel__frame {
-    grid-area: frame;
-    align-self: stretch;
-    height: calc(var(--row) * 1.4);
+    height: calc(var(--row) * 2.25);
+    margin-block-end: var(--space-xs);
   }
-  .lanes > .reel__card > .reel__name { grid-area: name; }
-  .lanes > .reel__card > .lane__what { grid-area: what; }
-  .lanes > .reel__card > .reel__meta { grid-area: meta; }
+  .lanes > .reel__card > .reel__name { margin-block-start: var(--space-3xs); }
+  /* Two lines, and the domain off the phone entirely.
+   *
+   * Making the frame full-width cost height, and this is where it is bought
+   * back rather than out of the photograph. Measured at 390: the section went
+   * 439 -> 1227px with the frame alone, and these two take it to about 1000.
+   * The copy's third and fourth lines are the least load-bearing words in the
+   * section, and the domain is a footnote the invitation above it already
+   * covers — `See the food work ↗` says both where it goes and that it
+   * leaves. The full line is still there from 48rem, where there is room. */
+  .lanes > .reel__card > .lane__what {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .lanes > .reel__card > .reel__meta { display: none; }
 }
 @media (min-width: 48rem) {
   .lanes { display: flex; }
@@ -3358,7 +3392,30 @@ img { display: block; max-width: 100%; }
  * moved to CLAUDE.md, because it cost a round to relearn and applies to every
  * image on the site, not just these three.
  */
-.lane__what { color: var(--color-ink-2); font-size: var(--text-base); max-width: 46ch; }
+.lane__what {
+  color: var(--color-ink-2);
+  font-size: var(--text-base);
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+/* The invitation, which the section did not have.
+ *
+ * What stood here was `.reel__meta` reading `[visufavor.vercel.app] ↗` — a
+ * bracketed domain in monospace, which is metadata and reads as a footnote.
+ * Nothing on the card asked anybody to go and look. This does, in words, and
+ * the domain stays underneath it as the quiet confirmation of where the link
+ * goes rather than as the offer itself. */
+.lane__go {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  color: var(--color-ink);
+  margin-block-start: var(--space-2xs);
+}
+@media (hover: hover) and (pointer: fine) {
+  .reel__card:hover .lane__go { color: var(--color-accent-deep); }
+}
 /* .lane__addr, .lane__mark, .lane__name and the .lane hover rules went with
  * the stacked layout above — the reel cards carry .reel__meta instead. */
 
@@ -3931,15 +3988,6 @@ img { display: block; max-width: 100%; }
   }
   .statement { padding-block-end: 0; }
   .statement__card { padding: var(--space-lg) var(--space-md); }
-
-  /* Photographs in a phone row fill their frame.
-   *
-   * `contain` is right for the lanes on a wide screen, where the banners are
-   * stills from other sites at ratios this page does not control. In a 133px
-   * frame beside a line of copy it painted grey bands above and below every
-   * photograph, which read as unfinished. The crop at this size is a few
-   * pixels, and the lane `sizes` were measured against it — see site.ts. */
-  .lanes > .reel__card > .reel__frame img { object-fit: cover; }
 
   /* The wide label's word gap is for a wide line. At 1.5em a three-word label
    * on a 350px column read as three unrelated words: "AVAILABLE    FOR

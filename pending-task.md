@@ -5,7 +5,7 @@ is not a wishlist: each item is blocked, and says exactly what unblocks it.
 Nothing here is a substitute for `design.md`, which is the current brief, or
 for `npm run measure`, which asserts it.
 
-Last reviewed: 2026-09-14 (second pass).
+Last reviewed: 2026-09-19.
 
 ---
 
@@ -215,34 +215,63 @@ it is still the owner's to write.
 
 ---
 
-## 11. The archive lane over-fetches its banner for a portrait plate
+## 11. The archive lane over-fetch — closed by cropping the frames
 
-Small, real, and measured while the lanes were being stacked. `SIZES.lane`
-describes the **box** the banner sits in, because the archive's own lane
-carries a plate whose ratio is not known until render — a landscape plate
-fills the box, a portrait one letterboxes inside it. The two borrowed banners
-have fixed ratios and declare their painted width directly, so only this one
-lane is affected.
+Kept as a record because the fix was not the one this section proposed.
 
-For the archive's usual shape the gap is large:
+The over-fetch was a consequence of `object-fit: contain`: a letterboxed frame
+paints far narrower than its box, so `SIZES.lane` had to describe the box and
+therefore over-declared every portrait plate — a phone pulled a 1080w
+candidate to paint 143 CSS px. The proposal here was to derive each lane's
+`sizes` from its plate's ratio at render time.
 
-| | 390 | 1440 |
-| --- | --- | --- |
-| box the slot declares | 355px | 416px |
-| painted area, 2:3 plate | 143px | 176px |
+The lane frames crop now, so painted width **is** box width and the gap does
+not exist. One shared `SIZES.lane` replaced the per-lane declarations in
+site.ts, which existed only because two ratios needed two answers for one box.
+Re-measured at eight widths; every value covers its box.
 
-So a phone pulls a 1080w candidate to paint 143 CSS px. Declaring the box is
-the *safe* direction — under-declaring gives a soft photograph, which costs
-more than bytes — so it stays that way until this is done properly.
+---
 
-**What would fix it:** `archiveBanner.width/height` are already passed into
-`Lanes`, so the lane can derive its own `sizes` from the plate's ratio at
-render time instead of falling back to the box. Needs the frame's height per
-breakpoint, which is `--row` based, so it is a small table rather than a
-one-liner — and it wants measuring at all six widths afterwards.
+## 12. Two satellite stills need re-exporting at 1200w
 
-Not blocked on anything. Just not worth doing in the same change as the
-stacking, because the stacking is what changed the box.
+**This is the one thing in this file that the lanes section is actually
+waiting on, and it takes about a minute.**
+
+The lane frames went from a 134 x 136 thumbnail to the full width of the card —
+348 x 219 on a 390 phone, 4.2x the area — because the owner's read was that the
+old version never produced the thought it exists for: *"wah dia bisa foto
+makanan juga yaa, coba gw liat portofolionya."* A 134px square is not enough
+photograph to judge.
+
+Cropping to the box makes the box the whole job, and the committed stills were
+encoded for the old small frame:
+
+| | widest candidate | 3x phone wants | 2x desktop wants |
+| --- | --- | --- | --- |
+| `sport-*.webp` | 1200w | 1164w | 828w ✓ |
+| `food-*.webp` | **600w** | 1164w | 828w |
+
+Sport is fine everywhere but a dense phone, where it is 13% short. **Food is
+57% of what a 3x phone asks for**, because 600 x 750 is the largest food frame
+in the repository. It reads fine at 1x and 2x — 600 against the 696 a 2x phone
+needs is imperceptible on a photograph — and soft on a modern phone, which is
+most of them.
+
+**What unblocks it:** re-export one frame from each satellite at 1200w or
+wider, WebP, and drop them in `public/lanes/` alongside the existing ones, then
+extend `bannerSet` in `src/lib/site.ts` with the new candidate. Nothing else
+changes — the `sizes` declaration already asks for it.
+
+Worth knowing: these are committed rather than hotlinked on purpose, so a lane
+cannot go grey because another deployment is down. That is why this needs a
+file and not a URL.
+
+**Optional, and the better version of the same idea:** two or three frames per
+satellite instead of one. One photograph says the work exists; three say it has
+range, which is closer to what the owner is after. The lane layout takes one
+frame today and would need a small change to take three — worth doing only once
+the files exist, because building a three-frame layout around one file is how
+the deck ended up showing the same plate in two of its three slots.
 
 ---
 

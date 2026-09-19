@@ -9,19 +9,17 @@ import { elsewhere } from "@/lib/site";
  * per-visitor. */
 export const revalidate = 300;
 
-/* Counted and named from `elsewhere`, not written out.
+/* Named from `elsewhere`, not written out.
  *
  * The heading said "Three sites, one practice." and the description named both
  * satellites by hand, in a file whose entire subject is a list that lives in
  * site.ts — so adding or dropping a lane would have left this page confidently
- * claiming three of them while `<Lanes />` below rendered a different number.
- * The home page already derives the identical line (`${elsewhere.length + 1}
- * sites,`) and says in its own comment that this is why. This page is the one
- * that had not been brought along.
+ * claiming three while `<Lanes />` below rendered a different number.
  *
- * Plus one, both here and there: this archive is a lane too, and it is the one
- * the reader is standing on. */
-const SITES = elsewhere.length + 1;
+ * It no longer counts sites at all. A site-count is an answer to a question no
+ * visitor has; what this page has to say is that the sport and food work
+ * exists and is shot from here. The home page's own opening for this section
+ * says the same thing in the same words. */
 
 export const metadata: Metadata = {
   title: "Elsewhere",
@@ -37,7 +35,7 @@ export default async function ElsewherePage() {
     <div className="page">
       <Reveal as="section" className="page__intro" index={0}>
         <h1 className="page__title">
-          {SITES} sites, one <em>practice</em>.
+          {elsewhere.map((e) => e.lane.toLowerCase()).join(" and ")}, <em>too</em>.
         </h1>
         {/* "work has", not "lanes have": the subject is the work, so the
             sentence reads correctly whether the list names two lanes or one.

@@ -80,20 +80,31 @@ export function genreLabel(id: string): string {
  * a background frame is worth a hundred kilobytes of our own. Both are
  * re-encoded to WebP from frames those repositories already publish.
  *
- * Two candidates each, because one file cannot serve both ends: the frame's
- * box runs from 218px on a 320px phone to 416px at 1440, and a single 1600px
- * file meant a phone pulled 169KB to fill 273px. `banner` is the small
- * candidate, so a browser that ignores srcset still gets the sensible one.
+ * **`bannerSizes` is gone, and one shared `SIZES.lane` replaced it.**
  *
- * `bannerSizes` is per lane, not shared, and describes the width the *frame*
- * renders at — not the width of the box around it. These are object-fit:
- * contain, so a portrait still in a landscape box renders far narrower than
- * the box; one shared declaration over-declared it by a candidate step.
+ * There used to be a per-lane declaration, six measured values each, and the
+ * reason was `object-fit: contain`: a portrait still letterboxed inside a
+ * landscape frame paints far narrower than the box it sits in, so the two
+ * lanes needed different numbers for the same box. The frames crop now
+ * (`cover`, see globals.css), so painted width *is* box width, the box is the
+ * same for all three lanes, and one declaration is not a simplification — it
+ * is the only correct answer. Per-lane values would now be six ways of saying
+ * the same thing, five of them free to drift.
  *
- * `w`/`h` stay the original file's dimensions. Every candidate shares that
+ * **`w`/`h` stay the original file's dimensions.** Every candidate shares that
  * ratio, and the attributes exist to state it — they are not decoration: a
  * lazy banner with no reserved box made the lanes section grow 575px while a
  * visitor was mid-scroll. Measured. If a banner is re-encoded, re-measure it.
+ *
+ * **The food still is too small for the frame it now fills, and that is an
+ * asset to re-export rather than a bug to fix here.** Cropping to the box
+ * makes the box the whole job: 348 CSS px at 390 on a 3x phone asks for
+ * 1044w, and 414 at 1440 asks for 828. `sport-1200.webp` covers the desktop
+ * case and is 13% short on a 3x phone; `food-600.webp` is the largest food
+ * candidate there is, so it is 57% of what a 3x phone wants. It reads fine at
+ * 1x and 2x — 600 against the 696 a 2x phone needs is imperceptible on a
+ * photograph — and soft on a dense phone. A 1200w re-export of both closes it
+ * completely; pending-task.md carries it.
  */
 export const elsewhere = [
   {
@@ -105,33 +116,6 @@ export const elsewhere = [
     banner: "/lanes/sport-640.webp",
     bannerSet:
       "/lanes/sport-640.webp 640w, /lanes/sport-800.webp 800w, /lanes/sport-1200.webp 1200w",
-    /* 1.50 wide, in a box whose height tracks --row below 48rem. Measured, the
-     * frame lands at 264px of a 320 viewport, 322 of 390 and 355 of 430 —
-     * 82.6% of the viewport each time, so a vw fits the range a fixed px
-     * cannot. A flat 355px over-declared the two narrow ends by a whole
-     * candidate step and pulled the 1200w file onto a 320px phone.
-     *
-     * 800w exists because 390 @2x needs 644px, and the gap from 640 to 1200
-     * meant a 4px shortfall cost 70KB.
-     *
-     * 2026-09-14: **this declaration was right and the layout had drifted
-     * away from it.** Re-measured before stacking the lanes on a phone, the
-     * painted width in the reel was 216 / 271 / 302 at those three widths —
-     * not the 264 / 322 / 355 above. The figures in this comment are the
-     * *stacked* ones, taken before the lanes became a reel, and nobody
-     * re-measured when they did: 83vw has been over-declaring by ~19% ever
-     * since, which at 390 @2x meant the 800w file where 640w would do.
-     *
-     * Stacking them below 48rem makes the numbers above true again, and they
-     * were re-measured to confirm it rather than assumed — 264 / 322 / 355
-     * exactly. This is the failure CLAUDE.md warns about under SIZES ("wrong
-     * precisely because a column count changed and the declaration did not"),
-     * and it is the one instance that warning did not already cover. */
-    /* 35vw below 48rem since the lanes became rows on a phone: the frame is the
-     * leading 2fr of the row and paints at 32.7-34.6vw across 320-430,
-     * measured. The 83vw this replaced was the stacked card, and it pulled the
-     * 1200w file for a 133px frame at 390. */
-    bannerSizes: "(min-width: 64rem) 396px, (min-width: 48rem) 316px, 35vw",
     w: 1600,
     h: 1066,
   },
@@ -143,15 +127,6 @@ export const elsewhere = [
     lane: "Food",
     banner: "/lanes/food-420.webp",
     bannerSet: "/lanes/food-420.webp 420w, /lanes/food-600.webp 600w",
-    // 0.80 tall in the same box, so it renders 141/172/190/169/211 — far
-    // narrower than the box it sits in. Declaring the box made a phone take
-    // the 600w file to fill 172px.
-    /* 34vw below 48rem. The phone row crops with object-fit: cover now, so a
-     * portrait plate fills its frame instead of painting 28vw inside it — the
-     * painted width is the frame's own, measured at 32.7-34.6vw across
-     * 320-430. The flat 190px before that took the 600w file for a 109px
-     * frame. */
-    bannerSizes: "(min-width: 64rem) 211px, (min-width: 48rem) 169px, 34vw",
     w: 600,
     h: 750,
   },

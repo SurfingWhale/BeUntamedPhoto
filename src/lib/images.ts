@@ -281,39 +281,35 @@ export const SIZES = {
   /** .plates__thumb — a fixed 96px contact-sheet square. */
   thumb: "96px",
   /**
-   * .reel__frame — the archive's own lane banner, whose plate has no ratio
-   * this file can know, so this describes the **box** rather than the painted
-   * area. The two borrowed banners have fixed ratios and declare their painted
-   * width directly in site.ts; this one cannot, because a landscape plate
-   * fills the box while a portrait one letterboxes inside it.
+   * `.reel__frame` in the lanes — all three of them.
    *
-   * Re-measured 2026-09-14 when the lanes started stacking below 48rem. The
-   * box widens on a phone and the old 304px under-declared it, which is the
-   * expensive direction — an under-declared slot picks a candidate too small
-   * and the frame goes soft:
+   * This described the *box* while the frames were `object-fit: contain`, and
+   * carried a long note about why that over-fetched for a portrait plate: the
+   * painted area of a letterboxed frame is far narrower than its box, so the
+   * declaration was honest about the box and wrong about the photograph. A 2:3
+   * plate painted 143px of a 348px box at 390.
    *
-   *          320    390    430    768   1024   1440
-   *   box    278    348    388    309    291    414
-   *   was    304    304    304    311    293    416
-   *   now    291    355    391    311    293    416
+   * The frames crop now, so painted width *is* box width and that whole
+   * problem is gone — along with the per-lane `bannerSizes` in site.ts, which
+   * existed only because two ratios needed two answers for one box.
    *
-   * 91vw covers all three phone widths with 1-3px to spare; the fixed values
-   * from 48rem up are unchanged, because stacking stops there.
+   * Re-measured from scratch against the built stylesheet, because the frame
+   * went from a 134px thumbnail beside a line of copy to the full width of the
+   * card. Every previous value described the old box and all six were wrong:
    *
-   * Known and left: for a *portrait* plate the painted area is far narrower
-   * than the box — a 2:3 plate paints 143px of a 348px box at 390 — so this
-   * declaration over-fetches for the archive's usual shape. Closing it means
-   * deriving the slot from `archiveBanner.width/height` at render time, which
-   * is real and is noted in pending-task.md rather than done here. Declaring
-   * the box is the safe direction; a landscape plate needs every pixel of it.
+   *            360    390    430    768   1024   1280   1440
+   *   box       318    348    388    309    291    370    414
+   *   need      954   1044   1164    618    581    740    828
+   *             (x3)   (x3)   (x3)   (x2)   (x2)   (x2)   (x2)
+   *   declared  328    351    391    315    297    371    416
+   *
+   * 91vw covers all three phone widths — 90vw was 1px short at 430, which is
+   * the direction that costs a soft photograph rather than bytes. The fixed
+   * 416px from 90rem is not decoration: the card is capped at 26rem, so the
+   * box stops growing at about 414 while a vw term would keep climbing and
+   * pull a 1500w candidate for it on a wide monitor.
    */
-  /* Phone value re-measured when the lanes became rows below 48rem: the
-   * archive frame paints at 32.7-34.6vw across 320-430. 32vw rather than the
-   * measured 34 on purpose — at 390 and 3x, 34vw needs 399 device px and the
-   * ladder's next rung is 640w, which the gate correctly flags as over-asking
-   * a 133px box. 32vw lands on 375w, 6% under on a 133px thumbnail, which is
-   * not visible, against a file more than twice the size. */
-  lane: "(min-width: 90rem) 416px, (min-width: 64rem) 293px, (min-width: 48rem) 311px, 32vw",
+  lane: "(min-width: 90rem) 416px, (min-width: 60rem) 29vw, (min-width: 48rem) 41vw, 91vw",
   /**
    * `.pair` — the two plates in the opening zone. Two up at every width: half
    * the page measure below 60rem, then half of the seven columns the section
