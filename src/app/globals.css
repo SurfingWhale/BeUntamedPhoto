@@ -226,7 +226,20 @@ img { display: block; max-width: 100%; }
 }
 
 :focus { outline: none; }
-:focus-visible {
+/* `:root` is carried for specificity, not for scope.
+ *
+ * A bare `:focus-visible` is (0,1,0) — the same weight as any class — so every
+ * later rule that sets `outline` for its own reasons silently deleted the
+ * focus ring. Three did: `.btn` and the two image frames that draw a hairline
+ * edge, `.hero__thumb` and `.album__media`. Measured by tabbing to each and
+ * diffing the pixels: the focused control was identical to the unfocused one
+ * on /, /work, /about and /enter, in both themes. Nothing was wrong with the
+ * ring; it was never painted.
+ *
+ * (0,2,0) puts it above a single class and still below the per-control
+ * `.field__input:focus-visible` overrides further down, which are the ones
+ * that are meant to win. */
+:root :focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
@@ -867,6 +880,25 @@ img { display: block; max-width: 100%; }
     padding-inline: var(--page-gutter);
     color: var(--color-ink-2);
     text-shadow: none;
+  }
+  /* Except on the slab, where ink is the page's own background.
+   *
+   * The rule above is (0,3,0) and the plinth's is (0,2,0), so from 60rem up a
+   * portrait plate standing on the dark slab took `--color-ink-2` — #414844 on
+   * #051C14, measured at 1.89:1 off the rendered pixels. "Plate 04" and the
+   * studio credit were there and unreadable, in the light theme only: dark
+   * resolves the same token to #C6EBD7 and passes. Same lesson as
+   * `.rail__mark` in CLAUDE.md — the value came from a token, and the token
+   * was the wrong one for the ground it landed on.
+   *
+   * The justification goes with it. The plate is a centred column here and the
+   * caption is a full-width flex row, so space-between threw "Plate 04" to one
+   * page edge and the studio credit to the other — some 360px from the
+   * photograph they name. Centred, the pair sits under the plate. */
+  .plinth .fold-photo[data-shape="portrait"] .fold-photo__cap {
+    color: var(--color-ink-on-dark);
+    justify-content: center;
+    gap: var(--space-md);
   }
 }
 .fold-photo__img {
@@ -2013,10 +2045,24 @@ img { display: block; max-width: 100%; }
   position: absolute;
   inset: auto 0 0 0;
   height: 68%;
+  /* The second stop holds instead of fading straight out.
+   *
+   * The heading's own band is 44–53% of the hero's height off the bottom,
+   * which is 64–78% of the way up this 68% scrim — and on the old ramp the
+   * scrim was down to about 0.28 alpha there. Over a bright wall that put
+   * ", not feeds." at 2.61:1 at 390 and 2.32:1 at 1440, under the 3:1 a
+   * heading this size owes. Both numbers come off the composited pixels, not
+   * off the tokens: the type is white either way, and what it stands on is
+   * whichever photograph the archive is fronting this week.
+   *
+   * Holding --color-scrim-2 to 72% keeps ~0.5 alpha across the whole type
+   * band while the scrim still reaches zero at the same height it always did.
+   * The photograph above the band is untouched, which is the point of § 7. */
   background: linear-gradient(
     to top,
     var(--color-scrim-3),
     var(--color-scrim-2) 38%,
+    var(--color-scrim-2) 72%,
     var(--color-scrim-0)
   );
   z-index: -1;
@@ -2085,6 +2131,17 @@ img { display: block; max-width: 100%; }
   outline: var(--rule-hair) solid var(--color-rule-on-dark);
   outline-offset: calc(var(--rule-hair) * -1);
   transition: outline-color var(--dur-micro) var(--ease-out);
+}
+/* The ring is the accent here, not --color-focus.
+ *
+ * These four sit on the photograph, under the scrim, which is near-black in
+ * both themes — and light's #4F6600 against the pixels actually under them
+ * measures 2.96:1, short of the 3:1 a non-text indicator owes. The dark
+ * theme's own focus colour is this accent; the ground is dark either way, so
+ * the thumbnails take it in both. */
+.hero__thumb:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 .hero__thumb img { width: 100%; height: 100%; object-fit: cover; }
 @media (hover: hover) and (pointer: fine) {
@@ -2323,13 +2380,16 @@ img { display: block; max-width: 100%; }
               transform var(--dur-micro) var(--ease-out);
 }
 .deck__arrow:active { transform: scale(0.96); }
-.deck__arrow[disabled] {
+/* The state is aria-disabled now — see the note in deck.tsx over the arrows.
+ * `:active` is excluded from the press scale the same way, so an arrow at the
+ * end of its travel does not answer a tap it is refusing. */
+.deck__arrow[aria-disabled="true"] {
   opacity: 0.35;
   cursor: not-allowed;
-  transform: none;
 }
+.deck__arrow[aria-disabled="true"]:active { transform: none; }
 @media (hover: hover) and (pointer: fine) {
-  .deck__arrow:not([disabled]):hover {
+  .deck__arrow:not([aria-disabled="true"]):hover {
     background: var(--color-ink);
     border-color: var(--color-ink);
     color: var(--color-paper);
@@ -2444,7 +2504,10 @@ img { display: block; max-width: 100%; }
   /* 18px at 390, 36px at 1440 — was 22px flat from 360 to 430. */
   font-size: clamp(1.125rem, 0.63rem + 2.02vw, 2.25rem);
   font-weight: 500;
-  line-height: 1.2;
+  /* 1.4, not 1.2. This paragraph is the page's one block of running text and
+   * it wraps to five lines at 1440 and to eight at 390; a heading's leading on
+   * a block that long makes the eye lose which line comes next. */
+  line-height: 1.4;
   letter-spacing: var(--tracking-heading);
   max-width: 42ch;
   text-wrap: pretty;
@@ -3469,6 +3532,22 @@ img { display: block; max-width: 100%; }
   white-space: nowrap;
   border-bottom: var(--rule-hair) solid transparent;
 }
+/* The same coarse-pointer floor every other control on the site has.
+ *
+ * Measured on a touch context at 390: .mast__link, .tog and .chip all answer
+ * their `pointer: coarse` rule and stand 44px. These two links never got one
+ * and stayed 24px and 19px — they clear WCAG's 24px baseline, and they are
+ * still the smallest things a thumb is asked to hit here. Height rather than
+ * a pseudo-element: the footer stacks these 16px apart, and an expansion of
+ * 10px a side would have the two hit areas overlap. */
+@media (pointer: coarse) {
+  .foot__link,
+  .open__foot .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
 @media (hover: hover) and (pointer: fine) {
   .foot__link:hover { color: var(--color-ink); border-bottom-color: var(--color-accent); }
 }
@@ -3844,7 +3923,8 @@ img { display: block; max-width: 100%; }
     font-family: var(--font-body);
     font-size: 1.375rem;
     font-weight: 500;
-    line-height: 1.32;
+    /* Same reason as the base rule: eight lines at 390. */
+    line-height: 1.4;
     letter-spacing: -0.01em;
   }
   .statement { padding-block-end: 0; }

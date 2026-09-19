@@ -62,6 +62,9 @@ export function Deck({ lanes, label }: { lanes: LaneCard[]; label: string }) {
   const step = (dir: -1 | 1) => {
     const el = ref.current;
     if (!el) return;
+    /* The arrows are aria-disabled rather than disabled, so a press still
+     * reaches this — the boundary is enforced here instead. */
+    if ((dir === -1 && atStart) || (dir === 1 && atEnd)) return;
     const card = el.querySelector<HTMLElement>(".deck__card");
     const gap = Number.parseFloat(getComputedStyle(el).columnGap || "0") || 0;
     const by = card ? card.getBoundingClientRect().width + gap : el.clientWidth * 0.8;
@@ -106,16 +109,25 @@ export function Deck({ lanes, label }: { lanes: LaneCard[]; label: string }) {
           labelled scroll region and these move it rather than adding
           anything to it. */}
       <div className="deck__foot">
+        {/* "Genres", not "lanes". A lane is what this repository calls a genre
+            that has work filed in it; a client reading the page has no way to
+            know that, and the cards themselves are named Graduation, Brand and
+            Event. */}
         <p className="deck__count">
-          ( {lanes.length} {lanes.length === 1 ? "lane" : "lanes"} )
+          ( {lanes.length} {lanes.length === 1 ? "genre" : "genres"} )
         </p>
         <div className="deck__nav">
+          {/* aria-disabled, not disabled.
+              Pressing the last enabled arrow is what disables it, and a native
+              `disabled` on a focused button drops focus to <body> — measured
+              at 390 and 1440. aria-disabled keeps the button focusable, says
+              the same thing to assistive tech, and step() refuses the move. */}
           <button
             type="button"
             className="deck__arrow"
             onClick={() => step(-1)}
-            disabled={atStart}
-            aria-label="Previous lane"
+            aria-disabled={atStart}
+            aria-label="Previous genre"
           >
             {"←"}
           </button>
@@ -123,8 +135,8 @@ export function Deck({ lanes, label }: { lanes: LaneCard[]; label: string }) {
             type="button"
             className="deck__arrow"
             onClick={() => step(1)}
-            disabled={atEnd}
-            aria-label="Next lane"
+            aria-disabled={atEnd}
+            aria-label="Next genre"
           >
             {"→"}
           </button>

@@ -161,6 +161,29 @@ return `[]` for one build and then put them back — never commit that.
   hints and the attribute-derived `aspect-ratio` can do their job. Measure the
   drift, do not assume: scroll the page and diff section heights.
 
+- **A focus ring is one class heavy, and any class can delete it.**
+  `:focus-visible` on its own is (0,1,0) — exactly a class — so every later
+  rule that sets `outline` for its own reasons wins on source order. Three did:
+  `.btn`, and the two image frames that draw a hairline edge, `.hero__thumb`
+  and `.album__media`. Nothing looked wrong, because the declaration was still
+  there and still valid; it simply never painted. Computed style cannot tell
+  you either — `outline-style` reads `solid` for a ring that is transparent or
+  a hairline. **Tab to the control and diff the pixels against the unfocused
+  state**; all three came back with zero pixels changed, in both themes. The
+  rule is `:root :focus-visible` now, which sits above a class and still below
+  the per-control `:focus-visible` overrides that are meant to win. A ring over
+  a photograph also needs its own colour: `--color-focus` measures 2.96:1 on
+  the hero's scrim, under the 3:1 a non-text indicator owes.
+
+- **A target size measured without touch is not the size a thumb gets.** Every
+  control here has a `@media (pointer: coarse)` floor of 44px, and a plain
+  desktop browser context matches none of them: `.mast__link`, `.tog` and
+  `.chip` measured 27, 32 and 34px and were written up as too small before the
+  same page in a `hasTouch: true` context returned 44, 44 and 44. The two that
+  were genuinely short — `.foot__link` and the `.open__foot` link — had no
+  coarse rule at all. Emulate touch, then judge. Same family as the fixture
+  below: the instrument was answering a different question than the one asked.
+
 - **`npm run measure` is the design system, asserted.** Seven static gates on
   the files, plus a browser half that needs the site running. Every gate is
   there because the thing it checks already shipped broken, and each was proved

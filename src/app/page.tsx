@@ -182,7 +182,9 @@ export default async function HomePage() {
               </>
             }
           />
-          <Deck lanes={laneCards} label="Lanes" />
+          {/* The scroll region's accessible name. "Genres" for the same reason
+              the count under it says genres — see deck.tsx. */}
+          <Deck lanes={laneCards} label="Genres" />
         </section>
       )}
 
