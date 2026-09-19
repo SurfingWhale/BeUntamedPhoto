@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * The running strip. Movement comes from real archive metadata — gallery
@@ -13,6 +13,38 @@ import { useState } from "react";
  */
 export function Ticker({ items }: { items: string[] }) {
   const [paused, setPaused] = useState(false);
+  /* Held separately from `paused`, which belongs to the reader: the button
+     must keep saying what the reader chose, not what the page decided. */
+  const [yielding, setYielding] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  /* docs/IDEAS-motion.md § 3.5 — the strip yields to the work.
+   *
+   * A marquee running beside a plate is ornament competing with the
+   * photograph, which is the one thing design.md § 10 rules out. It stops
+   * while any large photograph is on screen and runs again when none is.
+   *
+   * Observing the plates rather than the strip, because the strip is at the
+   * top of the page and the plates are what the reader is looking at. */
+  useEffect(() => {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const plates = document.querySelectorAll(".hero__img, .plinth .fold-photo__img, .index-band__img");
+    if (!plates.length) return;
+    const seen = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) seen.add(e.target);
+          else seen.delete(e.target);
+        }
+        setYielding(seen.size > 0);
+      },
+      { threshold: 0.35 },
+    );
+    plates.forEach((p) => io.observe(p));
+    return () => io.disconnect();
+  }, []);
 
   if (items.length === 0) return null;
 
@@ -28,7 +60,11 @@ export function Ticker({ items }: { items: string[] }) {
   );
 
   return (
-    <div className="ticker" data-paused={paused ? "true" : undefined}>
+    <div
+      className="ticker"
+      ref={ref}
+      data-paused={paused || yielding ? "true" : undefined}
+    >
       <div className="ticker__rail">
         {track(false)}
         {track(true)}

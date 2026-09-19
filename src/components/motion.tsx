@@ -113,18 +113,40 @@ export function useRevealChildren(
       rows.forEach((el) => { el.dataset.shown = "true"; });
       return;
     }
+    /* The stagger runs the way the reader is going — docs/IDEAS-motion.md.
+     *
+     * The delay is `--i * 70ms` and `--i` was always the DOM order, so a grid
+     * entered from below still played top-down: the row nearest the reader
+     * arrived last. Reading the scroll direction and counting from the other
+     * end costs one variable and makes the grid answer the gesture instead of
+     * replaying a script. */
+    let lastY = window.scrollY;
+    let up = false;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (Math.abs(y - lastY) > 4) up = y < lastY;
+      lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     const io = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          (e.target as HTMLElement).dataset.shown = "true";
-          io.unobserve(e.target);
+        const arriving = entries.filter((e) => e.isIntersecting);
+        for (const e of arriving) {
+          const el = e.target as HTMLElement;
+          const i = rows.indexOf(el);
+          if (i >= 0) el.style.setProperty("--i", String(up ? rows.length - 1 - i : i));
+          el.dataset.shown = "true";
+          io.unobserve(el);
         }
       },
       { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
     );
     rows.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
   }, [ref, selector, dep]);
 }
 

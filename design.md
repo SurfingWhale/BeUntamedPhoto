@@ -95,6 +95,42 @@ type on a photograph · colour played on one word. Those five are the brief.
 
 ## 4 · Layout and composition
 
+### The signature move — one subject, cropped, with the type on it
+
+Settled 2026-09-19, after the owner said the site reads "passive or slop AI"
+and `docs/PRD-composed-like-a-list.md` measured why. It is two sentences and
+everything below is subordinate to them:
+
+> **Every section has one photograph that is its subject, cropped tight and
+> set large. Type sits on that photograph rather than beside or beneath it.**
+>
+> **Lime is a surface something stands on, never an outline around it.**
+
+The reference works this way and the measurement showed this site did not: 42
+photographs on `/`, median **4% of one screen**, and type over a photograph in
+two of nine sections. A page of equal cards is a filing system; a page with a
+subject per section is a composition. The two places here that already read
+right — the hero and the index band — are the two that already do this.
+
+What follows from it, and what a new section must satisfy:
+
+- **One photograph per section is four to six times the others.** Not three
+  equals in a row. The gate in § 12 holds the median.
+- **A box is not drawn around a photograph.** The photograph is the card. A
+  hairline rectangle with identical padding on every card is the single
+  most-cited signal of the look this rule exists to kill.
+- **Lime blocks sit under a photograph**, offset so the ground shows — it is a
+  plinth, not a border.
+- **Cropping to a hard ratio is allowed here and only here.** § 7 forbids
+  cropping to tidy a layout; a subject frame is the deliberate exception,
+  because the crop *is* the composition. The gallery still shows the same
+  plate uncropped.
+
+The rule is written down because it is the thing nothing else could supply. A
+system that averages its inputs will always produce the middle, and the middle
+is what "slop" means — the fix is a decision recorded where it binds, not a
+better prompt.
+
 ### The density rule, which outranks everything else here
 
 **Few elements per fold, generous space between them.** If a section feels

@@ -149,7 +149,6 @@
   --color-paper:        #FBFBF9;  /* surface — canvas, never pure white glare */
   --color-paper-2:      #F4F4F2;  /* canvas-alt */
   --color-paper-3:      #F0EDEC;  /* surface-container */
-  --color-paper-white:  #FDFDFB;  /* lowest surface — tinted off pure white */
   --color-paper-dark:   #051C14;  /* forest-deep — the slab environment */
   --color-paper-dark-2: #0B2D20;  /* primary-container */
 
@@ -254,7 +253,6 @@
   --color-paper:        #051C14;
   --color-paper-2:      #0B2D20;
   --color-paper-3:      #10362a;
-  --color-paper-white:  #0B2D20;
   --color-paper-dark:   #021009;
   --color-paper-dark-2: #0B2D20;
 
@@ -283,7 +281,6 @@
     --color-paper:        #051C14;
     --color-paper-2:      #0B2D20;
     --color-paper-3:      #10362a;
-    --color-paper-white:  #0B2D20;
     --color-paper-dark:   #021009;
     --color-paper-dark-2: #0B2D20;
 

@@ -173,7 +173,7 @@ export function IndexFilter({
           <div className="index-band__type">
             <SectionHead
               className="section-head--on-photo"
-              eyebrow={lane ? `Lane · ${lane.label}` : "Choose by lane"}
+              eyebrow={lane ? `Genre · ${lane.label}` : "Choose by genre"}
               /* The count is the highlighted word. It is the one assertion on
                  the page that a visitor can check in a glance — there is a
                  body of work here, this much of it — and lime on a numeral
@@ -260,8 +260,12 @@ export function IndexFilter({
                 href={`/work/${album.slug}`}
                 data-beyond-phone={lens === "all" && i >= PHONE_CAP ? "" : undefined}
               >
-                <span className="reel__no">[{plate(i)}]</span>
                 <span className="reel__frame">
+                  {/* design.md § 4: the type sits on the photograph. The plate
+                      number and the gallery's name are set on the frame the
+                      way the hero sets its line on the opening plate — the two
+                      places on this site that already read as composed. */}
+                  <span className="reel__no">[{plate(i)}]</span>
                   {album.cover?.url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -280,6 +284,7 @@ export function IndexFilter({
                   ) : (
                     <Plate no={plate(i)} label="no cover" />
                   )}
+                  <span className="reel__name">{album.title}</span>
                 </span>
 
                 {strip.length === 3 && (
@@ -307,7 +312,6 @@ export function IndexFilter({
                   </span>
                 )}
 
-                <span className="reel__name">{album.title}</span>
                 {/* The line that explains the work before the tap.
                     The reference's cards carry a product name *and* a line
                     under it; these carried a title and a technical meta row,

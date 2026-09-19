@@ -105,14 +105,19 @@ export default async function WorkPage() {
                   ) : (
                     <Plate no={plate(i)} label="no cover yet" />
                   )}
+                  {/* design.md § 4: type on the photograph, not beside it. */}
+                  <span className="album__on">
+                    <span className="album__name">{album.title}</span>
+                    <span className="album__year u-tabular">{album.year ?? "—"}</span>
+                  </span>
                 </Link>
                 <AlbumStrip plates={album.plates} />
-                <div className="album__meta">
-                  <h2 className="album__title">
-                    <Link href={`/work/${album.slug}`}>{album.title}</Link>
-                  </h2>
-                  <span className="album__year u-tabular">{album.year ?? "—"}</span>
-                </div>
+                {/* The heading stays in the document for structure and for
+                    anyone reading by headings; the visible name is the one set
+                    on the photograph above. */}
+                <h2 className="album__title u-sr">
+                  <Link href={`/work/${album.slug}`}>{album.title}</Link>
+                </h2>
                 {/* No subtitle renders nothing. It used to fall through to
                     the literal "unfiled" — internal filing language, printed
                     on the card a prospective client reads, and measured live

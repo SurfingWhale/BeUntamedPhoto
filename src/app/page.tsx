@@ -12,6 +12,8 @@ import { getAlbumsWithCovers, getFeatured } from "@/lib/gallery";
 import {
   CARD_THUMB_WIDTH,
   DECK_FRAME_WIDE,
+  DECK_LEAD_WIDE,
+  DECK_LEAD_WIDTH,
   PAIR_MAX_WIDTH,
   SIZES,
   publicSrc,
@@ -105,27 +107,44 @@ export default async function HomePage() {
   const laneCards = genres
     .map((g) => {
       const inLane = albums.filter((a) => a.genre === g.id);
-      /* Both shapes normalised to the one the contact strip already uses: an
-       * id and a single 288w source. That width is not a guess — it is the
-       * same file the index cards request, so a deck frame is a cache hit
-       * rather than a ninth download, and `.deck__frames` is sized so 288
-       * covers it at 2x (141 CSS px x 2 = 282). Zero new bytes for nine
-       * photographs. */
+      /* Two widths, because the frames are no longer three of a size.
+       *
+       * The stamps keep the contact strip's 288w, which is the same file the
+       * index cards request, so they stay a cache hit rather than a ninth
+       * download. The lead frame is the section's subject now and takes
+       * DECK_LEAD_WIDTH — it spans its card on a phone and two of three
+       * columns above 48rem, and it was being served a 288w file into a 294px
+       * box. */
       const frames = [
         ...inLane
           .map((a) => a.cover)
           .filter((c) => c?.url)
-          .map((c) => ({
+          .map((c, n) => ({
             id: c!.id,
+            /* The first frame is the card's subject and takes a file that can
+             * cover it; the rest stay stamps at the index card's width, which
+             * keeps them a cache hit. */
             src:
               c!.bucket === "gallery"
-                ? publicSrc("gallery", c!.path, CARD_THUMB_WIDTH, c!.width, c!.height)
+                ? publicSrc(
+                    "gallery",
+                    c!.path,
+                    n === 0 ? DECK_LEAD_WIDTH : CARD_THUMB_WIDTH,
+                    c!.width,
+                    c!.height,
+                  )
                 : c!.url!,
             /* The wide-screen source, where the card is large enough that 288
              * no longer covers the frame — see DECK_FRAME_WIDE. */
             srcWide:
               c!.bucket === "gallery"
-                ? publicSrc("gallery", c!.path, DECK_FRAME_WIDE, c!.width, c!.height)
+                ? publicSrc(
+                    "gallery",
+                    c!.path,
+                    n === 0 ? DECK_LEAD_WIDE : DECK_FRAME_WIDE,
+                    c!.width,
+                    c!.height,
+                  )
                 : c!.url!,
           })),
         ...inLane.flatMap((a) => a.plates).map((f) => ({ ...f, srcWide: f.src })),

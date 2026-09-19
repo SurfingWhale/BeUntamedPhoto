@@ -1418,13 +1418,18 @@ img { display: block; max-width: 100%; }
   align-content: start;
   text-decoration: none;
   min-width: 0;
-  /* The same box as .album — see the note there. The plate number sits above
-   * the photograph inside the box, which is where the reference puts it. */
-  border: var(--rule-hair) solid var(--color-rule);
-  background: var(--color-paper-white);
-  padding-block: var(--space-xs) var(--space-sm);
+/* No box around a photograph — design.md § 4, the signature move.
+ *
+ * These cards carried a hairline rectangle, a white fill and even padding, on
+ * nine index cards, three deck cards and every card on /work. Measured, the
+ * page drew 27 such boxes. "Identical padding, identical border radius,
+ * identical card heights" is the most-cited signal of the look the owner
+ * called slop, and it was literally what the stylesheet said. The photograph
+ * is the card now; the rule stays only where it carries structure — chips,
+ * controls, the ticker. */
+  padding-block-end: var(--space-sm);
 }
-.reel__card > :not(.reel__frame) { padding-inline: var(--space-sm); }
+.reel__card > :not(.reel__frame) { padding-inline: 0; }
 
 /* A card in a reel, as opposed to one in a grid. */
 .reel > .reel__card {
@@ -1447,6 +1452,7 @@ img { display: block; max-width: 100%; }
  * wrapper has to be definite. See CLAUDE.md. */
 .reel__frame {
   height: calc(var(--row) * 2.2);
+  overflow: hidden;
   display: grid;
   /* Pinned, or the height below it does not resolve.
    *
@@ -1583,11 +1589,13 @@ img { display: block; max-width: 100%; }
 }
 
 
-/* The card box is back, on the brief's instruction: an index card is the same
- * hairline-and-paper-white box as every other card on the site (design.md
- * § 4). It came off when the band went full-bleed and the photographs were
- * asked to run to the glass; with a consistent gutter round the grid they no
- * longer do, so the box has somewhere to sit.
+/* The card box came off again on 2026-09-19, and this time with a rule behind
+ * it rather than a preference: design.md § 4 makes the photograph the card.
+ * The box was added here when the grid gained a consistent gutter and it was
+ * a reasonable call at the time; measured against the reference it was one of
+ * 27 on the page, and equal bordered cards are the shape that made the whole
+ * page read as assembled rather than composed. The gutter reasoning below
+ * still holds — it is why the grid has room to breathe without the box.
  *
  * A step more padding than the shared card, because "boxnya terlalu sempit"
  * is the box as well as the gutter: a hairline 12px off a photograph reads as
@@ -1879,19 +1887,51 @@ img { display: block; max-width: 100%; }
  * a row of two borrowed banners, and cropping one of three would make that
  * row disagree with itself. Left as it is, deliberately. */
 .index-wrap .reel__frame img { object-fit: cover; }
+/* The type stands on the photograph — design.md § 4.
+ *
+ * The frame is the positioning context and the scrim is the same legibility
+ * device the hero uses, at the same tokens: it covers the lower third only, so
+ * the photograph's own subject is untouched. Paper on a scrim is the pair this
+ * system already measures at every other on-image caption. */
+.reel__frame { position: relative; isolation: isolate; }
+.reel__frame::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 62%;
+  background: linear-gradient(
+    to top,
+    var(--color-scrim-3),
+    var(--color-scrim-2) 46%,
+    var(--color-scrim-0)
+  );
+  pointer-events: none;
+}
 .reel__no {
+  position: absolute;
+  inset-block-start: var(--space-2xs);
+  inset-inline-start: var(--space-2xs);
+  z-index: 1;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-code);
-  color: var(--color-muted);
+  color: var(--color-ink-on-dark);
+  text-shadow: var(--shadow-cap);
   font-variant-numeric: tabular-nums;
 }
 .reel__name {
+  position: absolute;
+  inset-block-end: var(--space-2xs);
+  inset-inline: var(--space-2xs);
+  z-index: 1;
   font-family: var(--font-display);
   font-size: clamp(1.125rem, 4.4vw, 1.5rem);
   font-weight: 700;
   letter-spacing: var(--tracking-display);
   line-height: 1.06;
+  color: var(--color-ink-on-dark);
+  text-shadow: var(--shadow-cap);
+  text-wrap: balance;
 }
 /* The card's own line about the work, between the name and the technical row.
  * Reading size, not label size: it is a sentence, and .reel__meta below is
@@ -2310,11 +2350,8 @@ img { display: block; max-width: 100%; }
   align-content: start;
   text-decoration: none;
   min-width: 0;
-  /* The same box as every other card on the site — hairline, paper-white
-     ground, no radius, no shadow. */
-  border: var(--rule-hair) solid var(--color-rule);
-  background: var(--color-paper-white);
-  padding: var(--space-sm);
+  /* Boxless — see the note over .reel__card. */
+  padding: 0;
 }
 /* The stagger, which is how the reference stacks cards: its two Featured cards
  * sit at different heights, one stepped down from the other.
@@ -2332,9 +2369,18 @@ img { display: block; max-width: 100%; }
 }
 .deck__frames {
   display: grid;
+  /* One large, two small — design.md § 4's subject rule, and the reference's
+   * own Seasonal shape. Three equal frames gave this section no subject at
+   * all: measured at 1440 the largest photograph in the whole band was 4.4% of
+   * a screen, against 76% in the hero above it. The lead takes two of three
+   * columns and both rows, so the two stamps stack beside it. */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2xs);
   min-width: 0;
+}
+@media (min-width: 48rem) {
+  .deck__frames > picture:first-child { grid-column: span 2; grid-row: span 2; }
+  .deck__frames > picture:first-child img { height: 100%; aspect-ratio: auto; }
 }
 /* `display: block`, not `contents`. With `contents` the <picture> box
  * disappeared and its children were promoted into the grid — the <img> *and*
@@ -2342,7 +2388,7 @@ img { display: block; max-width: 100%; }
  * six items in three columns, and the photographs landed in a pyramid with
  * the sources holding the empty cells. Measured at 390: cells (1,1), (1,3)
  * and (2,2) were the three sources. */
-.deck__frames picture { display: block; min-width: 0; }
+.deck__frames picture { display: block; min-width: 0; overflow: hidden; }
 .deck__frames source { display: none; }
 .deck__frames img {
   width: 100%;
@@ -2435,10 +2481,26 @@ img { display: block; max-width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .deck__arrow:active { transform: none; }
+  /* The crop is motion; the lime outline is the cue that stays. */
+  .album__media:hover img,
+  .reel__card:hover .reel__frame img,
+  .deck__card:hover .deck__frames img { transform: none; }
+  .album__media img,
+  .reel__frame img,
+  .deck__frames img { transition-duration: var(--dur-micro); }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .deck__card:hover { border-color: var(--color-rule-2); }
+  /* M1: hover is a crop, not a border.
+   *
+   * The card has no border to colour any more, and a border colour was never
+   * feedback — the slop guide's own example of "hover states that do nothing"
+   * was this exact treatment. The photograph pushes forward inside a frame
+   * that does not move, so the frame crops it. transform only, so it runs on
+   * the compositor. */
+  .deck__card:hover .deck__frames img,
+  .reel__card:hover .reel__frame img,
+  .album:hover .album__media img { transform: scale(1.03); }
 }
 @supports selector(::scroll-marker) {
   .deck { scroll-marker-group: after; }
@@ -2486,9 +2548,9 @@ img { display: block; max-width: 100%; }
   /* `.statement` aligns its children to the start, which shrink-wrapped the
    * card to its type. A landscape card spans the measure. */
   justify-self: stretch;
-  border: var(--rule-hair) solid var(--color-rule);
-  background: var(--color-paper-white);
-  padding: var(--space-xl) var(--space-lg);
+  /* The reference sets its one long statement as type on the paper, with no
+   * card behind it. So does this now. */
+  padding-block: var(--space-xl);
   display: grid;
   gap: var(--space-md);
   /* One column, centred in the card, with the type left-aligned inside it.
@@ -2558,7 +2620,23 @@ img { display: block; max-width: 100%; }
   text-wrap: pretty;
 }
 
+/* A dark band, and the second of three — design.md § 4 and § 6.
+ *
+ * Measured against the reference: dark ground is 25.8% of its page and was
+ * 14.8% of this one, so the page read as a single near-white run with the
+ * hero and the closing plate as interruptions. This zone is the page's own
+ * midpoint and it already carries two plates and the year set large, which is
+ * exactly the content that survives a dark ground. */
 .open {
+  color: var(--color-ink-on-dark);
+  /* The slab bleeds; the type inside it stays on --page-max.
+   *
+   * A pseudo-element rather than `max-width: none`, because this box holds the
+   * measure for everything in it — widening the box to bleed the ground would
+   * widen the type with it. `100vw` is deliberate and safe here: .page clips
+   * its own overflow, which is the same reason the hero can do this. */
+  position: relative;
+  isolation: isolate;
   max-width: var(--page-max);
   margin-inline: auto;
   /* width, or the auto margins below absorb the free space and shrink-wrap
@@ -2601,6 +2679,27 @@ img { display: block; max-width: 100%; }
   .open__arrow { grid-column: 5; grid-row: 2; justify-self: center; align-self: center; }
   .open__pair  { grid-column: 6 / span 7; grid-row: 2; }
   .open__foot  { grid-column: 6 / span 7; grid-row: 3; justify-self: end; }
+}
+
+/* The slab itself. inset-inline to the viewport edges, so the ground bleeds
+ * while .open keeps --page-max for its type. .page clips its own overflow,
+ * which is what makes 100vw safe here.
+ *
+ * --color-grid is re-pointed with it: the lattice is drawn as a background
+ * image on this same element, and a near-black grid line on a near-black slab
+ * is the .rail__mark mistake again — a token used against a ground it was not
+ * chosen for. */
+.open {
+  --color-grid: var(--color-rule-on-dark);
+}
+.open::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline: calc(50% - 50vw);
+  background: var(--color-paper-dark);
+  border-block: var(--rule-hair) solid var(--color-rule-on-dark);
+  z-index: -1;
 }
 
 .open__no {
@@ -2691,6 +2790,21 @@ img { display: block; max-width: 100%; }
   letter-spacing: var(--tracking-code);
   font-variant-numeric: tabular-nums;
   color: var(--color-muted);
+}
+
+/* On the slab, the type that named its own colour has to be re-pointed.
+ *
+ * Everything inheriting from .open is already right; these three set
+ * --color-ink and --color-muted for a paper ground and would have been dark
+ * on dark. Same lesson as .rail__mark in CLAUDE.md: a token is correct only
+ * for the ground it was chosen against. */
+.open .pair__name { color: var(--color-ink-on-dark); }
+.open .mark { color: var(--color-ink-2); }
+.open .pair__meta,
+.open .pair__no { color: var(--color-ink-2); }
+.open .link { color: var(--color-ink-on-dark); border-bottom-color: var(--color-rule-on-dark); }
+@media (hover: hover) and (pointer: fine) {
+  .open .link:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); }
 }
 
 /* The action at the trailing edge of the section. */
@@ -3073,22 +3187,22 @@ img { display: block; max-width: 100%; }
  * "border yang sesuai" — the reference puts every card inside a subtle
  * bordered, filled box, and it is most of why its very small type reads as
  * composed rather than stranded. A photograph with its meta floating beneath
- * reads as a contact sheet; the same pair inside a hairline box reads as a
- * mounted print. design.md § 4.
+ * design.md § 4: the photograph is the card.
  *
- * The photograph reaches three edges and only the text is padded, which is the
- * reference's shape. Padding the photograph too would mount it twice, and it
- * would cost the tile real width on a 167px phone column.
+ * This note used to describe the opposite — a hairline box with a tonal step
+ * between --color-paper-white and the frame's --color-paper-2, on the argument
+ * that a mounted print reads better than a contact sheet. Measured against the
+ * reference on 2026-09-19 that was the wrong call: 27 boxes on one page, and
+ * "identical padding, identical card heights" is the signal that made the
+ * owner call the site slop. The tonal step went with the box, and
+ * --color-paper-white with it — nothing read it once the surfaces were gone.
  *
- * No shadow and no radius — the hairline and the tonal step between
- * --color-paper-white and the frame's --color-paper-2 are the whole effect.
- * In dark those two tokens are the same value, so there the hairline carries
- * it alone; it is lime at 0.18 there and reads clearly enough on its own, and
- * the frame's ground only shows while the photograph is still arriving. */
+ * What survives is the reason the padding is asymmetric: the photograph
+ * reaches three edges and only the text is inset, which is the reference's
+ * shape and costs the tile no width on a 167px phone column. */
 .album { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0;
-  border: var(--rule-hair) solid var(--color-rule);
-  background: var(--color-paper-white);
+  /* Boxless — see the note over .reel__card. */
   padding-block-end: var(--space-sm);
   /* Both of these exist because the box is now visible, and neither mattered
    * while the card was transparent.
@@ -3138,13 +3252,58 @@ img { display: block; max-width: 100%; }
 .album__media {
   outline: var(--rule-hair) solid var(--outline-image);
   outline-offset: 0;
+  /* The frame crops, so the photograph inside it has somewhere to go. */
+  overflow: hidden;
   transition: outline-color var(--dur-short) var(--ease-out);
 }
 .album__media img { width: 100%; height: 100%; object-fit: cover; }
+/* M1 — the crop. transform only, 420ms, and the frame never moves, so the
+ * neighbours cannot be pushed and nothing reflows. The outline still goes
+ * lime: colour is the static cue that has to survive reduced motion. */
+.album__media img,
+.reel__frame img,
+.deck__frames img {
+  transition: transform var(--dur-long) var(--ease-out);
+}
 @media (hover: hover) and (pointer: fine) {
-  /* Sharp, zero-shadow hover: a lime hairline, not a zoom. */
   .album__media:hover { outline-color: var(--color-accent); }
 }
+/* The same move on /work's cover — design.md § 4. */
+.album__media { position: relative; isolation: isolate; }
+.album__media::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 54%;
+  background: linear-gradient(
+    to top,
+    var(--color-scrim-3),
+    var(--color-scrim-2) 46%,
+    var(--color-scrim-0)
+  );
+  pointer-events: none;
+}
+.album__on {
+  position: absolute;
+  inset: auto var(--space-xs) var(--space-xs) var(--space-xs);
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  color: var(--color-ink-on-dark);
+  text-shadow: var(--shadow-cap);
+}
+.album__name {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  line-height: 1.06;
+  text-wrap: balance;
+  min-width: 0;
+}
+.album__on .album__year { color: inherit; }
 .album__meta { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md); }
 .album__title {
   font-size: var(--text-md);
@@ -3546,8 +3705,21 @@ img { display: block; max-width: 100%; }
   font-size: clamp(3.5rem, 15vw, 13rem);
   /* 1.0 floor for all-caps display — cap-tops collide below it (gate 67). */
   line-height: 1;
-  color: var(--color-ink);
-  opacity: 0.06;
+  /* The accent, at the end of the page — design.md § 4.
+   *
+   * This was --color-ink at 0.06: near-black on near-white, which is a
+   * watermark. The reference ends on a giant lime wordmark running off the
+   * page edge and it is the last thing a visitor sees. Measured, lime was
+   * 0.89% of this page against the reference's 1.88%, spent almost entirely on
+   * hairlines. This is the single largest surface the system can give it
+   * without touching a photograph.
+   *
+   * 0.28 rather than full strength because it is a ground, not a label: at
+   * full lime the wordmark competes with the sign-off above it, and this
+   * section is the one place the page is allowed to be loud without shouting
+   * over the work. */
+  color: var(--color-accent);
+  opacity: 0.28;
   margin-block: var(--space-lg) 0;
   user-select: none;
 }
@@ -3628,6 +3800,29 @@ img { display: block; max-width: 100%; }
 .reveal[data-kind="plate"]:not([data-shown="true"])   { transform: scale(1.04); }
 .reveal[data-kind="lateral"]:not([data-shown="true"]) { transform: translateX(18px); }
 
+/* M2 — a plate is uncovered, not faded in.
+ *
+ * The scale above says "a photograph settles into place". The wipe says it is
+ * being *shown*: the frame opens from the top over the same 420ms, which is
+ * what a photograph arriving should look like on a site whose whole subject is
+ * photographs. clip-path is compositor-friendly and, unlike a mask, needs no
+ * extra layer.
+ *
+ * @supports because a browser without it must not be left with a plate
+ * clipped forever, and the reduced-motion block below drops it to opacity
+ * alone — the same "different design, not off" the rest of this file keeps. */
+@supports (clip-path: inset(0 0 0 0)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal[data-kind="plate"] {
+      transition-property: opacity, transform, clip-path;
+      clip-path: inset(0 0 0 0);
+    }
+    .reveal[data-kind="plate"]:not([data-shown="true"]) {
+      clip-path: inset(0 0 14% 0);
+    }
+  }
+}
+
 /* Scroll-linked, where the browser can do it — § 3.3.
  *
  * .reveal is a switch: seen or not seen. This gives a plate a range instead,
@@ -3652,6 +3847,7 @@ img { display: block; max-width: 100%; }
   .reveal,
   .reveal[data-kind="plate"],
   .reveal[data-kind="lateral"] { transform: none; }
+  .reveal[data-kind="plate"] { clip-path: none; }
   .reveal { transition-duration: var(--dur-short); }
 }
 

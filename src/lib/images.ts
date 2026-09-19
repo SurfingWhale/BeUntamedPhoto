@@ -115,6 +115,24 @@ export const CARD_THUMB_PHONE_WIDTH = 160;
  */
 export const DECK_FRAME_WIDE = 480;
 
+/**
+ * The lead frame of a lane card, which is the section's subject.
+ *
+ * design.md § 4 gives every section one photograph that is four to six times
+ * the others. On a phone this frame has spanned its card since 2026-09-17 and
+ * was still being served the 288w file the three-up stamps used: a 294 CSS px
+ * box at 1x on a 3x phone, which is where "the photographs look soft" comes
+ * from. 640 covers it at 2x and is 0.73x at 3x, which for a photograph is the
+ * right trade against 62kB.
+ *
+ * The wide file is for the same frame above 48rem, where it takes two of the
+ * card's three columns — 417 CSS px inside a 626px card at 1440, so 1080
+ * covers it at 2x. Both are delivered by <picture> media rather than srcset,
+ * for the reason DECK_FRAME_WIDE gives.
+ */
+export const DECK_LEAD_WIDTH = 640;
+export const DECK_LEAD_WIDE = 1080;
+
 function origin(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");
