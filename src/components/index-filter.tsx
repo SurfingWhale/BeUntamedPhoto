@@ -11,6 +11,27 @@ import { SectionHead } from "@/components/section-head";
 import { useRevealChildren } from "@/components/motion";
 import type { AlbumWithCover, PhotoWithUrl } from "@/lib/gallery";
 
+/**
+ * How many gallery cards a phone gets before a link to the rest.
+ *
+ * Nine cards in two columns measured 2525px at 390 — three screens of a page
+ * that had reached ten, on a link a client opens mid-conversation. Mobile
+ * reading is not linear past the first few screens: attention concentrates at
+ * the top and falls away, and a list that runs on is skimmed rather than
+ * looked at. Progressive disclosure with the count stated is the pattern that
+ * keeps the whole set one tap away without making every visitor scroll past
+ * it — and a phone already has the hero strip and the lane deck showing work
+ * before this section starts.
+ *
+ * Six is three rows of two: enough that the grid reads as a body of work
+ * rather than a teaser, and it is only ever applied to "All" — a genre filter
+ * returns five at most today, and a filtered set is the one thing a visitor
+ * explicitly asked to see in full. Wide screens are untouched; the cap is CSS
+ * below 60rem, so nothing is dropped from the markup and a lazy card that is
+ * hidden never downloads its photograph.
+ */
+const PHONE_CAP = 6;
+
 type Lens = "all" | (typeof genres)[number]["id"];
 
 /**
@@ -265,6 +286,7 @@ export function IndexFilter({
                 className="reel__card reveal"
                 key={album.id}
                 href={`/work/${album.slug}`}
+                data-beyond-phone={lens === "all" && i >= PHONE_CAP ? "" : undefined}
               >
                 <span className="reel__no">[{plate(i)}]</span>
                 <span className="reel__frame">
@@ -327,6 +349,17 @@ export function IndexFilter({
             );
           })}
         </div>
+      )}
+
+      {/* The rest of the set, one tap away, with the count stated so it reads
+          as "there is more" rather than as the end. Phone only — see
+          PHONE_CAP. */}
+      {lens === "all" && shown.length > PHONE_CAP && (
+        <p className="index-more">
+          <Link className="index-more__link" href="/work">
+            All {shown.length} galleries {"\u2192"}
+          </Link>
+        </p>
       )}
     </div>
   );

@@ -200,16 +200,24 @@ export async function AlbumView({
                   </div>
                 )}
               </div>
-              <figcaption className="strip__cap">
-                {/* The number is already hung in the margin — the caption
-                    carries only what the number cannot say. */}
-                {photo.caption && <span>{photo.caption}</span>}
-                <span>
-                  {[photo.place, formatDate(photo.taken_on)]
-                    .filter(Boolean)
-                    .join(" · ") || "\u2014"}
-                </span>
-              </figcaption>
+              {/* The number is already hung in the margin — the caption
+                  carries only what the number cannot say, and when there is
+                  nothing to say it is not drawn at all. It used to fall back
+                  to an em dash, and a caption row holding a single "—" under
+                  a photograph reads as a stray mark rather than as "no place
+                  recorded". The dash is right inside a run of metadata, where
+                  it holds a slot; alone it holds nothing. */}
+              {(() => {
+                const meta = [photo.place, formatDate(photo.taken_on)]
+                  .filter(Boolean)
+                  .join(" · ");
+                return photo.caption || meta ? (
+                  <figcaption className="strip__cap">
+                    {photo.caption && <span>{photo.caption}</span>}
+                    {meta && <span>{meta}</span>}
+                  </figcaption>
+                ) : null;
+              })()}
             </Reveal>
           ))}
         </div>

@@ -532,6 +532,15 @@ img { display: block; max-width: 100%; }
  * edge flipped the theme instead. 4px + 4px < 12px clears it. */
 .tog::before { content: ""; position: absolute; inset: -4px; }
 .tog { position: relative; }
+/* Centred the same way whichever element carries it. "[Sign in]" is an <a> and
+ * "Dark" is a <button>: a button centres its label by default and a block <a>
+ * does not, so at the shared 32px min-height the two sat side by side with one
+ * label on its top edge and the other in the middle. */
+.tog {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 @media (hover: hover) and (pointer: fine) {
   .tog:hover { background: var(--color-paper-2); color: var(--color-ink); }
 }
@@ -1477,6 +1486,43 @@ img { display: block; max-width: 100%; }
  *   full-bleed; the brief puts them back, so an index card is the same box
  *   every other card on the site is.
  */
+/* The phone gets six cards and a link to the rest — see PHONE_CAP in
+ * components/index-filter.tsx for the reasoning and the measurement. */
+@media (max-width: 59.99rem) {
+  .index-grid > [data-beyond-phone] { display: none; }
+}
+.index-more {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--space-lg) var(--page-gutter) 0;
+}
+.index-more__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-md);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-code);
+  color: var(--color-ink);
+  transition: background-color var(--dur-micro) var(--ease-out),
+              color var(--dur-micro) var(--ease-out),
+              transform var(--dur-micro) var(--ease-out);
+}
+.index-more__link:active { transform: scale(0.96); }
+@media (hover: hover) and (pointer: fine) {
+  .index-more__link:hover { background: var(--color-ink); color: var(--color-paper); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .index-more__link:active { transform: none; }
+}
+/* Wide screens show the whole set, so the link has nothing to open. */
+@media (min-width: 60rem) {
+  .index-more { display: none; }
+}
+
 .index-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1836,6 +1882,38 @@ img { display: block; max-width: 100%; }
   grid-template-columns: minmax(0, 1fr);
 }
 .lanes > .reel__card { width: auto; }
+/* Rows, not tall cards, below 48rem.
+ *
+ * The stack above exists so all three lanes are on screen at once, and it
+ * stays. What it cost was height: three cards at 350x366 measured 1141px on a
+ * 390 phone — 1.35 screens for three links, one of which points back to this
+ * site. Laid out as rows with the photograph on the leading edge and the words
+ * beside it, the same three stay visible, each still carries its image, and the
+ * section is a fraction of the height. It is the pattern every phone already
+ * uses for a short list of destinations. */
+@media (max-width: 47.99rem) {
+  .lanes { gap: var(--space-md); }
+  .lanes > .reel__card {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-areas:
+      "frame no"
+      "frame name"
+      "frame what"
+      "frame meta";
+    column-gap: var(--space-md);
+    row-gap: var(--space-3xs);
+    align-content: start;
+  }
+  .lanes > .reel__card > .reel__no   { grid-area: no; }
+  .lanes > .reel__card > .reel__frame {
+    grid-area: frame;
+    align-self: stretch;
+    height: calc(var(--row) * 1.4);
+  }
+  .lanes > .reel__card > .reel__name { grid-area: name; }
+  .lanes > .reel__card > .lane__what { grid-area: what; }
+  .lanes > .reel__card > .reel__meta { grid-area: meta; }
+}
 @media (min-width: 48rem) {
   .lanes { display: flex; }
   .lanes > .reel__card { width: min(44%, 24rem); }
@@ -2223,6 +2301,20 @@ img { display: block; max-width: 100%; }
   width: 100%;
   min-width: 0;
 }
+/* No <picture> rules here, and the reason is worth keeping.
+ *
+ * main carried `.deck__frames picture { display: block }` and
+ * `source { display: none }`, written for a real bug: with `display: contents`
+ * the <picture> box disappeared and *both* its children were promoted into
+ * the grid — the <img> and the <source>, which lays out as an invisible item.
+ * Three frames became six items in three columns and the photographs landed
+ * in a pyramid, with the sources holding the empty cells. Measured at 390:
+ * cells (1,1), (1,3) and (2,2) were the three sources.
+ *
+ * The frames take one measured width per role now (see DECK_LEAD_WIDTH), so
+ * there is no <picture> and no <source> left to lay out, and rules for
+ * elements the markup does not render are dead weight no gate can see. If a
+ * media source ever comes back, so must those two rules. */
 .deck__frames img {
   width: 100%;
   height: 100%;
@@ -2640,6 +2732,35 @@ img { display: block; max-width: 100%; }
 }
 
 /* ------------------------------------------------------- story zone */
+/* The marks cost no height on a phone.
+ *
+ * On the twelve-column grid the ↗ ∟ ← marks sit in empty cells, which is the
+ * whole idea of the second reference — ornament placed in space that was
+ * already there. Below 60rem there is one column and no empty cells, so each
+ * mark became its own row with a full gap either side: measured at 390, the
+ * two in .story took 120px and the one in .open took 48px, all of it scroll
+ * spent on glyphs. Pinned to the section's corners instead, they are still on
+ * the page and still read as placed marks, at zero height.
+ *
+ * The block padding and the gap tighten a step for the same reason. Nothing
+ * with words or photographs in it is touched. */
+@media (max-width: 59.99rem) {
+  .open,
+  .story { position: relative; }
+  .open > .mark,
+  .story > .mark {
+    position: absolute;
+    margin: 0;
+  }
+  .open__arrow  { inset-block-start: var(--space-md); inset-inline-end: var(--page-gutter); }
+  .story__arrow { inset-block-start: var(--space-md); inset-inline-end: var(--page-gutter); }
+  .story__foot  { inset-block-end: var(--space-md);   inset-inline-end: var(--page-gutter); }
+  .story {
+    padding-block: calc(var(--row) * 0.5);
+    gap: var(--space-lg);
+  }
+}
+
 .story {
   position: relative;
   max-width: var(--page-max);
@@ -3461,8 +3582,16 @@ img { display: block; max-width: 100%; }
 @media (scripting: none) {
   .reveal { opacity: 1; transform: none; }
 }
-.reveal[data-kind="plate"]   { transform: scale(1.04); }
-.reveal[data-kind="lateral"] { transform: translateX(18px); }
+/* Only while hidden. These used to be written as `.reveal[data-kind="plate"]`
+ * — the same specificity as `.reveal[data-shown="true"]` and later in the
+ * file, so they won, and the entrance state became the resting state. Every
+ * plate stayed at scale(1.04) after it arrived and every lateral card stayed
+ * 18px to the right. Measured at 390: /work cards 174px wide in a 167px track,
+ * the album's lead plate 364px in 350, both spilling past the page gutter —
+ * which is what made the gallery edges sit at x=13 and x=17 instead of 20.
+ * `:not([data-shown="true"])` makes the rule true only before the reveal. */
+.reveal[data-kind="plate"]:not([data-shown="true"])   { transform: scale(1.04); }
+.reveal[data-kind="lateral"]:not([data-shown="true"]) { transform: translateX(18px); }
 
 /* Scroll-linked, where the browser can do it — § 3.3.
  *
@@ -3737,3 +3866,110 @@ img { display: block; max-width: 100%; }
  * masthead sets no type any more — it holds the drawn lettering as a masked
  * span — so tracking there applied to nothing, and the `em` had already gone
  * with the lime `E`. */
+
+/* The /work grid on a phone, one shape per tile.
+ *
+ * The tile ratio followed each cover, capped at square. That kept every
+ * vertical cover uncropped — but two-up, row mates are 2:3 and 1:1 side by
+ * side, and with each card ending where its content ends the row opened a
+ * hole under the shorter one: measured at 390, 133px of nothing under
+ * "Hello There..." and 66px under "Sales HeadShot". A two-up grid of
+ * photographs reads as a grid only when its tiles share a shape, which is
+ * why every gallery on a phone uses one.
+ *
+ * 4:5 is the compromise: a vertical cover loses about 17% top and bottom
+ * instead of 25% at 3:4, and a landscape one fills the box. The card itself
+ * stretches to its row so a missing subtitle leaves the box's space inside
+ * the box rather than as a gap in the grid. Every tile links to the full
+ * gallery, where nothing is cropped. Wide screens keep their spans and
+ * ratios. */
+@media (max-width: 47.99rem) {
+  .albums { align-items: stretch; }
+  .albums > .album { align-self: stretch; }
+  .albums .album__media { aspect-ratio: 4 / 5; }
+}
+
+/* ============================================================== phone
+ *
+ * The phone, designed rather than inherited from the desktop.
+ *
+ * Read screen by screen from 390x844 captures of the live build, not from a
+ * stylesheet. Each rule below answers one thing that was visibly wrong on the
+ * phone and not on a wide screen, and says what it was.
+ * ================================================================== */
+@media (max-width: 47.99rem) {
+
+  /* The lane card leads with one photograph at a size you can read.
+   *
+   * Three equal frames across a 270px card are 87px each: three coloured
+   * stamps, not photographs. The owner's brief for this section was bigger
+   * cards and better photographs. So on a phone the first frame spans the
+   * card and the other two sit under it — the reference's own "one large,
+   * the rest small", held inside a card. */
+  .deck__frames {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2xs);
+  }
+  .deck__frames > picture:first-child { grid-column: 1 / -1; }
+  .deck__frames > picture:first-child img { aspect-ratio: 4 / 5; }
+  .deck__frames > picture:not(:first-child) img { aspect-ratio: 1 / 1; }
+
+
+  /* A paragraph set in a paragraph face.
+   *
+   * The display face ships as one ExtraBold weight, so the 500 declared here
+   * rendered as 800 anyway. Eight lines of expanded ExtraBold on a phone is a
+   * wall, and the lead is the most-read prose on the page. On a phone it
+   * takes the body face at a size that still reads as a statement; the wide
+   * screen keeps the display voice, where it runs four lines, not eight. */
+  .statement__lead {
+    font-family: var(--font-body);
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.32;
+    letter-spacing: -0.01em;
+  }
+  .statement { padding-block-end: 0; }
+  .statement__card { padding: var(--space-lg) var(--space-md); }
+
+  /* Photographs in a phone row fill their frame.
+   *
+   * `contain` is right for the lanes on a wide screen, where the banners are
+   * stills from other sites at ratios this page does not control. In a 133px
+   * frame beside a line of copy it painted grey bands above and below every
+   * photograph, which read as unfinished. The crop at this size is a few
+   * pixels, and the lane `sizes` were measured against it — see site.ts. */
+  .lanes > .reel__card > .reel__frame img { object-fit: cover; }
+
+  /* The wide label's word gap is for a wide line. At 1.5em a three-word label
+   * on a 350px column read as three unrelated words: "AVAILABLE    FOR
+   * COMMISSIONS". */
+  .label-wide { word-spacing: 0.4em; }
+
+  /* The footer opened with 146px of nothing under the closing plate. */
+  .foot { padding-block-start: var(--space-2xl); gap: var(--space-lg); }
+}
+
+/* The index band's photograph must not dissolve into the page.
+ *
+ * The scrim only started below 88% of the height, so a pale plate — the
+ * current one is a light sky — met the paper at the top with no edge at all,
+ * and the band read as fading in from white. A light tint across the whole
+ * frame gives it an edge at every width; the dark gradient still carries the
+ * type at the foot. */
+.index-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--color-ink) 16%, transparent);
+  pointer-events: none;
+}
+
+/* One control under the deck, at every width. Position dots, a "( 3 lanes )"
+ * count and a pair of arrows all answered "is there more": the arrows were
+ * asked for and the count says how much, so the dots go. Written after the
+ * @supports block that adds them, so it wins on order at equal specificity. */
+@supports selector(::scroll-marker) {
+  .deck { scroll-marker-group: none; }
+}
