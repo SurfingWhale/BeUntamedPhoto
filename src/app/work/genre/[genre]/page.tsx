@@ -66,7 +66,7 @@ export default async function GenrePage({ params }: Params) {
   const g = find(genre);
   if (!g) notFound();
 
-  const albums = await getAlbumsWithCovers(g.id, 3);
+  const albums = await getAlbumsWithCovers(g.id, 5);
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   /* Two of the five genres this site sells have no sets filed here, because

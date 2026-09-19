@@ -26,10 +26,10 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkPage() {
-  /* Three plates past each cover. They ride the same round trip — see
+  /* Five plates past each cover. They ride the same round trip — see
    * getAlbumsWithCovers — and they are the same files the home index asks
    * for, so a visitor arriving from / has them already. */
-  const albums = await getAlbumsWithCovers(undefined, 3);
+  const albums = await getAlbumsWithCovers(undefined, 5);
   const heldBack = albums.filter((a) => a.visibility === "members").length;
 
   return (

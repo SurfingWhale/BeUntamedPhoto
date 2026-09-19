@@ -1764,7 +1764,18 @@ img { display: block; max-width: 100%; }
 }
 /* On /work the strip sits between the cover and the title, so it needs the
  * gap the index card gets from its own flow. */
-.album__strip { margin-block-start: var(--space-2xs); }
+/* Two rows of three on /work, where the strip carries five.
+ *
+ * `grid-auto-rows` rather than a second template row: a gallery with only
+ * three plates draws one row and no empty band under it. The row height is
+ * the index strip's own, so a box stays 44x49 on a phone and 89x60 above
+ * 60rem — which is what keeps one small file per box correct, and what keeps
+ * the lazy plates from resizing the card under the reader once they land. */
+.album__strip {
+  margin-block-start: var(--space-2xs);
+  grid-template-rows: none;
+  grid-auto-rows: calc(var(--row) * 0.5);
+}
 /* The grid item is the <picture>, not the <img>.
  *
  * Left at its default `inline`, a picture in a grid cell hands the box to
