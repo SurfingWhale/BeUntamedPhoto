@@ -55,8 +55,17 @@
    * this is only for the runs that are all capitals. */
   --tracking-caps:      0.02em;
 
-  --text-xs:      0.6875rem;  /* 11px · label-index */
-  --text-sm:      0.75rem;    /* 12px · label-code  */
+  /* 12px is the floor, and the step above it moves so the scale keeps two
+   * distinct label sizes.
+   *
+   * --text-xs was 11px and it does not only label photographs: it is the size
+   * of the sign-in form's field labels, the footer's links, a gallery's year
+   * and every meta line under a card. 11px of tracked uppercase mono is at the
+   * bottom of what a phone reads comfortably, and none of those are
+   * decorative. Raising xs alone would have collided it with --text-sm, so sm
+   * goes to 13px and the two roles stay apart. */
+  --text-xs:      0.75rem;    /* 12px · label-index */
+  --text-sm:      0.8125rem;  /* 13px · label-code  */
   --text-base:    0.9375rem;  /* 15px · body-md     */
   --text-md:      1rem;       /* 16px · body-lg     */
   --text-lg:      1.25rem;    /* 20px · headline-sm */

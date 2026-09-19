@@ -277,5 +277,11 @@ So this file does not become the thing it is warning about:
   cards and fails on a subtitle that repeats its title, repeats its genre, or
   is a placeholder. § 4 and § 5 below are the remaining writing, and the gate
   will go green when they are done.
+- **The gate's list is now a file you can run.** `supabase/fix-content.sql`
+  carries the two mechanical fixes finished — `DARA BERSEMI` to sentence case
+  and `Hello There...` to the ellipsis character — and the four subtitles as
+  commented templates. The templates are deliberately not filled in: only the
+  owner knows who each job was for, and the gate keeps failing until the
+  sentences are real. Run it in the SQL editor, then `npm run measure`.
 
 `design.md` § 13 has the dated record.
