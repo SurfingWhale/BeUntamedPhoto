@@ -3851,6 +3851,31 @@ img { display: block; max-width: 100%; }
   .reveal { transition-duration: var(--dur-short); }
 }
 
+/* M3 — the morph, and the one thing it must not do.
+ *
+ * The card's cover is cropped to its tile and the gallery's opening plate is
+ * not, so the shared element changes aspect mid-flight. That is the caveat
+ * docs/IDEAS-motion.md § 3.4 deferred this on: the blur keyframe is what makes
+ * it read as one photograph moving rather than as one photograph stretching.
+ *
+ * 420ms is the site's own --dur-long, so the morph belongs to the same motion
+ * vocabulary as every entrance. Reduced motion switches it off entirely, which
+ * is allowed here because the alternative design is the plain cut the site had
+ * before — no information is carried by the morph that the page does not also
+ * state in words. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(.morph) { animation-duration: var(--dur-long); }
+  ::view-transition-image-pair(.morph) { animation-name: morph-blur; }
+  @keyframes morph-blur {
+    30% { filter: blur(3px); }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none; }
+}
+
 /* --------------------------------------------------------- page shell */
 .page { display: grid;
   grid-template-columns: minmax(0, 1fr); gap: 0; }

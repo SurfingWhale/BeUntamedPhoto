@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import { notFound } from "next/navigation";
 
 import { Reveal } from "@/components/motion";
@@ -182,7 +183,15 @@ export async function AlbumView({
               <p className="strip__no">{plate(offset + i)}</p>
               <div className="strip__frame">
                 {photo.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
+                  /* The first plate is the same photograph the card carried —
+                     see the note on /work. Later plates are named nothing and
+                     animate as they always did. */
+                  <ViewTransition
+                    name={i === 0 ? `cover-${album.slug}` : undefined}
+                    share="morph"
+                    default="none"
+                  >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={photo.url}
                     srcSet={photo.srcSet ?? undefined}
@@ -194,6 +203,7 @@ export async function AlbumView({
                     fetchPriority={i === 0 ? "high" : "auto"}
                     decoding="async"
                   />
+                  </ViewTransition>
                 ) : (
                   <div style={{ aspectRatio: "3 / 2" }}>
                     <Plate no={plate(offset + i)} label="file missing" />

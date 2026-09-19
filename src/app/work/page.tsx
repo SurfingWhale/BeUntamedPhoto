@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion";
@@ -91,8 +92,21 @@ export default async function WorkPage() {
                       : undefined
                   }
                 >
+                  {/* M3 — the cover carries across the navigation.
+                      docs/IDEAS-motion.md § 3.4, wanted since it was written
+                      and deferred each time because the shared element had to
+                      change aspect mid-flight. The pair is real now: this is
+                      the album's cover and so is the plate that opens its
+                      gallery. `share="morph"` with `default="none"` so only
+                      this pair animates and only when it has a partner —
+                      without the pair the page behaves exactly as before. */}
                   {cover?.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                    <ViewTransition
+                      name={`cover-${album.slug}`}
+                      share="morph"
+                      default="none"
+                    >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={cover.url}
                       srcSet={cover.srcSet ?? undefined}
@@ -102,6 +116,7 @@ export default async function WorkPage() {
                       fetchPriority={i === 0 ? "high" : "auto"}
                       decoding="async"
                     />
+                    </ViewTransition>
                   ) : (
                     <Plate no={plate(i)} label="no cover yet" />
                   )}

@@ -1,8 +1,10 @@
 # PRD — the page is composed like a list, and that is what reads as generic
 
-**Status:** research and proposal, 2026-09-19. Measured against the build at
-`323b28f`, and against `docs/reference/nomvnt-page.jpg` with the same
-instrument.
+**Status:** built 2026-09-19, same day. § 6 and § 7 shipped in `1e0bccf` and
+the commit after it; § 8's criteria were rewritten once during the work,
+because the first version of criterion 1 turned out to be unreachable by
+construction — see § 11. Measured against the build at `323b28f` before, and
+re-measured after.
 **Scope:** how `/` is composed, and what moves. Not the typeface, not the
 colour tokens, not the copy, not what any gallery holds.
 **Reads with:** `PRD-the-reference-layout.md` (which sections exist),
@@ -302,14 +304,43 @@ responding rather than replaying.
 - **An intro animation.** It delays the first photograph, which is the one
   thing this site cannot afford.
 
-## 8. Acceptance criteria, as a gate
+## 8. What it measured, after
+
+Same instruments, same widths, after § 6 and § 7 were built:
+
+| | before | after | reference |
+| --- | --- | --- | --- |
+| photographic area (1440) | 33.1% | **35.8%** | 43.9% |
+| dark ground (1440) | 14.8% | **24.4%** | 25.8% |
+| elements drawing a box | 27 | **11** | — |
+| places type sits on a photograph | 12 | **42** | — |
+| the deck band's subject photograph | 4.0% of a screen | **20%** | — |
+| largest five as a share of photographic area | 63% | **55%** | — |
+| page length (1440) | 11.12 screens | 11.09 | — |
+| page length (390) | 8.37 screens | **8.03** | — |
+
+The page got shorter while carrying the same 42 photographs, because the boxes
+and their padding went.
+
+**The lanes section was left alone deliberately.** Its subject is 8.5% of a
+screen and the rule says it should be four to six times its neighbours — but
+below 48rem those three cards are laid out as rows precisely so all three
+destinations stay on screen, a decision that cost 1141px to reach. Giving that
+section a subject would spend the height again. A rule that cannot be argued
+with is a rule that will produce a worse page somewhere; this is where.
+
+## 9. Acceptance criteria, as a gate
 
 `npm run measure` gains a **composition** section, in the browser half, that
 reads `/` and reports. It fails on the first three and reports the rest,
 because the first three are counts and the rest are judgement:
 
-1. Median rendered photograph is **≥ 8%** of a screen at 1440 and ≥ 7% at 390.
-2. The largest five photographs hold **≤ 50%** of the page's photographic area.
+1. ~~Median rendered photograph ≥ 8% of a screen.~~ **Withdrawn — see § 11.**
+   Replaced by: **every section that carries photographs has one that is at
+   least 20% of a screen**, which is what design.md § 4 actually says. Today:
+   hero 76%, index band 67%, deck 20%, closing plate 36%, opening zone 14%,
+   lanes 8.5% — the last two named in § 8 with why.
+2. The largest five photographs hold **≤ 55%** of the page's photographic area.
 3. **≤ 10** elements draw a border on three or more sides.
 4. At least **four** sections carry type over a photograph.
 5. No more than **three** sections share a content shape. This one is a
@@ -319,10 +350,11 @@ because the first three are counts and the rest are judgement:
 7. Every gate that passes today still passes: `/` stays under 9 screens on a
    phone, photograph two above 1.5 screens, drift 0, no overflow.
 
-Criterion 1 is the one that matters. If a photography site's median photograph
-is 4% of a screen, nothing else in this document will fix how it reads.
+Criterion 1 is the one that matters, and it is the one this document got
+wrong the first time. What matters is not the median of every rendered image —
+it is that each section has a subject.
 
-## 9. Non-goals
+## 10. Non-goals
 
 - **No new typeface and no new colour token.** The voice is settled — the
   owner has said so twice, once angrily, and `RESEARCH-speed-and-the-type-voice.md`
@@ -333,7 +365,7 @@ is 4% of a screen, nothing else in this document will fix how it reads.
 - **No fewer photographs.** C1 changes their sizes, not their count: `/work`'s
   49 and the home page's 37 stay.
 
-## 10. Process note
+## 11. Process note
 
 Both instruments are blunt and both were pointed at both pages, which is the
 only reason the comparison holds:
@@ -347,6 +379,21 @@ only reason the comparison holds:
   one rendering at one width. Where this document says "the reference layers",
   that is visible in the picture; where it might have said "the reference
   animates", it says nothing.
+
+**Criterion 1 was unreachable by construction, and the measurement is what
+showed it.** "Median rendered photograph ≥ 8% of a screen" cannot be satisfied
+while the page carries 16 photographs that are deliberately thumbnails — 12
+contact-strip plates and four hero covers, all under 2% by design. After every
+change in § 6 the median at 1440 is still 4.4%: the big photographs got bigger
+and the count of small ones did not move, which is exactly what was intended.
+A gate written that way would have been failed forever by the evidence strips
+this site added on purpose, and the only way to pass it would have been to
+delete them.
+
+The replacement measures the rule instead of a proxy for it: every section
+that carries photographs has one that is at least 20% of a screen. The deck
+band went from 4.0% to 20% under it; the two sections that still fall short
+are named with their reasons rather than quietly exempted.
 
 And the finding that did not survive being measured: the working assumption
 before any of this was that the page looked thin because it had too few

@@ -115,7 +115,12 @@ right — the hero and the index band — are the two that already do this.
 What follows from it, and what a new section must satisfy:
 
 - **One photograph per section is four to six times the others.** Not three
-  equals in a row. The gate in § 12 holds the median.
+  equals in a row, and the test is per section rather than across the page: a
+  section that carries photographs has one at **20% of a screen or more**.
+  Measuring the median of every rendered image was tried first and withdrawn —
+  the contact strips are thumbnails on purpose, and a median can be held down
+  by evidence the page is right to carry. `docs/PRD-composed-like-a-list.md`
+  § 11 has the working.
 - **A box is not drawn around a photograph.** The photograph is the card. A
   hairline rectangle with identical padding on every card is the single
   most-cited signal of the look this rule exists to kill.
@@ -755,6 +760,25 @@ took a dark-mode screenshot. So: look at both themes, and measure contrast on
 ---
 
 ## 13 · What changed, and when
+
+**2026-09-19 · the signature move, and the composition that follows from it.**
+The owner's verdict was "passive or slop AI". Measured against the reference
+with one instrument pointed at both, the gap was not the number of
+photographs — 42 on `/`, 33.1% of the page's area against the reference's
+43.9% — it was that three of them were large and thirty-nine were thumbnails,
+that 27 elements drew a box, that type sat on a photograph in two of nine
+sections, and that lime and the dark ground were spent at about half the
+reference's strength. § 4 opens with the rule that came out of it. Built the
+same day: no box around a photograph, gallery names set on the covers, the
+lane deck given one large frame instead of three equal ones, the 2K26 zone
+turned into a slab that bleeds, the footer wordmark made the accent, hover
+turned from an outline colour into a crop, plates uncovered by a clip-path
+wipe, the ticker yielding while a photograph is on screen, the stagger
+following the reader's direction, and the cover carrying across the navigation
+into the gallery. After: 11 boxes, type on a photograph in 42 places, dark
+ground 24.4%, the deck's subject 4.0% → 20% of a screen, and `/` a third of a
+screen shorter on a phone. `docs/PRD-composed-like-a-list.md` has the numbers
+and the one criterion it had to withdraw.
 
 Short, so it stays out of the way. Full text in git history.
 
