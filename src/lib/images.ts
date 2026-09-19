@@ -23,8 +23,22 @@ const RENDER_PUBLIC = "/storage/v1/render/image/public/";
 export const QUALITY = 72;
 
 /** Widths offered to the browser. Covers 320–430px phones at 1×–3× DPR and a
- * 1440px measure at 2×, without asking the renderer for sizes nothing uses. */
-const WIDTHS = [375, 640, 750, 1080, 1500, 2000, 2880];
+ * 1440px measure at 2×, without asking the renderer for sizes nothing uses.
+ *
+ * 540 is here because of the gap it fills, not because a slot asks for it by
+ * name. The card grids land on 161–172 CSS px at 390 — /work's covers and the
+ * home index's — which is 483–516 device px on a 3× phone, and the ladder went
+ * 375 straight to 640. 375 under-serves those boxes, so every one of them took
+ * 640. Measured against three plates through the render endpoint:
+ *
+ *   375w  26kB     512w  44kB     560w  50kB
+ *   480w  39kB     540w  48kB     640w  62kB
+ *
+ * 540 is the smallest step that still covers 516, and it is 22% lighter than
+ * the file those boxes were taking — about 126kB off /work and 120kB off / on
+ * a 3× phone. A wider phone still picks 640, which is correct: there the box
+ * really is that big. */
+const WIDTHS = [375, 540, 640, 750, 1080, 1500, 2000, 2880];
 
 /** One width the private path can afford, since each costs a signing round
  * trip. Covers a phone at 3× and the 1440px measure at 1×. */
@@ -215,15 +229,30 @@ export const SIZES = {
   /** .fold-photo — genuinely full-bleed, no gutters. */
   fold: "100vw",
   /**
-   * .fold-photo[data-shape="portrait"] above 60rem, where a vertical plate
-   * stops bleeding and stands as a centred column instead — see globals.css.
-   * The frame is seven rows tall with its width derived from the plate's own
-   * ratio, so a 2:3 plate renders 560px wide inside a 1440px viewport while
-   * `fold` was still declaring 100vw: it pulled the 2880w candidate for a
-   * 560px box, 2.57x the pixels it can show. 700px covers the range of ratios
-   * the archive files and lands on 1500w.
+   * PhotoFold's plate, which never bleeds: all three callers — the closing
+   * plate on / and both plates on /about — wrap it in `.plinth`, and the slab
+   * pads itself by `--page-gutter`.
+   *
+   * `fold` declares 100vw, which is right for the hero and the index band
+   * because those two really do run edge to edge. Inside the slab it claimed
+   * the gutters as well: a 350px box on a 390px phone is 1050 device px at 3x,
+   * was declared as 1170, and took the 1500w file — 248kB where 1080w is
+   * 155kB, measured on the closing plate.
+   *
+   * 2.5rem is twice the gutter's own floor. Where the clamp has grown past
+   * that this over-declares by a few percent and the browser picks the larger
+   * candidate, which is the direction that costs bytes rather than sharpness.
    */
-  foldPortrait: "(min-width: 60rem) 700px, 100vw",
+  foldPlate: "calc(100vw - 2.5rem)",
+  /**
+   * The same plate when it is portrait, which above 60rem stops bleeding and
+   * stands as a centred column — see .fold-photo[data-shape] in globals.css.
+   * The frame is seven rows tall with its width derived from the plate's own
+   * ratio, so a 2:3 plate renders 560px wide inside a 1440px viewport, and a
+   * flat 100vw here once pulled the 2880w candidate for that box, 2.57x the
+   * pixels it can show. 700px covers the range of ratios the archive files.
+   */
+  foldPlatePortrait: "(min-width: 60rem) 700px, calc(100vw - 2.5rem)",
   /**
    * .album__media on /work and the genre pages. Two columns from the smallest
    * width since the /work grid changed; the measured box is 43-44% of the
